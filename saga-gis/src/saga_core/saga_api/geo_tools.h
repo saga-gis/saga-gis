@@ -850,6 +850,9 @@ public:
 	bool							Create					(int Code, const SG_Char *Authority = NULL);
 	CSG_Projection &				operator =				(int Code)                         { Create(Code      ); return( *this ); }
 
+									CSG_Projection			(const CSG_String &WKT2, const CSG_String &PROJ);
+	bool							Create					(const CSG_String &WKT2, const CSG_String &PROJ);
+
 	bool							Assign					(const CSG_Projection &Projection)          { return( Create(Projection      ) ); }
 	bool							Assign					(const CSG_String &Definition)              { return( Create(Definition      ) ); }
 	bool							Assign					(int Code, const SG_Char *Authority = NULL) { return( Create(Code, Authority ) ); }

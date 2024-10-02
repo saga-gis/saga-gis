@@ -249,7 +249,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 	CSG_Array _Okay(sizeof(bool), pShapes->Get_Count()); bool *bOkay = (bool *)_Okay.Get_Array();
 
 	//-----------------------------------------------------
-	if( !Parameters("PARALLEL") || !Parameters("PARALLEL")->asBool() || SG_OMP_Get_Max_Num_Threads() < 2 )
+	if( !Parameters("PARALLEL") || !Parameters("PARALLEL")->asBool() || SG_OMP_Get_Max_Num_Threads() < 2 || pShapes->Get_Count() < 1000 * SG_OMP_Get_Max_Num_Threads() )
 	{
 		for(sLong i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 		{

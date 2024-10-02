@@ -135,8 +135,8 @@ int CCRS_Transform_Coords_Grid::On_Parameters_Enable(CSG_Parameters *pParameters
 //---------------------------------------------------------
 bool CCRS_Transform_Coords_Grid::On_Execute(void)
 {
-	CSG_Projection Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_WKT")->asString());
-	CSG_Projection Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_WKT")->asString());
+	CSG_Projection Source((*Parameters("SOURCE_CRS")->asParameters())["CRS_WKT"].asString(), (*Parameters("SOURCE_CRS")->asParameters())["CRS_PROJ"].asString());
+	CSG_Projection Target((*Parameters("TARGET_CRS")->asParameters())["CRS_WKT"].asString(), (*Parameters("TARGET_CRS")->asParameters())["CRS_PROJ"].asString());
 
 	CSG_CRSProjector Projector;
 
@@ -273,8 +273,8 @@ int CCRS_Transform_Coords_Table::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CCRS_Transform_Coords_Table::On_Execute(void)
 {
-	CSG_Projection Source(Parameters("SOURCE_CRS")->asParameters()->Get_Parameter("CRS_WKT")->asString());
-	CSG_Projection Target(Parameters("TARGET_CRS")->asParameters()->Get_Parameter("CRS_WKT")->asString());
+	CSG_Projection Source((*Parameters("SOURCE_CRS")->asParameters())["CRS_WKT"].asString(), (*Parameters("SOURCE_CRS")->asParameters())["CRS_PROJ"].asString());
+	CSG_Projection Target((*Parameters("TARGET_CRS")->asParameters())["CRS_WKT"].asString(), (*Parameters("TARGET_CRS")->asParameters())["CRS_PROJ"].asString());
 
 	CSG_CRSProjector Projector;
 

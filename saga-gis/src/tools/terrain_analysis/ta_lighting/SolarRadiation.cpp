@@ -279,9 +279,10 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		bool bResult;
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
-			   SG_TOOL_PARAMETER_SET("SOURCE"    , &srcCenter)
-			&& SG_TOOL_PARAMETER_SET("TARGET"    , &dstCenter)
-			&& SG_TOOL_PARAMETER_SET("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+			   SG_TOOL_PARAMETER_SET("SOURCE"  , &srcCenter)
+			&& SG_TOOL_PARAMETER_SET("TARGET"  , &dstCenter)
+			&& SG_TOOL_PARAMETER_SET("CRS_WKT" , CSG_Projection::Get_GCS_WGS84().Get_WKT2())
+			&& SG_TOOL_PARAMETER_SET("CRS_PROJ", CSG_Projection::Get_GCS_WGS84().Get_PROJ())
 		)
 
 		if( bResult )

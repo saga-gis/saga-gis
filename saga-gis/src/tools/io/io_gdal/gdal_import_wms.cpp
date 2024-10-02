@@ -290,9 +290,36 @@ bool CGDAL_Import_WMS::On_Execute(void)
 //---------------------------------------------------------
 bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Projection &Projection)
 {
-	Projection.Create(Parameters("SERVER")->asInt() >= Parameters("SERVER")->asChoice()->Get_Count()
-		? Parameters("SERVER_EPSG")->asInt() : 3857
-	); // predefines default to EPSG:3857 => Web Mercator
+	if( Parameters("SERVER")->asInt() >= Parameters("SERVER")->asChoice()->Get_Count() )
+	{
+		Projection.Create(Parameters("SERVER_EPSG")->asInt());
+	}
+	else // predefines default to EPSG:3857 => Web Mercator
+	{
+		const char *PROJ = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs";
+		const char *WKT2 =
+			"PROJCRS[\"WGS 84 / Pseudo-Mercator\","
+			"    BASEGEODCRS[\"WGS 84\","
+			"        DATUM[\"World Geodetic System 1984\","
+			"            ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"
+			"        UNIT[\"degree\",0.0174532925199433]],"
+			"    CONVERSION[\"Popular Visualisation Pseudo-Mercator\","
+			"        METHOD[\"Popular Visualisation Pseudo Mercator\"],"
+			"        PARAMETER[\"Latitude of natural origin\",0],"
+			"        PARAMETER[\"Longitude of natural origin\",0],"
+			"        PARAMETER[\"False easting\",0],"
+			"        PARAMETER[\"False northing\",0]],"
+			"    CS[Cartesian,2],"
+			"        AXIS[\"easting (X)\",east],"
+			"        AXIS[\"northing (Y)\",north],"
+			"        UNIT[\"metre\",1],"
+			"    SCOPE[\"Web mapping and visualisation.\"],"
+			"    AREA[\"World between 85.06°S and 85.06°N.\"],"
+			"    BBOX[-85.06,-180,85.06,180],"
+			"    ID[\"EPSG\",3857]]";
+
+		Projection.Create(WKT2, PROJ);
+	}
 
 	if( Projection.is_Okay() == false )
 	{
@@ -344,10 +371,11 @@ bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Projection &P
 
 		pTool->Set_Manager(NULL); pTool->Set_Callback(false);
 
-		if( pTool->Set_Parameter("SOURCE"    , &Points)
-		&&  pTool->Set_Parameter("CRS_STRING", Projection.Get_WKT2())
-		&&  pTool->Set_Parameter("COPY"      , false)
-		&&  pTool->Set_Parameter("PARALLEL"  , true)
+		if( pTool->Set_Parameter("CRS_WKT" , Projection.Get_WKT2())
+		&&  pTool->Set_Parameter("CRS_PROJ", Projection.Get_PROJ())
+		&&  pTool->Set_Parameter("SOURCE"  , &Points)
+		&&  pTool->Set_Parameter("COPY"    , false)
+		&&  pTool->Set_Parameter("PARALLEL", true)
 		&&  pTool->Execute() )
 		{
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -527,7 +555,8 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 
 		pTool->Set_Manager(NULL); pTool->Set_Callback(false);
 
-		if( pTool->Set_Parameter("CRS_STRING"       , pTarget->Get_Projection().Get_WKT())
+		if( pTool->Set_Parameter("CRS_WKT"          , pTarget->Get_Projection().Get_WKT2())
+		&&  pTool->Set_Parameter("CRS_PROJ"         , pTarget->Get_Projection().Get_PROJ())
 		&&  pTool->Set_Parameter("SOURCE"           , pBands[0])
 		&&  pTool->Set_Parameter("SOURCE"           , pBands[1])
 		&&  pTool->Set_Parameter("SOURCE"           , pBands[2])

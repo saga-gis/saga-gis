@@ -122,7 +122,6 @@ CCRS_Transform_UTM_Grids::CCRS_Transform_UTM_Grids(bool bList)
 
 	//-----------------------------------------------------
 	Parameters.Set_Enabled("CRS_STRING", false);
-	Parameters.Set_Enabled("PRECISE"   , false);
 }
 
 //---------------------------------------------------------
@@ -135,17 +134,16 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 
 		if( pObject )
 		{
-			CSG_Grid	*pGrid	= pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? pObject->asGrid() : pObject->asGrids()->Get_Grid_Ptr(0);
+			CSG_Grid *pGrid = pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? pObject->asGrid() : pObject->asGrids()->Get_Grid_Ptr(0);
 
 			if( CRS_Get_UTM_Zone(pGrid->Get_Extent(), pGrid->Get_Projection(), Zone, bSouth) )
 			{
-				CSG_Projection	UTM	= CRS_Get_UTM_Projection(Zone, bSouth);
+				CSG_Projection UTM = CRS_Get_UTM_Projection(Zone, bSouth);
 
-				pParameters->Set_Parameter("UTM_ZONE"     , Zone  );
-				pParameters->Set_Parameter("UTM_SOUTH"    , bSouth);
-				pParameters->Set_Parameter("CRS_STRING"   , UTM.Get_WKT());
-
-				return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
+				pParameters->Set_Parameter("UTM_ZONE" , Zone  );
+				pParameters->Set_Parameter("UTM_SOUTH", bSouth);
+				pParameters->Set_Parameter("CRS_WKT"  , UTM.Get_WKT2());
+				pParameters->Set_Parameter("CRS_PROJ" , UTM.Get_PROJ());
 			}
 		}
 	}
@@ -159,9 +157,8 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 			(*pParameters)("UTM_SOUTH")->asBool()
 		);
 
-		pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
-
-		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
+		pParameters->Set_Parameter("CRS_WKT" , UTM.Get_WKT2());
+		pParameters->Set_Parameter("CRS_PROJ", UTM.Get_PROJ());
 	}
 
 	//-----------------------------------------------------
@@ -207,7 +204,6 @@ CCRS_Transform_UTM_Shapes::CCRS_Transform_UTM_Shapes(bool bList)
 
 	//-----------------------------------------------------
 	Parameters.Set_Enabled("CRS_STRING", false);
-	Parameters.Set_Enabled("PRECISE"   , false);
 }
 
 //---------------------------------------------------------
@@ -220,13 +216,12 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 
 		if( pObject && CRS_Get_UTM_Zone(pObject->Get_Extent(), pObject->Get_Projection(), Zone, bSouth) )
 		{
-			CSG_Projection	UTM	= CRS_Get_UTM_Projection(Zone, bSouth);
+			CSG_Projection UTM = CRS_Get_UTM_Projection(Zone, bSouth);
 
-			pParameters->Set_Parameter("UTM_ZONE"  , Zone  );
-			pParameters->Set_Parameter("UTM_SOUTH" , bSouth);
-			pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
-
-			return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
+			pParameters->Set_Parameter("UTM_ZONE" , Zone  );
+			pParameters->Set_Parameter("UTM_SOUTH", bSouth);
+			pParameters->Set_Parameter("CRS_WKT"  , UTM.Get_WKT2());
+			pParameters->Set_Parameter("CRS_PROJ" , UTM.Get_PROJ());
 		}
 	}
 
@@ -234,14 +229,13 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 	if( pParameter->Cmp_Identifier("UTM_ZONE" )
 	||  pParameter->Cmp_Identifier("UTM_SOUTH") )
 	{
-		CSG_Projection	UTM	= CRS_Get_UTM_Projection(
+		CSG_Projection UTM = CRS_Get_UTM_Projection(
 			(*pParameters)("UTM_ZONE" )->asInt (),
 			(*pParameters)("UTM_SOUTH")->asBool()
 		);
 
-		pParameters->Set_Parameter("CRS_STRING", UTM.Get_WKT());
-
-		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_STRING")) );
+		pParameters->Set_Parameter("CRS_WKT" , UTM.Get_WKT2());
+		pParameters->Set_Parameter("CRS_PROJ", UTM.Get_PROJ());
 	}
 
 	//-----------------------------------------------------

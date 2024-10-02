@@ -203,6 +203,35 @@ bool CSG_Projection::Create(int Code, const SG_Char *Authority)
 }
 
 //---------------------------------------------------------
+CSG_Projection::CSG_Projection(const CSG_String &WKT2, const CSG_String &PROJ)
+{
+	Create(WKT2, PROJ);
+}
+
+bool CSG_Projection::Create(const CSG_String &WKT2, const CSG_String &PROJ)
+{
+	if( PROJ.is_Empty() )
+	{
+		return( Create(WKT2) );
+	}
+
+	m_PROJ = PROJ;
+	m_WKT2 = WKT2;
+
+	CSG_MetaData WKT(CSG_Projections::_WKT2_to_MetaData(m_WKT2, true));
+
+	m_Type = CSG_Projections::Get_CRS_Type(WKT.Get_Name());
+	m_Name = WKT.Get_Property("NAME"); if( m_Name.is_Empty() ) { m_Name = "unnamed"; }
+
+	if( !WKT("ID") || !WKT["ID"].Get_Content("VAL1", m_Code) || !WKT["ID"].Get_Property("NAME", m_Authority) )
+	{
+		m_Authority.Clear(); m_Code = -1;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 void CSG_Projection::Destroy(void)
 {
 	m_Name      = _TL("undefined");
@@ -614,7 +643,45 @@ const CSG_Projection & CSG_Projection::Get_GCS_WGS84(void)
 //---------------------------------------------------------
 bool CSG_Projection::Set_GCS_WGS84(void)
 {
-	return( Create(4326) );
+	m_Name      = "WGS 84";
+	m_Type      = ESG_CRS_Type::Geographic;
+	m_Unit      = ESG_Projection_Unit::Undefined;
+	m_Authority = "EPSG";
+	m_Code      = 4326;
+	m_PROJ      = "+proj=longlat +datum=WGS84 +no_defs";
+	m_WKT2      =
+		"GEODCRS[\"WGS 84\","
+		"    DATUM[\"World Geodetic System 1984\","
+		"        ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"
+		"    CS[ellipsoidal,2],"
+		"        AXIS[\"geodetic latitude (Lat)\",north],"
+		"        AXIS[\"geodetic longitude (Lon)\",east],"
+		"        UNIT[\"degree\",0.0174532925199433],"
+		"    SCOPE[\"Horizontal component of 3D system.\"],"
+		"    AREA[\"World.\"],"
+		"    BBOX[-90,-180,90,180],"
+		"    ID[\"EPSG\",4326]]";
+
+//	m_WKT2      =
+//		"GEODCRS[\"WGS 84\","
+//		"    DATUM[\"World Geodetic System 1984\","
+//		"        ELLIPSOID[\"WGS 84\",6378137,298.257223563,"
+//		"            LENGTHUNIT[\"metre\",1]]],"
+//		"    PRIMEM[\"Greenwich\",0,"
+//		"        ANGLEUNIT[\"degree\",0.0174532925199433]],"
+//		"    CS[ellipsoidal,2],"
+//		"        AXIS[\"geodetic latitude (Lat)\",north,"
+//		"            ORDER[1],"
+//		"            ANGLEUNIT[\"degree\",0.0174532925199433]],"
+//		"        AXIS[\"geodetic longitude (Lon)\",east,"
+//		"            ORDER[2],"
+//		"            ANGLEUNIT[\"degree\",0.0174532925199433]],"
+//		"    SCOPE[\"Horizontal component of 3D system.\"],"
+//		"   AREA[\"World.\"],"
+//		"    BBOX[-90,-180,90,180],"
+//		"    ID[\"EPSG\",4326]]";
+
+	return( true ); // return( Create(4326) );
 }
 
 //---------------------------------------------------------
@@ -2646,10 +2713,11 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 			CSG_Data_Manager Data; Data.Add(pSource); pTool->Set_Manager(&Data);
 
 			pTool->Set_Callback(false);
-			pTool->Set_Parameter("SOURCE"    , pSource);
-			pTool->Set_Parameter("CRS_STRING", Target.Get_WKT());
-			pTool->Set_Parameter("COPY"      , false);
-			pTool->Set_Parameter("PARALLEL"  , true);
+			pTool->Set_Parameter("CRS_WKT" , Target.Get_WKT2());
+			pTool->Set_Parameter("CRS_PROJ", Target.Get_PROJ());
+			pTool->Set_Parameter("SOURCE"  , pSource);
+			pTool->Set_Parameter("COPY"    , false);
+			pTool->Set_Parameter("PARALLEL", true);
 
 			SG_UI_ProgressAndMsg_Lock(true);
 			bool bResult = pTool->Execute();

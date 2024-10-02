@@ -919,10 +919,12 @@ void CWKSP_Layer::_Set_Projection(void)
 
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
 
-	if(	pTool && pTool->Set_Parameter("CRS_STRING", Projection.Get_WKT())
+	if(	pTool
+	&&  pTool->Set_Parameter("CRS_WKT ", Projection.Get_WKT2())
+	&&  pTool->Set_Parameter("CRS_PROJ", Projection.Get_PROJ())
 	&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
 	{
-		Projection.Create(pTool->Get_Parameter("CRS_WKT")->asString());
+		Projection.Create(pTool->Get_Parameter("CRS_WKT")->asString(), pTool->Get_Parameter("CRS_PROJ")->asString());
 
 		if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )
 		{

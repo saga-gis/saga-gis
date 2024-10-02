@@ -182,7 +182,8 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 
 	CSG_Grid Gore, Grid(CSG_Grid_System(180. / Resolution, Meridian - Width / 2., -90., Meridian + Width / 2., 90.));
 
-	pTool->Set_Parameter("CRS_STRING"       , CSG_Projection::Get_GCS_WGS84().Get_WKT());
+	pTool->Set_Parameter("CRS_WKT"          , CSG_Projection::Get_GCS_WGS84().Get_WKT2());
+	pTool->Set_Parameter("CRS_PROJ"         , CSG_Projection::Get_GCS_WGS84().Get_PROJ());
 	pTool->Set_Parameter("SOURCE"           , Parameters("GRID"));
 	pTool->Set_Parameter("GRID"             , &Grid);
 	pTool->Set_Parameter("RESAMPLING"       , 3); // B-Spline Interpolation
@@ -200,8 +201,34 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 	}
 
 	//-----------------------------------------------------
+	const char *PROJ = "+proj=poly +ellps=sphere +lon_0=%f +x_0=%f";
+	const char *WKT2 =
+		"PROJCRS[\"<custom>\","
+		"    BASEGEODCRS[\"<custom>\","
+		"        DATUM[\"Unknown based on Normal Sphere (r=6370997) ellipsoid\","
+		"            ELLIPSOID[\"Normal Sphere (r=6370997)\",6370997,0]],"
+		"        UNIT[\"degree\",0.0174532925199433,"
+		"            ID[\"EPSG\",9122]]],"
+		"    CONVERSION[\"<custom>\","
+		"        METHOD[\"American Polyconic\","
+		"            ID[\"EPSG\",9818]],"
+		"        PARAMETER[\"Latitude of natural origin\",0,"
+		"            ID[\"EPSG\",8801]],"
+		"        PARAMETER[\"Longitude of natural origin\",%f,"
+		"            ID[\"EPSG\",8802]],"
+		"        PARAMETER[\"False easting\",%f,"
+		"            ID[\"EPSG\",8806]],"
+		"        PARAMETER[\"False northing\",0,"
+		"            ID[\"EPSG\",8807]]],"
+		"    CS[Cartesian,2],"
+		"        AXIS[\"(E)\",east],"
+		"        AXIS[\"(N)\",north],"
+		"        UNIT[\"metre\",1,"
+		"            ID[\"EPSG\",9001]]]";
+
 	double Easting = iGore * M_PI_360 * 6370997. / nGores;
-	pTool->Set_Parameter("CRS_STRING"       , CSG_String::Format("+proj=poly +ellps=sphere +lon_0=%f +x_0=%f", Meridian, Easting));
+	pTool->Set_Parameter("CRS_WKT"          , CSG_String::Format(WKT2, Meridian, Easting));
+	pTool->Set_Parameter("CRS_PROJ"         , CSG_String::Format(PROJ, Meridian, Easting));
 	pTool->Set_Parameter("SOURCE"           , &Grid);
 	pTool->Set_Parameter("GRID"             , &Gore);
 	pTool->Set_Parameter("TARGET_AREA"      , true);

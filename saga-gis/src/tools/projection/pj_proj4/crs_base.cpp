@@ -100,48 +100,40 @@ struct PJ_DATUMS PJ_GET_DATUMS[] =
 //---------------------------------------------------------
 CCRS_Base::CCRS_Base(void)
 {
-	Parameters.Add_Choice("",
-		"CRS_METHOD"     , _TL("Get CRS Definition from..."),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("Definition String"),
-			_TL("Authority Code"),
-			_TL("Well Known Text File")
-		), 0
-	)->Set_UseInGUI(false);
+	CSG_Projection Projection; Projection.Set_GCS_WGS84();
 
-	//-----------------------------------------------------
 	Parameters.Add_String("",
 		"CRS_STRING"     , _TL("Definition String"),
 		_TL("Supported formats comprise PROJ and WKT strings, object codes (e.g. \"EPSG:4326\")."),
-		CSG_CRSProjector::Convert_CRS_To_PROJ("epsg:4326")
+		Projection.Get_PROJ()
 	);
 
+	//-----------------------------------------------------
 	if( has_GUI() )
 	{
 		Parameters.Add_Choice("CRS_STRING",
 			"CRS_DISPLAY", _TL("Display Definition as..."),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s",
+			CSG_String::Format("%s|%s",
 				_TL("PROJ"),
-				_TL("WKT-1"),
-				_TL("WKT-2")
+				_TL("WKT")
 			), 0
 		)->Set_UseInCMD(false);
 
 		Parameters.Add_Int("CRS_STRING",
 			"CRS_CODE"       , _TL("Authority Code"),
 			_TL(""),
-			4326
+			Projection.Get_Code()
 		)->Set_UseInCMD(false);
 
 		Parameters.Add_String("CRS_CODE",
 			"CRS_AUTHORITY"  , _TL("Authority"),
 			_TL(""),
-			"EPSG"
+			Projection.Get_Authority()
 		)->Set_UseInCMD(false);
 	}
 
+	//-----------------------------------------------------
 	Parameters.Add_FilePath("CRS_STRING",
 		"CRS_FILE"       , _TL("Well Known Text File"),
 		_TL(""),
@@ -194,13 +186,15 @@ CCRS_Base::CCRS_Base(void)
 		)->Set_UseInCMD(false);
 
 		Set_User_Parameters(*Parameters("CRS_DIALOG")->asParameters());
-		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), CSG_CRSProjector::Convert_CRS_To_PROJ("epsg:4326"));
+		Set_User_Definition(*Parameters("CRS_DIALOG")->asParameters(), Projection.Get_PROJ());
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Info_String("", "CRS_WKT", _TL("Well Known Text"), _TL(""), CSG_CRSProjector::Convert_CRS_To_WKT2("epsg:4326", false, false))->Set_Enabled(false); // for requesting projection in a generic/safe way
-	Parameters("CRS_WKT")->Set_UseInCMD(false);
-	Parameters("CRS_WKT")->Set_UseInGUI(false);
+	Parameters.Add_Info_String("", "CRS_WKT" , _TL("WKT" ), _TL(""), Projection.Get_WKT2())->Set_Enabled(false); // for requesting projection in a generic/safe way
+	Parameters.Add_Info_String("", "CRS_PROJ", _TL("PROJ"), _TL(""), Projection.Get_PROJ())->Set_Enabled(false); // for requesting projection in a generic/safe way
+
+	Parameters("CRS_WKT")->Set_UseInCMD(false); Parameters("CRS_PROJ")->Set_UseInCMD(false);
+	Parameters("CRS_WKT")->Set_UseInGUI(false); Parameters("CRS_PROJ")->Set_UseInGUI(false);
 }
 
 
@@ -211,7 +205,20 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	Parameter_Changed(&Parameters, Parameters("CRS_WKT"));
+	CSG_Projection Projection(Parameters["CRS_WKT"].asString(), Parameters["CRS_PROJ"].asString()); // fast construction!
+
+	if( Parameters("CRS_DISPLAY") )
+	{
+		bool bCallback = Parameters.Set_Callback(false);
+
+		switch( Parameters["CRS_DISPLAY"].asInt() )
+		{
+		default: Parameters["CRS_STRING"].Set_Value(Projection.Get_PROJ()); break;
+		case  1: Parameters["CRS_STRING"].Set_Value(Projection.Get_WKT2()); break;
+		}
+
+		Parameters.Set_Callback(bCallback);
+	}
 
 	return( true );
 }
@@ -230,12 +237,7 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	CSG_Projection Projection;
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_WKT") )
-	{
-		Projection.Create(pParameter->asString());
-	}
-
-	else if( pParameter->Cmp_Identifier("CRS_STRING") )
+	if( pParameter->Cmp_Identifier("CRS_STRING") )
 	{
 		CSG_String Definition(pParameter->asString()); Definition.Trim(); Definition.Replace("\\n", "");
 
@@ -250,9 +252,10 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 		}
 	}
 
+	//-----------------------------------------------------
 	else if( pParameter->Cmp_Identifier("CRS_DISPLAY") )
 	{
-		Projection.Create((*pParameters)("CRS_WKT")->asString());
+		Projection.Create((*pParameters)("CRS_WKT")->asString(), (*pParameters)("CRS_PROJ")->asString());
 	}
 
 	//-----------------------------------------------------
@@ -317,6 +320,8 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 	}
 
 	//-----------------------------------------------------
+	pParameters->Set_Parameter("CRS_PROJ", Projection.Get_PROJ());
+
 	if( !pParameter->Cmp_Identifier("CRS_WKT"   ) ) { pParameters->Set_Parameter("CRS_WKT", Projection.Get_WKT()); }
 
 	if(	!pParameter->Cmp_Identifier("CRS_GEOGCS") ) { pParameters->Set_Parameter("CRS_GEOGCS", 0); }
@@ -336,9 +341,8 @@ bool CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pP
 		{
 			switch( (*pParameters)("CRS_DISPLAY")->asInt() )
 			{
-			default: pParameters->Set_Parameter("CRS_STRING",                                       Projection.Get_PROJ()            ); break;
-			case  1: pParameters->Set_Parameter("CRS_STRING", CSG_CRSProjector::Convert_CRS_To_WKT1(Projection.Get_WKT(), true      )); break;
-			case  2: pParameters->Set_Parameter("CRS_STRING", CSG_CRSProjector::Convert_CRS_To_WKT2(Projection.Get_WKT(), true, true)); break;
+			default: pParameters->Set_Parameter("CRS_STRING", Projection.Get_PROJ()); break;
+			case  1: pParameters->Set_Parameter("CRS_STRING", Projection.Get_WKT2()); break;
 			}
 		}
 	}
@@ -450,35 +454,7 @@ bool CCRS_Base::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pP
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	if( has_GUI() ) // gui? projection has already been updated on parameter changed event!
-	{
-		Projection.Create(Parameters("CRS_WKT")->asString());
-	}
-	else switch( Parameters("CRS_METHOD")->asInt() )	// no gui? check out, how projection shall be initialized!
-	{
-	default: // Definition String
-		if( !Projection.Create(Parameters("CRS_STRING")->asString()) )
-		{
-			Error_Set(_TL("Definition String Error"));
-		}
-		break;
-
-	case  1: // Authority Code
-		if( !Projection.Create(Parameters("CRS_CODE")->asInt(), Parameters("CRS_AUTHORITY")->asString()) )
-		{
-			Error_Set(_TL("Authority Code Error"));
-		}
-		break;
-
-	case  2: // Well Known Text File
-		if( !Projection.Load  (Parameters("CRS_FILE")->asString()) )
-		{
-			Error_Set(_TL("Well Known Text File Error"));
-		}
-		break;
-	}
-
-	return( Projection.is_Okay() );
+	return( Projection.Create(Parameters["CRS_WKT"].asString(), Parameters["CRS_PROJ"].asString()) );
 }
 
 

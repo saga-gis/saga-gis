@@ -291,7 +291,8 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pTool->Set_Manager(NULL);
 
-		if( pTool->Set_Parameter("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+		if( pTool->Set_Parameter("CRS_WKT"   , CSG_Projection::Get_GCS_WGS84().Get_WKT2())
+		&&  pTool->Set_Parameter("CRS_PROJ"  , CSG_Projection::Get_GCS_WGS84().Get_PROJ())
 		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
 		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 		&&  pTool->Execute() )

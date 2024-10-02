@@ -534,23 +534,24 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 //---------------------------------------------------------
 bool CGDAL_Catalogues::Add_To_Geographic(CSG_Shapes *pCatalogue)
 {
-	CSG_Shapes	Catalogue, *pTarget	= Parameters("CATALOGUE_UKN")->asShapes();
+	CSG_Shapes Catalogue, *pTarget = Parameters("CATALOGUE_UKN")->asShapes();
 
 	if( pCatalogue->Get_Projection().is_Okay() )
 	{
-		bool	bResult;
+		bool bResult;
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 2,
-				SG_TOOL_PARAMETER_SET("SOURCE"    , pCatalogue)
-			&&	SG_TOOL_PARAMETER_SET("TARGET"    , &Catalogue)
-			&&	SG_TOOL_PARAMETER_SET("CRS_STRING", Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_WKT())
+			   SG_TOOL_PARAMETER_SET("SOURCE"  , pCatalogue)
+			&& SG_TOOL_PARAMETER_SET("TARGET"  , &Catalogue)
+			&& SG_TOOL_PARAMETER_SET("CRS_WKT" , Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_WKT2())
+			&& SG_TOOL_PARAMETER_SET("CRS_PROJ", Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_PROJ())
 		);
 
 		if( bResult )
 		{
-			pCatalogue	= &Catalogue;
+			pCatalogue = &Catalogue;
 
-			pTarget	= Parameters("CATALOGUE_GCS")->asShapes();
+			pTarget = Parameters("CATALOGUE_GCS")->asShapes();
 		}
 	}
 

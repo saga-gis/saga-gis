@@ -184,7 +184,33 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Indicatrix::Get_Indicatrix(double lon, double lat, CSG_Shape *pIndicatrix)
 {
-	CSG_Projection Source(CSG_String::Format("+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84", lon, lat));
+	const char *PROJ = "+proj=ortho +lon_0=%f +lat_0=%f +datum=WGS84";
+	const char *WKT2 =
+		"PROJCRS[\"custom\","
+		"    BASEGEODCRS[\"custom\","
+		"        DATUM[\"World Geodetic System 1984\","
+		"            ELLIPSOID[\"WGS 84\",6378137,298.257223563],"
+		"            ID[\"EPSG\",6326]],"
+		"        UNIT[\"degree\",0.0174532925199433,"
+		"            ID[\"EPSG\",9122]]],"
+		"    CONVERSION[\"<custom>\","
+		"        METHOD[\"Orthographic\","
+		"            ID[\"EPSG\",9840]],"
+		"        PARAMETER[\"Latitude of natural origin\",%f,"
+		"            ID[\"EPSG\",8801]],"
+		"        PARAMETER[\"Longitude of natural origin\",%f,"
+		"            ID[\"EPSG\",8802]],"
+		"        PARAMETER[\"False easting\",0,"
+		"            ID[\"EPSG\",8806]],"
+		"        PARAMETER[\"False northing\",0,"
+		"            ID[\"EPSG\",8807]]],"
+		"    CS[Cartesian,2],"
+		"        AXIS[\"(E)\",east],"
+		"        AXIS[\"(N)\",north],"
+		"        UNIT[\"metre\",1,"
+		"            ID[\"EPSG\",9001]]]";
+
+	CSG_Projection Source(CSG_String::Format(WKT2, lon, lat), CSG_String::Format(PROJ, lon, lat));
 
 	if( !m_Projector.Set_Source(Source, true) )
 	{

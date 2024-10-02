@@ -423,12 +423,12 @@ void CWKSP_Map_Graticule::Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	m_Graticule  .Create(SHAPE_TYPE_Line );
 	m_Coordinates.Create(SHAPE_TYPE_Point);
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 14);
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 14);
 
 	if(	pTool && Get_Map()->Get_Projection().is_Okay() )
 	{
@@ -446,7 +446,8 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 				&& pTool->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
 				&& pTool->Set_Parameter("GRATICULE" , &m_Graticule)
 				&& pTool->Set_Parameter("COORDS"    , &m_Coordinates)
-				&& pTool->Set_Parameter("CRS_STRING", Get_Map()->Get_Projection().Get_WKT())
+				&& pTool->Set_Parameter("CRS_WKT"   , Get_Map()->Get_Projection().Get_WKT2())
+				&& pTool->Set_Parameter("CRS_PROJ"  , Get_Map()->Get_Projection().Get_PROJ())
 				&& pTool->On_Before_Execution()
 				&& pTool->Execute();
 

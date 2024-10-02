@@ -469,7 +469,8 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	&&  pTool->Set_Parameter("XFIELD"          , xField)
 	&&  pTool->Set_Parameter("YFIELD"          , yField)
 	&&  pTool->Set_Parameter("METHOD"          , 0) // automatic
-	&&  pTool->Set_Parameter("CRS_STRING"      , Projection.Get_WKT())
+	&&  pTool->Set_Parameter("CRS_WKT"         , Projection.Get_WKT2())
+	&&  pTool->Set_Parameter("CRS_PROJ"        , Projection.Get_PROJ())
 	&&  pTool->Set_Parameter("TARGET_USER_SIZE", Cellsize)
 	&&  pTool->Set_Parameter("TARGET_USER_XMIN", Extent.xMin)
 	&&  pTool->Set_Parameter("TARGET_USER_XMAX", Extent.xMax)

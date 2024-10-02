@@ -161,7 +161,8 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	int	Result	= CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
 
-	if( pParameter->Cmp_Identifier("CRS_METHOD"   )
+	if( pParameter->Cmp_Identifier("CRS_WKT"      )
+	||  pParameter->Cmp_Identifier("CRS_PROJ"     )
 	||  pParameter->Cmp_Identifier("CRS_STRING"   )
 	||  pParameter->Cmp_Identifier("CRS_DIALOG"   )
 	||  pParameter->Cmp_Identifier("CRS_PICKER"   )
@@ -721,7 +722,7 @@ inline void CCRS_Transform_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Resolution, bool bEdges)
 {
-	if( !pParameters || !pParameters->Get_Parameter("SOURCE") || !pParameters->Get_Parameter("CRS_WKT") )
+	if( !pParameters || !pParameters->Get_Parameter("SOURCE") || !pParameters->Get_Parameter("CRS_WKT") || !pParameters->Get_Parameter("CRS_PROJ") )
 	{
 		return( false );
 	}
@@ -748,7 +749,7 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 		System = pParameters->Get_Parameter("SOURCE")->asGrid()->Get_System();
 	}
 
-	CSG_Projection Proj_Target(pParameters->Get_Parameter("CRS_WKT")->asString());
+	CSG_Projection Proj_Target((*pParameters)["CRS_WKT"].asString(), (*pParameters)["CRS_PROJ"].asString());
 
 	if( !System.is_Valid() || !m_Projector.Set_Transformation(Proj_Source, Proj_Target) )
 	{

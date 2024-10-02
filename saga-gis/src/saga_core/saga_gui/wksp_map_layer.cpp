@@ -714,14 +714,15 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if( pTool && pTool->Set_Manager(NULL)
-			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
-			&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
-		//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
-			&&  pTool->Set_Parameter("TARGET_AREA"      , m_bProject_Area)
-			&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
-			&&  pTool->Set_Parameter("SOURCE"           , pGrid)
-			&&  pTool->Set_Parameter("GRID"             , &Grid)
-			&&  pTool->Execute() )
+		&&  pTool->Set_Parameter("CRS_WKT"          , prj_Map.Get_WKT2())
+		&&  pTool->Set_Parameter("CRS_PROJ"         , prj_Map.Get_PROJ())
+		&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
+	//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
+		&&  pTool->Set_Parameter("TARGET_AREA"      , m_bProject_Area)
+		&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
+		&&  pTool->Set_Parameter("SOURCE"           , pGrid)
+		&&  pTool->Set_Parameter("GRID"             , &Grid)
+		&&  pTool->Execute() )
 		{
 			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(0);
 			m_pLayer->Draw(dc_Map, Flags, &Grid);
@@ -758,18 +759,19 @@ bool CWKSP_Map_Layer::Draw(CSG_Map_DC &dc_Map, int Flags)
 		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
 
 		if( pTool && pTool->Set_Manager(NULL)
-			&&  pTool->Set_Parameter("CRS_STRING"       , prj_Map.Get_WKT())
-			&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
-		//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
-			&&  pTool->Set_Parameter("TARGET_AREA"      , true)
-			&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
-			&&  pTool->Set_Parameter("TARGET_USER_SIZE" , System.Get_Cellsize())
-			&&  pTool->Set_Parameter("TARGET_USER_XMIN" , System.Get_XMin())
-			&&  pTool->Set_Parameter("TARGET_USER_YMIN" , System.Get_YMin())
-			&&  pTool->Set_Parameter("TARGET_USER_XMAX" , System.Get_XMax())
-			&&  pTool->Set_Parameter("TARGET_USER_YMAX" , System.Get_YMax())
-			&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
-			&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
+		&&  pTool->Set_Parameter("CRS_WKT"          , prj_Map.Get_WKT2())
+		&&  pTool->Set_Parameter("CRS_PROJ"         , prj_Map.Get_PROJ())
+		&&  pTool->Set_Parameter("RESAMPLING"       , Resampling ? Resampling : 0)
+	//	&&  SG_TOOL_PARAMETER_SET("DATA_TYPE"       , 10) // "Preserve" => is already default!
+		&&  pTool->Set_Parameter("TARGET_AREA"      , true)
+		&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
+		&&  pTool->Set_Parameter("TARGET_USER_SIZE" , System.Get_Cellsize())
+		&&  pTool->Set_Parameter("TARGET_USER_XMIN" , System.Get_XMin())
+		&&  pTool->Set_Parameter("TARGET_USER_YMIN" , System.Get_YMin())
+		&&  pTool->Set_Parameter("TARGET_USER_XMAX" , System.Get_XMax())
+		&&  pTool->Set_Parameter("TARGET_USER_YMAX" , System.Get_YMax())
+		&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
+		&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
 		{
 			m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->Set_Value(0);
 			m_pLayer->Draw(dc_Map, Flags, pGrids);
