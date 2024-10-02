@@ -65,6 +65,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CGet_ListDBs : public CSG_Tool
+{
+public:
+	CGet_ListDBs(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGet_Connections : public CSG_Tool
 {
 public:

@@ -56,14 +56,91 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CGet_ListDBs::CGet_ListDBs(void)
+{
+	Set_Name		(_TL("List Databases"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"Lists databases provided by a PostgreSQL host/port."
+	));
+
+	Parameters.Add_String("", "PG_HOST", _TL("Host"      ), _TL(""), "localhost");
+	Parameters.Add_Int   ("", "PG_PORT", _TL("Port"      ), _TL(""), 5432, 0, true);
+	Parameters.Add_String("", "PG_USER", _TL("User"      ), _TL(""), "postgres");
+	Parameters.Add_String("", "PG_PWD" , _TL("Password"  ), _TL(""), "postgres", false, true);
+
+	Parameters.Add_Table ("", "LIST"   , _TL("Databases" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Bool  ("", "PRINT"  , _TL("Print List"), _TL(""), has_CMD())->Set_UseInGUI(false);
+}
+
+//---------------------------------------------------------
+bool CGet_ListDBs::On_Execute(void)
+{
+	CSG_PG_Connection Connection(
+		Parameters["PG_HOST"].asString(),
+		Parameters["PG_PORT"].asInt   (), "",
+		Parameters["PG_USER"].asString(),
+		Parameters["PG_PWD" ].asString()
+	);
+
+	if( !Connection.is_Connected() )
+	{
+		Error_Set("Connect to PostgreSQL server.");
+
+		return( false );
+	}
+
+	CSG_Table *pList = Parameters["LIST"].asTable();
+
+	if( !Connection.Execute("SELECT datname FROM pg_database", pList) )
+	{
+		Error_Set("Requesting PostgreSQL server databases.");
+
+		return( false );
+	}
+
+	if( Parameters["PRINT"].asBool() )
+	{
+		CSG_Index Index; pList->Set_Index(Index, 0, true);
+
+		SG_UI_Console_Print_StdOut(CSG_String::Format("\n____\n%s:\n", _TL("Databases")));
+
+		for(int i=0; i<pList->Get_Count(); i++)
+		{
+			SG_UI_Console_Print_StdOut(CSG_String::Format(" %2d. %s\n", i + 1, pList->Get_Record(Index[i])->asString(0)));
+		}
+	}
+
+	pList->Fmt_Name("PostgreSQL Databases [%s.%d]",
+		Parameters["PG_HOST"].asString(),
+		Parameters["PG_PORT"].asInt   ()
+	);
+
+	pList->Set_Field_Name(0, SG_T("DB Name"));
+
+	SG_UI_DataObject_Show(pList, SG_UI_DATAOBJECT_SHOW_MAP);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGet_Connections::CGet_Connections(void)
 {
-	Set_Name		(_TL("List PostgreSQL Connections"));
+	Set_Name		(_TL("List Connections"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Lists all PostgreSQL sources."
+		"Lists open PostgreSQL connections."
 	));
 
 	Parameters.Add_Table("",
@@ -114,7 +191,7 @@ bool CGet_Connections::On_Execute(void)
 //---------------------------------------------------------
 CGet_Connection::CGet_Connection(void)
 {
-	Set_Name		(_TL("Connect to PostgreSQL"));
+	Set_Name		(_TL("Connect to PostgreSQL Database"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
@@ -236,7 +313,7 @@ bool CGet_Connection::On_Execute(void)
 //---------------------------------------------------------
 CDel_Connection::CDel_Connection(void)
 {
-	Set_Name		(_TL("Disconnect from PostgreSQL"));
+	Set_Name		(_TL("Disconnect from PostgreSQL Database"));
 
 	Set_Author		("O.Conrad (c) 2013");
 

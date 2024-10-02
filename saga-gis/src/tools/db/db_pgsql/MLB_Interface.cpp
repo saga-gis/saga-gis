@@ -102,6 +102,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  4:	return( new CTransaction_Start );
 	case  5:	return( new CTransaction_Stop );
 	case  6:	return( new CExecute_SQL );
+	case  7:	return( new CGet_ListDBs );
 
 	case 10:	return( new CTable_List );
 	case 11:	return( new CTable_Info );
