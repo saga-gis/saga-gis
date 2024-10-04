@@ -186,16 +186,6 @@ CSG_String CSG_CRSProjector::Convert_CRS_To_PROJ(const CSG_String &Definition)
 	return( Convert_CRS_Format(Definition, TCRS_Format::PROJ) );
 }
 
-CSG_String CSG_CRSProjector::Convert_CRS_To_JSON(const CSG_String &Definition, bool bMultiLine)
-{
-	return( Convert_CRS_Format(Definition, TCRS_Format::JSON, bMultiLine) );
-}
-
-CSG_String CSG_CRSProjector::Convert_CRS_To_ESRI(const CSG_String &Definition)
-{
-	return( Convert_CRS_Format(Definition, TCRS_Format::ESRI) );
-}
-
 CSG_String CSG_CRSProjector::Convert_CRS_To_WKT1(const CSG_String &Definition, bool bMultiLine)
 {
 	return( Convert_CRS_Format(Definition, TCRS_Format::WKT1, bMultiLine) );
@@ -204,6 +194,16 @@ CSG_String CSG_CRSProjector::Convert_CRS_To_WKT1(const CSG_String &Definition, b
 CSG_String CSG_CRSProjector::Convert_CRS_To_WKT2(const CSG_String &Definition, bool bMultiLine, bool bSimplified)
 {
 	return( Convert_CRS_Format(Definition, TCRS_Format::WKT2, bMultiLine, bSimplified) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_JSON(const CSG_String &Definition, bool bMultiLine)
+{
+	return( Convert_CRS_Format(Definition, TCRS_Format::JSON, bMultiLine) );
+}
+
+CSG_String CSG_CRSProjector::Convert_CRS_To_ESRI(const CSG_String &Definition)
+{
+	return( Convert_CRS_Format(Definition, TCRS_Format::ESRI) );
 }
 
 //---------------------------------------------------------
@@ -215,27 +215,20 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 	}
 
 	//-----------------------------------------------------
+	if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
+	{
+		return( Convert_CRS_Format(Definition + " +type=crs", Format, bMultiLine, bSimplified) );
+	}
+
+	//-----------------------------------------------------
 	CSG_Projection Projection; // check preference list first!
 
 	if( SG_Get_Projections().Get_Preference(Projection, Definition) )
 	{
-		if( Format == TCRS_Format::WKT2 && bMultiLine == false )
-		{
-			return( Projection.Get_WKT2() );
-		}
-
-		if( Format == TCRS_Format::PROJ )
-		{
-			return( Projection.Get_PROJ() ); // might not follow the convention!
-		}
+		if( Format == TCRS_Format::WKT2 && !bMultiLine ) { return( Projection.Get_WKT2() ); }
+		if( Format == TCRS_Format::PROJ                ) { return( Projection.Get_PROJ() ); }
 
 		return( Convert_CRS_Format(Projection.Get_WKT2(), Format, bMultiLine, bSimplified) );
-	}
-
-	//-----------------------------------------------------
-	if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
-	{
-		return( Convert_CRS_Format(Definition + " +type=crs", Format, bMultiLine) );
 	}
 
 	//-----------------------------------------------------
@@ -266,6 +259,58 @@ CSG_String CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, TC
 	}
 
 	return( CRS );
+}
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, CSG_String *PROJ, CSG_String *WKT1, CSG_String *WKT2, CSG_String *JSON, CSG_String *ESRI, bool bMultiLine, bool bSimplified)
+{
+	if( Definition.is_Empty() || (!PROJ && !WKT1 && !WKT2 && !JSON && !ESRI) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Definition.Find("+proj") >= 0 && Definition.Find("+type=crs") < 0 )
+	{
+		return( Convert_CRS_Format(Definition + " +type=crs", PROJ, WKT1, WKT2, JSON, ESRI, bMultiLine, bSimplified) );
+	}
+
+	//-----------------------------------------------------
+	CSG_Projection Projection; // check preference list first!
+
+	if( SG_Get_Projections().Get_Preference(Projection, Definition) )
+	{
+		if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+		if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+
+		Convert_CRS_Format(Projection.Get_WKT2(), NULL, WKT1, NULL, JSON, ESRI, bMultiLine, bSimplified);
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	PJ *pProjection = proj_create(0, Definition);
+
+	if( pProjection )
+	{
+		const char *options[] = { bMultiLine ? "MULTILINE=YES" : "MULTILINE=NO", NULL };
+
+		#define GET_FORMAT(crs, def) if( crs ) { const char *s = def; if( s && *s ) { *crs = CSG_String::from_UTF8(s); if( crs->is_Empty() ) { *crs = s; } crs->Replace("\"unknown\"", "\"<custom>\""); } }
+
+		GET_FORMAT(PROJ, proj_as_proj_string(0, pProjection, PJ_PROJ_STRING_TYPE::PJ_PROJ_5, 0));
+		GET_FORMAT(WKT1, proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_GDAL, options));
+		GET_FORMAT(WKT2, proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2015_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2015, options));
+	//	GET_FORMAT(WKT2, proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2018_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2018, options));
+	//	GET_FORMAT(WKT2, proj_as_wkt        (0, pProjection, bSimplified ? PJ_WKT_TYPE::PJ_WKT2_2019_SIMPLIFIED : PJ_WKT_TYPE::PJ_WKT2_2019, options));
+		GET_FORMAT(JSON, proj_as_projjson   (0, pProjection, options));
+		GET_FORMAT(ESRI, proj_as_wkt        (0, pProjection, PJ_WKT_TYPE::PJ_WKT1_ESRI, options));
+
+		proj_destroy(pProjection);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

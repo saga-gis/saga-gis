@@ -87,12 +87,13 @@ public:
 		PROJ, JSON, ESRI, WKT1, WKT2, WKT2015, WKT2018, WKT2019
 	};
 
-	static CSG_String		Convert_CRS_Format			(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine = true, bool bSimplified = true);
 	static CSG_String		Convert_CRS_To_PROJ			(const CSG_String &Definition);
-	static CSG_String		Convert_CRS_To_JSON			(const CSG_String &Definition, bool bMultiLine);
-	static CSG_String		Convert_CRS_To_ESRI			(const CSG_String &Definition);
 	static CSG_String		Convert_CRS_To_WKT1			(const CSG_String &Definition, bool bMultiLine);
 	static CSG_String		Convert_CRS_To_WKT2			(const CSG_String &Definition, bool bMultiLine, bool bSimplified);
+	static CSG_String		Convert_CRS_To_JSON			(const CSG_String &Definition, bool bMultiLine);
+	static CSG_String		Convert_CRS_To_ESRI			(const CSG_String &Definition);
+	static CSG_String		Convert_CRS_Format			(const CSG_String &Definition, TCRS_Format Format, bool bMultiLine = true, bool bSimplified = true);
+	static bool				Convert_CRS_Format			(const CSG_String &Definition, CSG_String *PROJ, CSG_String *WKT1, CSG_String *WKT2, CSG_String *JSON, CSG_String *ESRI, bool bMultiLine = true, bool bSimplified = true);
 
 
 	bool					Set_Source					(const CSG_Projection &Projection, bool bSetTransformation = false);
