@@ -205,10 +205,10 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 bool CCRS_Base::On_Before_Execution(void)
 {
-	CSG_Projection Projection(Parameters["CRS_WKT"].asString(), Parameters["CRS_PROJ"].asString()); // fast construction!
-
 	if( Parameters("CRS_DISPLAY") )
 	{
+		CSG_Projection Projection(Parameters["CRS_WKT"].asString(), Parameters["CRS_PROJ"].asString()); // fast construction!
+
 		bool bCallback = Parameters.Set_Callback(false);
 
 		switch( Parameters["CRS_DISPLAY"].asInt() )
