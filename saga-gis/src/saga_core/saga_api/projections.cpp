@@ -153,7 +153,7 @@ bool CSG_Projection::Create(const CSG_String &Definition)
 {
 	Destroy();
 
-	if( CSG_Projections::Parse(Definition, NULL, &m_WKT2, &m_PROJ, NULL) )
+	if( CSG_Projections::Parse(Definition, &m_PROJ, &m_WKT2) )
 	{
 		CSG_MetaData WKT(CSG_Projections::_WKT2_to_MetaData(m_WKT2, true));
 
@@ -315,13 +315,15 @@ bool CSG_Projection::Save(CSG_File &Stream, ESG_CRS_Format Format)	const
 //---------------------------------------------------------
 bool CSG_Projection::Load(const CSG_MetaData &Projection)
 {
+	if( Projection("WKT2") && Projection("PROJ") && Create(Projection["WKT2"].Get_Content(), Projection["PROJ"].Get_Content()) ) { return( true ); }
+
 	if( Projection("WKT2") && Create(Projection["WKT2"].Get_Content()) ) { return( true ); }
-	if( Projection("WKT1") && Create(Projection["WKT1"].Get_Content()) ) { return( true ); }
 	if( Projection("PROJ") && Create(Projection["PROJ"].Get_Content()) ) { return( true ); }
 
 	//-----------------------------------------------------
 	// >>> backward compatibilty
 
+	if( Projection("WKT1"   ) && Create(Projection["WKT1"   ].Get_Content()) ) { return( true ); }
 	if( Projection("OGC_WKT") && Create(Projection["OGC_WKT"].Get_Content()) ) { return( true ); }
 	if( Projection("PROJ4"  ) && Create(Projection["PROJ4"  ].Get_Content()) ) { return( true ); }
 
@@ -527,7 +529,7 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 
 	#define CMP_CONTENT(a, b    ) (a && b && a->Cmp_Content(b->Get_Content()))
 	#define CMP_PROPERTY(a, b, p) (a && b && a->Get_Property(p) && b->Cmp_Property(p, a->Get_Property(p), true))
-	#define CMP_PARAMETER(a, b  ) (a && b && ((!a->Cmp_Name("PARAMETER") && !b->Cmp_Name("PARAMETER")) || CMP_PROPERTY(a, b, "name") && a->Cmp_Content(b->Get_Content())))
+	#define CMP_PARAMETER(a, b  ) (a && b && ((!a->Cmp_Name("PARAMETER") && !b->Cmp_Name("PARAMETER")) || (CMP_PROPERTY(a, b, "name") && a->Cmp_Content(b->Get_Content()))))
 
 	CSG_MetaData WKT[2] = {
 		CSG_Projections::_WKT1_to_MetaData(           Get_WKT1()),
@@ -1047,7 +1049,7 @@ bool CSG_Projections::Get_Preference(CSG_Projection &Projection, const CSG_Strin
 {
 	int i = Authority_Code.Find(':');
 
-	if( i > 1 && i < Authority_Code.Length() - 2 )
+	if( i > 1 && i < (int)Authority_Code.Length() - 2 )
 	{
 		int Code; CSG_String Authority(Authority_Code.BeforeFirst(':'));
 
@@ -1151,7 +1153,7 @@ CSG_String CSG_Projections::Parse(const CSG_String &Definition, ESG_CRS_Format F
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_String *WKT2, CSG_String *PROJ, CSG_String *ESRI)
+bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *PROJ, CSG_String *WKT2, CSG_String *WKT1, CSG_String *JSON, CSG_String *ESRI)
 {
 	if( Definition.is_Empty() )
 	{
@@ -1167,13 +1169,17 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 		pTool->Set_Parameter("DEFINITION", Definition);
 		pTool->Set_Parameter("MULTILINE" , false);
 		pTool->Set_Parameter("SIMPLIFIED", false);
+		pTool->Set_Parameter("FORMAT"    , WKT1 || ESRI || JSON ? 5 : 6); // all : PROJ + WKT-2
 
 		SG_UI_ProgressAndMsg_Lock(true);
 
-		if( PROJ ) { pTool->Set_Parameter("FORMAT", 0); pTool->Execute(); *PROJ = pTool->Get_Parameter("PROJ")->asString(); }
-		if( WKT1 ) { pTool->Set_Parameter("FORMAT", 1); pTool->Execute(); *WKT1 = pTool->Get_Parameter("WKT1")->asString(); }
-		if( WKT2 ) { pTool->Set_Parameter("FORMAT", 2); pTool->Execute(); *WKT2 = pTool->Get_Parameter("WKT2")->asString(); }
-		if( ESRI ) { pTool->Set_Parameter("FORMAT", 4); pTool->Execute(); *ESRI = pTool->Get_Parameter("ESRI")->asString(); }
+		if( pTool->Execute() )
+		{
+			if( PROJ ) { *PROJ = pTool->Get_Parameter("PROJ")->asString(); }
+			if( WKT1 ) { *WKT1 = pTool->Get_Parameter("WKT1")->asString(); }
+			if( WKT2 ) { *WKT2 = pTool->Get_Parameter("WKT2")->asString(); }
+			if( ESRI ) { *ESRI = pTool->Get_Parameter("ESRI")->asString(); }
+		}
 
 		SG_UI_ProgressAndMsg_Lock(false);
 
@@ -1185,35 +1191,29 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 	//-----------------------------------------------------
 	else // proj.lib parser not available ...fallback!
 	{
-		if( Definition.Find("+proj") == 0 )
-		{
-			CSG_String WKT;
+		int Code = -1; CSG_String Authority(Definition.BeforeFirst(':'));
 
-			if( gSG_Projections._WKT1_from_Proj4(WKT, Definition) )
+		if( Authority.is_Empty() || Definition.AfterFirst(':').asInt(Code) == false )
+		{
+			CSG_MetaData WKT(CSG_Projections::_WKT1_to_MetaData(Definition));
+
+			WKT.Get_Property("authority_name", Authority);
+			WKT.Get_Property("authority_code", Code);
+		}
+
+		if( !Authority.is_Empty() && Code > 0 )
+		{
+			CSG_Projection Projection;
+
+			if( gSG_Projections.Get_Projection(Projection, Code, Authority) )
 			{
-				if( WKT1 ) { *WKT1 = WKT       ; }
-				if( PROJ ) { *PROJ = Definition; }
+				if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
+				if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+				if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+				if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
 
 				return( true );
 			}
-
-			return( false );
-		}
-
-		//-------------------------------------------------
-		CSG_MetaData WKT(CSG_Projections::_WKT1_to_MetaData(Definition));
-
-		int Code; CSG_String Authority; CSG_Projection Projection;
-
-		if(	WKT.Get_Property("authority_name", Authority) && WKT.Get_Property("authority_code", Code)
-		&&  gSG_Projections.Get_Projection(Projection, Code, Authority) )
-		{
-			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
-			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
-			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
-			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
-
-			return( true );
 		}
 
 		//-------------------------------------------------
@@ -1224,21 +1224,18 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *WKT1, CSG_
 			if( WKT1 ) { *WKT1 = Definition; }
 			if( PROJ ) { *PROJ = Proj4     ; }
 
-			return( true );
+			return( !WKT2 || !ESRI );
 		}
 
 		//-------------------------------------------------
-		Authority = Definition.BeforeFirst(':');
+		CSG_String WKT;
 
-		if( !Authority.is_Empty() && Definition.AfterFirst(':').asInt(Code)
-		&&  gSG_Projections.Get_Projection(Projection, Code, Authority) )
+		if( gSG_Projections._WKT1_from_Proj4(WKT, Definition) )
 		{
-			if( WKT1 ) { *WKT1 = Projection.Get_WKT1(); }
-			if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
-			if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
-			if( ESRI ) { *ESRI = Projection.Get_ESRI(); }
+			if( WKT1 ) { *WKT1 = WKT       ; }
+			if( PROJ ) { *PROJ = Definition; }
 
-			return( true );
+			return( !WKT2 || !ESRI );
 		}
 	}
 
@@ -1340,7 +1337,7 @@ bool CSG_Projections::_WKT2_to_MetaData(CSG_MetaData &MetaData, const CSG_String
 
 	int Colon = -1, Bracket = -1;
 
-	for(int i=0, bracket=0, quota=0; Colon<0 && i<WKT.Length(); i++)
+	for(int i=0, bracket=0, quota=0; Colon<0 && i<(int)WKT.Length(); i++)
 	{
 		switch( WKT[i] )
 		{
@@ -1434,7 +1431,14 @@ CSG_MetaData CSG_Projections::_WKT2_to_MetaData(const CSG_String &WKT, bool bTri
 //---------------------------------------------------------
 CSG_String CSG_Projections::Convert_WKT2_to_XML(const CSG_String &WKT)
 {
-	return( _WKT2_to_MetaData(WKT, false).asText(1) );
+	CSG_String XML;
+
+	if( !WKT.is_Empty() )
+	{
+		XML = _WKT2_to_MetaData(WKT, false).asText(1);
+	}
+	
+	return( XML );
 }
 
 

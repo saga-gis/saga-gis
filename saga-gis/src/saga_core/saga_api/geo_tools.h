@@ -945,7 +945,7 @@ public:
 
 	void							Destroy					(void);
 
-	static bool						Parse					(const CSG_String &Definition, CSG_String *WKT1 = NULL, CSG_String *WKT2 = NULL, CSG_String *PROJ = NULL, CSG_String *ESRI = NULL);
+	static bool						Parse					(const CSG_String &Definition, CSG_String *PROJ = NULL, CSG_String *WKT2 = NULL, CSG_String *WKT1 = NULL, CSG_String *JSON = NULL, CSG_String *ESRI = NULL);
 	static CSG_String				Parse					(const CSG_String &Definition, ESG_CRS_Format Format);
 
 	bool							Load					(const CSG_String &File, bool bAppend = false);
