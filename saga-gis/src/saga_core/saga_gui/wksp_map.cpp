@@ -2133,14 +2133,13 @@ bool CWKSP_Map::_Set_Thumbnail(void)
 {
 	if( m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
 	{
-		wxMemoryDC		dc;
-		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
+		wxMemoryDC dc; wxRect r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
 
 		dc.SelectObject(m_Thumbnail);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Draw_Map(dc, Get_Extent(), 1., r, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS);
+		Draw_Map(dc, Get_Extent(), 1., r, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL);
 
 		dc.SelectObject(wxNullBitmap);
 
@@ -2191,7 +2190,7 @@ void CWKSP_Map::Draw_Map(CSG_Map_DC &dc, int Flags)
 	{
 		switch( Get_Item(i)->Get_Type() )
 		{
-		case WKSP_ITEM_Map_Layer:
+		case WKSP_ITEM_Map_Layer    :
 		{
 			CWKSP_Map_Layer     *pLayer	= (CWKSP_Map_Layer     *)Get_Item(i);
 
@@ -2202,7 +2201,7 @@ void CWKSP_Map::Draw_Map(CSG_Map_DC &dc, int Flags)
 		}
 		break;
 
-		case WKSP_ITEM_Map_Graticule:
+		case WKSP_ITEM_Map_Graticule: if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
 		{
 			CWKSP_Map_Graticule *pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
 
@@ -2213,7 +2212,7 @@ void CWKSP_Map::Draw_Map(CSG_Map_DC &dc, int Flags)
 		}
 		break;
 
-		case WKSP_ITEM_Map_BaseMap:
+		case WKSP_ITEM_Map_BaseMap  : if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
 		{
 			CWKSP_Map_BaseMap   *pLayer	= (CWKSP_Map_BaseMap   *)Get_Item(i);
 
