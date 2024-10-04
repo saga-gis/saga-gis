@@ -715,7 +715,7 @@ bool CSG_Rect::Create(const CSG_Point &A, const CSG_Point &B)
 //---------------------------------------------------------
 bool CSG_Rect::Create(const CSG_Rect &Rect)
 {
-	return( (Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
+	return( Create(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax) );
 }
 
 
