@@ -1201,6 +1201,7 @@ public:
 
 									CSG_File_Zip		(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
 	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
+	virtual bool					Open				(const CSG_String &FileName, int Mode, bool bBinary, int Encoding) { return( Open(FileName, Mode, Encoding) ); }
 
 	virtual bool					Close				(void);
 
