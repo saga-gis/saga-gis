@@ -821,6 +821,16 @@ public:
 	virtual int				Get_Majority		(bool bWeighted = false)	const;
 	virtual int				Get_Minority		(bool bWeighted = false)	const;
 
+	virtual bool			Get_Majority		(double     &Value            )	const	{	return( false );	}
+	virtual bool			Get_Majority		(double     &Value, int &Count)	const	{	return( false );	}
+	virtual bool			Get_Minority		(double     &Value            )	const	{	return( false );	}
+	virtual bool			Get_Minority		(double     &Value, int &Count)	const	{	return( false );	}
+
+	virtual bool			Get_Majority		(CSG_String &Value            )	const	{	return( false );	}
+	virtual bool			Get_Majority		(CSG_String &Value, int &Count)	const	{	return( false );	}
+	virtual bool			Get_Minority		(CSG_String &Value            )	const	{	return( false );	}
+	virtual bool			Get_Minority		(CSG_String &Value, int &Count)	const	{	return( false );	}
+
 
 protected:
 
@@ -849,16 +859,16 @@ public:
 	{
 		if( Index < 0 || Index >= Get_Count() )	return( false );
 
-		Count	= m_Count[Index];
-		Value	= m_Value[Index];
+		Count = m_Count[Index];
+		Value = m_Value[Index];
 
 		return( true );
 	}
 
-	bool					Get_Majority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
-	bool					Get_Majority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
-	bool					Get_Minority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
-	bool					Get_Minority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
+	virtual bool			Get_Majority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
+	virtual bool			Get_Majority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
+	virtual bool			Get_Minority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
+	virtual bool			Get_Minority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
 
 
 private:
@@ -884,16 +894,16 @@ public:
 	{
 		if( Index < 0 || Index >= Get_Count() )	return( false );
 
-		Count	= m_Count[Index];
-		Value	= m_Value[Index];
+		Count = m_Count[Index];
+		Value = m_Value[Index];
 
 		return( true );
 	}
 
-	bool					Get_Majority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
-	bool					Get_Majority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
-	bool					Get_Minority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
-	bool					Get_Minority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
+	virtual bool			Get_Majority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
+	virtual bool			Get_Majority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
+	virtual bool			Get_Minority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
+	virtual bool			Get_Minority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
 
 
 private:
