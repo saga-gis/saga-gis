@@ -144,8 +144,8 @@ public:
 	operator double									(void)				const	{	return( asDouble() );	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value);	return( *this );	}
-	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value);	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value); return( *this );	}
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	= 0;
 
 };
@@ -208,7 +208,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asBinary());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asBinary()); return( *this );	}
 
 	//-----------------------------------------------------
 	CSG_Bytes &						Get_Binary		(void)						{	return( m_Value );	}
@@ -280,7 +282,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString()); return( *this );	}
 
 
 private:
@@ -350,6 +354,8 @@ public:
 	}
 
 	//-----------------------------------------------------
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value); return( *this );	}
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)
 	{
 		switch( Value.Get_Type() )
@@ -445,7 +451,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asInt());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value        ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value        ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asInt()); return( *this );	}
 
 
 private:
@@ -525,7 +533,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asLong());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value         ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value         ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asLong()); return( *this );	}
 
 
 private:
@@ -605,7 +615,9 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asDouble());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const SG_Char         *Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (double                 Value)	{	Set_Value(Value           ); return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asDouble()); return( *this );	}
 
 
 private:
