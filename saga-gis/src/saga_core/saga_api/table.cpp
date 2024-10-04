@@ -1506,11 +1506,11 @@ public:
 
 private:
 
-	int					*m_Fields, m_nFields;
+	int					*m_Fields = NULL, m_nFields = 0;
 
 	CSG_Array_Int		m_Ascending;
 
-	const CSG_Table		*m_pTable;
+	const CSG_Table		*m_pTable = NULL;
 
 };
 
