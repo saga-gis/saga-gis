@@ -123,7 +123,7 @@ private:
 
 	bool					m_bInverse = false;
 
-	void					*m_pContext = NULL, *m_pTransformation = NULL;
+	void					*m_pContext = NULL, *m_pSource = NULL, *m_pTarget = NULL;
 
 	CSG_Projection			m_Source, m_Target;
 
@@ -134,8 +134,12 @@ private:
 
 	void					_On_Construction			(void);
 
-	bool					_Set_Transformation			(void                *pSource, void                *pTarget, void **ppTransformation) const;
-	bool					_Set_Transformation			(const CSG_Projection &Source, const CSG_Projection &Target, void **ppTransformation) const;
+	bool					_Set_Projection				(const CSG_Projection &Projection, void **ppProjection) const;
+
+
+//	void					*m_pTransformation = NULL;
+//	bool					_Set_Transformation			(void                *pSource, void                *pTarget, void **ppTransformation) const;
+//	bool					_Set_Transformation			(const CSG_Projection &Source, const CSG_Projection &Target, void **ppTransformation) const;
 
 };
 

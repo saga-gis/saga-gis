@@ -50,7 +50,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,7 +61,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -102,7 +102,7 @@ bool CSG_CRSProjector::Create(const CSG_CRSProjector &Projector)
 
 	m_bInverse = Projector.m_bInverse;
 
-	if( Projector.m_pTransformation )
+	if( Projector.m_pSource && Projector.m_pTarget )
 	{
 		return( Set_Transformation() );
 	}
@@ -113,7 +113,7 @@ bool CSG_CRSProjector::Create(const CSG_CRSProjector &Projector)
 //---------------------------------------------------------
 bool CSG_CRSProjector::Destroy(void)
 {
-	PROJ_FREE(m_pTransformation);
+	PROJ_FREE(m_pSource); PROJ_FREE(m_pTarget);
 
 	m_bInverse = false;
 
@@ -124,7 +124,7 @@ bool CSG_CRSProjector::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -152,7 +152,7 @@ bool CSG_CRSProjector::Set_Copies(int nCopies)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -177,7 +177,7 @@ CSG_String CSG_CRSProjector::Get_Description(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -315,7 +315,7 @@ bool CSG_CRSProjector::Convert_CRS_Format(const CSG_String &Definition, CSG_Stri
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -332,48 +332,34 @@ bool CSG_CRSProjector::Set_Target(const CSG_Projection &Projection, bool bSetTra
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_CRSProjector::_Set_Transformation(void *pSource, void *pTarget, void **ppTransformation) const
+bool CSG_CRSProjector::_Set_Projection(const CSG_Projection &Projection, void **ppProjection) const
 {
-	PROJ_FREE(*ppTransformation);
+	PROJ_FREE(*ppProjection);
 
-	*ppTransformation = proj_create_crs_to_crs_from_pj((PJ_CONTEXT *)m_pContext, (PJ *)pSource, (PJ *)pTarget, NULL, NULL);
-
-	if( proj_errno((PJ *)(*ppTransformation)) )
+	if( !Projection.is_Okay() )
 	{
-		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppTransformation))));
-
-		proj_errno_reset((PJ *)(*ppTransformation));
-
-		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), Error.c_str()));
-
-		PROJ_FREE(*ppTransformation);
+		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), _TL("undefined coordinate reference system")));
 
 		return( false );
 	}
 
-	return( true );
-}
+	CSG_String PROJ(Projection.Get_PROJ()); PROJ.Replace("+type=crs", "");
 
-//---------------------------------------------------------
-bool CSG_CRSProjector::_Set_Transformation(const CSG_Projection &Source, const CSG_Projection &Target, void **ppTransformation) const
-{
-	PROJ_FREE(*ppTransformation);
+	*ppProjection = proj_create((PJ_CONTEXT *)m_pContext, PROJ);
 
-	*ppTransformation = proj_create_crs_to_crs((PJ_CONTEXT *)m_pContext, Source.Get_PROJ(), Target.Get_PROJ(), NULL);
-
-	if( proj_errno((PJ *)(*ppTransformation)) )
+	if( proj_errno((PJ *)(*ppProjection)) )
 	{
-		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppTransformation))));
+		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppProjection))));
 
-		proj_errno_reset((PJ *)(*ppTransformation));
+		proj_errno_reset((PJ *)(*ppProjection));
 
 		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), Error.c_str()));
 
-		PROJ_FREE(*ppTransformation);
+		PROJ_FREE(*ppProjection);
 
 		return( false );
 	}
@@ -384,9 +370,9 @@ bool CSG_CRSProjector::_Set_Transformation(const CSG_Projection &Source, const C
 //---------------------------------------------------------
 bool CSG_CRSProjector::Set_Transformation(void)
 {
-	PROJ_FREE(m_pTransformation);
+	PROJ_FREE(m_pSource); PROJ_FREE(m_pTarget);
 
-	return( _Set_Transformation(m_Source, m_Target, &m_pTransformation) );
+	return( _Set_Projection(m_Source, &m_pSource) && _Set_Projection(m_Target, &m_pTarget) );
 }
 
 //---------------------------------------------------------
@@ -397,7 +383,7 @@ bool CSG_CRSProjector::Set_Transformation(const CSG_Projection &Source, const CS
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -422,31 +408,35 @@ bool CSG_CRSProjector::Set_Inverse(bool bOn)
 //---------------------------------------------------------
 bool CSG_CRSProjector::Has_Inverse(void) const
 {
-	return( m_pTransformation && proj_pj_info((PJ *)(m_pTransformation)).has_inverse );
+	return( m_pTarget && proj_pj_info((PJ *)(m_pTarget)).has_inverse );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_CRSProjector::Get_Projection(double &x, double &y)	const
 {
-	if( !m_pTransformation && !_Set_Transformation(m_Source, m_Target, (void **)&m_pTransformation) ) { return( false ); }
+	if( !m_pSource || !m_pTarget ) { return( false ); }
 
-	if( proj_angular_input((PJ *)m_pTransformation, m_bInverse ? PJ_INV : PJ_FWD) )
+	PJ *pSource = (PJ *)(m_bInverse ? m_pTarget : m_pSource);
+	PJ *pTarget = (PJ *)(m_bInverse ? m_pSource : m_pTarget);
+
+	if( proj_angular_input(pSource, PJ_INV) )
 	{
 		x *= M_DEG_TO_RAD; y *= M_DEG_TO_RAD;
 	}
 
 	PJ_COORD c = proj_coord(x, y, 0., 0.);
 
-	c = proj_trans((PJ *)m_pTransformation, m_bInverse ? PJ_INV : PJ_FWD, c); if( proj_errno((PJ *)m_pTransformation) ) { proj_errno_reset((PJ *)m_pTransformation); return( false ); }
+	c = proj_trans(pSource, PJ_INV, c); if( proj_errno(pSource) ) { proj_errno_reset(pSource); return( false ); }
+	c = proj_trans(pTarget, PJ_FWD, c); if( proj_errno(pTarget) ) { proj_errno_reset(pTarget); return( false ); }
 
 	x = c.v[0]; y = c.v[1];
 
-	if( proj_angular_output((PJ *)m_pTransformation, m_bInverse ? PJ_INV : PJ_FWD) )
+	if( proj_angular_output(pTarget, PJ_FWD) )
 	{
 		x *= M_RAD_TO_DEG; y *= M_RAD_TO_DEG;
 	}
@@ -457,20 +447,24 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y)	const
 //---------------------------------------------------------
 bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 {
-	if( !m_pTransformation && !_Set_Transformation(m_Source, m_Target, (void **)&m_pTransformation) ) { return( false ); }
+	if( !m_pSource || !m_pTarget ) { return( false ); }
 
-	if( proj_angular_input((PJ *)m_pTransformation, m_bInverse ? PJ_INV : PJ_FWD) )
+	PJ *pSource = (PJ *)(m_bInverse ? m_pTarget : m_pSource);
+	PJ *pTarget = (PJ *)(m_bInverse ? m_pSource : m_pTarget);
+
+	if( proj_angular_input(pSource, PJ_INV) )
 	{
 		x *= M_DEG_TO_RAD; y *= M_DEG_TO_RAD;
 	}
 
 	PJ_COORD c = proj_coord(x, y, z, 0.);
 	
-	c = proj_trans((PJ *)m_pTransformation, PJ_FWD, c); if( proj_errno((PJ *)m_pTransformation) ) { proj_errno_reset((PJ *)m_pTransformation); return( false ); }
+	c = proj_trans(pSource, PJ_INV, c); if( proj_errno(pSource) ) { proj_errno_reset(pSource); return( false ); }
+	c = proj_trans(pTarget, PJ_FWD, c); if( proj_errno(pTarget) ) { proj_errno_reset(pTarget); return( false ); }
 
 	x = c.v[0]; y = c.v[1]; z = c.v[2];
 
-	if( proj_angular_output((PJ *)m_pTransformation, m_bInverse ? PJ_INV : PJ_FWD) )
+	if( proj_angular_output(pTarget, PJ_FWD) )
 	{
 		x *= M_RAD_TO_DEG; y *= M_RAD_TO_DEG;
 	}
@@ -480,7 +474,7 @@ bool CSG_CRSProjector::Get_Projection(double &x, double &y, double &z)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -517,9 +511,62 @@ bool CSG_CRSProjector::Get_Projection(CSG_Point_3D &Point) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                   CRS Operation                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+////---------------------------------------------------------
+//bool CSG_CRSProjector::_Set_Transformation(void *pSource, void *pTarget, void **ppTransformation) const
+//{
+//	PROJ_FREE(*ppTransformation);
+//
+//	*ppTransformation = proj_create_crs_to_crs_from_pj((PJ_CONTEXT *)m_pContext, (PJ *)pSource, (PJ *)pTarget, NULL, NULL);
+//
+//	if( proj_errno((PJ *)(*ppTransformation)) )
+//	{
+//		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppTransformation))));
+//
+//		proj_errno_reset((PJ *)(*ppTransformation));
+//
+//		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), Error.c_str()));
+//
+//		PROJ_FREE(*ppTransformation);
+//
+//		return( false );
+//	}
+//
+//	return( true );
+//}
+//
+////---------------------------------------------------------
+//bool CSG_CRSProjector::_Set_Transformation(const CSG_Projection &Source, const CSG_Projection &Target, void **ppTransformation) const
+//{
+//	PROJ_FREE(*ppTransformation);
+//
+//	*ppTransformation = proj_create_crs_to_crs((PJ_CONTEXT *)m_pContext, Source.Get_PROJ(), Target.Get_PROJ(), NULL);
+//
+//	if( proj_errno((PJ *)(*ppTransformation)) )
+//	{
+//		CSG_String Error(proj_errno_string(proj_errno((PJ *)(*ppTransformation))));
+//
+//		proj_errno_reset((PJ *)(*ppTransformation));
+//
+//		SG_UI_Msg_Add_Error(CSG_String::Format("PROJ [%s]: %s", _TL("initialization"), Error.c_str()));
+//
+//		PROJ_FREE(*ppTransformation);
+//
+//		return( false );
+//	}
+//
+//	return( true );
+//}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
