@@ -389,15 +389,11 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 
 	if( !bDetails )
 	{
-		CSG_String s;
+		CSG_String s(CSG_Projections::Get_CRS_Type_Name(m_Type));
 
-		if( !m_Name.is_Empty() && m_Name.CmpNoCase("unknown") )
+		if( !m_Name.is_Empty() && m_Name.CmpNoCase("<custom>") )
 		{
-			s = m_Name;
-		}
-		else
-		{
-			s.Printf("[%s]", _TL("user defined"));
+			s += "\n" + m_Name;
 		}
 
 		if( m_Code > 0 && !m_Authority.is_Empty() )
@@ -450,7 +446,7 @@ CSG_String CSG_Projection::Get_Description(bool bDetails) const
 
 		pGCS = PRJ("BASEGEODCRS");
 	}
-	else if( is_Geographic() )
+	else if( is_Geographic() || is_Geodetic() )
 	{
 		pGCS = WKT   .Cmp_Name("GEOGCRS") || WKT   .Cmp_Name("GEODCRS") ? &WKT
 		     : WKT[0].Cmp_Name("GEOGCRS") || WKT[0].Cmp_Name("GEODCRS") ? &WKT[0] : &WKT[0][0];
@@ -550,7 +546,7 @@ bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 		pGCS[0] = WKT[0]("GEOGCS");
 		pGCS[1] = WKT[1]("GEOGCS");
 	}
-	else if( is_Geographic() )
+	else if( is_Geographic() || is_Geodetic() )
 	{
 		pGCS[0] = &WKT[0];
 		pGCS[1] = &WKT[1];
@@ -2222,8 +2218,7 @@ ESG_CRS_Type CSG_Projections::Get_CRS_Type(const CSG_String &Identifier)
 	if( !Identifier.CmpNoCase("PROJCS") || !Identifier.CmpNoCase("PROJCRS") ) { return( ESG_CRS_Type::Projection ); }
 	if( !Identifier.CmpNoCase("GEOGCS") || !Identifier.CmpNoCase("GEOGCRS") ) { return( ESG_CRS_Type::Geographic ); }
 	if( !Identifier.CmpNoCase("GEOCCS") || !Identifier.CmpNoCase("GEOCCRS") ) { return( ESG_CRS_Type::Geocentric ); }
-	if( !Identifier.CmpNoCase("GEODCS") || !Identifier.CmpNoCase("GEODCRS") ) { return( ESG_CRS_Type::Geographic ); }
-//	if( !Identifier.CmpNoCase("GEODCS") || !Identifier.CmpNoCase("GEODCRS") ) { return( ESG_CRS_Type::Geodetic   ); }
+	if( !Identifier.CmpNoCase("GEODCS") || !Identifier.CmpNoCase("GEODCRS") ) { return( ESG_CRS_Type::Geodetic   ); }
 
 	return( ESG_CRS_Type::Undefined );
 }
@@ -2250,7 +2245,7 @@ CSG_String CSG_Projections::Get_CRS_Type_Name(ESG_CRS_Type Type)
 	case ESG_CRS_Type::Geographic: return( _TL("Geographic Coordinate System") );
 	case ESG_CRS_Type::Geocentric: return( _TL("Geocentric Coordinate System") );
 	case ESG_CRS_Type::Geodetic  : return( _TL("Geodetic Coordinate System"  ) );
-	default                      : return( _TL("Undefined Coordinate System" ) );
+	default                      : return( _TL("Unknown Coordinate System"   ) );
 	}
 }
 
