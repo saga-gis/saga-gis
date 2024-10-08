@@ -915,21 +915,20 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 //---------------------------------------------------------
 void CWKSP_Layer::_Set_Projection(void)
 {
-	CSG_Projection Projection(Get_Object()->Get_Projection());
+	CSG_Projection &CRS = Get_Object()->Get_Projection();
 
-	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true); // CCRS_Picker
 
 	if(	pTool
-	&&  pTool->Set_Parameter("CRS_WKT ", Projection.Get_WKT2())
-	&&  pTool->Set_Parameter("CRS_PROJ", Projection.Get_PROJ())
+	&&  pTool->Set_Parameter("CRS_WKT" , CRS.Get_WKT2())
+	&&  pTool->Set_Parameter("CRS_PROJ", CRS.Get_PROJ())
 	&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
 	{
-		Projection.Create(pTool->Get_Parameter("CRS_WKT")->asString(), pTool->Get_Parameter("CRS_PROJ")->asString());
+		CSG_Projection new_CRS(pTool->Get_Parameter("CRS_WKT")->asString(), pTool->Get_Parameter("CRS_PROJ")->asString());
 
-		if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )
+		if( new_CRS.is_Okay() && (new_CRS != CRS || new_CRS.Get_Code() != CRS.Get_Code() || new_CRS.Get_Authority().CmpNoCase(CRS.Get_Authority())) )
 		{
-			Get_Object()->Get_Projection().Create(Projection);
-			Get_Object()->Set_Modified();
+			CRS.Create(new_CRS); Get_Object()->Set_Modified();
 
 			DataObject_Changed();
 		}
