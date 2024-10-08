@@ -217,6 +217,9 @@ bool CCRS_Base::On_Before_Execution(void)
 		case  1: Parameters["CRS_STRING"].Set_Value(Projection.Get_WKT2()); break;
 		}
 
+		Parameters["CRS_CODE"     ].Set_Value(Projection.Get_Code     ());
+		Parameters["CRS_AUTHORITY"].Set_Value(Projection.Get_Authority());
+
 		Parameters.Set_Callback(bCallback);
 	}
 
