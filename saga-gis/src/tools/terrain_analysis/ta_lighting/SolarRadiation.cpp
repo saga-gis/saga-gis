@@ -121,11 +121,8 @@ CSolarRadiation::CSolarRadiation(void)
 	Parameters.Add_Choice("",
 		"UNITS"			, _TL("Units"),
 		_TL("Units for output radiation values."),
-		CSG_String::Format("%s|%s|%s",
-			SG_T("[kWh/m²]"),
-			SG_T("[kJ/m²]"),
-			SG_T("[J/cm²]")
-		), 0
+		"kWh/m²|kJ/m²|J/cm²"    // time span  => energy (sum)
+	//	"kW/m²|kJ/s/m²|J/s/cm²" // for moment => power
 	);
 
 	Parameters.Add_Choice("",
@@ -157,7 +154,7 @@ CSolarRadiation::CSolarRadiation(void)
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"PERIOD"		, _TL("Time Period"),
-		_TL(""),
+		_TL("Momentum output will be in units of power [W/m²], time span will be in units of energy, either [kWh/m²], [kJ/m²], or [J/cm²]."),
 		CSG_String::Format("%s|%s|%s",
 			_TL("moment"),
 			_TL("day"),
@@ -310,6 +307,7 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 	if(	pParameter->Cmp_Identifier("PERIOD") )
 	{
 		pParameters->Set_Enabled("MOMENT"        , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("UNITS"         , pParameter->asInt() != 0);
 		pParameters->Set_Enabled("GRD_DURATION"  , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("GRD_SUNRISE"   , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("GRD_SUNSET"    , pParameter->asInt() == 1);
@@ -465,9 +463,9 @@ bool CSolarRadiation::Finalize(void)
 	}
 	else switch( Parameters("UNITS")->asInt() )
 	{
-	default: dUnit =    1.; Unit = SG_T("kWh/m²"); break; // [kWh/m²]
-	case  1: dUnit = 3600.; Unit = SG_T("kJ/m²" ); break; // [kJ/m²]
-	case  2: dUnit =  360.; Unit = SG_T("J/cm²" ); break; // [Ws/cm²] = [J/cm²]
+	default: dUnit =    1.; Unit = "kWh/m²"; break; // [kWh/m²]
+	case  1: dUnit = 3600.; Unit = "kJ/m²" ; break; // [kJ/m²]
+	case  2: dUnit =  360.; Unit = "J/cm²" ; break; // [Ws/cm²] = [J/cm²]
 	}
 
 	m_pDirect->Multiply(dUnit); m_pDirect->Set_Unit(Unit);
