@@ -296,9 +296,9 @@ bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Projection &P
 	}
 	else // predefines default to EPSG:3857 => Web Mercator
 	{
-		const char *PROJ = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs";
-		const char *WKT2 =
-			"PROJCRS[\"WGS 84 / Pseudo-Mercator\","
+		const wchar_t *PROJ = L"+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs";
+		const wchar_t *WKT2 =
+			L"PROJCRS[\"WGS 84 / Pseudo-Mercator\","
 			"    BASEGEODCRS[\"WGS 84\","
 			"        DATUM[\"World Geodetic System 1984\","
 			"            ELLIPSOID[\"WGS 84\",6378137,298.257223563]],"
@@ -314,7 +314,7 @@ bool CGDAL_Import_WMS::Get_WMS_System(CSG_Grid_System &System, CSG_Projection &P
 			"        AXIS[\"northing (Y)\",north],"
 			"        UNIT[\"metre\",1],"
 			"    SCOPE[\"Web mapping and visualisation.\"],"
-			"    AREA[\"World between 85.06°S and 85.06°N.\"],"
+			"    AREA[\"World between 85.06Â°S and 85.06Â°N.\"],"
 			"    BBOX[-85.06,-180,85.06,180],"
 			"    ID[\"EPSG\",3857]]";
 
