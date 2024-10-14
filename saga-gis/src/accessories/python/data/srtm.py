@@ -91,11 +91,11 @@ def CGIAR_Get_Tile(Col, Row, DeleteZip=True):
     relative to the current working directory.
     '''
 
-    if Col < 1 or Col >= 72:
+    if Col < 1 or Col > 72:
         saga_api.SG_UI_Console_Print_StdErr('requested column {:d} is out-of-range (1-72)'.format(Row))
         return -1
 
-    if Row < 1 or Row >= 24:
+    if Row < 1 or Row > 24:
         saga_api.SG_UI_Console_Print_StdErr('requested row {:d} is out-of-range (1-24)'.format(Col))
         return -1
 
@@ -212,7 +212,7 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90., Round=True, DeleteZip
         Lon = [Extent.Get_XMin(), Extent.Get_XMax()]; Lat=[Extent.Get_YMin(), Extent.Get_YMax()]
 
         #________________________________________________________________________
-        if not CGIAR_Get_Tiles_byExtent([Extent.Get_XMin(), Extent.Get_XMax()], [Extent.Get_YMin(), Extent.Get_YMax()], DeleteZip):
+        if not CGIAR_Get_Tiles_byExtent(Lon, Lat, DeleteZip):
             saga_api.SG_UI_Console_Print_StdErr('failed to update virtual raster tiles for requested extent')
             return None
 
@@ -277,22 +277,21 @@ def CGIAR_Get_AOI(AOI, Target_File, Target_Resolution=90., Round=True, DeleteZip
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(True) # suppress noise
 
-    Grid = Import_Raster()
+    Grid = Import_Raster(); Result = False
     if Grid:
         Target_Dir = os.path.split(Target_File)[0]
         if not os.path.exists(Target_Dir):
             os.makedirs(Target_Dir)
 
-        Grid.Save(Target_File)
+        Result = Grid.Save(Target_File)
 
         saga_api.SG_Get_Data_Manager().Delete(Grid) # free memory
 
-        saga_api.SG_UI_Console_Print_StdOut('okay', False)
-
     if not Verbose:
         saga_api.SG_UI_ProgressAndMsg_Lock(False)
+        saga_api.SG_UI_Console_Print_StdOut('okay' if Result else 'failed', False)
 
-    return Grid != None
+    return Result
 
 
 #################################################################################
