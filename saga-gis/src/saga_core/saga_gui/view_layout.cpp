@@ -145,7 +145,8 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pLayout)
 	m_pLayout  = pLayout;
 
 	m_pControl = new CVIEW_Layout_Control(this, pLayout);
-	m_pControl->SetSize(GetClientSize());
+
+	Set_Size();
 
 	Do_Show();
 }
@@ -271,7 +272,7 @@ void CVIEW_Layout::On_Key_Event(wxKeyEvent &event)
 }
 
 //---------------------------------------------------------
-void CVIEW_Layout::On_Size(wxSizeEvent &event)
+void CVIEW_Layout::Set_Size(void)
 {
 	int	A	= 1;
 	int	B	= 20;
@@ -288,6 +289,12 @@ void CVIEW_Layout::On_Size(wxSizeEvent &event)
 	m_pControl->Zoom_Full();
 
 	Thaw();
+}
+
+//---------------------------------------------------------
+void CVIEW_Layout::On_Size(wxSizeEvent &event)
+{
+	Set_Size();
 
 	event.Skip();
 }

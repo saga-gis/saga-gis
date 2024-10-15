@@ -91,6 +91,8 @@ private:
 	class CVIEW_Layout_Control		*m_pControl;
 
 
+	void							Set_Size			(void);
+
 	void							On_Key_Event		(wxKeyEvent      &event);
 	void							On_Size				(wxSizeEvent     &event);
 
