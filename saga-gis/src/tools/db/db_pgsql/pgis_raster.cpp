@@ -68,14 +68,8 @@ CRaster_Load::CRaster_Load(void)
 
 	Parameters.Add_Grid_List("", "GRIDS"    , _TL("Grids"         ), _TL(""), PARAMETER_OUTPUT);
 
-	if( has_GUI() )
-	{
-		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), "");
-	}
-	else
-	{
-		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), "");
-	}
+	Parameters.Add_Choice("", "DB_TABLES", _TL("Table"), _TL(""), "")->Set_UseInCMD(false);
+	Parameters.Add_String("", "DB_TABLE" , _TL("Table"), _TL(""), "")->Set_UseInGUI(false);
 
 	Parameters.Add_String   ("", "WHERE"    , _TL("Where"         ), _TL(""), "");
 	Parameters.Add_Choice   ("", "MULTIPLE" , _TL("Multiple Bands"), _TL(""),
@@ -106,18 +100,18 @@ void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		SG_UI_ProgressAndMsg_Lock(false);
 
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
 		pParameter->asChoice()->Set_Items(s);
 		pParameter->Set_Value(pParameter->asString());
 
-		On_Parameter_Changed(pParameters, pParameters->Get_Parameter("DB_TABLE"));
+		On_Parameter_Changed(pParameters, pParameters->Get_Parameter("DB_TABLES"));
 	}
 }
 
 //---------------------------------------------------------
 bool CRaster_Load::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters("DB_TABLE")->asString());
+	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString());
 
 	CSG_Parameter_Grid_List *pGrids = Parameters("GRIDS")->asGridList(); pGrids->Del_Items();
 
@@ -154,14 +148,8 @@ CRaster_Load_Band::CRaster_Load_Band(void)
 
 	Parameters.Add_Grid_Output("", "GRID", _TL("Grid"), _TL(""));
 
-	if( has_GUI() )
-	{
-		Parameters.Add_Choice("", "DB_TABLE", _TL("Table"), _TL(""), "");
-	}
-	else
-	{
-		Parameters.Add_String("", "DB_TABLE", _TL("Table"), _TL(""), "");
-	}
+	Parameters.Add_Choice("", "DB_TABLES", _TL("Table"), _TL(""), "")->Set_UseInCMD(false);
+	Parameters.Add_String("", "DB_TABLE" , _TL("Table"), _TL(""), "")->Set_UseInGUI(false);
 
 	Parameters.Add_Choice("", "BANDS" , _TL("Bands"          ), _TL(""), "")->Set_UseInCMD(false);
 	Parameters.Add_String("", "RID"   , _TL("Band Identifier"), _TL(""), "")->Set_UseInGUI(false);
@@ -186,18 +174,18 @@ void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
 
 		SG_UI_ProgressAndMsg_Lock(false);
 
-		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLE");
+		CSG_Parameter *pParameter = pParameters->Get_Parameter("DB_TABLES");
 		pParameter->asChoice()->Set_Items(s);
 		pParameter->Set_Value(pParameter->asString());
 
-		On_Parameter_Changed(pParameters, pParameters->Get_Parameter("DB_TABLE"));
+		On_Parameter_Changed(pParameters, pParameters->Get_Parameter("DB_TABLES"));
 	}
 }
 
 //---------------------------------------------------------
 int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( has_GUI() && pParameter->Cmp_Identifier("DB_TABLE") )
+	if( has_GUI() && pParameter->Cmp_Identifier("DB_TABLES") )
 	{
 		CSG_String s; CSG_Table t;
 
@@ -222,7 +210,7 @@ int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CRaster_Load_Band::On_Execute(void)
 {
-	CSG_String DB_Table(Parameters("DB_TABLE")->asString()), Where;
+	CSG_String DB_Table(Parameters(has_GUI() ? "DB_TABLES" : "DB_TABLE")->asString()), Where;
 
 	if( !has_GUI() || *Parameters("RID")->asString() )
 	{

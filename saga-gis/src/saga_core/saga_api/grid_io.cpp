@@ -295,51 +295,31 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 	{
 		CSG_String s(FileName);
 
-		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String rid   (s.BeforeFirst(':').AfterFirst('='));
+		s = s.AfterFirst(':'); CSG_String Host (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBase(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String rid  (s.BeforeFirst(':').AfterFirst('='));
 
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 33, false); // CPGIS_Raster_Load_Band
 
-		if(	pTool != NULL )
+		if( pTool )
 		{
-			SG_UI_ProgressAndMsg_Lock(true);
-
-			//---------------------------------------------
-			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
-
 			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
 
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() ) // CGet_Connections
-			{
-				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
-				{
-					if( !Connection.Cmp(Connections[i].asString(0)) )
-					{
-						bResult = true;
-					}
-				}
-			}
+			SG_UI_ProgressAndMsg_Lock(true);
 
-			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+			CSG_String Connection(DBase + " [" + Host + ":" + Port + "]");
 
-			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 33, true)) != NULL) == true ) // CPGIS_Raster_Load_Band
-			{
-				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
-				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
-						&& SG_TOOL_PARAMETER_SET("RID"       , rid       )
-						&& SG_TOOL_PARAMETER_SET("GRID"      , this      )
-						&& pTool->Execute();
-
-				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-			}
+			bResult =  pTool->Set_Parameter("CONNECTION", Connection)
+					&& pTool->Set_Parameter("DB_TABLE"  , Table     )
+					&& pTool->Set_Parameter("RID"       , rid       )
+					&& pTool->Set_Parameter("GRID"      , this      )
+					&& pTool->Execute();
 
 			SG_UI_ProgressAndMsg_Lock(false);
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 		}
 	}
 
