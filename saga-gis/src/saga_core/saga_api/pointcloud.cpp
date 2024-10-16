@@ -89,7 +89,14 @@ CSG_PointCloud * SG_Create_PointCloud(const char       *File) { return( SG_Creat
 CSG_PointCloud * SG_Create_PointCloud(const wchar_t    *File) { return( SG_Create_PointCloud(CSG_String(File)) ); }
 CSG_PointCloud * SG_Create_PointCloud(const CSG_String &File)
 {
-	return( new CSG_PointCloud(File) );
+	CSG_PointCloud *pPoints = new CSG_PointCloud();
+
+	if( pPoints->Create(File) )
+	{
+		return( pPoints );
+	}
+
+	delete(pPoints); return( NULL );
 }
 
 //---------------------------------------------------------

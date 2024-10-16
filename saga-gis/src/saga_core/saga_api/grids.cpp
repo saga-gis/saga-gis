@@ -84,13 +84,18 @@ CSG_Grids * SG_Create_Grids(const CSG_Grids *_pGrids, bool bCopyData)
 }
 
 //---------------------------------------------------------
-CSG_Grids * SG_Create_Grids(const char       *FileName, bool bLoadData) { return( SG_Create_Grids(CSG_String(FileName), bLoadData) ); }
-CSG_Grids * SG_Create_Grids(const wchar_t    *FileName, bool bLoadData) { return( SG_Create_Grids(CSG_String(FileName), bLoadData) ); }
-CSG_Grids * SG_Create_Grids(const CSG_String &FileName, bool bLoadData)
+CSG_Grids * SG_Create_Grids(const char       *File, bool bLoadData) { return( SG_Create_Grids(CSG_String(File), bLoadData) ); }
+CSG_Grids * SG_Create_Grids(const wchar_t    *File, bool bLoadData) { return( SG_Create_Grids(CSG_String(File), bLoadData) ); }
+CSG_Grids * SG_Create_Grids(const CSG_String &File, bool bLoadData)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(FileName, bLoadData);
+	CSG_Grids *pGrids = new CSG_Grids();
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( pGrids->Create(File, bLoadData) )
+	{
+		return( pGrids );
+	}
+
+	delete(pGrids); return( NULL );
 }
 
 //---------------------------------------------------------
@@ -1843,83 +1848,58 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 	{
 		CSG_String s(FileName);
 
-		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String rid   (s.BeforeFirst(':').AfterFirst('='));
+		s = s.AfterFirst(':'); CSG_String Host (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBase(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String rid  (s.BeforeFirst(':').AfterFirst('='));
 
 		//-------------------------------------------------
-		CSG_String_Tokenizer rids(rid, ","); rid.Clear();
+		CSG_Strings rids(SG_String_Tokenize(rid, ",")); rid.Clear();
 
-		while( rids.Has_More_Tokens() )
+		for(int i=0; i<rids.Get_Count(); i++)
 		{
 			if( !rid.is_Empty() )
 			{
 				rid += " OR ";
 			}
 
-			rid += "rid=\'" + rids.Get_Next_Token() + "\'";
+			rid += "rid=\'" + rids[i] + "\'";
 		}
 
 		//-------------------------------------------------
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 30); // CPGIS_Raster_Load
 
-		if(	pTool != NULL )
+		if(	pTool )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
-			//---------------------------------------------
-			CSG_Table Connections; CSG_String Connection = DBName + " [" + Host + ":" + Port + "]";
+			CSG_String Connection(DBase + " [" + Host + ":" + Port + "]"); CSG_Data_Manager Manager;
 
-			pTool->Set_Manager(NULL);
-			pTool->On_Before_Execution();
-
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
-			{
-				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
-				{
-					if( !Connection.Cmp(Connections[i].asString(0)) )
-					{
-						bResult = true;
-					}
-				}
-			}
+			bResult = pTool->Settings_Push(&Manager) && pTool->On_Before_Execution()
+			       && pTool->Set_Parameter("CONNECTION", Connection)
+			       && pTool->Set_Parameter("DB_TABLE"  , Table     )
+			       && pTool->Set_Parameter("WHERE"     , rid       )
+			       && pTool->Set_Parameter("MULTIPLE"  , 1         ) // grid collection
+			       && pTool->Execute();
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 30, true)) != NULL) == true )	// CPGIS_Raster_Load
+			//-----------------------------------------
+			if( Manager.Grids().Count() && Manager.Grids(0).is_Valid() )
 			{
-				CSG_Data_Manager Manager;
+				CSG_Grids *pGrids = Manager.Grids(0).asGrids();
 
-				pTool->On_Before_Execution();
-				pTool->Settings_Push(&Manager);
+				Set_File_Name(FileName);
 
-				bResult = SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-				       && SG_TOOL_PARAMETER_SET("TABLES"    , Table)
-				       && SG_TOOL_PARAMETER_SET("MULTIPLE"  , 1) // grid collection
-				       && SG_TOOL_PARAMETER_SET("WHERE"     , rid)
-				       && pTool->Execute();
+				Create(pGrids);
 
-				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-				//-----------------------------------------
-				if( Manager.Grids().Count() && Manager.Grids(0).is_Valid() )
+				for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					CSG_Grids *pGrids = Manager.Grids(0).asGrids();
-
-					Set_File_Name(FileName);
-
-					Create(pGrids);
-
-					for(int i=0; i<pGrids->Get_Grid_Count(); i++)
-					{
-						Add_Grid(pGrids->Get_Attributes(i), pGrids->Get_Grid_Ptr(i), true);
-					}
-
-					pGrids->Del_Grids(true);
+					Add_Grid(pGrids->Get_Attributes(i), pGrids->Get_Grid_Ptr(i), true);
 				}
+
+				pGrids->Del_Grids(true);
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);

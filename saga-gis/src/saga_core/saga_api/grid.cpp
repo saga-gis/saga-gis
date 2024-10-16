@@ -87,9 +87,14 @@ CSG_Grid * SG_Create_Grid(const char       *File, TSG_Data_Type Type, bool bCach
 CSG_Grid * SG_Create_Grid(const wchar_t    *File, TSG_Data_Type Type, bool bCached, bool bLoadData) { return( SG_Create_Grid(CSG_String(File), Type, bCached, bLoadData) ); }
 CSG_Grid * SG_Create_Grid(const CSG_String &File, TSG_Data_Type Type, bool bCached, bool bLoadData)
 {
-	CSG_Grid *pGrid = new CSG_Grid(File, Type, bCached, bLoadData);
+	CSG_Grid *pGrid = new CSG_Grid();
 
-	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
+	if( pGrid->Create(File, Type, bCached, bLoadData) )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid); return( NULL );
 }
 
 //---------------------------------------------------------

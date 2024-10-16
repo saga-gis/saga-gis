@@ -804,8 +804,6 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 {
 	CSG_Data_Object *pObject = NULL;
 
-//	SG_Get_Data_Manager().Add(File, DataType);
-
 	switch( DataType )
 	{
 	case SG_DATAOBJECT_TYPE_Table     : pObject = SG_Create_Table     (&File); break;

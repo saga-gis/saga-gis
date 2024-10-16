@@ -68,8 +68,8 @@ CRaster_Load::CRaster_Load(void)
 
 	Parameters.Add_Grid_List("", "GRIDS"    , _TL("Grids"         ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Choice("", "DB_TABLES", _TL("Table"), _TL(""), "")->Set_UseInCMD(false);
-	Parameters.Add_String("", "DB_TABLE" , _TL("Table"), _TL(""), "")->Set_UseInGUI(false);
+	Parameters.Add_Choice   ("", "DB_TABLES", _TL("Table"         ), _TL(""), "")->Set_UseInCMD(false);
+	Parameters.Add_String   ("", "DB_TABLE" , _TL("Table"         ), _TL(""), "")->Set_UseInGUI(false);
 
 	Parameters.Add_String   ("", "WHERE"    , _TL("Where"         ), _TL(""), "");
 	Parameters.Add_Choice   ("", "MULTIPLE" , _TL("Multiple Bands"), _TL(""),

@@ -76,9 +76,14 @@ CSG_TIN * SG_Create_TIN(const char       *File) { return( SG_Create_TIN(CSG_Stri
 CSG_TIN * SG_Create_TIN(const wchar_t    *File) { return( SG_Create_TIN(CSG_String(File)) ); }
 CSG_TIN * SG_Create_TIN(const CSG_String &File)
 {
-	CSG_TIN *pTIN = new CSG_TIN(File);
+	CSG_TIN *pTIN = new CSG_TIN();
 
-	if( !pTIN->is_Valid() ) { delete(pTIN); return( NULL ); } return( pTIN );
+	if( pTIN->Create(File) )
+	{
+		return( pTIN );
+	}
+
+	delete(pTIN); return( NULL );
 }
 
 //---------------------------------------------------------

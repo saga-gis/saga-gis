@@ -301,25 +301,24 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 		s = s.AfterFirst(':'); CSG_String Table(s.BeforeFirst(':'));
 		s = s.AfterFirst(':'); CSG_String rid  (s.BeforeFirst(':').AfterFirst('='));
 
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 33, false); // CPGIS_Raster_Load_Band
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 33); // CPGIS_Raster_Load_Band
 
 		if( pTool )
 		{
-			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
 			SG_UI_ProgressAndMsg_Lock(true);
 
 			CSG_String Connection(DBase + " [" + Host + ":" + Port + "]");
 
-			bResult =  pTool->Set_Parameter("CONNECTION", Connection)
-					&& pTool->Set_Parameter("DB_TABLE"  , Table     )
-					&& pTool->Set_Parameter("RID"       , rid       )
-					&& pTool->Set_Parameter("GRID"      , this      )
-					&& pTool->Execute();
-
-			SG_UI_ProgressAndMsg_Lock(false);
+			bResult = pTool->Set_Manager(NULL) && pTool->On_Before_Execution()
+			       && pTool->Set_Parameter("CONNECTION", Connection)
+			       && pTool->Set_Parameter("DB_TABLE"  , Table     )
+			       && pTool->Set_Parameter("RID"       , rid       )
+			       && pTool->Set_Parameter("GRID"      , this      )
+			       && pTool->Execute();
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
 

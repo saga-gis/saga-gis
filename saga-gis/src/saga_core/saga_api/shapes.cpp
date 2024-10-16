@@ -108,9 +108,14 @@ CSG_Shapes *		SG_Create_Shapes(const char       *File) { return( SG_Create_Shape
 CSG_Shapes *		SG_Create_Shapes(const wchar_t    *File) { return( SG_Create_Shapes(CSG_String(File)) ); }
 CSG_Shapes *		SG_Create_Shapes(const CSG_String &File)
 {
-	CSG_Shapes *pShapes = new CSG_Shapes(File);
+	CSG_Shapes *pShapes = new CSG_Shapes();
 
-	if( !pShapes->is_Valid() ) { delete(pShapes); return( NULL ); } return( pShapes );
+	if( pShapes->Create(File) )
+	{
+		return( pShapes );
+	}
+
+	delete(pShapes); return( NULL );
 }
 
 //---------------------------------------------------------
@@ -222,47 +227,26 @@ bool CSG_Shapes::Create(const CSG_String &File)
 	{
 		CSG_String s(File);
 
-		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBase(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table(s.BeforeFirst(':'));
 
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true); // CPGIS_Shapes_Load
 
 		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
-			//---------------------------------------------
-			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
+			CSG_String Connection(DBase + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
-			{
-				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
-				{
-					if( !Connection.Cmp(Connections[i].asString(0)) )
-					{
-						bResult = true;
-					}
-				}
-			}
+			bResult = pTool->Set_Manager(NULL) && pTool->On_Before_Execution()
+			       && pTool->Set_Parameter("CONNECTION", Connection)
+			       && pTool->Set_Parameter("DB_TABLE"  , Table     )
+			       && pTool->Set_Parameter("SHAPES"    , this      )
+			       && pTool->Execute();
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true ) // CPGIS_Shapes_Load
-			{
-				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
-				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
-						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this      )
-						&& pTool->Execute();
-
-				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-			}
 
 			SG_UI_ProgressAndMsg_Lock(false);
 		}

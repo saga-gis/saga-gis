@@ -72,10 +72,10 @@ CSG_Table * SG_Create_Table(const CSG_Table &Table)
 {
 	switch( Table.Get_ObjectType() )
 	{
-	case SG_DATAOBJECT_TYPE_Table:
+	case SG_DATAOBJECT_TYPE_Table     :
 		return( new CSG_Table(Table) );
 
-	case SG_DATAOBJECT_TYPE_Shapes:
+	case SG_DATAOBJECT_TYPE_Shapes    :
 	case SG_DATAOBJECT_TYPE_PointCloud:
 		return( SG_Create_Shapes(*((CSG_Shapes *)&Table)) );
 
@@ -91,10 +91,10 @@ CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 	{
 		switch( pTemplate->Get_ObjectType() )
 		{
-		case SG_DATAOBJECT_TYPE_Table:
+		case SG_DATAOBJECT_TYPE_Table     :
 			return( new CSG_Table(pTemplate) );
 
-		case SG_DATAOBJECT_TYPE_Shapes:
+		case SG_DATAOBJECT_TYPE_Shapes    :
 		case SG_DATAOBJECT_TYPE_PointCloud:
 			return( SG_Create_Shapes((CSG_Shapes *)pTemplate) );
 
@@ -111,7 +111,14 @@ CSG_Table * SG_Create_Table(const char       *File, TSG_Table_File_Type Format, 
 CSG_Table * SG_Create_Table(const wchar_t    *File, TSG_Table_File_Type Format, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Encoding) ); }
 CSG_Table * SG_Create_Table(const CSG_String &File, TSG_Table_File_Type Format, int Encoding)
 {
-	return( new CSG_Table(File, Format, Encoding) );
+	CSG_Table *pTable = new CSG_Table();
+
+	if( pTable->Create(File, Format, Encoding) )
+	{
+		return( pTable );
+	}
+
+	delete(pTable); return( NULL );
 }
 
 //---------------------------------------------------------
@@ -119,7 +126,14 @@ CSG_Table * SG_Create_Table(const char       *File, TSG_Table_File_Type Format, 
 CSG_Table * SG_Create_Table(const wchar_t    *File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding) { return( SG_Create_Table(CSG_String(File), Format, Separator, Encoding) ); }
 CSG_Table * SG_Create_Table(const CSG_String &File, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 {
-	return( new CSG_Table(File, Format, Encoding) );
+	CSG_Table *pTable = new CSG_Table();
+
+	if( pTable->Create(File, Format, Separator, Encoding) )
+	{
+		return( pTable );
+	}
+
+	delete(pTable); return( NULL );
 }
 
 
@@ -183,47 +197,26 @@ bool CSG_Table::Create(const CSG_String &File, TSG_Table_File_Type Format, int E
 	{
 		CSG_String s(File);
 
-		s = s.AfterFirst(':'); CSG_String Host  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Port  (s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String DBName(s.BeforeFirst(':'));
-		s = s.AfterFirst(':'); CSG_String Table (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Host (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Port (s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String DBase(s.BeforeFirst(':'));
+		s = s.AfterFirst(':'); CSG_String Table(s.BeforeFirst(':'));
 
-		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true); // CGet_Connections
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true); // CPGIS_Table_Load
 
-		if(	pTool != NULL )
+		if( pTool )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
-			//---------------------------------------------
-			CSG_Table Connections; CSG_String Connection(DBName + " [" + Host + ":" + Port + "]");
+			CSG_String Connection(DBase + " [" + Host + ":" + Port + "]");
 
-			pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() ) // CGet_Connections
-			{
-				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
-				{
-					if( !Connection.Cmp(Connections[i].asString(0)) )
-					{
-						bResult = true;
-					}
-				}
-			}
+			bResult = pTool->Set_Manager(NULL) && pTool->On_Before_Execution()
+			       && pTool->Set_Parameter("CONNECTION", Connection)
+			       && pTool->Set_Parameter("DB_TABLE"  , Table     )
+			       && pTool->Set_Parameter("TABLE"     , this      )
+			       && pTool->Execute();
 
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12, true)) != NULL) == true ) // CPGIS_Table_Load
-			{
-				pTool->Set_Manager(NULL); pTool->On_Before_Execution();
-
-				bResult =  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("DB_TABLE"  , Table     )
-						&& SG_TOOL_PARAMETER_SET("TABLE"     , this      )
-						&& pTool->Execute();
-
-				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-			}
 
 			SG_UI_ProgressAndMsg_Lock(false);
 		}
