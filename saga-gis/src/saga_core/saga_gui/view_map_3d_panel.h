@@ -76,8 +76,6 @@ public:
 
 	virtual bool				Update_Parameters		(bool bSave);
 
-	bool						Set_Options				(CSG_Grid *pDEM, int DEM_Res, int Map_Res);
-
 	int							Get_DEM_Res				(void)	{	return( m_DEM_Res );	}
 	bool						Inc_DEM_Res				(int Step);
 
@@ -105,10 +103,12 @@ private:
 
 	CSG_Colors					m_Colors;
 
-	CSG_Grid					*m_pDEM, m_DEM, m_Map;
+	CSG_Grid					m_DEM, m_Map;
 
 	class CWKSP_Map				*m_pMap;
 
+
+	bool						_Set_Options			(int DEM_Res, int Map_Res);
 
 	bool						_Get_Node				(int x, int y, TSG_Triangle_Node &Node, bool bProject = true);
 

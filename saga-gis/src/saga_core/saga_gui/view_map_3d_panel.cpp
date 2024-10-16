@@ -74,7 +74,6 @@ END_EVENT_TABLE()
 CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	: CSG_3DView_Panel(pParent, &m_Map)
 {
-	m_pDEM      = NULL;
 	m_pMap      = pMap;
 
 	m_DEM_Res   =  100;
@@ -130,11 +129,7 @@ bool CVIEW_Map_3DPanel::Update_Parameters(bool bSave)
 	}
 	else
 	{
-		Set_Options(
-			m_Parameters["DEM"    ].asGrid(),
-			m_Parameters["DEM_RES"].asInt (),
-			m_Parameters["MAP_RES"].asInt ()
-		);
+		Update_Statistics();
 	}
 
 	Update_Parent();
@@ -145,9 +140,9 @@ bool CVIEW_Map_3DPanel::Update_Parameters(bool bSave)
 //---------------------------------------------------------
 void CVIEW_Map_3DPanel::Update_Statistics(void)
 {
-	CSG_Rect r(m_pDEM->Get_Extent());
+	CSG_Grid *pDEM = m_Parameters["DEM"].asGrid();
 
-	if( !m_pMap || !r.Intersect(m_pMap->Get_Extent()) )
+	if( !SG_Get_Data_Manager().Exists(pDEM) || !m_pMap || !pDEM->Get_Extent().Intersects(m_pMap->Get_Extent()) )
 	{
 		m_DEM.Destroy();
 
@@ -155,15 +150,17 @@ void CVIEW_Map_3DPanel::Update_Statistics(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Rect r(pDEM->Get_Extent()); if( !r.Intersect(m_pMap->Get_Extent()) ) { m_DEM.Destroy(); return; }
+
 	double Cellsize = (r.Get_XRange() > r.Get_YRange() ? r.Get_XRange() : r.Get_YRange()) / m_DEM_Res;
 	
-	if( Cellsize < m_pDEM->Get_Cellsize() )
+	if( Cellsize < pDEM->Get_Cellsize() )
 	{
-		Cellsize = m_pDEM->Get_Cellsize();
+		Cellsize = pDEM->Get_Cellsize();
 	}
 
 	m_DEM.Create(CSG_Grid_System(Cellsize, r), SG_DATATYPE_Float);
-	m_DEM.Set_NoData_Value(m_pDEM->Get_NoData_Value());
+	m_DEM.Set_NoData_Value(pDEM->Get_NoData_Value());
 
 	for(int y=0; y<m_DEM.Get_NY(); y++)
 	{
@@ -173,7 +170,7 @@ void CVIEW_Map_3DPanel::Update_Statistics(void)
 		{
 			double z, wx = m_DEM.Get_XMin() + x * m_DEM.Get_Cellsize();
 
-			if( m_pDEM->Get_Value(wx, wy, z) )
+			if( pDEM->Get_Value(wx, wy, z) )
 			{
 				m_DEM.Set_Value(x, y, z);
 			}
@@ -205,35 +202,29 @@ void CVIEW_Map_3DPanel::Update_Parent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
+bool CVIEW_Map_3DPanel::Inc_DEM_Res(int Step)
 {
-	if( !SG_Get_Data_Manager().Exists(pDEM) ) { pDEM = NULL; }
-
-	if( DEM_Res < 2 ) { DEM_Res = 2; }
-	if( Map_Res < 2 ) { Map_Res = 2; }
-
-	if( m_pDEM != pDEM || m_DEM_Res != DEM_Res || m_Map_Res != Map_Res )
+	if( m_DEM_Res + Step >= 2 )
 	{
-		m_pDEM = pDEM; m_DEM_Res = DEM_Res; m_Map_Res = Map_Res;
-
-		Update_Statistics();
+		m_Parameters["DEM_RES"].Set_Value(m_DEM_Res += Step); Update_Statistics();
 
 		return( true );
 	}
 
-	return( false ); // nothing to do
-}
-
-//---------------------------------------------------------
-bool CVIEW_Map_3DPanel::Inc_DEM_Res(int Step)
-{
-	return( m_DEM_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res + Step, m_Map_Res) : false );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Map_3DPanel::Inc_Map_Res(int Step)
 {
-	return( m_Map_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res, m_Map_Res + Step) : false );
+	if( m_DEM_Res + Step >= 2 )
+	{
+		m_Parameters["MAP_RES"].Set_Value(m_Map_Res += Step); Update_Statistics();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
