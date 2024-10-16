@@ -197,7 +197,7 @@ bool CQGIS_ToolBox::On_Execute(void)
 					Algorithms += "'" + s[0] + "': '" + s[1] + "'";
 
 					//-------------------------------------------------
-					if( ++nAdded == 1 )
+					if( ++nAdded == 1 && pLibrary->Get_Category().Cmp("Tool Chains") )
 					{
 						s[0] = Library;
 
