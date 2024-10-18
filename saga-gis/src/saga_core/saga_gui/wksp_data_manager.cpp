@@ -140,7 +140,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		CSG_String::Format("%s|%s|%s",
 			_TL("empty"),
 			_TL("last state"),
-			_TL("always ask what to do")
+			_TL("ask what to do")
 		), 2
 	);
 
@@ -394,13 +394,11 @@ bool CWKSP_Data_Manager::Initialise(void)
 
 	switch( m_Parameters("PROJECT_START")->asInt() )
 	{
-	case 0:	// empty
-		return( true );
-
 	case 1:	// last state
-		return( m_pProject->Load(fLastState.GetFullPath(), false, false) );
+		fProject = fLastState;
+		break;
 
-	case 2:	// always ask what to do
+	case 2:	// ask what to do
 		{
 			wxArrayString Projects;
 
@@ -413,26 +411,33 @@ bool CWKSP_Data_Manager::Initialise(void)
 
 			m_pMenu_Files->Recent_Get(SG_DATAOBJECT_TYPE_Undefined, Projects, true);
 
-			wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
+			if( Projects.Count() > 1 )
+			{
+				wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Startup Project"), _TL("Select Startup Project"), Projects);
 
-			if( Projects.Count() <= 1 || dlg.ShowModal() != wxID_OK || dlg.GetSelection() == 0 )
-			{	// empty
-				return( true );
-			}
-
-			if( fLastState.FileExists() && dlg.GetSelection() == 1 )
-			{	// last state
-				return( m_pProject->Load(fLastState.GetFullPath(), false, false) );
-			}
-			else
-			{	// recently opened project
-				return( m_pProject->Load(dlg.GetStringSelection(), false, true) );
+				if( dlg.ShowModal() == wxID_OK && dlg.GetSelection() > 0 )
+				{
+					if( fLastState.FileExists() && dlg.GetSelection() == 1 )
+					{	// last state
+						fProject = fLastState;
+					}
+					else
+					{	// recently opened project
+						fProject = dlg.GetStringSelection();
+					}
+				}
 			}
 		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	if( fProject.FileExists() )
+	{
+		return( m_pProject->Load(fProject.GetFullPath(), false, fProject != fLastState) );
+	}
+
+	return( true );	// empty
 }
 
 //---------------------------------------------------------
