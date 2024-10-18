@@ -1013,7 +1013,7 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && !m_Parameters("MAP_DRAPE")->asBool() ) m_pDrape = NULL;
+	CSG_Grid *pDrape = m_pDrape; if( m_pDrape && (!m_pDrape->is_Valid() || !m_Parameters("MAP_DRAPE")->asBool()) ) { m_pDrape = NULL; }
 
 	if( Draw() )
 	{
