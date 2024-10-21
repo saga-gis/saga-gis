@@ -34,7 +34,7 @@
 					<option id="FORMULA">(g1 - g2) / (g1 + g2)</option>
 					<option id="NAME">Weighted Mean</option>
 					<option id="USE_NODATA">false</option>
-					<option id="TYPE">7</option>
+					<option id="TYPE">9</option>
 					<input  id="GRIDS">GRIDS_A</input>
 					<input  id="GRIDS">GRIDS_B</input>
 					<output id="RESULT">MEAN</output>
@@ -43,7 +43,7 @@
 				<tool library="grid_calculus" tool="1" name="Grid Calculator">
 					<option id="FORMULA">(g1 - g2) / (g1 + g2)</option>
 					<option id="USE_NODATA">false</option>
-					<option id="TYPE">7</option>
+					<option id="TYPE">9</option>
 					<input  id="GRIDS">GRIDS_A</input>
 					<input  id="GRIDS">GRIDS_B</input>
 					<output id="RESULT">MEAN</output>
