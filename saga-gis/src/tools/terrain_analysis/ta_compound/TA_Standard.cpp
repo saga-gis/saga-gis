@@ -119,10 +119,11 @@ bool CTA_Standard::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("grid_calculus"      , 1,	// grid calculator
 			SG_TOOL_PARAMETER_SET("RESULT"       , Parameters("SINKS"))
 		&&	SG_TOOL_PARAMETER_SET("FORMULA"      , SG_T("g1 - g2"))
-		&&	SG_TOOL_PARAMETER_SET("NAME"         , _TL("Closed Depressions"))
 		&&	SG_TOOL_PARAMLIST_ADD("GRIDS"        , &DEMP)
 		&&	SG_TOOL_PARAMLIST_ADD("GRIDS"        , Parameters("ELEVATION")->asGrid())
 	)
+
+	Parameters("SINKS")->asGrid()->Set_Name(_TL("Closed Depressions"));
 
 	//-----------------------------------------------------
 	SG_RUN_TOOL_ExitOnError("ta_lighting"        , 0,
@@ -232,10 +233,11 @@ bool CTA_Standard::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("grid_calculus"      ,  1,	// grid calculator
 			SG_TOOL_PARAMETER_SET("RESULT"       , Parameters("RSP"))
 		&&	SG_TOOL_PARAMETER_SET("FORMULA"      , SG_T("g1 / (g1 + g2)"))
-		&&	SG_TOOL_PARAMETER_SET("NAME"         , _TL("Relative Slope Position"))
 		&&	SG_TOOL_PARAMLIST_ADD("GRIDS"        , Parameters("CHNL_DIST" )->asGrid())
 		&&	SG_TOOL_PARAMLIST_ADD("GRIDS"        , Parameters("VALL_DEPTH")->asGrid())
 	)
+
+	Parameters("RSP")->asGrid()->Set_Name(_TL("Relative Slope Position"));
 
 	//-----------------------------------------------------
 	return( true );

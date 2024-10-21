@@ -651,7 +651,6 @@ by passing the parameter identifier of the list (here "GRIDS") several times:
 	<input  id="GRIDS"  >GRID_C</input>
 	<output id="RESULT" >RESULT</output>
 	<option id="FORMULA">g2 + g1 * g3 / 100</option>
-	<option id="NAME"   >Temperature at Sea Level</option>
 </tool> 
 
 This is an other example, this time with a shapes input list:
