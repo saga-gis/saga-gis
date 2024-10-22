@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Grid Classes Area for Polygons"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -68,26 +67,13 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes("",
-		"POLYGONS"	, _TL("Polygons"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
-	);
+	Parameters.Add_Shapes("", "POLYGONS", _TL("Polygons"), _TL(""), PARAMETER_INPUT          , SHAPE_TYPE_Polygon);
+	Parameters.Add_Shapes("", "RESULT"  , _TL("Result"  ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 
-	Parameters.Add_Shapes("",
-		"RESULT"	, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
-	);
-
-	Parameters.Add_Grid("",
-		"GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid  ("", "GRID"    , _TL("Classes" ), _TL(""), PARAMETER_INPUT);
 
 	Parameters.Add_Choice("",
-		"PROCESS"	, _TL("Processing Order"),
+		"PROCESS"    , _TL("Processing Order"),
 		_TL("If only a small part of the grid area is covered by polygons, polygon by polygon processing might give an enormous performance boost."),
 		CSG_String::Format("%s|%s",
 			_TL("cell by cell"),
@@ -96,7 +82,7 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 	);
 
 	Parameters.Add_Choice("",
-		"METHOD"	, _TL("Cell Area Intersection"),
+		"METHOD"     , _TL("Cell Area Intersection"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("cell center"),
@@ -105,7 +91,7 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 	);
 
 	Parameters.Add_Choice("",
-		"OUTPUT"	, _TL("Output Measurment"),
+		"OUTPUT"     , _TL("Output Measurment"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("total area"),
@@ -114,7 +100,7 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 	);
 
 	Parameters.Add_Choice("",
-		"GRID_VALUES"	, _TL("Class Definition"),
+		"GRID_VALUES", _TL("Class Definition"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("values are class identifiers"),
@@ -122,8 +108,7 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 		), 0
 	);
 
-	Parameters.Add_Table("GRID_VALUES", "GRID_LUT", _TL("Look-up Table"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-
+	Parameters.Add_Table("GRID_VALUES", "GRID_LUT", _TL("Look-up Table"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Table_Field("GRID_LUT", "GRID_LUT_MIN", _TL("Value"          ), _TL(""), false);
 	Parameters.Add_Table_Field("GRID_LUT", "GRID_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true );
 	Parameters.Add_Table_Field("GRID_LUT", "GRID_LUT_NAM", _TL("Name"           ), _TL(""), true );
@@ -158,12 +143,9 @@ int CGrid_Class_Statistics_For_Polygons::On_Parameters_Enable(CSG_Parameters *pP
 //---------------------------------------------------------
 bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
-
-	if( pPolygons->Get_Count() <= 0 || !pPolygons->Get_Extent().Intersects(pGrid->Get_Extent()) )
+	if( pPolygons->Get_Count() <= 0 || !pPolygons->Get_Extent().Intersects(Get_System().Get_Extent()) )
 	{
 		Error_Set(_TL("no spatial intersection between grid and polygon layer"));
 
@@ -175,7 +157,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 	{
 		Process_Set_Text(_TL("copying polygons"));
 
-		CSG_Shapes	*pResult	= Parameters("RESULT")->asShapes();
+		CSG_Shapes *pResult = Parameters("RESULT")->asShapes();
 
 		pResult->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Grid Classes")));
 
@@ -184,15 +166,15 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 			pResult->Add_Shape(pPolygons->Get_Shape(i), SHAPE_COPY_GEOM);
 		}
 
-		pPolygons	= pResult;
+		pPolygons = pResult;
 	}
 
 	//-----------------------------------------------------
-	int	fStart	= pPolygons->Get_Field_Count();
+	int fStart = pPolygons->Get_Field_Count();
 
 	Process_Set_Text(_TL("retrieving class information"));
 
-	if( !Get_Classes(pGrid, pPolygons) )
+	if( !Get_Classes(Parameters("GRID")->asGrid(), pPolygons) )
 	{
 		Error_Set(_TL("undefined grid classes"));
 
@@ -200,16 +182,16 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bCenter  = Parameters("METHOD")->asInt() == 0;
+	bool bCenter = Parameters("METHOD")->asInt() == 0;
 
 	Process_Set_Text(_TL("calculating class areas"));
 
 	//-----------------------------------------------------
-	if( Parameters("PROCESS")->asInt() == 1 )
+	if( Parameters("PROCESS")->asInt() == 1 ) // polygon by polygon
 	{
 		for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
-			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+			CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 			int	xCells[2], yCells[2];
 
@@ -220,7 +202,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 
 			for(int y=yCells[0]; y<=yCells[1]; y++)
 			{
-				double	yWorld	= Get_YMin() + y * Get_Cellsize();
+				double yWorld = Get_YMin() + y * Get_Cellsize();
 
 				for(int x=xCells[0]; x<=xCells[1]; x++)
 				{
@@ -229,9 +211,9 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 						continue;
 					}
 
-					double	xWorld	= Get_XMin() + x * Get_Cellsize();
+					double xWorld = Get_XMin() + x * Get_Cellsize();
 
-					double	Area	= Get_Intersection(pPolygon, xWorld, yWorld, bCenter);
+					double Area = Get_Intersection(pPolygon, xWorld, yWorld, bCenter);
 
 					if( Area > 0. )
 					{
@@ -243,26 +225,26 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	else
+	else // cell by cell
 	{
 		for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 		{
-			double	yWorld	= Get_YMin() + y * Get_Cellsize();
+			double yWorld = Get_YMin() + y * Get_Cellsize();
 
 			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
 				if( m_Classes.asInt(x, y) >= 0 )
 				{
-					double	xWorld	= Get_XMin() + x * Get_Cellsize();
+					double xWorld = Get_XMin() + x * Get_Cellsize();
 
-					int	fClass	= fStart + m_Classes.asInt(x, y);
+					int fClass = fStart + m_Classes.asInt(x, y);
 
 					for(int i=0; i<pPolygons->Get_Count(); i++)
 					{
-						CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+						CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
-						double	Area	= Get_Intersection(pPolygon, xWorld, yWorld, bCenter);
+						double Area = Get_Intersection(pPolygon, xWorld, yWorld, bCenter);
 
 						if( Area > 0. )
 						{
@@ -280,7 +262,7 @@ bool CGrid_Class_Statistics_For_Polygons::On_Execute(void)
 		#pragma omp parallel for
 		for(int i=0; i<pPolygons->Get_Count(); i++)
 		{
-			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+			CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 			for(int j=fStart; j<pPolygons->Get_Field_Count(); j++)
 			{
@@ -353,16 +335,21 @@ bool CGrid_Class_Statistics_For_Polygons::Get_Classes(CSG_Grid *pGrid, CSG_Shape
 	m_Classes.Destroy();
 
 	//-----------------------------------------------------
-	if( Parameters("GRID_VALUES")->asInt() == 0 )
+	if( Parameters("GRID_VALUES")->asInt() == 0 ) // values are class identifiers
 	{
-		CSG_Category_Statistics	Classes(pGrid->Get_Type());
+		CSG_Category_Statistics Classes(pGrid->Get_Type()); int nMaxClasses = 2048;
 
-		for(sLong iCell=0; iCell<pGrid->Get_NCells() && Set_Progress_Cells(iCell); iCell++)
+		for(sLong iCell=0; iCell<pGrid->Get_NCells() && Classes.Get_Count() <= nMaxClasses && Set_Progress_Cells(iCell); iCell++)
 		{
 			if( !pGrid->is_NoData(iCell) )
 			{
-				Classes	+= pGrid->asDouble(iCell);
+				Classes += pGrid->asDouble(iCell);
 			}
+		}
+
+		if( Classes.Get_Count() >= nMaxClasses )
+		{
+			Message_Fmt("\n%s: %s (%s: %d)\n", _TL("Warning"), _TL("stopped further enumerating grid class values"), _TL("threshold"), nMaxClasses);
 		}
 
 		//-------------------------------------------------
@@ -386,28 +373,28 @@ bool CGrid_Class_Statistics_For_Polygons::Get_Classes(CSG_Grid *pGrid, CSG_Shape
 	}
 
 	//-----------------------------------------------------
-	else
+	else // use look-up table
 	{
 		int	fNam, fMin, fMax;
 
-		CSG_Table	*pLUT	= Parameters("GRID_LUT")->asTable();
+		CSG_Table *pLUT = Parameters("GRID_LUT")->asTable();
 
 		if( pLUT )
 		{
-			fNam	= Parameters("GRID_LUT_NAM")->asInt();
-			fMin	= Parameters("GRID_LUT_MIN")->asInt();
-			fMax	= Parameters("GRID_LUT_MAX")->asInt();
+			fNam = Parameters("GRID_LUT_NAM")->asInt();
+			fMin = Parameters("GRID_LUT_MIN")->asInt();
+			fMax = Parameters("GRID_LUT_MAX")->asInt();
 
-			if( fNam < 0 || fNam >= pLUT->Get_Field_Count() )	{	fNam	= fMin;	}
-			if( fMax < 0 || fMax >= pLUT->Get_Field_Count() )	{	fMax	= fMin;	}
+			if( fNam < 0 || fNam >= pLUT->Get_Field_Count() ) { fNam = fMin; }
+			if( fMax < 0 || fMax >= pLUT->Get_Field_Count() ) { fMax = fMin; }
 		}
-		else if( DataObject_Get_Parameter(pGrid, "LUT") )
+		else if( DataObject_Get_Parameter(pGrid, "LUT") ) // gui only
 		{
-			pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+			pLUT = DataObject_Get_Parameter(pGrid, "LUT")->asTable();
 
-			fNam	= 1;
-			fMin	= 3;
-			fMax	= 4;
+			fNam = 1;
+			fMin = 3;
+			fMax = 4;
 		}
 
 		//-------------------------------------------------

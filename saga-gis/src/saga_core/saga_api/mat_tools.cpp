@@ -1017,7 +1017,7 @@ TSG_Data_Type CSG_Category_Statistics::Get_Category_Type(void)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(int Value)	const
 {
-	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value);
 
 	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
@@ -1025,7 +1025,7 @@ int CSG_Category_Statistics::Get_Category(int Value)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(double Value)	const
 {
-	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value);
 
 	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
@@ -1033,7 +1033,7 @@ int CSG_Category_Statistics::Get_Category(double Value)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 {
-	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
+	CSG_Table_Record *pRecord = m_pTable->Find_Record(0, Value);
 
 	return( pRecord ? (int)pRecord->Get_Index() : -1);
 }
@@ -1046,58 +1046,61 @@ int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(int Value)
 {
-	int i = Get_Category(Value);
-
-	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(Get_Category(Value));
 
 	if( !pRecord )
 	{
-		i = (int)m_pTable->Get_Count();
-
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+
+		if( m_pTable->Get_Count() > 16 || m_pTable->is_Indexed() )
+		{
+			Sort();
+		}
 	}
 
 	pRecord->Add_Value(1, 1);
 
-	return( i );
+	return( (int)(m_pTable->Get_Count() - 1) );
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(double Value)
 {
-	int i = Get_Category(Value);
-
-	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(Get_Category(Value));
 
 	if( !pRecord )
 	{
-		i = (int)m_pTable->Get_Count();
-
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+
+		if( m_pTable->Get_Count() > 16 || m_pTable->is_Indexed() )
+		{
+			Sort();
+		}
 	}
 
 	pRecord->Add_Value(1, 1);
 
-	return( i );
+	return( (int)(m_pTable->Get_Count() - 1) );
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Add_Value(const CSG_String &Value)
 {
-	int i = Get_Category(Value);
-
-	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(i);
+	CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(Get_Category(Value));
 
 	if( !pRecord )
 	{
-		i = (int)m_pTable->Get_Count();
-
 		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+
+		if( m_pTable->Get_Count() > 16 || m_pTable->is_Indexed() )
+		{
+			Sort();
+		}
 	}
 
 	pRecord->Add_Value(1, 1);
 
-	return( i );
+	return( (int)(m_pTable->Get_Count() - 1) );
 }
 
 //---------------------------------------------------------
@@ -1895,31 +1898,31 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 		return( false );
 	}
 
-	int		nValues	= m_Histogram.Get_Class_Count() > 0 ? (int)m_Histogram.Get_Class_Count() : m_Values.Get_N();
+	int nValues = m_Histogram.Get_Class_Count() > 0 ? (int)m_Histogram.Get_Class_Count() : m_Values.Get_N();
 
-	CSG_Matrix	mv(nClasses, nValues); mv.Assign(FLT_MAX);
+	CSG_Matrix mv(nClasses, nValues); mv.Assign(FLT_MAX);
 
-	int	i, **mc	= (int **)SG_Malloc(nValues * sizeof(int *));
+	int	**mc = (int **)SG_Malloc(nValues * sizeof(int *));
 
-	mc[0]	= (int *)SG_Calloc(nClasses * nValues, sizeof(int));
+	mc[0] = (int *)SG_Calloc((size_t)nClasses * nValues, sizeof(int));
 
-	for(i=0; i<nValues; i++)
+	for(int i=0; i<nValues; i++)
 	{
-		mc[i]	= mc[0] + i * nClasses;
+		mc[i] = mc[0] + i * (size_t)nClasses;
 	}
 
 	//-----------------------------------------------------
-	for(i=1; i<nValues; i++)
+	for(int i=1; i<nValues; i++)
 	{
-		double	v = 0., s1 = 0., s2 = 0., w = 0.;
+		double v = 0., s1 = 0., s2 = 0., w = 0.;
 
 		for(int m=0, n=i+1; m<=i; m++, n--)
 		{
-			v	 = _Get_Value(n);
-			s2	+= v*v;
-			s1	+= v;
-			w	++;
-			v	 = s2 - (s1 * s1) / w;
+			v   = _Get_Value(n);
+			s2 += v*v;
+			s1 += v;
+			w  ++;
+			v   = s2 - (s1 * s1) / w;
 
 			if( n > 0 )
 			{
@@ -1927,38 +1930,38 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 				{
 					if( mv[i][j] >= (v + mv[n - 1][j - 1]) )
 					{
-						mc[i][j]	= n;
-						mv[i][j]	= v + mv[n - 1][j - 1];
+						mc[i][j] = n;
+						mv[i][j] = v + mv[n - 1][j - 1];
 					}
 				}
 			}
 		}
 
-		mc[i][0]	= 0;
-		mv[i][0]	= v;
+		mc[i][0] = 0;
+		mv[i][0] = v;
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Int	Class(nClasses);
+	CSG_Array_Int Class(nClasses);
 
-	for(i=0; i<nClasses; i++)
+	for(int i=0; i<nClasses; i++)
 	{
 		Class[i] = i;
 	}
 
-	int	j = Class[nClasses - 1] = nValues - 1;
+	int j = Class[(size_t)nClasses - 1] = nValues - 1;
 
-	for(i=nClasses-1; i>0; i--)
+	for(int i=nClasses-1; i>0; i--)
 	{
-		Class[i - 1] = j = mc[j - 1][i];
+		Class[(size_t)i - 1] = j = mc[j - 1][i];
 	}
 
 	//-----------------------------------------------------
-	m_Breaks.Create(nClasses + 1);
+	m_Breaks.Create((size_t)nClasses + 1);
 
 	m_Breaks[0] = _Get_Value(0);
 
-	for(i=1; i<nClasses; i++)
+	for(int i=1; i<nClasses; i++)
 	{
 		m_Breaks[i] = _Get_Value(Class[i - 1]);
 	}
@@ -1980,8 +1983,8 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 //---------------------------------------------------------
 CSG_Cluster_Analysis::CSG_Cluster_Analysis(void)
 {
-	m_nFeatures	= 0;
-	m_Iteration	= 0;
+	m_nFeatures = 0;
+	m_Iteration = 0;
 }
 
 //---------------------------------------------------------
@@ -1998,8 +2001,8 @@ bool CSG_Cluster_Analysis::Destroy(void)
 	m_nMembers.Destroy();
 	m_Clusters.Destroy();
 	m_Features.Destroy();
-	m_nFeatures	= 0;
-	m_Iteration	= 0;
+	m_nFeatures = 0;
+	m_Iteration = 0;
 
 	return( true );
 }
@@ -2011,7 +2014,7 @@ bool CSG_Cluster_Analysis::Create(int nFeatures)
 
 	if( nFeatures > 0 )
 	{
-		m_nFeatures	= nFeatures;
+		m_nFeatures = nFeatures;
 
 		m_Features.Create(m_nFeatures * sizeof(double), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_3);
 
@@ -2032,7 +2035,7 @@ bool CSG_Cluster_Analysis::Set_Feature(sLong iElement, int iFeature, double Valu
 {
 	if( iElement >= 0 && iElement < Get_nElements() && iFeature >= 0 && iFeature < m_nFeatures )
 	{
-		((double *)m_Features.Get_Entry(iElement))[iFeature]	= Value;
+		((double *)m_Features.Get_Entry(iElement))[iFeature] = Value;
 
 		return( true );
 	}
@@ -2073,36 +2076,36 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations
 		default:	// random
 			if( (m_Clusters[iElement] = (int)CSG_Random::Get_Uniform(0, nClusters)) >= nClusters )
 			{
-				m_Clusters[iElement]	= nClusters - 1;
+				m_Clusters[iElement] = nClusters - 1;
 			}
 			break;
 
 		case  1:	// periodic
 			{
-				m_Clusters[iElement]	= iElement % nClusters;
+				m_Clusters[iElement] = iElement % nClusters;
 			}
 			break;
 
 		case  2:	// keep as is, but check for valid cluster ids
 			if( 0 > m_Clusters[iElement] || m_Clusters[iElement] >= nClusters )
 			{
-				m_Clusters[iElement]	= iElement % nClusters;
+				m_Clusters[iElement] = iElement % nClusters;
 			}
 			break;
 		}
 	}
 
 	//-----------------------------------------------------
-	bool	bResult;
+	bool bResult;
 
-	m_Iteration	= 0;
+	m_Iteration = 0;
 
 	switch( Method )
 	{
-	default: bResult = _Minimum_Distance(true , nMaxIterations);	break;
-	case  1: bResult = _Hill_Climbing   (true , nMaxIterations);	break;
+	default: bResult = _Minimum_Distance(true , nMaxIterations); break;
+	case  1: bResult = _Hill_Climbing   (true , nMaxIterations); break;
 	case  2: bResult = _Minimum_Distance(true , nMaxIterations)
-				&&     _Hill_Climbing   (false, nMaxIterations);	break;
+	              &&   _Hill_Climbing   (false, nMaxIterations); break;
 	}
 
 	//-----------------------------------------------------
@@ -2110,7 +2113,7 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations
 	{
 		for(int iCluster=0; iCluster<nClusters; iCluster++)
 		{
-			m_Variance[iCluster]	= m_nMembers[iCluster] <= 0 ? 0. : m_Variance[iCluster] / m_nMembers[iCluster];
+			m_Variance[iCluster] = m_nMembers[iCluster] <= 0 ? 0. : m_Variance[iCluster] / m_nMembers[iCluster];
 		}
 	}
 
@@ -2120,89 +2123,87 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations
 //---------------------------------------------------------
 bool CSG_Cluster_Analysis::_Minimum_Distance(bool bInitialize, int nMaxIterations)
 {
-	int		iElement, iCluster, nClusters	= m_Variance.Get_N();
+	int iElement, iCluster, nClusters = m_Variance.Get_N();
 
-	double	SP_Last	= -1.;
+	double SP_Last = -1.;
 
 	//-----------------------------------------------------
 	for(m_Iteration=1; SG_UI_Process_Get_Okay(); m_Iteration++)
 	{
-		m_Variance	= 0.;
-		m_Centroid	= 0.;
-		m_nMembers	= 0;
+		m_Variance = 0.;
+		m_Centroid = 0.;
+		m_nMembers = 0;
 
 		//-------------------------------------------------
 		for(iElement=0; iElement<Get_nElements(); iElement++)
 		{
 			m_nMembers[iCluster = m_Clusters[iElement]]++;
 
-			double	*Feature	= (double *)m_Features.Get_Entry(iElement);
+			double *Feature = (double *)m_Features.Get_Entry(iElement);
 
 			for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
-				m_Centroid[iCluster][iFeature]	+= Feature[iFeature];
+				m_Centroid[iCluster][iFeature] += Feature[iFeature];
 			}
 		}
 
 		//-------------------------------------------------
 		for(iCluster=0; iCluster<nClusters; iCluster++)
 		{
-			double	d	= m_nMembers[iCluster] > 0 ? 1. / m_nMembers[iCluster] : 0.;
+			double d = m_nMembers[iCluster] > 0 ? 1. / m_nMembers[iCluster] : 0.;
 
 			for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
-				m_Centroid[iCluster][iFeature]	*= d;
+				m_Centroid[iCluster][iFeature] *= d;
 			}
 		}
 
 		//-------------------------------------------------
-		int	nShifts	= 0;
-
-		m_SP	= 0.;
+		int nShifts = 0; m_SP = 0.;
 
 		for(iElement=0; iElement<Get_nElements(); iElement++)
 		{
-			double	*Feature	= (double *)m_Features.Get_Entry(iElement);
+			double *Feature = (double *)m_Features.Get_Entry(iElement);
 
-			double	minVariance	= -1.;
-			int		minCluster	= -1;
+			double minVariance = -1.;
+			int    minCluster  = -1;
 
 			for(iCluster=0; iCluster<nClusters; iCluster++)
 			{
-				double	Variance	= 0.;
+				double Variance = 0.;
 
 				for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-					Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
+					Variance += SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
 				}
 
 				if( minVariance < 0. || Variance < minVariance )
 				{
-					minVariance	= Variance;
-					minCluster	= iCluster;
+					minVariance = Variance;
+					minCluster  = iCluster;
 				}
 			}
 
 			if( m_Clusters[iElement] != minCluster )
 			{
-				m_Clusters[iElement]	= minCluster;
+				m_Clusters[iElement] = minCluster;
 
 				nShifts++;
 			}
 
-			m_SP					+= minVariance;
-			m_Variance[minCluster]	+= minVariance;
+			m_SP                   += minVariance;
+			m_Variance[minCluster] += minVariance;
 		}
 
 		//-------------------------------------------------
-		m_SP	/= Get_nElements();
+		m_SP /= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
 			_TL("pass"  ), m_Iteration,
 			_TL("change"), m_Iteration < 2 ? m_SP : SP_Last - m_SP
 		));
 
-		SP_Last	 = m_SP;
+		SP_Last = m_SP;
 
 		if( nShifts == 0 || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
 		{
@@ -2216,85 +2217,84 @@ bool CSG_Cluster_Analysis::_Minimum_Distance(bool bInitialize, int nMaxIteration
 //---------------------------------------------------------
 bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 {
-	int		iElement, iCluster, nClusters	= m_Variance.Get_N();
+	int iElement, iCluster, nClusters = m_Variance.Get_N();
 
 	//-----------------------------------------------------
-	m_Variance	= 0.;
-	m_Centroid	= 0.;
-	m_nMembers	= 0;
+	m_Variance = 0.;
+	m_Centroid = 0.;
+	m_nMembers = 0;
 
 	for(iElement=0; iElement<Get_nElements(); iElement++)
 	{
 		m_nMembers[iCluster = m_Clusters[iElement]]++;
 
-		double	*Feature	= (double *)m_Features.Get_Entry(iElement);
+		double *Feature = (double *)m_Features.Get_Entry(iElement);
 
 		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
-			double	d	 = Feature[iFeature];
+			double d = Feature[iFeature];
 
-			m_Centroid[iCluster][iFeature]	+= d;
-			m_Variance[iCluster]          	+= d*d;
+			m_Centroid[iCluster][iFeature] += d;
+			m_Variance[iCluster]           += d*d;
 		}
 	}
 
 	//-----------------------------------------------------
 	for(iCluster=0; iCluster<nClusters; iCluster++)
 	{
-		double	v	= 0., d	= m_nMembers[iCluster] <= 0 ? 0. : 1. / (double)m_nMembers[iCluster];
+		double v = 0., d = m_nMembers[iCluster] <= 0 ? 0. : 1. / (double)m_nMembers[iCluster];
 
 		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
-			m_Centroid[iCluster][iFeature]	*= d;
-			v	+= SG_Get_Square(m_Centroid[iCluster][iFeature]);
+			m_Centroid[iCluster][iFeature] *= d;
+			v += SG_Get_Square(m_Centroid[iCluster][iFeature]);
 		}
 
-		m_Variance[iCluster]	-= v * m_nMembers[iCluster];
+		m_Variance[iCluster] -= v * m_nMembers[iCluster];
 	}
 
 	//-----------------------------------------------------
-	double	SP_Last	= -1.;	int		noShift	= 0;
+	double SP_Last = -1.; int noShift = 0;
 
 	for(m_Iteration=1; SG_UI_Process_Get_Okay(false); m_Iteration++)
 	{
 		for(iElement=0; iElement<Get_nElements(); iElement++)
 		{
-			iCluster	= m_Clusters[iElement];
+			iCluster = m_Clusters[iElement];
 
 			if( noShift++ < Get_nElements() && m_nMembers[iCluster] > 1 )
 			{
-				int	iFeature; double *Feature	= (double *)m_Features.Get_Entry(iElement);
+				double *Feature = (double *)m_Features.Get_Entry(iElement);
 
-				double	V1, V2, Variance	= 0.;
+				double Variance = 0.;
 
-				for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+				for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-					Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
+					Variance += SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
 				}
 
-				V1		= Variance * m_nMembers[iCluster] / (m_nMembers[iCluster] - 1.);
+				double V1 = Variance * m_nMembers[iCluster] / (m_nMembers[iCluster] - 1.);
 
 				//-----------------------------------------
-				int		kCluster	= 0;
-				double	VMin		= -1.;
+				int kCluster = 0; double VMin = -1.;
 
 				for(int jCluster=0; jCluster<nClusters; jCluster++)
 				{
 					if( jCluster != iCluster )
 					{
-						Variance	= 0.; 
+						Variance = 0.; 
 
-						for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+						for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 						{
-							Variance	+= SG_Get_Square(m_Centroid[jCluster][iFeature] - Feature[iFeature]);
+							Variance += SG_Get_Square(m_Centroid[jCluster][iFeature] - Feature[iFeature]);
 						}
 
-						V2	= Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.);
+						double V2 = Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.);
 
 						if( VMin < 0. || V2 < VMin )
 						{
-							VMin		= V2;
-							kCluster	= jCluster;
+							VMin     = V2;
+							kCluster = jCluster;
 						}
 					}
 				}
@@ -2302,21 +2302,21 @@ bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 				//-----------------------------------------
 				if( VMin >= 0 && VMin < V1 )
 				{
-					noShift					 = 0;
-					m_Variance[iCluster]	-= V1;
-					m_Variance[kCluster]	+= VMin;
-					V1						 = 1. / (m_nMembers[iCluster] - 1.);
-					V2						 = 1. / (m_nMembers[kCluster] + 1.);
+					noShift               = 0;
+					m_Variance[iCluster] -= V1;
+					m_Variance[kCluster] += VMin;
+					       V1             = 1. / (m_nMembers[iCluster] - 1.);
+					double V2             = 1. / (m_nMembers[kCluster] + 1.);
 
-					for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+					for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 					{
-						double	d	= Feature[iFeature];
+						double d = Feature[iFeature];
 
-						m_Centroid[iCluster][iFeature]	= (m_nMembers[iCluster] * m_Centroid[iCluster][iFeature] - d) * V1;
-						m_Centroid[kCluster][iFeature]	= (m_nMembers[kCluster] * m_Centroid[kCluster][iFeature] + d) * V2;
+						m_Centroid[iCluster][iFeature] = (m_nMembers[iCluster] * m_Centroid[iCluster][iFeature] - d) * V1;
+						m_Centroid[kCluster][iFeature] = (m_nMembers[kCluster] * m_Centroid[kCluster][iFeature] + d) * V2;
 					}
 
-					m_Clusters[iElement]	= kCluster;
+					m_Clusters[iElement] = kCluster;
 
 					m_nMembers[iCluster]--;
 					m_nMembers[kCluster]++;
@@ -2327,17 +2327,17 @@ bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 		//-------------------------------------------------
 		for(iCluster=0, m_SP=0.; iCluster<nClusters; iCluster++)
 		{
-			m_SP	+= m_Variance[iCluster];
+			m_SP += m_Variance[iCluster];
 		}
 
-		m_SP	/= Get_nElements();
+		m_SP /= Get_nElements();
 
 		SG_UI_Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
 			_TL("pass"  ), m_Iteration,
 			_TL("change"), m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
 
-		SP_Last		= m_SP;
+		SP_Last = m_SP;
 
 		if( noShift >= Get_nElements() || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
 		{
@@ -2358,22 +2358,19 @@ bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 //---------------------------------------------------------
 CSG_Classifier_Supervised::CSG_Classifier_Supervised(void)
 {
-	m_nFeatures				= 0;
+	m_nFeatures = 0; m_pClasses = NULL; m_nClasses = 0;
 
-	m_nClasses				= 0;
-	m_pClasses				= NULL;
-
-	m_Threshold_Distance	= 0.;
-	m_Threshold_Angle		= 0.;
-	m_Threshold_Probability	= 0.;
-	m_Probability_Relative	= false;
+	m_Threshold_Distance    = 0.;
+	m_Threshold_Angle       = 0.;
+	m_Threshold_Probability = 0.;
+	m_Probability_Relative  = false;
 
 	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
-		m_bWTA[i]	=  i == SG_CLASSIFY_SUPERVISED_MinimumDistance
-				//	|| i == SG_CLASSIFY_SUPERVISED_Mahalonobis
-					|| i == SG_CLASSIFY_SUPERVISED_MaximumLikelihood
-					|| i == SG_CLASSIFY_SUPERVISED_SAM;
+		m_bWTA[i] =  i == SG_CLASSIFY_SUPERVISED_MinimumDistance
+		//        || i == SG_CLASSIFY_SUPERVISED_Mahalonobis
+		          || i == SG_CLASSIFY_SUPERVISED_MaximumLikelihood
+		          || i == SG_CLASSIFY_SUPERVISED_SAM;
 	}
 }
 
@@ -2390,7 +2387,7 @@ void CSG_Classifier_Supervised::Create(int nFeatures)
 
 	if( nFeatures > 0 )
 	{
-		m_nFeatures	= nFeatures;
+		m_nFeatures = nFeatures;
 	}
 }
 
@@ -2407,7 +2404,7 @@ void CSG_Classifier_Supervised::Destroy(void)
 		SG_FREE_SAFE(m_pClasses);
 	}
 
-	m_nFeatures	= 0;
+	m_nFeatures = 0;
 
 	m_Info.Clear();
 }
@@ -2418,11 +2415,11 @@ void CSG_Classifier_Supervised::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void   CSG_Classifier_Supervised::Set_Threshold_Distance   (double Value)	{	m_Threshold_Distance	= Value;	}
+void   CSG_Classifier_Supervised::Set_Threshold_Distance   (double Value)	{	m_Threshold_Distance    = Value;	}
 double CSG_Classifier_Supervised::Get_Threshold_Distance   (void)			{	return( m_Threshold_Distance );		}
 
 //---------------------------------------------------------
-void   CSG_Classifier_Supervised::Set_Threshold_Angle      (double Value)	{	m_Threshold_Angle		= Value;	}
+void   CSG_Classifier_Supervised::Set_Threshold_Angle      (double Value)	{	m_Threshold_Angle       = Value;	}
 double CSG_Classifier_Supervised::Get_Threshold_Angle      (void)			{	return( m_Threshold_Angle );		}
 
 //---------------------------------------------------------
@@ -2430,7 +2427,7 @@ void   CSG_Classifier_Supervised::Set_Threshold_Probability(double Value)	{	m_Th
 double CSG_Classifier_Supervised::Get_Threshold_Probability(void)			{	return( m_Threshold_Probability );	}
 
 //---------------------------------------------------------
-void   CSG_Classifier_Supervised::Set_Probability_Relative (bool   Value)	{	m_Probability_Relative	= Value;	}
+void   CSG_Classifier_Supervised::Set_Probability_Relative (bool   Value)	{	m_Probability_Relative  = Value;	}
 bool   CSG_Classifier_Supervised::Get_Probability_Relative (void)			{	return( m_Probability_Relative );	}
 
 //---------------------------------------------------------
@@ -2438,7 +2435,7 @@ void CSG_Classifier_Supervised::Set_WTA(int Method, bool bOn)
 {
 	if( Method >= 0 && Method < SG_CLASSIFY_SUPERVISED_WTA )
 	{
-		m_bWTA[Method]	= bOn;
+		m_bWTA[Method] = bOn;
 	}
 }
 
@@ -2458,10 +2455,10 @@ bool CSG_Classifier_Supervised::Get_WTA(int Method)
 //---------------------------------------------------------
 bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 {
-	int	nFeatures	= m_nFeatures;	Destroy();	m_nFeatures	= nFeatures;
+	int nFeatures = m_nFeatures; Destroy(); m_nFeatures = nFeatures;
 
 	//-----------------------------------------------------
-	CSG_MetaData	Data;
+	CSG_MetaData Data;
 
 	if( !Data.Load(File) || !Data.Cmp_Name("supervised_classifier") || SG_Compare_Version(Data.Get_Property("saga-version"), "2.1.4") < 0 )
 	{
@@ -2475,24 +2472,24 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 
 	if( Data["features"]("info") )
 	{
-		m_Info	= Data["features"]["info"].Get_Content();
+		m_Info = Data["features"]["info"].Get_Content();
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	&Classes	= *Data.Get_Child("CLASSES");
+	CSG_MetaData &Classes = *Data.Get_Child("CLASSES");
 
 	for(int i=0; i<Classes.Get_Children_Count(); i++)
 	{
 		if( Classes[i].Cmp_Name("class") && Classes[i].Get_Child("id") )
 		{
-			bool	bAdd	= true;
+			bool bAdd = true;
 
-			CClass	*pClass	= new CClass(Classes[i]["id"].Get_Content());
+			CClass *pClass = new CClass(Classes[i]["id"].Get_Content());
 
-			if( !pClass->m_Cov .from_String(Classes[i]["cov" ].Get_Content()) || pClass->m_Cov .Get_NX() != m_nFeatures || !pClass->m_Cov.is_Square() )	{	bAdd	= false;	}
-			if( !pClass->m_Mean.from_String(Classes[i]["mean"].Get_Content()) || pClass->m_Mean.Get_N () != m_nFeatures )	{	bAdd	= false;	}
-			if( !pClass->m_Min .from_String(Classes[i]["min" ].Get_Content()) || pClass->m_Min .Get_N () != m_nFeatures )	{	bAdd	= false;	}
-			if( !pClass->m_Max .from_String(Classes[i]["max" ].Get_Content()) || pClass->m_Max .Get_N () != m_nFeatures )	{	bAdd	= false;	}
+			if( !pClass->m_Cov .from_String(Classes[i]["cov" ].Get_Content()) || pClass->m_Cov .Get_NX() != m_nFeatures || !pClass->m_Cov.is_Square() ) { bAdd = false; }
+			if( !pClass->m_Mean.from_String(Classes[i]["mean"].Get_Content()) || pClass->m_Mean.Get_N () != m_nFeatures ) { bAdd = false; }
+			if( !pClass->m_Min .from_String(Classes[i]["min" ].Get_Content()) || pClass->m_Min .Get_N () != m_nFeatures ) { bAdd = false; }
+			if( !pClass->m_Max .from_String(Classes[i]["max" ].Get_Content()) || pClass->m_Max .Get_N () != m_nFeatures ) { bAdd = false; }
 
 			//---------------------------------------------
 			if( !bAdd )
@@ -2501,13 +2498,13 @@ bool CSG_Classifier_Supervised::Load(const CSG_String &File)
 			}
 			else
 			{
-				m_pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
-				m_pClasses[m_nClasses++]	= pClass;
+				m_pClasses = (CClass **)SG_Realloc(m_pClasses, ((size_t)m_nClasses + 1) * sizeof(CClass *));
+				m_pClasses[m_nClasses++] = pClass;
 
-				pClass->m_Cov_Det	= pClass->m_Cov.Get_Determinant();
-				pClass->m_Cov_Inv	= pClass->m_Cov.Get_Inverse();
+				pClass->m_Cov_Det = pClass->m_Cov.Get_Determinant();
+				pClass->m_Cov_Inv = pClass->m_Cov.Get_Inverse();
 
-				pClass->m_Mean_Spectral	= CSG_Simple_Statistics(pClass->m_Mean).Get_Mean();
+				pClass->m_Mean_Spectral = CSG_Simple_Statistics(pClass->m_Mean).Get_Mean();
 			}
 		}
 	}
@@ -2523,12 +2520,12 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feat
 		return( false );
 	}
 
-	CSG_MetaData	Data;
+	CSG_MetaData Data;
 
 	Data.Set_Name    ("supervised_classifier");
 	Data.Add_Property("saga-version", SAGA_VERSION);
 
-	CSG_MetaData	&Features	= *Data.Add_Child("features");
+	CSG_MetaData &Features = *Data.Add_Child("features");
 	
 	Features.Add_Child("count", m_nFeatures);
 
@@ -2537,15 +2534,15 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feat
 		Features.Add_Child("info", Feature_Info);
 	}
 
-	CSG_MetaData	&Classes	= *Data.Add_Child("classes");
+	CSG_MetaData &Classes = *Data.Add_Child("classes");
 	
 	Classes.Add_Property("count", m_nClasses);
 
 	for(int i=0; i<m_nClasses; i++)
 	{
-		CSG_MetaData	&Class	= *Classes.Add_Child("class");
+		CSG_MetaData &Class = *Classes.Add_Child("class");
 
-		CClass	*pClass	= m_pClasses[i];
+		CClass *pClass = m_pClasses[i];
 
 		Class.Add_Child("id"  , pClass->m_ID              );
 		Class.Add_Child("mean", pClass->m_Mean.to_String());
@@ -2565,28 +2562,28 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feat
 //---------------------------------------------------------
 CSG_String CSG_Classifier_Supervised::Print(void)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( m_nFeatures > 0 && m_nClasses > 0 )
 	{
-		s	+= "\n";
+		s += "\n";
 
 		for(int iClass=0; iClass<m_nClasses; iClass++)
 		{
-			CClass	*pClass	= m_pClasses[iClass];
+			CClass *pClass = m_pClasses[iClass];
 
-			s	+= "\n____\n" + pClass->m_ID + "\nFeature\tMean\tMin\tMax\tStdDev";
+			s += "\n____\n" + pClass->m_ID + "\nFeature\tMean\tMin\tMax\tStdDev";
 
 			for(int i=0; i<m_nFeatures; i++)
 			{
-				s	+= CSG_String::Format("\n%3d.", i + 1);
-				s	+= "\t" + SG_Get_String(pClass->m_Mean[i]);
-				s	+= "\t" + SG_Get_String(pClass->m_Min [i]);
-				s	+= "\t" + SG_Get_String(pClass->m_Max [i]);
-				s	+= "\t" + SG_Get_String(sqrt(pClass->m_Cov[i][i]));
+				s += CSG_String::Format("\n%3d.", i + 1);
+				s += "\t" + SG_Get_String(pClass->m_Mean[i]);
+				s += "\t" + SG_Get_String(pClass->m_Min [i]);
+				s += "\t" + SG_Get_String(pClass->m_Max [i]);
+				s += "\t" + SG_Get_String(sqrt(pClass->m_Cov[i][i]));
 			}
 
-			s	+= "\n";
+			s += "\n";
 		}
 	}
 
@@ -2606,25 +2603,23 @@ bool CSG_Classifier_Supervised::Add_Class(const CSG_String &Class_ID, const CSG_
 		return( false );
 	}
 
-	CClass	*pClass, **pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
+	CClass *pClass, **pClasses = (CClass **)SG_Realloc(m_pClasses, ((size_t)m_nClasses + 1) * sizeof(CClass *));
 
 	if( pClasses )
 	{
-		m_pClasses	= pClasses;
+		m_pClasses = pClasses;
 
-		m_pClasses[m_nClasses++]	= pClass	= new CClass(Class_ID);
+		m_pClasses[m_nClasses++] = pClass = new CClass(Class_ID);
 
-		pClass->m_ID	= Class_ID;
+		pClass->m_ID      = Class_ID;
+		pClass->m_Mean    = Mean;
+		pClass->m_Min     = Min;
+		pClass->m_Max     = Max;
+		pClass->m_Cov     = Cov;
+		pClass->m_Cov_Inv = Cov.Get_Inverse();
+		pClass->m_Cov_Det = Cov.Get_Determinant();
 
-		pClass->m_Mean	= Mean;
-		pClass->m_Min	= Min;
-		pClass->m_Max	= Max;
-		pClass->m_Cov	= Cov;
-
-		pClass->m_Cov_Inv	= Cov.Get_Inverse();
-		pClass->m_Cov_Det	= Cov.Get_Determinant();
-
-		pClass->m_Mean_Spectral	= CSG_Simple_Statistics(Mean).Get_Mean();
+		pClass->m_Mean_Spectral = CSG_Simple_Statistics(Mean).Get_Mean();
 
 		return( true );
 	}
@@ -2653,17 +2648,17 @@ bool CSG_Classifier_Supervised::Train_Add_Sample(const CSG_String &Class_ID, con
 {
 	if( m_nFeatures > 0 && m_nFeatures == Features.Get_N() )
 	{
-		int	iClass	= Get_Class(Class_ID);
+		int iClass = Get_Class(Class_ID);
 
 		if( iClass < 0 )
 		{
-			CClass	**pClasses	= (CClass **)SG_Realloc(m_pClasses, (m_nClasses + 1) * sizeof(CClass *));
+			CClass **pClasses = (CClass **)SG_Realloc(m_pClasses, ((size_t)m_nClasses + 1) * sizeof(CClass *));
 
 			if( pClasses )
 			{
-				m_pClasses	= pClasses;
+				m_pClasses = pClasses;
 
-				m_pClasses[iClass = m_nClasses++]	= new CClass(Class_ID);
+				m_pClasses[iClass = m_nClasses++] = new CClass(Class_ID);
 			}
 		}
 
@@ -2713,54 +2708,52 @@ bool CSG_Classifier_Supervised::CClass::Train(void)
 		return( false );
 	}
 
-	int	iFeature;
-
 	//-----------------------------------------------------
 	m_Mean.Create(m_Samples.Get_NCols());
 	m_Min .Create(m_Samples.Get_NCols());
 	m_Max .Create(m_Samples.Get_NCols());
 
-	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
+	for(int iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
 	{
-		CSG_Simple_Statistics	s;
+		CSG_Simple_Statistics s;
 
 		for(int iSample=0; iSample<m_Samples.Get_NRows(); iSample++)
 		{
-			s	+= m_Samples[iSample][iFeature];
+			s += m_Samples[iSample][iFeature];
 		}
 
-		m_Mean[iFeature]	= s.Get_Mean   ();
-		m_Min [iFeature]	= s.Get_Minimum();
-		m_Max [iFeature]	= s.Get_Maximum();
+		m_Mean[iFeature] = s.Get_Mean   ();
+		m_Min [iFeature] = s.Get_Minimum();
+		m_Max [iFeature] = s.Get_Maximum();
 	}
 
 	//-----------------------------------------------------
 	m_Cov.Create(m_Samples.Get_NCols(), m_Samples.Get_NCols());
 
-	for(iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
+	for(int iFeature=0; iFeature<m_Samples.Get_NCols(); iFeature++)
 	{
 		for(int jFeature=iFeature; jFeature<m_Samples.Get_NCols(); jFeature++)
 		{
-			double	cov	= 0.;
+			double cov = 0.;
 
 			for(int iSample=0; iSample<m_Samples.Get_NRows(); iSample++)
 			{
-				cov	+= (m_Samples[iSample][iFeature] - m_Mean[iFeature]) * (m_Samples[iSample][jFeature] - m_Mean[jFeature]); 
+				cov += (m_Samples[iSample][iFeature] - m_Mean[iFeature]) * (m_Samples[iSample][jFeature] - m_Mean[jFeature]); 
 			}
 
 			if( m_Samples.Get_NRows() > 1 )
 			{
-				cov	/= m_Samples.Get_NRows() - 1;
+				cov /= m_Samples.Get_NRows() - 1;
 			}
 
-			m_Cov[iFeature][jFeature]	= m_Cov[jFeature][iFeature]	= cov;
+			m_Cov[iFeature][jFeature] = m_Cov[jFeature][iFeature]	= cov;
 		}
 	}
 
-	m_Cov_Inv	= m_Cov.Get_Inverse    ();
-	m_Cov_Det	= m_Cov.Get_Determinant();
+	m_Cov_Inv = m_Cov.Get_Inverse    ();
+	m_Cov_Det = m_Cov.Get_Determinant();
 
-	m_Mean_Spectral	= CSG_Simple_Statistics(m_Mean).Get_Mean();
+	m_Mean_Spectral = CSG_Simple_Statistics(m_Mean).Get_Mean();
 
 	//-----------------------------------------------------
 	return( true );
@@ -2791,8 +2784,7 @@ int CSG_Classifier_Supervised::Get_Class(const CSG_String &Class_ID)
 //---------------------------------------------------------
 bool CSG_Classifier_Supervised::Get_Class(const CSG_Vector &Features, int &Class, double &Quality, int Method)
 {
-	Class	= -1;
-	Quality	= 0.;
+	Class = -1; Quality = 0.;
 
 	if( Get_Feature_Count() == Features.Get_N() )
 	{
@@ -2871,34 +2863,33 @@ void CSG_Classifier_Supervised::_Get_Binary_Encoding(const CSG_Vector &Features,
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		double	Mean_Spectral	= CSG_Simple_Statistics(Features).Get_Mean();
+		double Mean_Spectral = CSG_Simple_Statistics(Features).Get_Mean();
 
-		int		d	= 0;
+		int d = 0;
 
 		for(int iFeature=0; iFeature<Get_Feature_Count(); iFeature++)
 		{
-			d	+= (Features(iFeature) < Mean_Spectral) == (pClass->m_Mean[iFeature] < pClass->m_Mean_Spectral) ? 0 : 1;
+			d += (Features(iFeature) < Mean_Spectral) == (pClass->m_Mean[iFeature] < pClass->m_Mean_Spectral) ? 0 : 1;
 
 			if( iFeature == 0 )	// spectral slopes
 			{
-				d	+= (Features[iFeature    ] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature    ] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
+				d += (Features[iFeature    ] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature    ] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
 			}
 			else if( iFeature == Get_Feature_Count() - 1 )
 			{
-				d	+= (Features[iFeature - 1] < Features[iFeature    ]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature    ]) ? 0 : 1;
+				d += (Features[iFeature - 1] < Features[iFeature    ]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature    ]) ? 0 : 1;
 			}
 			else
 			{
-				d	+= (Features[iFeature - 1] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
+				d += (Features[iFeature - 1] < Features[iFeature + 1]) == (pClass->m_Mean[iFeature - 1] < pClass->m_Mean[iFeature + 1]) ? 0 : 1;
 			}
 		}
 
 		if( Class < 0 || Quality > d )	// find the minimum 'Hamming' distance
 		{
-			Quality	= d;
-			Class	= iClass;
+			Class = iClass; Quality = d;
 		}
 	}
 }
@@ -2908,19 +2899,18 @@ void CSG_Classifier_Supervised::_Get_Parallel_Epiped(const CSG_Vector &Features,
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		bool	bMember	= true;
+		bool bMember = true;
 
 		for(int iFeature=0; bMember && iFeature<Get_Feature_Count(); iFeature++)
 		{
-			bMember	= pClass->m_Min[iFeature] <= Features[iFeature] && Features[iFeature] <= pClass->m_Max[iFeature];
+			bMember = pClass->m_Min[iFeature] <= Features[iFeature] && Features[iFeature] <= pClass->m_Max[iFeature];
 		}
 
 		if( bMember )
 		{
-			Quality	++;
-			Class	= iClass;
+			Class = iClass; Quality++;
 		}
 	}
 }
@@ -2930,20 +2920,19 @@ void CSG_Classifier_Supervised::_Get_Minimum_Distance(const CSG_Vector &Features
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		double	Distance	= (Features - pClass->m_Mean).Get_Length();
+		double Distance = (Features - pClass->m_Mean).Get_Length();
 
 		if( Class < 0 || Quality > Distance )
 		{
-			Quality	= Distance;
-			Class	= iClass;
+			Class = iClass; Quality = Distance;
 		}
 	}
 
 	if( m_Threshold_Distance > 0. && Quality > m_Threshold_Distance )
 	{
-		Class	= -1;
+		Class = -1;
 	}
 }
 
@@ -2952,47 +2941,45 @@ void CSG_Classifier_Supervised::_Get_Mahalanobis_Distance(const CSG_Vector &Feat
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		CSG_Vector	D	= Features - pClass->m_Mean;
+		CSG_Vector D = Features - pClass->m_Mean;
 
-		double	Distance	= D * (pClass->m_Cov_Inv * D);
+		double Distance = D * (pClass->m_Cov_Inv * D);
 
 		if( Class < 0 || Quality > Distance )
 		{
-			Quality	= Distance;
-			Class	= iClass;
+			Class = iClass; Quality = Distance;
 		}
 	}
 
 	if( m_Threshold_Distance > 0. && Quality > m_Threshold_Distance )
 	{
-		Class	= -1;
+		Class = -1;
 	}
 }
 
 //---------------------------------------------------------
 void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Features, int &Class, double &Quality)
 {
-	double	dSum	= 0.;
+	double dSum = 0.;
 
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		CSG_Vector	D	= Features - pClass->m_Mean;
+		CSG_Vector D = Features - pClass->m_Mean;
 
-		double	Distance	= D * (pClass->m_Cov_Inv * D);
+		double Distance = D * (pClass->m_Cov_Inv * D);
 
-		double	Probability	= pow(2. * M_PI, -0.5 * m_nFeatures) * pow(pClass->m_Cov_Det, -0.5) * exp(-0.5 * Distance);
-	//	double	Probability	= -log(pClass->m_Cov_Det) - Distance;
+		double Probability = pow(2. * M_PI, -0.5 * m_nFeatures) * pow(pClass->m_Cov_Det, -0.5) * exp(-0.5 * Distance);
+	//	double Probability = -log(pClass->m_Cov_Det) - Distance;
 
-		dSum	+= Probability;
+		dSum += Probability;
 
 		if( Class < 0 || Quality < Probability )
 		{
-			Quality	= Probability;
-			Class	= iClass;
+			Class = iClass; Quality = Probability;
 		}
 	}
 
@@ -3000,12 +2987,12 @@ void CSG_Classifier_Supervised::_Get_Maximum_Likelihood(const CSG_Vector &Featur
 	{
 		if( m_Probability_Relative )
 		{
-			Quality	= 100. * Quality / dSum;
+			Quality = 100. * Quality / dSum;
 		}
 
 		if( m_Threshold_Probability > 0. && Quality < m_Threshold_Probability )
 		{
-			Class	= -1;
+			Class = -1;
 		}
 	}
 }
@@ -3015,22 +3002,21 @@ void CSG_Classifier_Supervised::_Get_Spectral_Angle_Mapping(const CSG_Vector &Fe
 {
 	for(int iClass=0; iClass<Get_Class_Count(); iClass++)
 	{
-		CClass	*pClass	= m_pClasses[iClass];
+		CClass *pClass = m_pClasses[iClass];
 
-		double	Angle	= Features.Get_Angle(pClass->m_Mean);
+		double Angle = Features.Get_Angle(pClass->m_Mean);
 
 		if( Class < 0 || Quality > Angle )
 		{
-			Quality	= Angle;
-			Class	= iClass;
+			Class = iClass; Quality = Angle;
 		}
 	}
 
-	Quality	*= M_RAD_TO_DEG;
+	Quality *= M_RAD_TO_DEG;
 
 	if( m_Threshold_Angle > 0. && Quality > m_Threshold_Angle )
 	{
-		Class	= -1;
+		Class = -1;
 	}
 }
 
@@ -3042,17 +3028,15 @@ void CSG_Classifier_Supervised::_Get_Spectral_Divergence(const CSG_Vector &Featu
 //---------------------------------------------------------
 void CSG_Classifier_Supervised::_Get_Winner_Takes_All(const CSG_Vector &Features, int &Class, double &Quality)
 {
-	int		*Votes	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
+	int *Votes = (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
 
 	for(int iMethod=0; iMethod<SG_CLASSIFY_SUPERVISED_WTA; iMethod++)
 	{
-		int		iClass;
-		double	iQuality;
+		int iClass; double iQuality;
 
 		if( m_bWTA[iMethod] && Get_Class(Features, iClass, iQuality, iMethod) && ++Votes[iClass] > Quality )
 		{
-			Quality	= Votes[iClass];
-			Class	= iClass;
+			Class = iClass; Quality = Votes[iClass];
 		}
 	}
 
@@ -3093,17 +3077,16 @@ double CSG_Test_Distribution::Get_T_Inverse(double p, int df, TSG_Test_Distribut
 		return( -1. );
 	}
 
-	bool	bNegative	= (Type == TESTDIST_TYPE_Left && p < 0.5) || (Type == TESTDIST_TYPE_Right && p > 0.5);
-	double	t, p0, p1, diff;
+	bool bNegative = (Type == TESTDIST_TYPE_Left && p < 0.5) || (Type == TESTDIST_TYPE_Right && p > 0.5);
+	double t, p0, p1, diff = 1.;
 
-	p0		= p1 = _Change_Tail_Type(p, Type, TESTDIST_TYPE_TwoTail, bNegative);
-	diff	= 1.;
+	p0 = p1 = _Change_Tail_Type(p, Type, TESTDIST_TYPE_TwoTail, bNegative);
 
 	while( fabs(diff) > 0.0001 )
 	{
-		t		= Get_T_Inv(p1, df);	// initial rough value
-		diff	= Get_T_P(t, df) - p0;	// compare result with forward fn
-		p1		= p1 - diff;			// small adjustment to p1
+		t    = Get_T_Inv(p1, df);   // initial rough value
+		diff = Get_T_P(t, df) - p0; // compare result with forward fn
+		p1   = p1 - diff;           // small adjustment to p1
 	}
 
 	return( bNegative ? -t : t );
@@ -3139,14 +3122,12 @@ double CSG_Test_Distribution::_Change_Tail_Type(double p, TSG_Test_Distribution_
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_Norm_P(double z)
 {	// Returns the two-tailed standard normal probability of z
-	const double	a1 = 0.0000053830, a2 = 0.0000488906, a3 = 0.0000380036,
-					a4 = 0.0032776263, a5 = 0.0211410061, a6 = 0.0498673470;
+	const double a1 = 0.0000053830, a2 = 0.0000488906, a3 = 0.0000380036;
+	const double a4 = 0.0032776263, a5 = 0.0211410061, a6 = 0.0498673470;
 
-	double	p;
+	z = fabs(z);
 
-	z	= fabs(z);
-
-	p	= (((((a1 * z + a2) * z + a3) * z + a4) * z + a5) * z + a6) * z + 1.;
+	double p = (((((a1 * z + a2) * z + a3) * z + a4) * z + a5) * z + a6) * z + 1.;
 
 	return( pow(p, -16) );
 }
@@ -3154,25 +3135,23 @@ double CSG_Test_Distribution::Get_Norm_P(double z)
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_Norm_Z(double p)
 {	// Returns z given a half-middle tail type p.
-	const double	a0 =  2.5066282,  a1 = -18.6150006,  a2 =  41.3911977,   a3 = -25.4410605,
-					b1 = -8.4735109,  b2 =  23.0833674,  b3 = -21.0622410,   b4 =   3.1308291,
-					c0 = -2.7871893,  c1 =  -2.2979648,  c2 =   4.8501413,   c3 =   2.3212128,
-					d1 =  3.5438892,  d2 =   1.6370678;
-
-	double	r, z;
+	const double a0 =  2.5066282, a1 = -18.6150006, a2 =  41.3911977, a3 = -25.4410605;
+	const double b1 = -8.4735109, b2 =  23.0833674, b3 = -21.0622410, b4 =   3.1308291;
+	const double c0 = -2.7871893, c1 =  -2.2979648, c2 =   4.8501413, c3 =   2.3212128;
+	const double d1 =  3.5438892, d2 =   1.6370678;
 
 	if( p > 0.42 )
 	{
-		r	= sqrt(-log(0.5 - p));
-		z	= (((c3 * r + c2) * r + c1) * r + c0) / ((d2 * r + d1) * r + 1.);
+		double r = sqrt(-log(0.5 - p));
+
+		return( (((c3 * r + c2) * r + c1) * r + c0) / ((d2 * r + d1) * r + 1.) );
 	}
 	else
 	{
-		r	= p * p;
-		z	= p * (((a3 * r + a2) * r + a1) * r + a0) / ((((b4 * r + b3) * r + b2) * r + b1) * r + 1.);
-	}
+		double r = p * p;
 
-	return( z );
+		return( p * (((a3 * r + a2) * r + a1) * r + a0) / ((((b4 * r + b3) * r + b2) * r + b1) * r + 1.) );
+	}
 }
 
 //---------------------------------------------------------
@@ -3221,42 +3200,40 @@ double CSG_Test_Distribution::Get_T_Inv(double p, int df)
 		return( sqrt(2. / (p * (2. - p)) - 2.) );
 	}
 
-	double	a, b, c, d, x, y;
-
-	a	= 1. / (df - 0.5);
-	b	= 48. / (a*a);
-	c	= ((20700. * a / b - 98.) * a - 16.) * a + 96.36;
-	d	= ((94.5 / (b + c) - 3.) / b + 1.) * sqrt(a * M_PI / 2.) * df;
-	x	= d * p;
-	y	= pow(x, 2. / df);
+	double a = 1. / (df - 0.5);
+	double b = 48. / (a*a);
+	double c = ((20700. * a / b - 98.) * a - 16.) * a + 96.36;
+	double d = ((94.5 / (b + c) - 3.) / b + 1.) * sqrt(a * M_PI / 2.) * df;
+	double x = d * p;
+	double y = pow(x, 2. / df);
 
 	if( y > 0.05 + a )
 	{
-		x	= Get_Norm_Z(0.5 * (1. - p));
-		y	= x*x;
+		x = Get_Norm_Z(0.5 * (1. - p));
+		y = x*x;
 
 		if( df < 5 )
 		{
-			c	= c + 0.3 * (df - 4.5) * (x + 0.6);
+			c = c + 0.3 * (df - 4.5) * (x + 0.6);
 		}
 
-		c	= (((0.05 * d * x - 5) * x - 7.) * x - 2.) * x + b + c;
-		y	= (((((0.4 * y + 6.3) * y + 36.) * y + 94.5) / c - y - 3.) / b + 1.) * x;
-		y	= a * y*y;
+		c = (((0.05 * d * x - 5) * x - 7.) * x - 2.) * x + b + c;
+		y = (((((0.4 * y + 6.3) * y + 36.) * y + 94.5) / c - y - 3.) / b + 1.) * x;
+		y = a * y*y;
 
 		if( y > 0.002 )
 		{
-			y	= exp(y) - 1.;
+			y = exp(y) - 1.;
 		}
 		else
 		{
-			y	= 0.5 * y*y + y;
+			y = 0.5 * y*y + y;
 		}
 	}
 	else
 	{
-		y	= ((1. / (((df + 6.) / (df * y) - 0.089 * d - 0.822) * (df + 2.) * 3.)
-			+ 0.5 / (df + 4.)) * y - 1.) * (df + 1.) / (df + 2.) + 1. / y;
+		y = ((1. / (((df + 6.) / (df * y) - 0.089 * d - 0.822) * (df + 2.) * 3.)
+		    + 0.5 / (df + 4.)) * y - 1.) * (df + 1.) / (df + 2.) + 1. / y;
 	}
 
 	return( sqrt(df * y) );
@@ -3270,7 +3247,7 @@ double CSG_Test_Distribution::Get_T_Inv(double p, int df)
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_F_Tail_from_R2(double R2, int nPredictors, int nSamples, TSG_Test_Distribution_Type Type)
 {
-	double	F	= (nSamples - nPredictors - 1) * (R2 / nPredictors) / (1. - R2);
+	double F = ((sLong)nSamples - (sLong)nPredictors - 1) * (R2 / nPredictors) / (1. - R2);
 
 	return( CSG_Test_Distribution::Get_F_Tail(F, nPredictors, nSamples - nPredictors - 1, Type) );
 }
