@@ -93,7 +93,9 @@ protected:
 
 private:
 
-    CSG_PointCloud *    _Read_Points            (const CSG_String &File, const CSG_Rect &Extent, bool bVar_All, bool bVar_Color, int iRGB_Range);
+	bool				_Find_Class				(const CSG_Array_Int &Classes, int ID);
+
+	CSG_PointCloud *    _Read_Points            (const CSG_String &File, const CSG_Rect &Extent, const CSG_Array_Int &Classes, bool bVar_All, bool bVar_Color, int iRGB_Range);
 
     void                _Init_PointCloud        (CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
                                                  pdal::SpatialReference &SpatialRef, const CSG_String &File,
