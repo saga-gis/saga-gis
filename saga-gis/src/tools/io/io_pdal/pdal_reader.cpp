@@ -91,9 +91,9 @@ const struct SLAS_Attributes  g_Attributes[]  =
 //---------------------------------------------------------
 CPDAL_Reader::CPDAL_Reader(void)
 {
-    Set_Name    (_TL("Import Point Cloud"));
+    Set_Name	(_TL("Import Point Cloud"));
 
-    Set_Author    ("O.Conrad, V.Wichmann (c) 2020-2021");
+    Set_Author	("O.Conrad, V.Wichmann (c) 2020-2021");
 
     Add_Reference("https://pdal.io/", SG_T("PDAL Homepage"));
     Add_Reference("https://github.com/ASPRSorg/LAS/", SG_T("ASPRS LAS Specification"));
@@ -119,16 +119,15 @@ CPDAL_Reader::CPDAL_Reader(void)
     {
         if( SG_Get_PDAL_Drivers().is_Reader(i) )
         {
-            CSG_String  Name    = SG_Get_PDAL_Drivers().Get_Driver_Name(i).c_str();
+            CSG_String Name(SG_Get_PDAL_Drivers().Get_Driver_Name(i));
 
-            bool    bSkipDriver = false;
+            bool bSkipDriver = false;
 
-            for(int j=0; !g_Non_Working_Drivers[j].Name.is_Empty(); j++)
+            for(int j=0; !bSkipDriver && !g_Non_Working_Drivers[j].Name.is_Empty(); j++)
             {
-                if( Name.Cmp(g_Non_Working_Drivers[j].Name) == 0)
+                if( Name.Cmp(g_Non_Working_Drivers[j].Name) == 0 )
                 {
                     bSkipDriver = true;
-                    break;
                 }
             }
 
@@ -137,8 +136,8 @@ CPDAL_Reader::CPDAL_Reader(void)
                 continue;
             }
 
-            CSG_String  Desc    = SG_Get_PDAL_Drivers().Get_Driver_Description(i).c_str();
-            CSG_Strings Exts    = SG_Get_PDAL_Drivers().Get_Driver_Extensions (i);
+            CSG_String  Desc = SG_Get_PDAL_Drivers().Get_Driver_Description(i);
+            CSG_Strings Exts = SG_Get_PDAL_Drivers().Get_Driver_Extensions (i);
 
             CSG_String  Ext;
 
@@ -172,13 +171,13 @@ CPDAL_Reader::CPDAL_Reader(void)
 
     //-----------------------------------------------------
     Parameters.Add_FilePath("",
-        "FILES"   , _TL("Files"),
+        "FILES"        , _TL("Files"),
         _TL(""),
         Filter, NULL, false, false, true
     );
 
     Parameters.Add_Bool("",
-        "VARS"    , _TL("Import All Attributes"),
+        "VARS"         , _TL("Import All Attributes"),
         _TL("Check this to import all supported attributes, or select the attributes you want to become imported individually."),
         true
     );
@@ -189,13 +188,13 @@ CPDAL_Reader::CPDAL_Reader(void)
     }
 
     Parameters.Add_Bool("VARS",
-        "VAR_COLOR" , _TL("RGB-Coded Color"),
+        "VAR_COLOR"      , _TL("RGB-Coded Color"),
         _TL("Import R,G,B values as SAGA RGB-coded value."),
         false
     );
 
     Parameters.Add_Choice("",
-        "RGB_RANGE" , _TL("RGB Value Range"),
+        "RGB_RANGE"      , _TL("RGB Value Range"),
         _TL("The color depth of red, green, blue (and NIR) values in the LAS file."),
         CSG_String::Format("%s|%s",
             _TL( "8 bit"),
@@ -204,10 +203,51 @@ CPDAL_Reader::CPDAL_Reader(void)
     );
 
     Parameters.Add_PointCloud_List("",
-        "POINTS"  , _TL("Points"),
+        "POINTS"       , _TL("Points"),
         _TL(""),
         PARAMETER_OUTPUT
     );
+
+	//-----------------------------------------------------
+	Parameters.Add_String("",
+		"CLASSES"      , _TL("Classes"),
+		_TL("If classification is available only points are loaded whose identifiers are listed (comma separated, e.g. \"2, 3, 4, 5, 6\"). Ignored if empty."),
+		""
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"EXTENT"       , _TL("Extent"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("original"),
+			_TL("user defined"),
+			_TL("grid system"),
+			_TL("shapes extent")
+		), 0
+	);
+
+	Parameters.Add_Double("EXTENT", "EXTENT_XMIN", _TL("Left"  ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_XMAX", _TL("Right" ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMIN", _TL("Bottom"), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMAX", _TL("Top"   ), _TL(""));
+
+	Parameters.Add_Grid_System("EXTENT",
+		"EXTENT_GRID"  , _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Shapes("EXTENT",
+		"EXTENT_SHAPES", _TL("Shapes Extent"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Double("EXTENT",
+		"EXTENT_BUFFER", _TL("Buffer"),
+		_TL(""),
+		0., 0., true
+	);
 }
 
 
@@ -222,6 +262,17 @@ int CPDAL_Reader::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
     {
         pParameter->Set_Children_Enabled(pParameter->asBool() == false);
     }
+
+	if(	pParameter->Cmp_Identifier("EXTENT") )
+	{
+		pParameters->Set_Enabled("EXTENT_XMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_XMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_GRID"  , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("EXTENT_SHAPES", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("EXTENT_BUFFER", pParameter->asInt() >= 2);
+	}
 
     return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -245,6 +296,55 @@ bool CPDAL_Reader::On_Execute(void)
 
     Parameters("POINTS")->asPointCloudList()->Del_Items();
 
+	//-----------------------------------------------------
+	CSG_Array_Int Classes;
+
+	if( *Parameters("CLASSES")->asString() ) // not empty
+	{
+		CSG_Array_Int IDs; CSG_Strings List(SG_String_Tokenize(Parameters("CLASSES")->asString(), ",;"));
+
+		for(int i=0, ID; i<List.Get_Count(); i++)
+		{
+			if( List[i].asInt(ID) )
+			{
+				IDs += ID;
+			}
+		}
+
+		CSG_Index Index(IDs.Get_Size(), IDs.Get_Array()); // sort for better performance
+
+		for(sLong i=0; i<IDs.Get_Size(); i++)
+		{
+			Classes += IDs[Index[i]];
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Rect Extent; CSG_Projection Projection;
+
+	switch( Parameters("EXTENT")->asInt() )
+	{
+	case  1:
+		Extent.Assign(
+			Parameters("EXTENT_XMIN")->asDouble(),
+			Parameters("EXTENT_YMIN")->asDouble(),
+			Parameters("EXTENT_XMAX")->asDouble(),
+			Parameters("EXTENT_YMAX")->asDouble()
+		);
+		break;
+
+	case  2:
+		Extent       = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+
+	case  3:
+		Projection   = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Projection();
+		Extent       = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+	}
+
     //-----------------------------------------------------
     for(int i=0; i<Files.Get_Count() && Process_Get_Okay(); i++)
     {
@@ -259,9 +359,18 @@ bool CPDAL_Reader::On_Execute(void)
             Set_Progress(i + 1, Files.Get_Count());
         }
 
-        Parameters("POINTS")->asPointCloudList()->Add_Item(
-            _Read_Points(Files[i], Parameters("VARS")->asBool(), Parameters("VAR_COLOR")->asBool(), Parameters("RGB_RANGE")->asInt())
-        );
+		CSG_PointCloud *pPoints = _Read_Points(Files[i], Extent, Classes,
+			Parameters("VARS"     )->asBool(),
+			Parameters("VAR_COLOR")->asBool(),
+			Parameters("RGB_RANGE")->asInt ()
+		);
+
+		if( !pPoints->Get_Projection().is_Okay() && Projection.is_Okay() )
+		{
+			pPoints->Get_Projection() = Projection;
+		}
+
+		Parameters("POINTS")->asPointCloudList()->Add_Item(pPoints);
     }
 
     //-----------------------------------------------------
@@ -274,10 +383,28 @@ bool CPDAL_Reader::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_PointCloud * CPDAL_Reader::_Read_Points(const CSG_String &File, bool bVar_All, bool bVar_Color, int iRGB_Range)
+bool CPDAL_Reader::_Find_Class(const CSG_Array_Int &Classes, int ID)
 {
-    pdal::StageFactory  Factory;
-    std::string         ReaderDriver = Factory.inferReaderDriver(File.b_str());
+	for(sLong i=0; i<Classes.Get_Size(); i++)
+	{
+		if( ID  < Classes[i] ) // list is sorted ascending!
+		{
+			return( false );
+		}
+
+		if( ID == Classes[i] )
+		{
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_PointCloud * CPDAL_Reader::_Read_Points(const CSG_String &File, const CSG_Rect &Extent, const CSG_Array_Int &Classes, bool bVar_All, bool bVar_Color, int iRGB_Range)
+{
+    pdal::StageFactory Factory; std::string ReaderDriver = Factory.inferReaderDriver(File.b_str());
 
     if( ReaderDriver.empty() )
     {
@@ -295,107 +422,107 @@ CSG_PointCloud * CPDAL_Reader::_Read_Points(const CSG_String &File, bool bVar_Al
         return( NULL );
     }
     
-    pdal::Options Options;
-    Options.add(pdal::Option("filename", File.b_str()));
-    pReader->setOptions(Options);
-
+    pdal::Options Options; Options.add(pdal::Option("filename", File.b_str())); pReader->setOptions(Options);
 
     //-----------------------------------------------------
-    CSG_PointCloud  *pPoints  = SG_Create_PointCloud();
+    CSG_PointCloud *pPoints = SG_Create_PointCloud();
 
     pPoints->Set_Name(SG_File_Get_Name(File, false));
 
+	CSG_Array_Int Fields; int iRGB_Field = 0;
 
-    //-----------------------------------------------------
+	//-----------------------------------------------------
     if( pReader->pipelineStreamable() )
     {
         pdal::StreamCallbackFilter StreamFilter;
         StreamFilter.setInput(*pReader);
 
-        pdal::point_count_t     TableCapacity = 10000;
-        pdal::FixedPointTable   Table(TableCapacity);
+        pdal::FixedPointTable Table(10000);
         
         StreamFilter.prepare(Table);
 
-        pdal::PointLayoutPtr    PointLayout = Table.layout();
-        pdal::SpatialReference  SpatialRef  = Table.spatialReference();
+        pdal::PointLayoutPtr   PointLayout = Table.layout();
+        pdal::SpatialReference SpatialRef  = Table.spatialReference();
 
-        CSG_Array_Int           Fields;
-        int                     iRGB_Field = 0;
+		bool bClasses = Classes.Get_Size() && PointLayout->hasDim(pdal::Dimension::Id::Classification);
 
         _Init_PointCloud(pPoints, PointLayout, SpatialRef, File, bVar_All, bVar_Color, Fields, iRGB_Field);
 
-        //-----------------------------------------------------
-        auto CallbackReadPoint = [=](pdal::PointRef &point)->bool
-        {
-            pPoints->Add_Point(
-                point.getFieldAs<double>(pdal::Dimension::Id::X),
-                point.getFieldAs<double>(pdal::Dimension::Id::Y),
-                point.getFieldAs<double>(pdal::Dimension::Id::Z)
-            );
+        //-------------------------------------------------
+		auto CallbackReadPoint = [=](pdal::PointRef &point)->bool
+		{
+			double x = point.getFieldAs<double>(pdal::Dimension::Id::X);
+			double y = point.getFieldAs<double>(pdal::Dimension::Id::Y);
 
-            for(int Field=0; Field<Fields.Get_Size(); Field++)
-            {
-                pPoints->Set_Value(3 + Field, point.getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID));
-            }
+			if( (!Extent.Get_Area() || Extent.Contains(x, y)) && (!bClasses || _Find_Class(Classes, point.getFieldAs<int>(pdal::Dimension::Id::Classification))) )
+			{
+				pPoints->Add_Point(x, y, point.getFieldAs<double>(pdal::Dimension::Id::Z));
 
-            if( iRGB_Field )
-            {
-                double  r = point.getFieldAs<double>(pdal::Dimension::Id::Red  ); if( iRGB_Range ) { r *= 255. / 65535.; }
-                double  g = point.getFieldAs<double>(pdal::Dimension::Id::Green); if( iRGB_Range ) { g *= 255. / 65535.; }
-                double  b = point.getFieldAs<double>(pdal::Dimension::Id::Blue ); if( iRGB_Range ) { b *= 255. / 65535.; }
+				for(int Field=0; Field<Fields.Get_Size(); Field++)
+				{
+					pPoints->Set_Value(3 + Field, point.getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID));
+				}
 
-                pPoints->Set_Value(iRGB_Field, SG_GET_RGB(r, g, b));
-            }
+				if( iRGB_Field )
+				{
+					double r = point.getFieldAs<double>(pdal::Dimension::Id::Red  ); if( iRGB_Range ) { r *= 255. / 65535.; }
+					double g = point.getFieldAs<double>(pdal::Dimension::Id::Green); if( iRGB_Range ) { g *= 255. / 65535.; }
+					double b = point.getFieldAs<double>(pdal::Dimension::Id::Blue ); if( iRGB_Range ) { b *= 255. / 65535.; }
 
-            return( true );
-        };
+					pPoints->Set_Value(iRGB_Field, SG_GET_RGB(r, g, b));
+				}
+			}
+
+			return( true );
+		};
     
         StreamFilter.setCallback(CallbackReadPoint);
         StreamFilter.execute(Table);
     }
     else    // not streamable
     {
-        pdal::PointTable	Table;	  pReader->prepare(Table);
-        pdal::PointViewSet	ViewSet	= pReader->execute(Table);
-        pdal::PointViewPtr	pView	= *ViewSet.begin();
+        pdal::PointTable   Table;    pReader->prepare(Table);
+        pdal::PointViewSet ViewSet = pReader->execute(Table);
+        pdal::PointViewPtr pView   = *ViewSet.begin();
 
         if( pView->size() < 1 )
         {
             Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("invalid or empty file"), File.c_str());
-            return( NULL );
+
+			return( NULL );
         }
 
-        pdal::PointLayoutPtr    PointLayout = Table.layout();
-        pdal::SpatialReference  SpatialRef  = Table.spatialReference();
+        pdal::PointLayoutPtr   PointLayout = Table.layout();
+        pdal::SpatialReference SpatialRef  = Table.spatialReference();
 
-        CSG_Array_Int           Fields;
-        int                     iRGB_Field = 0;
+		bool bClasses = Classes.Get_Size() && PointLayout->hasDim(pdal::Dimension::Id::Classification);
 
-        _Init_PointCloud(pPoints, PointLayout, SpatialRef, File, bVar_All, bVar_Color, Fields, iRGB_Field);
+		_Init_PointCloud(pPoints, PointLayout, SpatialRef, File, bVar_All, bVar_Color, Fields, iRGB_Field);
 
         //-----------------------------------------------------
         for(pdal::PointId i=0; i<pView->size(); i++)
         {
-            pPoints->Add_Point(
-                pView->getFieldAs<double>(pdal::Dimension::Id::X, i),
-                pView->getFieldAs<double>(pdal::Dimension::Id::Y, i),
-                pView->getFieldAs<double>(pdal::Dimension::Id::Z, i)
-            );
+			double x = pView->getFieldAs<double>(pdal::Dimension::Id::X, i);
+			double y = pView->getFieldAs<double>(pdal::Dimension::Id::Y, i);
 
-            for(int Field=0; Field<Fields.Get_Size(); Field++)
-            {
-                pPoints->Set_Value(3 + Field, pView->getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID, i));
-            }
+			if( (!Extent.Get_Area() || Extent.Contains(x, y)) && (!bClasses || _Find_Class(Classes, pView->getFieldAs<int>(pdal::Dimension::Id::Classification, i))) )
+			{
+				pPoints->Add_Point(x, y, pView->getFieldAs<double>(pdal::Dimension::Id::Z, i));
 
-            if( iRGB_Field )
-            {
-                double  r   = pView->getFieldAs<double>(pdal::Dimension::Id::Red  , i); if( iRGB_Range ) { r *= 255. / 65535.; }
-                double  g   = pView->getFieldAs<double>(pdal::Dimension::Id::Green, i); if( iRGB_Range ) { g *= 255. / 65535.; }
-                double  b   = pView->getFieldAs<double>(pdal::Dimension::Id::Blue , i); if( iRGB_Range ) { b *= 255. / 65535.; }
+				for(int Field=0; Field<Fields.Get_Size(); Field++)
+				{
+					pPoints->Set_Value(3 + Field, pView->getFieldAs<double>(g_Attributes[Fields[Field]].PDAL_ID, i));
+				}
 
-                pPoints->Set_Value(iRGB_Field, SG_GET_RGB(r, g, b));
-            }
+				if( iRGB_Field )
+				{
+					double r = pView->getFieldAs<double>(pdal::Dimension::Id::Red  , i); if( iRGB_Range ) { r *= 255. / 65535.; }
+					double g = pView->getFieldAs<double>(pdal::Dimension::Id::Green, i); if( iRGB_Range ) { g *= 255. / 65535.; }
+					double b = pView->getFieldAs<double>(pdal::Dimension::Id::Blue , i); if( iRGB_Range ) { b *= 255. / 65535.; }
+
+					pPoints->Set_Value(iRGB_Field, SG_GET_RGB(r, g, b));
+				}
+			}
         }
     }
 
@@ -403,12 +530,12 @@ CSG_PointCloud * CPDAL_Reader::_Read_Points(const CSG_String &File, bool bVar_Al
     if( pPoints->Get_Count() < 1 )
     {
         delete( pPoints );
-        return( NULL );
+
+		return( NULL );
     }
 
     return( pPoints );
 }
-
 
 //---------------------------------------------------------
 void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
@@ -426,7 +553,7 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
         {
             if( PointLayout->hasDim(g_Attributes[Field].PDAL_ID) )
             {
-                Fields  += Field; pPoints->Add_Field(g_Attributes[Field].Name, g_Attributes[Field].Type);
+                Fields += Field; pPoints->Add_Field(g_Attributes[Field].Name, g_Attributes[Field].Type);
             }
             else
             {
@@ -437,10 +564,13 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::PointLayoutPt
     
     if( bVar_All || bVar_Color )
     {
-        if( PointLayout->hasDim(pdal::Dimension::Id::Red) && PointLayout->hasDim(pdal::Dimension::Id::Green) && PointLayout->hasDim(pdal::Dimension::Id::Blue) )
+        if( PointLayout->hasDim(pdal::Dimension::Id::Red  )
+		&&  PointLayout->hasDim(pdal::Dimension::Id::Green)
+		&&  PointLayout->hasDim(pdal::Dimension::Id::Blue ) )
         {
             iRGB_Field = pPoints->Get_Field_Count();
-            pPoints->Add_Field("Color", SG_DATATYPE_DWord);
+
+			pPoints->Add_Field("Color", SG_DATATYPE_DWord);
         }
     }
 

@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__flow_by_slope_H
 #define HEADER_INCLUDED__flow_by_slope_H
 
@@ -94,9 +85,9 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	double				m_Slope_Min, m_Slope_Max, m_Flow_Min, m_Flow_Max;
+	double				m_Slope_Min = 0., m_Slope_Max = 0., m_Flow_Min = 0., m_Flow_Max = 0.;
 
-	CSG_Grid			*m_pDEM, *m_pFlow;
+	CSG_Grid			*m_pDEM = NULL, *m_pFlow = NULL;
 
 
 	double				Get_Fuzzy				(double Value, double Minimum, double Maximum);
