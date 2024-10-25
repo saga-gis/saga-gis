@@ -507,7 +507,7 @@ void CFlow_Parallel::Set_Rho8(int x, int y)
 
 		Add_Fraction(x, y, Direction);
 	}
-}/**/
+}*/
 
 
 ///////////////////////////////////////////////////////////
