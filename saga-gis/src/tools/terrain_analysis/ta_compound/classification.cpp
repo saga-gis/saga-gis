@@ -141,6 +141,7 @@ bool CClassification::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("ta_lighting"        ,  8, // Geomorphons
 		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("GEOMORPHONS"  , Parameters("GEOMORPHONS"))
+		&&  SG_TOOL_PARAMETER_SET("RADIUS"       , 20. * Get_Cellsize())
 	)
 
 	//-----------------------------------------------------
