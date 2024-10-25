@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: SurfaceSpecificPoints.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__SurfaceSpecificPoints_H
 #define HEADER_INCLUDED__SurfaceSpecificPoints_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,26 +69,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CSurfaceSpecificPoints : public CSG_Tool_Grid  
+class CSurfaceSpecificPoints : public CSG_Tool_Grid  
 {
 public:
 	CSurfaceSpecificPoints(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int 		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	void					Do_MarkHighestNB	(CSG_Grid *pGrid, CSG_Grid *pResult);
-	void					Do_OppositeNB		(CSG_Grid *pGrid, CSG_Grid *pResult);
-	void					Do_FlowDirection	(CSG_Grid *pGrid, CSG_Grid *pResult);
-	void					Do_FlowDirection2	(CSG_Grid *pGrid, CSG_Grid *pResult);
-	void					Do_PeuckerDouglas	(CSG_Grid *pGrid, CSG_Grid *pResult, double Threshold);
+	void				Do_MarkHighestNB		(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void				Do_OppositeNB			(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void				Do_FlowDirection		(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void				Do_FlowDirection2		(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void				Do_PeuckerDouglas		(CSG_Grid *pGrid, CSG_Grid *pResult);
 
 };
 
