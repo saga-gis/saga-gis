@@ -108,8 +108,6 @@ int CTC_Parameter_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 {
-	DataObject_Set_Colors(pParameter, 10, SG_COLORS_RED_GREY_BLUE, true);
-
 	//-----------------------------------------------------
 	if( Parameters("METHOD")->asInt() == 0 )
 	{
@@ -665,9 +663,13 @@ bool CTC_Classification::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid Convexity;
+
 	if( !m_pConvexity || Parameters("CONV_RECALC")->asBool() )
 	{
-		CTC_Convexity	c;
+		if( !m_pConvexity ) { m_pConvexity = &Convexity; Convexity.Create(Get_System()); }
+
+		CTC_Convexity c; c.Set_Manager(NULL);
 
 		c.Set_Parameter(      "DEM", Parameters("DEM"));
 		c.Set_Parameter(    "SCALE", Parameters("CONV_SCALE"));
@@ -680,14 +682,16 @@ bool CTC_Classification::On_Execute(void)
 		{
 			return( false );
 		}
-
-		Parameters("CONVEXITY")->Set_Value(m_pConvexity = c.Get_Parameters()->Get_Parameter("CONVEXITY")->asGrid());
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid Texture;
+
 	if( !m_pTexture || Parameters("TEXT_RECALC")->asBool() )
 	{
-		CTC_Texture	c;
+		if( !m_pTexture ) { m_pTexture = &Texture; Texture.Create(Get_System()); }
+
+		CTC_Texture c; c.Set_Manager(NULL);
 
 		c.Set_Parameter(    "DEM", Parameters("DEM"));
 		c.Set_Parameter(  "SCALE", Parameters("TEXT_SCALE"));
@@ -698,8 +702,6 @@ bool CTC_Classification::On_Execute(void)
 		{
 			return( false );
 		}
-
-		Parameters("TEXTURE")->Set_Value(m_pTexture = c.Get_Parameters()->Get_Parameter("TEXTURE")->asGrid());
 	}
 
 	//-----------------------------------------------------
