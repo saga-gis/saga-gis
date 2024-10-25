@@ -1,7 +1,7 @@
 message(STATUS "subfolder: ${PROJECT_NAME}/res")
 
 # desktop file
-install(FILES saga.desktop DESTINATION share/applications)
+install(FILES org.saga_gis.saga_gui.desktop DESTINATION share/applications)
 
 # pixmaps file
 install(FILES saga.png DESTINATION share/pixmaps)
@@ -30,7 +30,7 @@ set(_icon_source)
 set(_icon_target)
 
 # appdata
-install(FILES org.saga-gis.saga-gui.appdata.xml DESTINATION share/metainfo)
+install(FILES org.saga_gis.saga_gui.appdata.xml DESTINATION share/metainfo)
 
 # tip-of-the-day and srs
 install(FILES saga_tip.txt DESTINATION share/saga)
@@ -39,8 +39,8 @@ install(FILES saga_srs_preferences.txt DESTINATION share/saga RENAME saga_prefer
 
 # cosmetic: add to custom target to show up in IDE
 add_custom_target(saga-gui-res-otherfiles SOURCES
-	saga.desktop
-	org.saga-gis.saga-gui.appdata.xml
+	org.saga_gis.saga_gui.desktop
+	org.saga_gis.saga_gui.appdata.xml
 	saga_tip.txt
 	saga_srs.txt
 	saga_srs_preferences.txt
