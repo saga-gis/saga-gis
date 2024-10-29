@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                      hydrology.h                      //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,63 +40,44 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__hydrology_H
+#define HEADER_INCLUDED__hydrology_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_String Get_Info(int i)
+class CHydrology : public CSG_Tool_Grid
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Compound Analyses" ));
-
-	case TLB_INFO_Category:
-		return( _TL("Terrain Analysis") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad, Hamburg (c) 2024" );
-
-	case TLB_INFO_Description:
-		return( _TL("This library provides one-step tools for compound terrain analyses.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Compound Analyses") );
-	}
-}
+public:
+	CHydrology(void);
 
 
-//---------------------------------------------------------
-#include "TA_Standard.h"
-#include "hydrology.h"
-#include "classification.h"
+protected:
 
+	virtual bool			On_Execute		(void);
 
-//---------------------------------------------------------
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-
-	case  0: return new CTA_Standard;
-	case  2: return new CHydrology;
-	case  3: return new CClassification;
-
-	case 10: return( NULL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -106,8 +87,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__hydrology_H

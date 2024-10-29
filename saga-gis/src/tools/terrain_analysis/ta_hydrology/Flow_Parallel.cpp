@@ -162,8 +162,8 @@ CFlow_Parallel::CFlow_Parallel(void)
 			_TL("Braunschweiger Reliefmodell"),
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
-			_TL("Multiple Triangular Flow Directon"),
-			_TL("Multiple Maximum Downslope Gradient Based Flow Directon")
+			_TL("Multiple Triangular Flow Direction"),
+			_TL("Multiple Maximum Downslope Gradient Based Flow Direction")
 		), 4
 	);
 
@@ -182,7 +182,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Double("",
 		"CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Direction Algorithm."),
 		1.1, 0.001, true
 	);
 
@@ -507,7 +507,7 @@ void CFlow_Parallel::Set_Rho8(int x, int y)
 
 		Add_Fraction(x, y, Direction);
 	}
-}/**/
+}*/
 
 
 ///////////////////////////////////////////////////////////
@@ -582,7 +582,7 @@ void CFlow_Parallel::Set_MFD(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//	Multiple Maximum Downslope Gradient Flow Directon	 //
+//	Multiple Maximum Downslope Gradient Flow Direction	 //
 //														 //
 ///////////////////////////////////////////////////////////
 

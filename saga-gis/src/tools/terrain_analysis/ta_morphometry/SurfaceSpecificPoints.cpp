@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: SurfaceSpecificPoints.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "SurfaceSpecificPoints.h"
 
 
@@ -72,35 +60,35 @@
 //---------------------------------------------------------
 CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Surface Specific Points"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"Peucker, T.K. and Douglas, D.H., 1975:\n"
-		"'Detection of surface-specific points by local parallel processing of discrete terrain elevation data',\n"
-		"Computer Graphics and Image Processing, 4, 375-387\n"
+		""
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Add_Reference("Peucker, T.K. & Douglas, D.H.", "1975",
+		"Detection of surface-specific points by local parallel processing of discrete terrain elevation data",
+		"Computer Graphics and Image Processing, 4, 375-387."
+	);
+
+	Parameters.Add_Grid("",
+		"ELEVATION", _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_Grid("",
+		"RESULT"   , _TL("Surface Specific Points"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"   , _TL("Method"),
 		_TL("Algorithm for the detection of Surface Specific Points"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Mark Highest Neighbour"),
 			_TL("Opposite Neighbours"),
 			_TL("Flow Direction"),
@@ -109,49 +97,47 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 		), 1
 	);
 
-	Parameters.Add_Value(
-		pNode	, "THRESHOLD"	, _TL("Threshold"),
+	Parameters.Add_Double("METHOD",
+		"THRESHOLD", _TL("Threshold"),
 		_TL("Threshold for Peucker & Douglas Algorithm"),
-		PARAMETER_TYPE_Double	, 2
+		2.
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSurfaceSpecificPoints::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("THRESHOLD", pParameter->asInt() == 4);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSurfaceSpecificPoints::On_Execute(void)
 {
-	CSG_Grid	*pGrid, *pResult;
-
-	pGrid		= Parameters("ELEVATION")	->asGrid();
-	pResult		= Parameters("RESULT")		->asGrid();
+	CSG_Grid *pDEM    = Parameters("ELEVATION")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT"   )->asGrid();
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		Do_MarkHighestNB	(pGrid, pResult);
-		break;
-
-	case 1:
-		Do_OppositeNB		(pGrid, pResult);
-		break;
-
-	case 2:
-		Do_FlowDirection	(pGrid, pResult);
-		break;
-
-	case 3:
-		Do_FlowDirection2	(pGrid, pResult);
-		break;
-
-	case 4:
-		Do_PeuckerDouglas	(pGrid, pResult, Parameters("THRESHOLD")->asDouble());
-		break;
+	case  0: Do_MarkHighestNB (pDEM, pResult); break;
+	default: Do_OppositeNB    (pDEM, pResult); break;
+	case  2: Do_FlowDirection (pDEM, pResult); break;
+	case  3: Do_FlowDirection2(pDEM, pResult); break;
+	case  4: Do_PeuckerDouglas(pDEM, pResult); break;
 	}
 
 	return( true );
@@ -160,129 +146,109 @@ bool CSurfaceSpecificPoints::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pGrid, CSG_Grid *pResult)	// Band & Lammers...
+void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pDEM, CSG_Grid *pResult)	// Band & Lammers...
 {
-	int		i, x, y, ix, iy, xlo, ylo, xhi, yhi;
-
-	double	lo, hi, z;
-
-	CSG_Grid	*clo, *chi;
-
-	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
-	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	CSG_Grid clo(Get_System(), SG_DATATYPE_Char);
+	CSG_Grid chi(Get_System(), SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
         {
-			lo	= hi	= pGrid->asDouble(x,y);
-			xhi	= xlo	= x;
-			yhi	= ylo	= y;
+			double lo, hi; lo = hi = pDEM->asDouble(x, y);
+			int xlo = x, xhi = x, ylo = y, yhi = y;
 
-			for(i=0; i<4; i++)
+			for(int i=0; i<4; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				int ix = Get_xTo(i,x), iy = Get_yTo(i,y);
   
-				if( is_InGrid(ix,iy) )
+				if( is_InGrid(ix, iy) )
 				{
-					z	= pGrid->asDouble(ix,iy);
+					double z = pDEM->asDouble(ix, iy);
 
 					if( z > hi )
 					{
-						hi	= z;
-						xhi	= ix;
-						yhi	= iy;
+						hi = z; xhi = ix; yhi = iy;
 					}
 					else if( z < lo )
 					{
-						lo	= z;
-						xlo	= ix;
-						ylo	= iy;
+						lo = z; xlo	= ix; ylo = iy;
 					}
 				}
 			}
 
-			clo->Add_Value(xlo,ylo,1);
-			chi->Add_Value(xhi,yhi,1);
+			clo.Add_Value(xlo, ylo, 1);
+			chi.Add_Value(xhi, yhi, 1);
 		}
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !chi->asChar(x,y) )
+			if( pDEM->is_NoData(x, y) ) { pResult->Set_NoData(x, y); continue; }
+
+			if( !chi.asChar(x, y) )
 			{
-				if( !clo->asChar(x,y) )
-					pResult->Set_Value(x,y, 2);	// Sattel
+				if( !clo.asChar(x, y) )
+					pResult->Set_Value(x, y, 2); // Sattel
 				else
-					pResult->Set_Value(x,y, 1);	// Tiefenlinie
+					pResult->Set_Value(x, y, 1); // Tiefenlinie
 			}
-			else if( !clo->asChar(x,y) )
-				pResult->Set_Value(x,y, -1);	// Wasserscheide
+			else if( !clo.asChar(x,y) )
+				pResult->Set_Value(x, y, -1);    // Wasserscheide
 			else
-				pResult->Set_Value(x,y,  0);	// Nichts...
+				pResult->Set_Value(x, y,  0);    // Nichts...
 		}
 	}
 
-	delete(clo);
-	delete(chi);
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
+void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pDEM, CSG_Grid *pResult)
 {
-	int		i, x, y, ix, iy, jx, jy;
-
-	double	z, iz, jz;
-
-	CSG_Grid	*clo, *chi;
-
-	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
-	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	CSG_Grid clo(Get_System(), SG_DATATYPE_Char);
+	CSG_Grid chi(Get_System(), SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
         {
-			z	= pGrid->asDouble(x,y);
+			double z = pDEM->asDouble(x, y);
 
-			for(i=0; i<4; i++)
+			for(int i=0; i<4; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-				if( is_InGrid(ix,iy) )
+				if( is_InGrid(ix, iy) )
 				{
-					jx	= Get_xFrom(i,x);
-					jy	= Get_yFrom(i,y);
+					int jx = Get_xFrom(i,x), jy = Get_yFrom(i,y);
   
-					if( is_InGrid(jx,jy) )
+					if( is_InGrid(jx, jy) )
 					{
-						iz	= pGrid->asDouble(ix,iy);
-						jz	= pGrid->asDouble(jx,jy);
+						double iz = pDEM->asDouble(ix, iy);
+						double jz = pDEM->asDouble(jx, jy);
 
-						if( iz>z && jz>z )
-							chi->Add_Value(x,y,1);
+						if( iz > z && jz > z )
+							chi.Add_Value(x, y, 1);
 
-						else if( iz<z && jz<z )
-							clo->Add_Value(x,y,1);
+						else if( iz < z && jz < z )
+							clo.Add_Value(x, y, 1);
 					}
 				}
 			}
@@ -290,100 +256,92 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
 	}
 
 	// Pass 2: Setzen...
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( chi->asChar(x,y) )
+			if( pDEM->is_NoData(x, y) ) { pResult->Set_NoData(x, y); continue; }
+
+			if( chi.asChar(x, y) )
 			{
-				if( clo->asChar(x,y) )
-					pResult->Set_Value(x,y, 5);					// Sattel
+				if( clo.asChar(x, y) )
+					pResult->Set_Value(x, y,                5); // Sattel
 				else
-					pResult->Set_Value(x,y, chi->asChar(x,y) );	// Tiefenlinie
+					pResult->Set_Value(x, y, chi.asChar(x, y)); // Tiefenlinie
 			}
-			else if( clo->asChar(x,y) )
-				pResult->Set_Value(x,y, - clo->asChar(x,y) );	// Wasserscheide
+			else if( clo.asChar(x,y) )
+				pResult->Set_Value(x, y, -clo.asChar(x, y));    // Wasserscheide
 			else
-				pResult->Set_Value(x,y, 0);						// Nichts...
+				pResult->Set_Value(x, y, 0);                    // Nichts...
 		}
 	}
 
-	delete(clo);
-	delete(chi);
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pGrid, CSG_Grid *pResult)
+void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pDEM, CSG_Grid *pResult)
 {
-	bool	bLower;
+	pResult->Assign(0.);
 
-	int		x, y, i, ix, iy, xLow, yLow;
-
-	double	z, iz, zLow;
-
-	pResult->Assign();
-
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
         {
-			z		= pGrid->asDouble(x,y);
-			bLower	= false;
+			if( pDEM->is_NoData(x, y) ) { pResult->Set_NoData(x, y); continue; }
 
-			for(i=0; i<8; i++)
+			double z = pDEM->asDouble(x, y), zLow; int xLow, yLow; bool bLower = false;
+
+			for(int i=0; i<8; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
   
-				if( is_InGrid(ix,iy) )
+				if( is_InGrid(ix, iy) )
 				{
-					iz	= pGrid->asDouble(ix,iy);
+					double iz = pDEM->asDouble(ix,iy);
 
-					if(iz<z)
+					if( iz < z )
 					{
-						if(!bLower)
+						if( !bLower )
 						{
-							bLower	= true;
-							zLow	= iz;
-							xLow	= ix;
-							yLow	= iy;
+							bLower = true;
+
+							zLow = iz; xLow = ix; yLow = iy;
 						}
-						else if(iz<zLow)
+						else if( iz < zLow )
 						{
-							zLow	= iz;
-							xLow	= ix;
-							yLow	= iy;
+							zLow = iz; xLow = ix; yLow = iy;
 						}
 					}
 				}
 			}
 
-			if(bLower)
+			if( bLower )
 			{
 				pResult->Add_Value(xLow, yLow, 1);
 			}
 		}
 	}
+
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE, true);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_FlowDirection2(CSG_Grid *pGrid, CSG_Grid *pResult)
+void CSurfaceSpecificPoints::Do_FlowDirection2(CSG_Grid *pDEM, CSG_Grid *pResult)
 {
-	CSG_Grid	Grid(*pGrid), Result(*pResult);
+	CSG_Grid Grid(*pDEM), Result(*pResult);
 
 	Do_FlowDirection(&Grid, &Result);
 
@@ -391,85 +349,86 @@ void CSurfaceSpecificPoints::Do_FlowDirection2(CSG_Grid *pGrid, CSG_Grid *pResul
 
 	Do_FlowDirection(&Grid, pResult);
 
+	#pragma omp parallel for
 	for(sLong n=0; n<Get_NCells(); n++)
 	{
-		pResult->Add_Value(n, -Result.asInt(n));
+		if( !pResult->is_NoData(n) )
+		{
+			pResult->Add_Value(n, -Result.asInt(n));
+		}
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pGrid, CSG_Grid *pResult, double Threshold)
+void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pDEM, CSG_Grid *pResult)
 {
-	bool	wasPlus;
+	double Threshold = Parameters("THRESHOLD")->asDouble();
 
-	int		x, y, i, ix, iy, nSgn;
-
-	double	d, dPlus, dMinus, z, alt[8];
-
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			z	= pGrid->asDouble(x,y);
+			if( pDEM->is_NoData(x, y) ) { pResult->Set_NoData(x, y); continue; }
 
-			for(i=0; i<8; i++)
+			double alt[8], z = pDEM->asDouble(x, y);
+
+			for(int i=0; i<8; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				int ix = Get_xTo(i,x), iy = Get_yTo(i,y);
 
-				if( is_InGrid(ix,iy) )
-					alt[i]	= pGrid->asDouble(ix,iy);
+				if( is_InGrid(ix, iy) )
+					alt[i] = pDEM->asDouble(ix, iy);
 				else
-					alt[i]	= z;
+					alt[i] = z;
 			}
 
-			dPlus	= dMinus	= 0;
-			nSgn	= 0;
-			wasPlus	= (alt[7] - z > 0) ? true : false;
+			double dPlus = 0., dMinus = 0; int nSgn = 0;
+
+			bool wasPlus = (alt[7] - z > 0.) ? true : false;
 			
-			for(i=0; i<8; i++)
+			for(int i=0; i<8; i++)
 			{
-				d	= alt[i] - z;
+				double d = alt[i] - z;
 
-				if(d>0)
+				if( d > 0. )
 				{
-					dPlus	+= d;
-					if(!wasPlus)
+					dPlus += d;
+
+					if( !wasPlus )
 					{
-						nSgn++;
-						wasPlus	= true;
+						nSgn++; wasPlus = true;
 					}
 				}
-				else if(d<0)
+				else if( d < 0. )
 				{
-					dMinus	-= d;
-					if(wasPlus)
+					dMinus -= d;
+
+					if( wasPlus )
 					{
-						nSgn++;
-						wasPlus	= false;
+						nSgn++; wasPlus = false;
 					}
 				}
 			}
 
-			i	= 0;
-			if(!dPlus)									// Peak...
-				i	=  9;
-			else if(!dMinus)							// Pit
-				i	= -9;
-			else if(nSgn==4)							// Pass
-				i	= 1;
-			else if(nSgn==2)
-			{
-				i	= nSgn	= 0;
+			int i = 0;
 
-				if(alt[7]>z)
+			if( !dPlus )        // Peak
+				i =  9;
+			else if( !dMinus )  // Pit
+				i = -9;
+			else if( nSgn == 4) // Pass
+				i = 1;
+			else if( nSgn == 2)
+			{
+				i = nSgn = 0;
+
+				if( alt[7] > z )
 				{
 					while(alt[i++]>z);
 					do	nSgn++;	while(alt[i++]<z);
@@ -480,27 +439,29 @@ void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pGrid, CSG_Grid *pResul
 					do	nSgn++;	while(alt[i++]>z);
 				}
 
-				i	= 0;
+				i = 0;
 
-				if(nSgn==4)
+				if( nSgn == 4 )
 				{
-					if(dMinus-dPlus > Threshold)		// convex break...
+					if( dMinus - dPlus > Threshold )      // convex break
 						i	=  2;
-					else if(dPlus-dMinus > Threshold)	// concave break...
+					else if( dPlus - dMinus > Threshold ) // concave break
 						i	= -2;
 				}
-				else	// lines:
+				else // lines:
 				{
-					if(dMinus-dPlus>0)					// Ridge
+					if( dMinus - dPlus > 0 )              // Ridge
 						i	=  7;
-					else								// Channel
+					else                                  // Channel
 						i	= -7;
 				}
 			}
 
-			pResult->Set_Value(x,y,i);
+			pResult->Set_Value(x, y, i);
 		}
     }
+
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE);
 }
 
 

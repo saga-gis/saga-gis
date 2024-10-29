@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                   classification.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,25 +40,21 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__classification_H
+#define HEADER_INCLUDED__classification_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__ta_compound_H
-#define HEADER_INCLUDED__ta_compound_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -74,4 +67,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__ta_compound_H
+class CClassification : public CSG_Tool_Grid
+{
+public:
+	CClassification(void);
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__classification_H
