@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -153,8 +153,20 @@ CMorphometry::CMorphometry(void)
 
 	Parameters.Add_Grid(
 		"", "ASPECT"	, _TL("Aspect"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		_TL("Starting with 0 for the North direction angles are increasing clockwise."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		"", "NORTHNESS"	, _TL("Northness"),
+		_TL("The aspect's cosine."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		"", "EASTNESS"	, _TL("Eastness"),
+		_TL("The aspect's sine."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
@@ -256,7 +268,7 @@ CMorphometry::CMorphometry(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -264,20 +276,16 @@ int CMorphometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
-		bool	bOn;
-		
-		bOn	= pParameter->asInt() >= 3 || pParameter->asInt() == 0;
-		pParameters->Set_Enabled("C_GENE", bOn);
-		pParameters->Set_Enabled("C_PROF", bOn);
-		pParameters->Set_Enabled("C_PLAN", bOn);
+		pParameters->Set_Enabled("C_GENE", pParameter->asInt() >= 3 || pParameter->asInt() == 0);
+		pParameters->Set_Enabled("C_PROF", pParameter->asInt() >= 3 || pParameter->asInt() == 0);
+		pParameters->Set_Enabled("C_PLAN", pParameter->asInt() >= 3 || pParameter->asInt() == 0);
 
-		bOn	= pParameter->asInt() >= 3;
-		pParameters->Set_Enabled("C_TANG", bOn);
-		pParameters->Set_Enabled("C_LONG", bOn);
-		pParameters->Set_Enabled("C_CROS", bOn);
-		pParameters->Set_Enabled("C_MINI", bOn);
-		pParameters->Set_Enabled("C_MAXI", bOn);
-		pParameters->Set_Enabled("C_TOTA", bOn);
+		pParameters->Set_Enabled("C_TANG", pParameter->asInt() >= 3);
+		pParameters->Set_Enabled("C_LONG", pParameter->asInt() >= 3);
+		pParameters->Set_Enabled("C_CROS", pParameter->asInt() >= 3);
+		pParameters->Set_Enabled("C_MINI", pParameter->asInt() >= 3);
+		pParameters->Set_Enabled("C_MAXI", pParameter->asInt() >= 3);
+		pParameters->Set_Enabled("C_TOTA", pParameter->asInt() >= 3);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -285,29 +293,30 @@ int CMorphometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CMorphometry::On_Execute(void)
 {
-	m_pDTM		= Parameters("ELEVATION")->asGrid();
+	m_pDTM       = Parameters("ELEVATION")->asGrid();
 
-	m_pSlope	= Parameters("SLOPE"    )->asGrid();
-	m_pAspect	= Parameters("ASPECT"   )->asGrid();
+	m_pSlope     = Parameters("SLOPE"    )->asGrid();
+	m_pAspect    = Parameters("ASPECT"   )->asGrid();
+	m_pNorthness = Parameters("NORTHNESS")->asGrid();
+	m_pEastness  = Parameters("EASTNESS" )->asGrid();
+	m_pC_Gene    = Parameters("C_GENE"   )->asGrid();
+	m_pC_Prof    = Parameters("C_PROF"   )->asGrid();
+	m_pC_Plan    = Parameters("C_PLAN"   )->asGrid();
+	m_pC_Tang    = Parameters("C_TANG"   )->asGrid();
+	m_pC_Long    = Parameters("C_LONG"   )->asGrid();
+	m_pC_Cros    = Parameters("C_CROS"   )->asGrid();
+	m_pC_Mini    = Parameters("C_MINI"   )->asGrid();
+	m_pC_Maxi    = Parameters("C_MAXI"   )->asGrid();
+	m_pC_Tota    = Parameters("C_TOTA"   )->asGrid();
+	m_pC_Roto    = Parameters("C_ROTO"   )->asGrid();
 
-	m_pC_Gene	= Parameters("C_GENE"   )->asGrid();
-	m_pC_Prof	= Parameters("C_PROF"   )->asGrid();
-	m_pC_Plan	= Parameters("C_PLAN"   )->asGrid();
-	m_pC_Tang	= Parameters("C_TANG"   )->asGrid();
-	m_pC_Long	= Parameters("C_LONG"   )->asGrid();
-	m_pC_Cros	= Parameters("C_CROS"   )->asGrid();
-	m_pC_Mini	= Parameters("C_MINI"   )->asGrid();
-	m_pC_Maxi	= Parameters("C_MAXI"   )->asGrid();
-	m_pC_Tota	= Parameters("C_TOTA"   )->asGrid();
-	m_pC_Roto	= Parameters("C_ROTO"   )->asGrid();
-
-	int	Method	= Parameters("METHOD"   )->asInt ();
+	int Method = Parameters("METHOD")->asInt();
 
 	if( Method == 0 )
 	{
@@ -320,45 +329,41 @@ bool CMorphometry::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Set_Colors(m_pSlope , 11, SG_COLORS_GREEN_RED    , false);
-	DataObject_Set_Colors(m_pAspect, 11, SG_COLORS_ASPECT_3     , false);
-	DataObject_Set_Colors(m_pC_Gene, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Prof, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Plan, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Tang, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Long, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Cros, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Mini, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Maxi, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Tota, 11, SG_COLORS_YELLOW_RED   , false);
-	DataObject_Set_Colors(m_pC_Roto, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pSlope    , 5, SG_COLORS_GREEN_RED    , false);
+	DataObject_Set_Colors(m_pAspect   , 5, SG_COLORS_ASPECT_3     , false);
+	DataObject_Set_Colors(m_pNorthness, 5, SG_COLORS_BLACK_WHITE  , false);
+	DataObject_Set_Colors(m_pEastness , 5, SG_COLORS_BLACK_WHITE  , false);
+	DataObject_Set_Colors(m_pC_Gene   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Prof   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Plan   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Tang   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Long   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Cros   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Mini   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Maxi   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Tota   , 5, SG_COLORS_YELLOW_RED   , false);
+	DataObject_Set_Colors(m_pC_Roto   , 5, SG_COLORS_RED_GREY_BLUE,  true);
 
 	//-----------------------------------------------------
-	m_Unit_Slope	= Parameters("UNIT_SLOPE" )->asInt();
+	m_Unit_Slope = Parameters("UNIT_SLOPE")->asInt();
 
-	if( m_Unit_Slope == 0 )
+	switch( m_Unit_Slope )
 	{
-		m_pSlope->Set_Unit(_TL("Radians"));
-	}
-	else if( m_Unit_Slope == 1 )
-	{
-		m_pSlope->Set_Unit(_TL("Degree"));
-	}
-	else // if( m_Unit_Slope == 2 )
-	{
-		m_pSlope->Set_Unit(_TL("Percent"));
+	default: m_pSlope->Set_Unit(_TL("radians")); break;
+	case  1: m_pSlope->Set_Unit(_TL("degree" )); break;
+	case  2: m_pSlope->Set_Unit(_TL("percent")); break;
 	}
 
 	//-----------------------------------------------------
-	m_Unit_Aspect	= Parameters("UNIT_ASPECT")->asInt();
+	m_Unit_Aspect = Parameters("UNIT_ASPECT")->asInt();
 
-	if( m_Unit_Aspect == 0 )
+	if( m_pAspect )
 	{
-		m_pAspect->Set_Unit(_TL("Radians"));
-	}
-	else // if( m_Unit_Aspect == 1 )
-	{
-		m_pAspect->Set_Unit(_TL("Degree"));
+		switch( m_Unit_Aspect )
+		{
+		default: m_pAspect->Set_Unit(_TL("radians")); break;
+		case  1: m_pAspect->Set_Unit(_TL("degree" )); break;
+		}
 	}
 
 	//-----------------------------------------------------
@@ -391,9 +396,9 @@ bool CMorphometry::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -408,39 +413,37 @@ bool CMorphometry::On_Execute(void)
 //---------------------------------------------------------
 inline void CMorphometry::Get_SubMatrix3x3(int x, int y, double Z[9], int Orientation)
 {
-	static const int	Indexes[][8]	=
+	static const int Indexes[][8] =
 	{
 		{ 5, 8, 7, 6, 3, 0, 1, 2 },
 		{ 5, 2, 1, 0, 3, 6, 7, 8 }
 	};
 
-	int	*Index	= (int *)Indexes[Orientation];
+	int *Index = (int *)Indexes[Orientation];
 
-	double	z	= m_pDTM->asDouble(x, y);
+	double z = m_pDTM->asDouble(x, y);
 
-	Z[4]		= 0.;
+	Z[4] = 0.;
 
 	for(int i=0; i<8; i++)
 	{
-		int ix	= Get_xTo(i, x);
-		int iy	= Get_yTo(i, y);
+		int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 		if( m_pDTM->is_InGrid(ix, iy) )
 		{
-			Z[Index[i]]	= m_pDTM->asDouble(ix, iy) - z;
+			Z[Index[i]] = m_pDTM->asDouble(ix, iy) - z;
 		}
 		else
 		{
-			ix	= Get_xTo(i + 4, x);
-			iy	= Get_yTo(i + 4, y);
+			ix = Get_xTo(i + 4, x); iy = Get_yTo(i + 4, y);
 
 			if( m_pDTM->is_InGrid(ix, iy) )
 			{
-				Z[Index[i]]	= z - m_pDTM->asDouble(ix, iy);
+				Z[Index[i]] = z - m_pDTM->asDouble(ix, iy);
 			}
 			else
 			{
-				Z[Index[i]]	= 0.;
+				Z[Index[i]] = 0.;
 			}
 		}
 	}
@@ -449,19 +452,19 @@ inline void CMorphometry::Get_SubMatrix3x3(int x, int y, double Z[9], int Orient
 //---------------------------------------------------------
 inline void CMorphometry::Get_SubMatrix5x5(int x, int y, double Z[25], int Orientation)
 {
-	double	z	= m_pDTM->asDouble(x,y);
+	double z = m_pDTM->asDouble(x,y);
 
 	if( Orientation == 0 )
 	{
 		for(int i=0, iy=y-2; iy<=y+2; iy++)
 		{
-			int	jy	= iy < 0 ? 0 : (iy >= Get_NY() ? Get_NY() - 1 : iy);
+			int jy = iy < 0 ? 0 : (iy >= Get_NY() ? Get_NY() - 1 : iy);
 
 			for(int ix=x-2; ix<=x+2; ix++, i++)
 			{
-				int	jx	= ix < 0 ? 0 : (ix >= Get_NX() ? Get_NX() - 1 : ix);
+				int jx = ix < 0 ? 0 : (ix >= Get_NX() ? Get_NX() - 1 : ix);
 
-				Z[i]	= m_pDTM->is_InGrid(jx, jy) ? m_pDTM->asDouble(jx, jy) - z : 0.;
+				Z[i] = m_pDTM->is_InGrid(jx, jy) ? m_pDTM->asDouble(jx, jy) - z : 0.;
 			}
 		}
 	}
@@ -469,13 +472,13 @@ inline void CMorphometry::Get_SubMatrix5x5(int x, int y, double Z[25], int Orien
 	{
 		for(int i=0, iy=y+2; iy>=y-2; iy--)
 		{
-			int	jy	= iy < 0 ? 0 : (iy >= Get_NY() ? Get_NY() - 1 : iy);
+			int jy = iy < 0 ? 0 : (iy >= Get_NY() ? Get_NY() - 1 : iy);
 
 			for(int ix=x-2; ix<=x+2; ix++, i++)
 			{
-				int	jx	= ix < 0 ? 0 : (ix >= Get_NX() ? Get_NX() - 1 : ix);
+				int jx = ix < 0 ? 0 : (ix >= Get_NX() ? Get_NX() - 1 : ix);
 
-				Z[i]	= m_pDTM->is_InGrid(jx, jy) ? m_pDTM->asDouble(jx, jy) - z : 0.;
+				Z[i] = m_pDTM->is_InGrid(jx, jy) ? m_pDTM->asDouble(jx, jy) - z : 0.;
 			}
 		}
 	}
@@ -483,67 +486,57 @@ inline void CMorphometry::Get_SubMatrix5x5(int x, int y, double Z[25], int Orien
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SET_NODATA(grid)		if( grid ) grid->Set_NoData(x, y);
-#define SET_VALUE(grid, value)	if( grid ) grid->Set_Value(x, y, value);
+#define SET_NODATA(grid)       if( grid ) { grid->Set_NoData(x, y); }
+#define SET_VALUE(grid, value) if( grid ) { grid->Set_Value(x, y, value); }
 
 //---------------------------------------------------------
 inline void CMorphometry::Set_NoData(int x, int y)
 {
-	SET_NODATA(m_pSlope )
-	SET_NODATA(m_pAspect)
-	SET_NODATA(m_pC_Gene)
-	SET_NODATA(m_pC_Prof)
-	SET_NODATA(m_pC_Plan)
-	SET_NODATA(m_pC_Tang)
-	SET_NODATA(m_pC_Long)
-	SET_NODATA(m_pC_Cros)
-	SET_NODATA(m_pC_Mini)
-	SET_NODATA(m_pC_Maxi)
-	SET_NODATA(m_pC_Tota)
-	SET_NODATA(m_pC_Roto)
+	SET_NODATA(m_pSlope    )
+	SET_NODATA(m_pAspect   )
+	SET_NODATA(m_pNorthness)
+	SET_NODATA(m_pEastness )
+	SET_NODATA(m_pC_Gene   )
+	SET_NODATA(m_pC_Prof   )
+	SET_NODATA(m_pC_Plan   )
+	SET_NODATA(m_pC_Tang   )
+	SET_NODATA(m_pC_Long   )
+	SET_NODATA(m_pC_Cros   )
+	SET_NODATA(m_pC_Mini   )
+	SET_NODATA(m_pC_Maxi   )
+	SET_NODATA(m_pC_Tota   )
+	SET_NODATA(m_pC_Roto   )
 }
 
 //---------------------------------------------------------
 inline void CMorphometry::Set_Gradient(int x, int y, double Slope, double Aspect)
 {
-	if     ( m_Unit_Slope == 2 )
+	switch( m_Unit_Slope )
 	{
-		SET_VALUE(m_pSlope, 100. * Slope);
-	}
-	else if( m_Unit_Slope == 1 )
-	{
-		SET_VALUE(m_pSlope, atan(Slope) * M_RAD_TO_DEG);
-	}
-	else
-	{
-		SET_VALUE(m_pSlope, atan(Slope));
+	default: SET_VALUE(m_pSlope, atan(Slope)               ); break; // radians
+	case  1: SET_VALUE(m_pSlope, atan(Slope) * M_RAD_TO_DEG); break; // degree
+	case  2: SET_VALUE(m_pSlope, 100. * Slope              ); break; // percent rise
 	}
 
-	//-----------------------------------------------------
-	if( m_Unit_Aspect == 1 && Aspect >= 0. )
-	{
-		SET_VALUE(m_pAspect, Aspect * M_RAD_TO_DEG);
-	}
-	else
-	{
-		SET_VALUE(m_pAspect, Aspect);
-	}
+	SET_VALUE(m_pAspect, m_Unit_Aspect == 0 || Aspect <= 0. ? Aspect : Aspect * M_RAD_TO_DEG);
+
+	SET_VALUE(m_pNorthness, cos(Aspect));
+	SET_VALUE(m_pEastness , sin(Aspect));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 inline void CMorphometry::Set_From_Polynom(int x, int y, double r, double t, double s, double p, double q)
 {
-	//-----------------------------------------------------
-	double	p2_q2	= p*p + q*q;
+	double p2_q2 = p*p + q*q;
 
 	Set_Gradient(x, y, sqrt(p2_q2),
 		  p != 0. ? M_PI_180 + atan2(q, p)
@@ -555,7 +548,7 @@ inline void CMorphometry::Set_From_Polynom(int x, int y, double r, double t, dou
 	//-----------------------------------------------------
 	if( p2_q2 )
 	{
-		double	spq = s * p * q, p2 = p*p, q2 = q*q;
+		double spq = s * p * q, p2 = p*p, q2 = q*q;
 
 		SET_VALUE(m_pC_Gene, -2 * (r + t));
 		SET_VALUE(m_pC_Prof, -(r * p2 + t * q2 + 2 * spq) / (p2_q2 * pow(1 + p2_q2, 1.5)));
@@ -573,9 +566,9 @@ inline void CMorphometry::Set_From_Polynom(int x, int y, double r, double t, dou
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //					The Methods							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -997,9 +990,9 @@ void CMorphometry::Set_Florinsky(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -200,7 +200,6 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 //---------------------------------------------------------
 CTC_Texture::CTC_Texture(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Terrain Surface Texture"));
 
 	Set_Author		("O.Conrad (c) 2012");
@@ -212,7 +211,8 @@ CTC_Texture::CTC_Texture(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, 86, 409-440.",
+		SG_T("https://doi.org/10.1016/j.geomorph.2006.09.012"), SG_T("doi:10.1016/j.geomorph.2006.09.012")
 	);
 
 	//-----------------------------------------------------
@@ -246,12 +246,11 @@ CTC_Texture::CTC_Texture(void)
 //---------------------------------------------------------
 bool CTC_Texture::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	Noise(Get_System(), SG_DATATYPE_Char);
+	CSG_Grid Noise(Get_System(), SG_DATATYPE_Char);
 
-	double	Epsilon	= Parameters("EPSILON")->asDouble();
+	double Epsilon = Parameters("EPSILON")->asDouble();
 
-	m_pDEM	= Parameters("DEM")->asGrid();
+	m_pDEM = Parameters("DEM")->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -271,6 +270,8 @@ bool CTC_Texture::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Set_Colors(Parameters("TEXTURE")->asGrid(), 5, SG_COLORS_RED_GREY_BLUE, true);
+
 	return( Get_Parameter(&Noise, Parameters("TEXTURE")->asGrid()) );
 }
 
@@ -286,7 +287,7 @@ bool CTC_Texture::On_Execute(void)
 //---------------------------------------------------------
 int CTC_Texture::Get_Noise(int x, int y, double Epsilon)
 {
-	CSG_Simple_Statistics	s(true);
+	CSG_Simple_Statistics s(true);
 
 	for(int iy=y-1; iy<=y+1; iy++)
 	{
@@ -294,7 +295,7 @@ int CTC_Texture::Get_Noise(int x, int y, double Epsilon)
 		{
 			if( m_pDEM->is_InGrid(ix, iy) )
 			{
-				s	+= m_pDEM->asDouble(ix, iy);
+				s += m_pDEM->asDouble(ix, iy);
 			}
 		}
 	}
@@ -312,7 +313,6 @@ int CTC_Texture::Get_Noise(int x, int y, double Epsilon)
 //---------------------------------------------------------
 CTC_Convexity::CTC_Convexity(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Terrain Surface Convexity"));
 
 	Set_Author		("O.Conrad (c) 2012");
@@ -324,7 +324,8 @@ CTC_Convexity::CTC_Convexity(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, 86, 409-440.",
+		SG_T("https://doi.org/10.1016/j.geomorph.2006.09.012"), SG_T("doi:10.1016/j.geomorph.2006.09.012")
 	);
 
 	//-----------------------------------------------------
@@ -377,18 +378,17 @@ CTC_Convexity::CTC_Convexity(void)
 //---------------------------------------------------------
 bool CTC_Convexity::On_Execute(void)
 {
+	const double Kernels[3][2] = { { 1, 0 }, { 1, 1 }, { 1, 1 / sqrt(2.) } };
+
+	int Kernel = Parameters("KERNEL")->asInt();
+
 	//-----------------------------------------------------
-	const double	Kernels[3][2]	= { { 1, 0 }, { 1, 1 }, { 1, 1 / sqrt(2.) } };
+	CSG_Grid Laplace(Get_System(), SG_DATATYPE_Char);
 
-	int	Kernel	= Parameters("KERNEL")->asInt();
+	double Epsilon = Parameters("EPSILON")->asDouble();
+	int       Type = Parameters("TYPE"   )->asInt   ();
 
-	//-----------------------------------------------------
-	CSG_Grid	Laplace(Get_System(), SG_DATATYPE_Char);
-
-	double	Epsilon	= Parameters("EPSILON")->asDouble();
-	int		Type	= Parameters("TYPE"   )->asInt   ();
-
-	m_pDEM	= Parameters("DEM")->asGrid();
+	m_pDEM = Parameters("DEM")->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -408,6 +408,8 @@ bool CTC_Convexity::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Set_Colors(Parameters("CONVEXITY")->asGrid(), 5, SG_COLORS_RED_GREY_BLUE, true);
+
 	return( Get_Parameter(&Laplace, Parameters("CONVEXITY")->asGrid()) );
 }
 
@@ -419,16 +421,15 @@ bool CTC_Convexity::On_Execute(void)
 //---------------------------------------------------------
 int CTC_Convexity::Get_Laplace(int x, int y, const double Kernel[2], int Type, double Epsilon)
 {
-	double	Sum	= 4 * (Kernel[0] + Kernel[1]) * m_pDEM->asDouble(x, y);
+	double Sum = 4 * (Kernel[0] + Kernel[1]) * m_pDEM->asDouble(x, y);
 
 	for(int i=0; i<8; i++)
 	{
-		int		ix	= Get_xTo(i, x);
-		int		iy	= Get_yTo(i, y);
+		int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-		double	iz	= m_pDEM->is_InGrid(ix, iy) ? m_pDEM->asDouble(ix, iy) : m_pDEM->asDouble(x, y);
+		double iz = m_pDEM->is_InGrid(ix, iy) ? m_pDEM->asDouble(ix, iy) : m_pDEM->asDouble(x, y);
 
-		Sum		-= Kernel[i % 2] * iz;
+		Sum -= Kernel[i % 2] * iz;
 	}
 
 	return( Type == 0
@@ -459,7 +460,6 @@ int CTC_Convexity::Get_Laplace(int x, int y, const double Kernel[2], int Type, d
 //---------------------------------------------------------
 CTC_Classification::CTC_Classification(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Terrain Surface Classification (Iwahashi and Pike)"));
 
 	Set_Author		("O.Conrad (c) 2012");
@@ -471,7 +471,8 @@ CTC_Classification::CTC_Classification(void)
 	Add_Reference(
 		"Iwahashi, J. & Pike, R.J.", "2007",
 		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
-		"Geomorphology, Vol. 86, pp. 409–440."
+		"Geomorphology, 86, 409-440.",
+		SG_T("https://doi.org/10.1016/j.geomorph.2006.09.012"), SG_T("doi:10.1016/j.geomorph.2006.09.012")
 	);
 
 	//-----------------------------------------------------
@@ -514,13 +515,13 @@ CTC_Classification::CTC_Classification(void)
 	Parameters.Add_Grid("",
 		"LANDFORMS"		, _TL("Landforms"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Choice("",
 		"TYPE"			, _TL("Number of Classes"),
 		_TL(""),
-		"8|12|16|", 2
+		"8|12|16", 2
 	);
 
 	//-----------------------------------------------------
@@ -538,7 +539,7 @@ CTC_Classification::CTC_Classification(void)
 	Parameters.Add_Choice("CONV_NODE",
 		"CONV_KERNEL"	, _TL("Laplacian Filter Kernel"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("four-neighbourhood"),
 			_TL("eight-neihbourhood"),
 			_TL("eight-neihbourhood (distance based weighting)")
@@ -548,7 +549,7 @@ CTC_Classification::CTC_Classification(void)
 	Parameters.Add_Choice("CONV_NODE",
 		"CONV_TYPE"		, _TL("Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("convexity"),
 			_TL("concavity")
 		)

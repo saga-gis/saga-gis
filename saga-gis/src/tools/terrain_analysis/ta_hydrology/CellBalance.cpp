@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: CellBalance.cpp 1616 2013-02-27 16:23:56Z oconrad $
- *********************************************************/
+
 /*******************************************************************************
     CellBalance.cpp
     Copyright (C) Victor Olaya
@@ -19,7 +17,6 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -88,15 +85,17 @@ CCellBalance::CCellBalance(void)
 //---------------------------------------------------------
 bool CCellBalance::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM"    )->asGrid();
-	m_pBalance	= Parameters("BALANCE")->asGrid();
+	m_pDEM     = Parameters("DEM"    )->asGrid();
+	m_pBalance = Parameters("BALANCE")->asGrid();
 
-	int	Method	= Parameters("METHOD" )->asInt();
+	int Method = Parameters("METHOD" )->asInt();
 
-	CSG_Grid	*pWeight	= Parameters("WEIGHTS")->asGrid  ();
-	double		  Weight	= Parameters("WEIGHTS")->asDouble();
+	CSG_Grid *pWeight = Parameters("WEIGHTS")->asGrid  ();
+	double     Weight = Parameters("WEIGHTS")->asDouble();
 
-	m_pBalance->Assign(0.0);
+	m_pBalance->Assign(0.);
+
+	DataObject_Set_Colors(m_pBalance, 5, SG_COLORS_RED_GREY_BLUE, false);
 
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
@@ -109,16 +108,16 @@ bool CCellBalance::On_Execute(void)
 			}
 			else
 			{
-				double	w	= pWeight && !pWeight->is_NoData(x, y) ? pWeight->asDouble(x, y) : Weight;
+				double w = pWeight && !pWeight->is_NoData(x, y) ? pWeight->asDouble(x, y) : Weight;
 
-				if( w > 0.0 )
+				if( w > 0. )
 				{
 					m_pBalance->Add_Value(x, y, -w);
 
 					switch( Method )
 					{
-					case  0:	Set_D8 (x, y, w);	break;
-					default:	Set_MFD(x, y, w);	break;
+					case  0: Set_D8 (x, y, w); break;
+					default: Set_MFD(x, y, w); break;
 					}
 				}
 			}
@@ -140,8 +139,8 @@ void CCellBalance::Set_D8(int x, int y, double Weight)
 
 	if( Dir >= 0 )
 	{
-		x	+= Get_xTo(Dir);
-		y	+= Get_yTo(Dir);
+		x += Get_xTo(Dir);
+		y += Get_yTo(Dir);
 
 		if( m_pDEM->is_InGrid(x, y) )
 		{
@@ -153,38 +152,34 @@ void CCellBalance::Set_D8(int x, int y, double Weight)
 //---------------------------------------------------------
 void CCellBalance::Set_MFD(int x, int y, double Weight)
 {
-	const double	MFD_Converge	= 1.1;
+	const double MFD_Converge = 1.1;
 
-	int		i;
+	double d, dz[8], dzSum = 0., z = m_pDEM->asDouble(x, y);
 
-	double	d, dz[8], dzSum = 0.0, z = m_pDEM->asDouble(x, y);
-
-	for(i=0; i<8; i++)
+	for(int i=0; i<8; i++)
 	{
-		int	ix	= Get_xTo(i, x);
-		int	iy	= Get_yTo(i, y);
+		int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-		if( m_pDEM->is_InGrid(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
+		if( m_pDEM->is_InGrid(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0. )
 		{
-			dz[i]	= pow(d / Get_Length(i), MFD_Converge);
-			dzSum	+= dz[i];
+			dz[i]  = pow(d / Get_Length(i), MFD_Converge);
+			dzSum += dz[i];
 		}
 		else
 		{
-			dz[i]	= 0.0;
+			dz[i] = 0.;
 		}
 	}
 
-	if( dzSum > 0.0 )
+	if( dzSum > 0. )
 	{
-		d	= Weight / dzSum;
+		d = Weight / dzSum;
 
-		for(i=0; i<8; i++)
+		for(int i=0; i<8; i++)
 		{
-			if( dz[i] > 0.0 )
+			if( dz[i] > 0. )
 			{
-				int	ix	= Get_xTo(i, x);
-				int	iy	= Get_yTo(i, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
 				m_pBalance->Add_Value(ix, iy, dz[i] * d);
 			}

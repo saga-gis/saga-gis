@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: ProtectionIndex.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
+
 /*******************************************************************************
     ProtectionIndex.cpp
     Copyright (C) Victor Olaya
@@ -20,104 +18,136 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "ProtectionIndex.h"
 
-#define NO_DATA -1
 
-CProtectionIndex::CProtectionIndex(void){
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	Set_Name(_TL("Morphometric Protection Index"));
-    Set_Author(SG_T("(c) 2005 by Victor Olaya"));
+//---------------------------------------------------------
+CProtectionIndex::CProtectionIndex(void)
+{
+	Set_Name		(_TL("Morphometric Protection Index"));
+
+	Set_Author		("V.Olaya (c) 2005");
+
 	Set_Description(_TW(
-        "This algorithm analyses the immediate surrounding of each cell up to an given distance and evaluates how the relief protects it.\n"
-         "It is equivalent to the positive openness described in: Visualizing Topography by Openness: A New Application of Image Processing to Digital Elevation Models, Photogrammetric Engineering and Remote Sensing(68), No. 3, March 2002, pp. 257-266."));
+        "This algorithm analyses the immediate surrounding of each cell "
+		"up to an given distance and evaluates how the relief protects it. "
+         "It is equivalent to the positive openness described in Yokoyama (2002). "
+	));
 
-	Parameters.Add_Grid(NULL,
-						"DEM",
-						_TL("Elevation"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Add_Reference("Yokoyama, R., Shirasawa, M., & Pike, R. J.", "2002",
+		"Visualizing Topography by Openness: A New Application of Image Processing to Digital Elevation Models",
+		"Photogrammetric Engineering and Remote Sensing(68), No. 3, March 2002, pp. 257-266."
+	);
 
-	Parameters.Add_Grid(NULL,
-						"PROTECTION",
-						_TL("Protection Index"),
-						_TL(""),
-						PARAMETER_OUTPUT,
-						true,
-						SG_DATATYPE_Float);
+	Parameters.Add_Grid("", "DEM"       , _TL("Elevation"       ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "PROTECTION", _TL("Protection Index"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Value(NULL,
-						"RADIUS",
-						_TL("Radius"),
-						_TL("The radius in map units"),
-						PARAMETER_TYPE_Double, 2000,
-						0.0,
-						true);
+	Parameters.Add_Double("", "RADIUS", _TL("Radius"), _TL("The radius in map units"), 2000., 0., true);
 
-}//constructor
+}
 
-CProtectionIndex::~CProtectionIndex(void)
-{}
 
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CProtectionIndex::On_Execute(void){
 
-	int x,y;
-	double dProtectionIndex;
-	CSG_Grid* pProtectionIndex = Parameters("PROTECTION")->asGrid();
-
-	m_dRadius = Parameters("RADIUS")->asDouble();
 	m_pDEM = Parameters("DEM")->asGrid();
 
-    for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++){
-		for(x=0; x<Get_NX(); x++){
-			dProtectionIndex = getProtectionIndex(x,y);
-			if (dProtectionIndex == NO_DATA){
-				pProtectionIndex->Set_NoData(x,y);
-			}//if
-			else{
-				pProtectionIndex->Set_Value(x,y, dProtectionIndex);
-			}//else
-		}//for
-	}//for
+	CSG_Grid *pProtection = Parameters("PROTECTION")->asGrid();
 
-	return true;
+	DataObject_Set_Colors(pProtection, 5, SG_COLORS_RED_GREY_BLUE, false);
 
-}//method
+	double Radius = Parameters("RADIUS")->asDouble();
 
-double CProtectionIndex::getProtectionIndex(int x, int y){
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double Protection;
 
-	int i,j;
-	int iDifX[] = {0,1,1,1,0,-1,-1,-1};
-	int iDifY[] = {1,1,0,-1,-1,-1,0,1};
-	double dDifHeight;
-	double dDist;
-	double dAngle;
-	double dProtectionIndex = 0;
-	double aAngle[8];
-
-	for (i = 0; i < 8; i++){
-		j = 1;
-		aAngle[i] = 0;
-		dDist = M_GET_LENGTH(iDifX[i], iDifY[i]) * j * m_pDEM->Get_Cellsize();
-		while (dDist < m_dRadius){
-			if (m_pDEM->is_InGrid(x + iDifX[i] * j, y + iDifY[i] * j)){
-				dDifHeight = m_pDEM->asDouble(x,y);
-			}//if
-			else{
-				return NO_DATA;
+			if( Get_Protection(x, y, Radius, Protection) )
+			{
+				pProtection->Set_Value(x, y, Protection);
 			}
-			dDifHeight = m_pDEM->asDouble(x + iDifX[i] * j, y + iDifY[i] * j)
-						 - m_pDEM->asDouble(x,y);
-			dAngle = atan (dDifHeight / dDist);
-			if (dAngle > aAngle[i]){
-				aAngle[i] = dAngle;
-			}//if
-			j++;
-			dDist = M_GET_LENGTH(iDifX[i], iDifY[i]) * j * m_pDEM->Get_Cellsize();
-		}//while
-		dProtectionIndex+=aAngle[i];
-	}//while
+			else
+			{
+				pProtection->Set_NoData(x, y);
+			}
+		}
+	}
 
-	return (dProtectionIndex / 8.);
+	return( true );
+}
 
-}//method
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CProtectionIndex::Get_Protection(int x, int y, double Radius, double &Protection)
+{
+	if( m_pDEM->is_NoData(x, y) )
+	{
+		return( false );
+	}
+
+	double z = m_pDEM->asDouble(x, y);
+
+	Protection = 0.;
+
+	for(int i=0; i<8; i++)
+	{
+		double maxAngle = 0.; int ix = x, iy = y;
+
+		for(double Distance=Get_Length(i); Distance<Radius; Distance+=Get_Length(i))
+		{
+			if( m_pDEM->is_InGrid(ix += Get_xTo(i), iy += Get_yTo(i)) )
+			{
+				double Angle = atan((m_pDEM->asDouble(ix, iy) - z) / Distance);
+
+				if( maxAngle < Angle )
+				{
+					maxAngle = Angle;
+				}
+			}
+			else if( !is_InGrid(ix, iy) )
+			{
+				break;
+			}
+		}
+
+		Protection += maxAngle;
+	}
+
+	Protection /= 8.;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

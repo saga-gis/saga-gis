@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: RealArea.cpp 1348 2012-03-12 16:17:14Z oconrad $
- *********************************************************/
+
 /*******************************************************************************
     RealArea.cpp
     Copyright (C) Victor Olaya
@@ -20,30 +18,56 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "RealArea.h"
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CRealArea::CRealArea(void)
 {
 	Set_Name		(_TL("Real Surface Area"));
-	Set_Author		(SG_T("V. Olaya (c) 2004"));
+
+	Set_Author		("V.Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"Calculates real (not projected) cell area"
+		"Calculates real (not projected) cell area."
 	));
 
-	Parameters.Add_Grid(NULL, "DEM" , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "AREA", _TL("Surface Area"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "DEM" , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "AREA", _TL("Surface Area"), _TL(""), PARAMETER_OUTPUT);
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CRealArea::On_Execute(void)
 {
-	CSG_Grid	*pDEM	= Parameters("DEM" )->asGrid(); 
-	CSG_Grid	*pArea	= Parameters("AREA")->asGrid();
+	CSG_Grid *pDEM  = Parameters("DEM" )->asGrid(); 
+	CSG_Grid *pArea = Parameters("AREA")->asGrid();
+
+	DataObject_Set_Colors(pArea, 5, SG_COLORS_GREEN_RED, false);
 
     for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	s, a;
+			double s, a;
 
 			if( pDEM->Get_Gradient(x, y, s, a) )
 			{
@@ -51,10 +75,19 @@ bool CRealArea::On_Execute(void)
 			}
 			else
 			{
-				pArea->Set_NoData(x,y);
+				pArea->Set_NoData(x, y);
 			}
 		}
 	}
-	
+
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

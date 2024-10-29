@@ -61,7 +61,7 @@ protected:
 
 private:
 
-	CSG_Grid				*m_pDEM, *m_pBalance;
+	CSG_Grid				*m_pDEM = NULL, *m_pBalance = NULL;
 
 
 	void					Set_D8			(int x, int y, double Weight);

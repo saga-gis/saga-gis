@@ -80,6 +80,7 @@ CHydrology::CHydrology(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid  ("", "ELEVATION"  , _TL("Elevation"                     ), _TL(""), PARAMETER_INPUT );
 
+	Parameters.Add_Grid  ("", "SINKS"      , _TL("Closed Depressions"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid  ("", "TCA"        , _TL("Total Catchment Area"          ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  ("", "SCA"        , _TL("Specific Catchment Area"       ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid  ("", "TWI"        , _TL("Topographic Wetness Index"     ), _TL(""), PARAMETER_OUTPUT);
@@ -131,35 +132,67 @@ CHydrology::CHydrology(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CHydrology::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("METHOD_PREPROC") )
+	{
+		pParameters->Set_Enabled("SINKS", pParameter->asInt() != 3); // no preprocessing
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CHydrology::On_Execute(void)
 {
-	CSG_Grid DEM(Get_System());
+	CSG_Grid *pDEM, DEM;
 
 	switch( Parameters["METHOD_PREPROC"].asInt() )
 	{
 	default: // Sink Removal
 		SG_RUN_TOOL_ExitOnError("ta_preprocessor", 2,
 		        SG_TOOL_PARAMETER_SET("DEM"        , Parameters("ELEVATION"))
-		    &&  SG_TOOL_PARAMETER_SET("DEM_PREPROC", &DEM)
+		    &&  SG_TOOL_PARAMETER_SET("DEM_PREPROC", pDEM = &DEM)
 		);
 		break;
 
 	case  1: // Fill Sinks (Wang & Liu)
 		SG_RUN_TOOL_ExitOnError("ta_preprocessor", 4,
 		        SG_TOOL_PARAMETER_SET("ELEV"       , Parameters("ELEVATION"))
-		    &&  SG_TOOL_PARAMETER_SET("FILLED"     , &DEM)
+		    &&  SG_TOOL_PARAMETER_SET("FILLED"     , pDEM = &DEM)
 		);
 		break;
 
 	case  2: // Breach Depressions
 		SG_RUN_TOOL_ExitOnError("ta_preprocessor", 7,
 		        SG_TOOL_PARAMETER_SET("DEM"        , Parameters("ELEVATION"))
-		    &&  SG_TOOL_PARAMETER_SET("NOSINKS"    , &DEM)
+		    &&  SG_TOOL_PARAMETER_SET("NOSINKS"    , pDEM = &DEM)
 		);
 		break;
 
 	case  3: // none
+		pDEM = Parameters("ELEVATION")->asGrid();
 		break;
+	}
+
+	//-----------------------------------------------------
+	if( Parameters["METHOD_PREPROC"].asInt() != 3 && Parameters["SINKS"].asGrid() )
+	{
+		Parameters["SINKS"].asGrid()->Set_NoData_Value(0.);
+
+		SG_RUN_TOOL_ExitOnError("grid_calculus"    , 1, // grid calculator
+			    SG_TOOL_PARAMLIST_ADD("GRIDS"      , pDEM)
+			&&  SG_TOOL_PARAMLIST_ADD("GRIDS"      , Parameters("ELEVATION")->asGrid())
+			&&  SG_TOOL_PARAMETER_SET("RESULT"     , Parameters("SINKS"))
+			&&  SG_TOOL_PARAMETER_SET("FORMULA"    , "g1 - g2")
+		)
+
+		Parameters["SINKS"].asGrid()->Set_Name(_TL("Closed Depressions"));
 	}
 
 	//-----------------------------------------------------
@@ -167,7 +200,7 @@ bool CHydrology::On_Execute(void)
 	{
 	case  0: // Deterministic 8
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 0)
 		);
@@ -175,7 +208,7 @@ bool CHydrology::On_Execute(void)
 
 	case  1: // Rho 8
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 1)
 		);
@@ -183,7 +216,7 @@ bool CHydrology::On_Execute(void)
 
 	case  2: // Deterministic Infinity
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 3)
 		);
@@ -191,7 +224,7 @@ bool CHydrology::On_Execute(void)
 
 	default: // Multiple Flow Direction"
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 4)
 		);
@@ -199,7 +232,7 @@ bool CHydrology::On_Execute(void)
 
 	case  4: // Multiple Triangular Flow Direction
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 5)
 		);
@@ -207,7 +240,7 @@ bool CHydrology::On_Execute(void)
 
 	case  5: // Multiple Maximum Downslope Gradient Based Flow Direction
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 0,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 6)
 		);
@@ -215,7 +248,7 @@ bool CHydrology::On_Execute(void)
 
 	case  6: // Kinematic Routing Algorithm
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 2,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 1)
 		);
@@ -223,7 +256,7 @@ bool CHydrology::On_Execute(void)
 
 	case  7: // DEMON
 		SG_RUN_TOOL_ExitOnError("ta_hydrology"   , 2,
-		        SG_TOOL_PARAMETER_SET("ELEVATION", &DEM)
+		        SG_TOOL_PARAMETER_SET("ELEVATION", pDEM)
 			&&  SG_TOOL_PARAMETER_SET("FLOW"     , Parameters("TCA"))
 		    &&  SG_TOOL_PARAMETER_SET("METHOD"   , 2)
 		);
@@ -232,7 +265,7 @@ bool CHydrology::On_Execute(void)
 
 	//-----------------------------------------------------
 	SG_RUN_TOOL_ExitOnError("ta_hydrology"       , 19, // Flow Width and Specific Catchment Area
-		    SG_TOOL_PARAMETER_SET("DEM"          , &DEM)
+		    SG_TOOL_PARAMETER_SET("DEM"          , pDEM)
 		&&  SG_TOOL_PARAMETER_SET("TCA"          , Parameters("TCA"))
 		&&  SG_TOOL_PARAMETER_SET("SCA"          , Parameters("SCA"))
 		&&  SG_TOOL_PARAMETER_SET("METHOD"       , 2) // Aspect
@@ -242,7 +275,7 @@ bool CHydrology::On_Execute(void)
 	CSG_Grid Slope; // , Aspect(Get_System());
 
 	SG_RUN_TOOL_ExitOnError("ta_morphometry"     , 0, // Slope, Aspect, Curvatures
-		    SG_TOOL_PARAMETER_SET("ELEVATION"    , &DEM)
+		    SG_TOOL_PARAMETER_SET("ELEVATION"    , pDEM)
 		&&  SG_TOOL_PARAMETER_SET("SLOPE"        , &Slope)
 	)
 
@@ -253,7 +286,7 @@ bool CHydrology::On_Execute(void)
 	)
 
 	SG_RUN_TOOL_ExitOnError("ta_hydrology"       , 15, // SAGA Wetness Index
-		    SG_TOOL_PARAMETER_SET("DEM"          , &DEM)
+		    SG_TOOL_PARAMETER_SET("DEM"          , pDEM)
 		&&  SG_TOOL_PARAMETER_SET("TWI"          , Parameters("TWI_SAGA"))
 	)
 
