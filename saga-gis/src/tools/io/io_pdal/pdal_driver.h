@@ -98,20 +98,23 @@ const struct NON_WORKING_DRIVERS g_Non_Working_Drivers[]	=
 class CSG_PDAL_Drivers
 {
 public:
-    CSG_PDAL_Drivers(void);
-    virtual ~CSG_PDAL_Drivers(void);
+	CSG_PDAL_Drivers(void);
+	virtual ~CSG_PDAL_Drivers(void);
 
-    CSG_String                  Get_Version             (void)                  const;
-    int                         Get_Count               (void)                  const;
-    CSG_String                  Get_Driver_Name         (int Index)             const;
-    CSG_String                  Get_Driver_Description  (int Index)             const;
-    CSG_Strings                 Get_Driver_Extensions   (int Index)             const;
-    bool                        is_Reader               (int Index)             const;
-    bool                        is_Writer               (int Index)             const;
-    bool                        is_Filter               (int Index)             const;
+	CSG_String					Get_Version			(void) const;
+	int							Get_Count			(void) const;
 
+	CSG_String					Get_Description		(bool bReader) const;
+	CSG_String					Get_Filter			(bool bReader) const;
+	
+	CSG_String					Get_Name			(int Index) const;
+	CSG_String					Get_Description		(int Index) const;
+	CSG_Strings					Get_Extensions		(int Index) const;
 
-private:
+	bool						is_Working			(int Index) const;
+	bool						is_Reader			(int Index) const;
+	bool						is_Writer			(int Index) const;
+	bool						is_Filter			(int Index) const;
 
 };
 

@@ -57,14 +57,14 @@
 //---------------------------------------------------------
 CPDAL_Writer_Las::CPDAL_Writer_Las(void)
 {
-    Set_Name    (_TL("Export LAS/LAZ File"));
+    Set_Name	(_TL("Export LAS/LAZ File"));
 
-    Set_Author    ("V.Wichmann (c) 2021");
+    Set_Author	("V.Wichmann (c) 2021");
 
     Add_Reference("https://pdal.io/", SG_T("PDAL Homepage"));
     Add_Reference("https://github.com/ASPRSorg/LAS/", SG_T("ASPRS LAS Specification"));
 
-    CSG_String  Description;
+    CSG_String Description;
 
     Description = _TW(
         "The tool allows one to export a point cloud as ASPRS LAS (or compressed LAZ) file using the "
@@ -73,89 +73,41 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
         "or uncompressed (*.las).\n"
         "The number and type of attributes that can be exported depends on the chosen LAS file version "
         "and point data record format. Please have a look at the ASPRS LAS specification on how these "
-        "formats are defined."
+        "formats are defined.\n"
     );
 
-    Description += CSG_String::Format("\n\nPDAL %s:%s\n\n", _TL("Version"), SG_Get_PDAL_Drivers().Get_Version().c_str());
+	Description += CSG_String::Format("\nPDAL-%s\n", SG_Get_PDAL_Drivers().Get_Version().c_str());
 
     Set_Description(Description);
 
-
     //-----------------------------------------------------
-    CSG_Parameter *pNode = Parameters.Add_PointCloud("",
+    Parameters.Add_PointCloud("",
         "POINTS"		, _TL("Point Cloud"),
         _TL("The point cloud to export."),
         PARAMETER_INPUT
     );
-    Parameters.Add_Table_Field(pNode,
-        "T"    , _TL("gps-time"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "r"    , _TL("number of the return"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "n"    , _TL("number of returns of given pulse"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "i"    , _TL("intensity"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "c"    , _TL("classification"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "sCH"  , _TL("scanner channel"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "R"    , _TL("red channel color"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "G"    , _TL("green channel color"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "B"    , _TL("blue channel color"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "C"    , _TL("SAGA RGB color"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "NIR"  , _TL("near infrared"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "a"    , _TL("scan angle"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "d"    , _TL("direction of scan flag"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "e"    , _TL("edge of flight line flag"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "u"    , _TL("user data"),
-        _TL(""), true
-    );
-    Parameters.Add_Table_Field(pNode,
-        "p"    , _TL("point source ID"),
-        _TL(""), true
-    );
+
+	Parameters.Add_Table_Field("POINT", "T"  , _TL("gps-time"                        ), _TL(""), true);
+	Parameters.Add_Table_Field("POINT", "r"  , _TL("number of the return"            ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "n"  , _TL("number of returns of given pulse"), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "i"  , _TL("intensity"                       ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "c"  , _TL("classification"                  ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "sCH", _TL("scanner channel"                 ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "R"  , _TL("red channel color"               ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "G"  , _TL("green channel color"             ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "B"  , _TL("blue channel color"              ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "C"  , _TL("SAGA RGB color"                  ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "NIR", _TL("near infrared"                   ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "a"  , _TL("scan angle"                      ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "d"  , _TL("direction of scan flag"          ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "e"  , _TL("edge of flight line flag"        ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "u"  , _TL("user data"                       ), _TL(""), true);
+    Parameters.Add_Table_Field("POINT", "p"  , _TL("point source ID"                 ), _TL(""), true);
 
     Parameters.Add_FilePath("",
         "FILE"		, _TL("Output File"),
         _TL("The LAS/LAZ output file."),
-        CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s"),
+        CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
             _TL("All Recognized File Types"), SG_T("*.las;*.LAS;*.laz;*.LAZ"),
             _TL("LAS Files")				, SG_T("*.las;*.LAS"),
             _TL("LAZ Files")				, SG_T("*.laz;*.LAZ"),
@@ -167,7 +119,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
     Parameters.Add_Choice(
         Parameters("FILE"), "FILE_FORMAT", _TL("File Format"),
         _TL("Choose the file format to write. The format determines which attributes can be written and in which data depth."),
-        CSG_String::Format(SG_T("%s|%s"),
+        CSG_String::Format("%s|%s",
             _TL("LAS 1.2"),
             _TL("LAS 1.4")
         ), 1
@@ -176,7 +128,7 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
     Parameters.Add_Choice(Parameters("FILE"),
         "FORMAT", _TL("Point Data Record Format"),
         _TL("Choose the point data record format to write. The format determines which attributes can be written."),
-        CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s"),
+        CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
             _TL("0"),
             _TL("1"),
             _TL("2"),
@@ -190,36 +142,18 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
     Parameters.Add_Choice("",
         "RGB_RANGE", _TL("Input R,G,B (and NIR) Value Range"),
         _TL("Color depth of the R,G,B (and NIR) values in the input point cloud. 8 bit values will be scaled to 16 bit."),
-        CSG_String::Format(SG_T("%s|%s|"),
+        CSG_String::Format("%s|%s",
             _TL("16 bit"),
             _TL("8 bit")
         ), 1
     );
 
-    Parameters.Add_Double("",
-        "OFF_X"	, _TL("Offset X"),
-        _TL("") , 0.0
-    );
-    Parameters.Add_Double("",
-        "OFF_Y"	, _TL("Offset Y"),
-        _TL("") , 0.0
-    );
-    Parameters.Add_Double("",
-        "OFF_Z"	, _TL("Offset Z"),
-        _TL("") , 0.0
-    );
-    Parameters.Add_Double("",
-        "SCALE_X"	, _TL("Scale X"),
-        _TL("") , 0.001
-    );
-    Parameters.Add_Double("",
-        "SCALE_Y"	, _TL("Scale Y"),
-        _TL("") , 0.001
-    );
-    Parameters.Add_Double("",
-        "SCALE_Z"	, _TL("Scale Z"),
-        _TL("") , 0.001
-    );
+    Parameters.Add_Double("", "OFF_X"  , _TL("Offset X"), _TL("") , 0.0  );
+    Parameters.Add_Double("", "OFF_Y"  , _TL("Offset Y"), _TL("") , 0.0  );
+    Parameters.Add_Double("", "OFF_Z"  , _TL("Offset Z"), _TL("") , 0.0  );
+    Parameters.Add_Double("", "SCALE_X", _TL("Scale X" ), _TL("") , 0.001);
+    Parameters.Add_Double("", "SCALE_Y", _TL("Scale Y" ), _TL("") , 0.001);
+    Parameters.Add_Double("", "SCALE_Z", _TL("Scale Z" ), _TL("") , 0.001);
 }
 
 
@@ -230,31 +164,29 @@ CPDAL_Writer_Las::CPDAL_Writer_Las(void)
 //---------------------------------------------------------
 int CPDAL_Writer_Las::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-    if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMAT")) )
+    if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FORMAT") )
     {
         int	i = pParameters->Get_Parameter("FORMAT")->asInt();    // this is the choices list index, not the point data record format!
 
-        pParameters->Get_Parameter("T"			)->Set_Enabled(i == 1 || i >= 3);
-        pParameters->Get_Parameter("R"			)->Set_Enabled(i == 2 || i == 3 || i >= 5);
-        pParameters->Get_Parameter("G"			)->Set_Enabled(i == 2 || i == 3 || i >= 5);
-        pParameters->Get_Parameter("B"			)->Set_Enabled(i == 2 || i == 3 || i >= 5);
-        pParameters->Get_Parameter("C"			)->Set_Enabled(i == 2 || i == 3 || i >= 5);
-        pParameters->Get_Parameter("RGB_RANGE"	)->Set_Enabled(i == 2 || i == 3 || i >= 5);
-        pParameters->Get_Parameter("NIR"		)->Set_Enabled(i == 6);
-        pParameters->Get_Parameter("sCH"        )->Set_Enabled(i >= 3);
+        pParameters->Set_Enabled("T"        , i == 1 || i >= 3);
+        pParameters->Set_Enabled("R"        , i == 2 || i == 3 || i >= 5);
+        pParameters->Set_Enabled("G"        , i == 2 || i == 3 || i >= 5);
+        pParameters->Set_Enabled("B"        , i == 2 || i == 3 || i >= 5);
+        pParameters->Set_Enabled("C"        , i == 2 || i == 3 || i >= 5);
+        pParameters->Set_Enabled("RGB_RANGE", i == 2 || i == 3 || i >= 5);
+        pParameters->Set_Enabled("NIR"      , i == 6);
+        pParameters->Set_Enabled("sCH"      , i >= 3);
     }
 
-    //-----------------------------------------------------
-    return( 1 );
+    return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
-
 
 //---------------------------------------------------------
 int CPDAL_Writer_Las::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
     if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")) )
     {
-        CSG_PointCloud	*pPoints = pParameters->Get_Parameter("POINTS")->asPointCloud();
+        CSG_PointCloud *pPoints = pParameters->Get_Parameter("POINTS")->asPointCloud();
 
         if( pPoints != NULL)
         {
@@ -283,10 +215,8 @@ int CPDAL_Writer_Las::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
         }
     }
    
-    //-----------------------------------------------------
-    return (true);
+    return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
-
 
 
 ///////////////////////////////////////////////////////////
