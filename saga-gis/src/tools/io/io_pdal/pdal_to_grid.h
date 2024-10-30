@@ -10,10 +10,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                   pdal_to_grid.h                      //
 //                                                       //
-//                 Copyrights (C) 2020                   //
+//                 Copyrights (c) 2024                   //
 //                     Olaf Conrad                       //
+//                   Volker Wichmann                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,77 +47,70 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "pdal_driver.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("PDAL") );
-
-	case TLB_INFO_Category:
-		return( "Import/Export" );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad, V. Wichmann (c) 2020-2021" );
-
-	case TLB_INFO_Description:
-		return( CSG_String::Format(_TL("Tools that use the Point Data Abstraction Library (PDAL)."))
-			+ CSG_String::Format("\n\nPDAL %s: ", _TL("Version")) + SG_Get_PDAL_Drivers().Get_Version()
-		);
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( "File|Shapes" );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "pdal_reader.h"
-#include "pdal_writer_las.h"
-#include "pdal_to_grid.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-
-	case  0: return( new CPDAL_Reader );
-    case  1: return( new CPDAL_Writer_Las );
-	case  2: return( new CPDAL_to_Grid );
-
-	//-----------------------------------------------------
-	case 10: return( NULL );
-	}
-}
+#ifndef HEADER_INCLUDED__pdal_to_grid_H
+#define HEADER_INCLUDED__pdal_to_grid_H
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#include <saga_api/saga_api.h>
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPDAL_to_Grid : public CSG_Tool
+{
+public:
+	CPDAL_to_Grid(void);
+
+	virtual CSG_String			Get_MenuPath			(void)  { return( _TL("A:File|Grid|Import") );  }
+
+	virtual bool				do_Sync_Projections		(void)  const { return( false );  }
+
+
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	int							m_Aggregation = 1; // last
+
+	CSG_Grid					*m_pGrid = NULL, *m_pCount = NULL;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						_Find_Class				(const CSG_Array_Int &Classes, int ID);
+
+	void						_Add_Point				(double x, double y, double z);
+	bool						_Read_Points            (const CSG_String &File, const CSG_Array_Int &Classes, bool bStream);
+
+	static bool					_Get_Extent				(const CSG_Strings &Files, CSG_Rect &Extent, bool bStream);
+	static bool					_Get_Extent				(const CSG_String  &File , CSG_Rect &Extent, bool bStream);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__pdal_to_grid_H
