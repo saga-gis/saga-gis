@@ -128,7 +128,7 @@ CSG_String CSG_PDAL_Drivers::Get_Description(bool bReader) const
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( is_Working(i) && (bReader && is_Reader(i)) || (!bReader && is_Writer(i)) )
+		if( is_Working(i) && ((bReader && is_Reader(i)) || (!bReader && is_Writer(i))) )
 		{
 			CSG_Strings Extension = Get_Extensions(i); CSG_String Extensions;
 
@@ -156,7 +156,7 @@ CSG_String CSG_PDAL_Drivers::Get_Filter(bool bReader) const
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( is_Working(i) && (bReader && is_Reader(i)) || (!bReader && is_Writer(i)) )
+		if( is_Working(i) && ((bReader && is_Reader(i)) || (!bReader && is_Writer(i))) )
 		{
 			CSG_Strings Extension = Get_Extensions(i);
 
