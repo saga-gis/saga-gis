@@ -81,7 +81,7 @@ CPDAL_to_Grid::CPDAL_to_Grid(void)
 		"several file formats using the \"Point Data Abstraction Library\" (PDAL).\n"
 	);
 
-	Description += CSG_String::Format("\nPDAL-%s\n", SG_Get_PDAL_Drivers().Get_Version().c_str());
+	Description += CSG_String::Format("\nPDAL %s\n", SG_Get_PDAL_Drivers().Get_Version().c_str());
 
 	Description += CSG_String::Format("\n%s:\n", _TL("Supported point cloud formats"));
 
@@ -547,9 +547,6 @@ bool CPDAL_to_Grid::_Get_Extent(const CSG_String &File, CSG_Rect &Extent, bool b
 		{
 			return( false );
 		}
-
-		pdal::PointLayoutPtr   PointLayout = Table.layout();
-		pdal::SpatialReference SpatialRef  = Table.spatialReference();
 
 		//-------------------------------------------------
 		Extent.Create(
