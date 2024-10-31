@@ -58,13 +58,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "pdal_driver.h"
+#include <saga_api/saga_api.h>
 
-#include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
-#include <pdal/PointLayout.hpp>
-#include <pdal/StageFactory.hpp>
-#include <pdal/filters/StreamCallbackFilter.hpp>
 
 
 ///////////////////////////////////////////////////////////
@@ -95,11 +91,10 @@ private:
 
 	bool				_Find_Class				(const CSG_Array_Int &Classes, int ID);
 
-	CSG_PointCloud *    _Read_Points            (const CSG_String &File, const CSG_Rect &Extent, const CSG_Array_Int &Classes, bool bVar_All, bool bVar_Color, int iRGB_Range);
+	CSG_PointCloud *    _Read_Points			(const CSG_String &File, const CSG_Rect &Extent, const CSG_Array_Int &Classes, bool bVar_All, bool bVar_Color, int iRGB_Range);
 
-    void                _Init_PointCloud        (CSG_PointCloud *pPoints, pdal::PointLayoutPtr &PointLayout,
-                                                 pdal::SpatialReference &SpatialRef, const CSG_String &File,
-                                                 const bool &bVar_All, const bool &bVar_Color, CSG_Array_Int &Fields, int &iRGB_Field);
+	void                _Init_PointCloud		(CSG_PointCloud *pPoints, pdal::BasePointTable &Table, bool bVar_All, bool bVar_Color, CSG_Array_Int &Fields, int &Field_RGB);
+
 };
 
 

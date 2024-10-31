@@ -62,6 +62,7 @@
 //---------------------------------------------------------
 CSG_PDAL_Drivers  gSG_PDAL_Drivers;
 
+//---------------------------------------------------------
 const CSG_PDAL_Drivers &  SG_Get_PDAL_Drivers (void)
 {
     return( gSG_PDAL_Drivers );
@@ -94,39 +95,111 @@ CSG_PDAL_Drivers::~CSG_PDAL_Drivers(void)
 //---------------------------------------------------------
 CSG_String CSG_PDAL_Drivers::Get_Version(void) const
 {
-	#if defined(_DEBUG) && defined(_SAGA_MSW)
+#if defined(_DEBUG) && defined(_SAGA_MSW)
 	return( "" );
-	#endif
+#endif
+
 	return( pdal::Config::fullVersionString().c_str() );
 }
 
 //---------------------------------------------------------
 int CSG_PDAL_Drivers::Get_Count(void) const
 {
-	#if defined(_DEBUG) && defined(_SAGA_MSW)
+#if defined(_DEBUG) && defined(_SAGA_MSW)
 	return( 0 );
-	#endif
+#endif
+
 	return( (int)pdal::PluginManager<pdal::Stage>::names().size() );
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_String CSG_PDAL_Drivers::Get_Driver_Name(int iIndex) const
+CSG_String CSG_PDAL_Drivers::Get_Description(bool bReader) const
 {
-    return( pdal::PluginManager<pdal::Stage>::names().at(iIndex).c_str() );
+	CSG_String Description;
+
+	Description += CSG_String::Format("\n<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>",
+		_TL("Name"), _TL("Extension"), _TL("Description")
+	);
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( is_Working(i) && ((bReader && is_Reader(i)) || (!bReader && is_Writer(i))) )
+		{
+			CSG_Strings Extension = Get_Extensions(i); CSG_String Extensions;
+
+			for(int j=0; j<Extension.Get_Count(); j++)
+			{
+				if( !Extension[j].is_Empty() )
+				{
+					Extensions += (j ? ";" : "") + Extension[j];
+				}
+			}
+
+			Description += "<tr><td>" + Get_Name(i) + "</td><td>" + Extensions + "</td><td>" + Get_Description(i) + "</td></tr>";
+		}
+	}
+
+	Description += "</table>";
+
+	return( Description );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_PDAL_Drivers::Get_Driver_Description(int iIndex) const
+CSG_String CSG_PDAL_Drivers::Get_Filter(bool bReader) const
 {
-    return( pdal::PluginManager<pdal::Stage>::description(std::string(Get_Driver_Name(iIndex))).c_str() );
+	CSG_String Filter, Recognized;
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( is_Working(i) && ((bReader && is_Reader(i)) || (!bReader && is_Writer(i))) )
+		{
+			CSG_Strings Extension = Get_Extensions(i);
+
+			for(int j=0; j<Extension.Get_Count(); j++)
+			{
+				if( !Extension[j].is_Empty() )
+				{
+					Filter     += "*." + Extension[j] + "|*." + Extension[j] + "|";
+					Recognized += (Recognized.is_Empty() ? "*." : ";*.") + Extension[j];
+				}
+			}
+		}
+	}
+
+	Filter.Prepend(CSG_String::Format("%s|%s|", _TL("Recognized Files"), Recognized.c_str()));
+	Filter.Append (CSG_String::Format("%s|*.*", _TL("All Files")));
+
+	return( Filter );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_PDAL_Drivers::Get_Name(int Index) const
+{
+    return( pdal::PluginManager<pdal::Stage>::names().at(Index).c_str() );
 }
 
 //---------------------------------------------------------
-CSG_Strings CSG_PDAL_Drivers::Get_Driver_Extensions(int iIndex) const
+CSG_String CSG_PDAL_Drivers::Get_Description(int Index) const
+{
+    return( pdal::PluginManager<pdal::Stage>::description(std::string(Get_Name(Index))).c_str() );
+}
+
+//---------------------------------------------------------
+CSG_Strings CSG_PDAL_Drivers::Get_Extensions(int Index) const
 {
     pdal::StageExtensions& StageExtensions = pdal::PluginManager<pdal::Stage>::extensions();
     
-    pdal::StringList Extensions = StageExtensions.extensions(std::string(Get_Driver_Name(iIndex)));
+    pdal::StringList Extensions = StageExtensions.extensions(std::string(Get_Name(Index)));
 
     CSG_Strings Exts;
 
@@ -138,12 +211,33 @@ CSG_Strings CSG_PDAL_Drivers::Get_Driver_Extensions(int iIndex) const
     return( Exts );
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PDAL_Drivers::is_Working(int Index) const
+{
+	CSG_String Name(Get_Name(Index));
+
+	for(int j=0; !g_Non_Working_Drivers[j].Name.is_Empty(); j++)
+	{
+		if( Name.Cmp(g_Non_Working_Drivers[j].Name) == 0 )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
 //---------------------------------------------------------
 bool CSG_PDAL_Drivers::is_Reader(int Index) const
 {
-    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+    CSG_String Prefix = Get_Name(Index).BeforeFirst('.');
 
-    if( Prefix.Cmp(SG_T("readers")) == 0 )
+    if( Prefix.Cmp("readers") == 0 )
     {
         return( true );
     }
@@ -154,9 +248,9 @@ bool CSG_PDAL_Drivers::is_Reader(int Index) const
 //---------------------------------------------------------
 bool CSG_PDAL_Drivers::is_Writer(int Index) const
 {
-    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+    CSG_String Prefix = Get_Name(Index).BeforeFirst('.');
 
-    if( Prefix.Cmp(SG_T("writers")) == 0 )
+    if( Prefix.Cmp("writers") == 0 )
     {
         return( true );
     }
@@ -167,9 +261,9 @@ bool CSG_PDAL_Drivers::is_Writer(int Index) const
 //---------------------------------------------------------
 bool CSG_PDAL_Drivers::is_Filter(int Index) const
 {
-    CSG_String Prefix = Get_Driver_Name(Index).BeforeFirst('.');
+    CSG_String Prefix = Get_Name(Index).BeforeFirst('.');
 
-    if( Prefix.Cmp(SG_T("filters")) == 0 )
+    if( Prefix.Cmp("filters") == 0 )
     {
         return( true );
     }

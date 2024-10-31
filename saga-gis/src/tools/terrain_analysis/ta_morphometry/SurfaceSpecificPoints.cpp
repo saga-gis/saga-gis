@@ -65,12 +65,19 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		""
+		"Classification of raster cells representing surface-specific points. "
 	));
+
+	Add_Reference("Band, L.E.", "1986",
+		"Topographic partition of watersheds with Digital Elevation Models",
+		"Water Resources Research, 22.1, 15-24.",
+		SG_T("https://doi.org/10.1029/WR022i001p00015"), SG_T("doi:10.1029/WR022i001p00015")
+	);
 
 	Add_Reference("Peucker, T.K. & Douglas, D.H.", "1975",
 		"Detection of surface-specific points by local parallel processing of discrete terrain elevation data",
-		"Computer Graphics and Image Processing, 4, 375-387."
+		"Computer Graphics and Image Processing, 4, 375-387.",
+		SG_T("https://doi.org/10.1016/0146-664X(75)90005-2"), SG_T("doi:10.1016/0146-664X(75)90005-2")
 	);
 
 	Parameters.Add_Grid("",
@@ -82,16 +89,16 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 	Parameters.Add_Grid("",
 		"RESULT"   , _TL("Surface Specific Points"),
 		_TL(""),
-		PARAMETER_OUTPUT
+	PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Choice("",
 		"METHOD"   , _TL("Method"),
 		_TL("Algorithm for the detection of Surface Specific Points"),
 		CSG_String::Format("%s|%s|%s|%s|%s|",
-			_TL("Mark Highest Neighbour"),
+			_TL("Flagging Neighbours of Highest Elevation"),
 			_TL("Opposite Neighbours"),
-			_TL("Flow Direction"),
+			_TL("Flow Direction (down)"),
 			_TL("Flow Direction (up and down)"),
 			_TL("Peucker & Douglas")
 		), 1
@@ -100,7 +107,7 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 	Parameters.Add_Double("METHOD",
 		"THRESHOLD", _TL("Threshold"),
 		_TL("Threshold for Peucker & Douglas Algorithm"),
-		2.
+		1.
 	);
 }
 
@@ -303,7 +310,7 @@ void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pDEM, CSG_Grid *pResult)
 			{
 				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
   
-				if( is_InGrid(ix, iy) )
+				if( pDEM->is_InGrid(ix, iy) )
 				{
 					double iz = pDEM->asDouble(ix,iy);
 
@@ -330,7 +337,7 @@ void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pDEM, CSG_Grid *pResult)
 		}
 	}
 
-	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE);
 }
 
 
@@ -357,6 +364,8 @@ void CSurfaceSpecificPoints::Do_FlowDirection2(CSG_Grid *pDEM, CSG_Grid *pResult
 			pResult->Add_Value(n, -Result.asInt(n));
 		}
 	}
+
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE, true);
 }
 
 
@@ -461,7 +470,7 @@ void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pDEM, CSG_Grid *pResult
 		}
     }
 
-	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(pResult, 5, SG_COLORS_RED_GREY_BLUE, true);
 }
 
 

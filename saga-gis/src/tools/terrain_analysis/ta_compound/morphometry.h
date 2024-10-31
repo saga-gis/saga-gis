@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    ta_morphometry                     //
+//                     ta_compound                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                fuzzy_landform_elements.h              //
+//                     morphometry.h                     //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,14 +46,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__fuzzy_landform_elements_H
-#define HEADER_INCLUDED__fuzzy_landform_elements_H
+#ifndef HEADER_INCLUDED__morphometry_H
+#define HEADER_INCLUDED__morphometry_H
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,44 +61,30 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFuzzy_Landform_Elements : public CSG_Tool_Grid
+class CMorphometry : public CSG_Tool_Grid
 {
 public:
-	CFuzzy_Landform_Elements(void);
-
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification") );	}
+	CMorphometry(void);
 
 
 protected:
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool		On_Execute				(void);
-
-
-private:
-
-	bool				m_bToDegree = false;
-
-	double				m_loSlope = 2., m_hiSlope = 7., m_loCurve = 0.02, m_hiCurve = 0.5;
-
-
-	bool				Get_Memberships			(double Input[], double Membership[], int &Element, double &MaxMem, double &Entropy, double &CI);
+	virtual bool			On_Execute		(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__fuzzy_landform_elements_H
+#endif // #ifndef HEADER_INCLUDED__morphometry_H

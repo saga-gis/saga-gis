@@ -2016,6 +2016,16 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 		pParameter->Set_Value(pGrid);
 	}
 
+	if( m_pParameters->Get_Manager() )
+	{
+		m_pParameters->Get_Manager()->Add(pGrid);
+
+		if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() ) // prevent that local data manager send their data objects to gui
+		{
+			SG_UI_DataObject_Add(pGrid, SG_UI_DATAOBJECT_UPDATE);
+		}
+	}
+
 	return( pGrid );
 }
 

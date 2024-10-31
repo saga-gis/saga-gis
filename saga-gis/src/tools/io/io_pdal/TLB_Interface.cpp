@@ -86,6 +86,7 @@ CSG_String Get_Info(int i)
 
 #include "pdal_reader.h"
 #include "pdal_writer_las.h"
+#include "pdal_to_grid.h"
 
 
 //---------------------------------------------------------
@@ -95,12 +96,14 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CPDAL_Reader );
-    case  1:	return( new CPDAL_Writer_Las );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
+
+	case  0: return( new CPDAL_Reader );
+    case  1: return( new CPDAL_Writer_Las );
+	case  2: return( new CPDAL_to_Grid );
 
 	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 10: return( NULL );
 	}
 }
 

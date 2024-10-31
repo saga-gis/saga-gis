@@ -79,7 +79,9 @@ CSG_String Get_Info(int i)
 
 //---------------------------------------------------------
 #include "TA_Standard.h"
+#include "morphometry.h"
 #include "hydrology.h"
+#include "channels.h"
 #include "classification.h"
 
 
@@ -91,8 +93,10 @@ CSG_Tool *		Create_Tool(int i)
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 
 	case  0: return new CTA_Standard;
+	case  1: return new CMorphometry;
 	case  2: return new CHydrology;
-	case  3: return new CClassification;
+	case  3: return new CChannels;
+	case  4: return new CClassification;
 
 	case 10: return( NULL );
 	}

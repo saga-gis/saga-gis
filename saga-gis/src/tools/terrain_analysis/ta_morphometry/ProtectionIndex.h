@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id: ProtectionIndex.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
+
 /*******************************************************************************
     ProtectionIndex.h
     Copyright (C) Victor Olaya
@@ -19,23 +17,50 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
-#include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CProtectionIndex : public CSG_Tool_Grid
 {
 public:
 	CProtectionIndex(void);
-	virtual ~CProtectionIndex(void);
+
 
 protected:
 
-	bool On_Execute(void);
+	bool			On_Execute			(void);
+
 
 private:
 
-	double getProtectionIndex(int x, int y);
+	CSG_Grid		*m_pDEM = NULL;
 
-	CSG_Grid *m_pDEM;
-	double m_dRadius;
+
+	bool			Get_Protection		(int x, int y, double Radius, double &Protection);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

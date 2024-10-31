@@ -156,28 +156,25 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 	Add_Reference("Schmidt, J. & Hewitt, A.", "2004",
 		"Fuzzy land element classification from DTMs based on geometry and terrain position",
 		"Geoderma, 121(3-4), 243-256.",
-		SG_T("http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.472.3485&rep=rep1&type=pdf"), SG_T("CiteSeerX")
-	//	SG_T("https://www.sciencedirect.com/science/article/pii/S0016706103003720"), SG_T("ScienceDirect")
+		SG_T("https://doi.org/10.1016/j.geoderma.2003.10.008"), SG_T("doi:10.1016/j.geoderma.2003.10.008")
 	);
 
 	//-----------------------------------------------------
-	int		i;
-
 	Parameters.Add_Grid("", "ELEVATION", _TL("Elevation"         ), _TL(""), PARAMETER_INPUT);
 
-	for(i=0; i<IN_COUNT; i++)
+	for(int i=0; i<IN_COUNT; i++)
 	{
-		Parameters.Add_Grid("", IN_Type [i][0], IN_Type[i][1]   , _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Grid("", IN_Type [i][0], IN_Type[i][1]     , _TL(""), PARAMETER_INPUT);
 	}
 
-	Parameters.Add_Grid("", "FORM"     , _TL("Landform"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "FORM"     , _TL("Landform"          ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
 	Parameters.Add_Grid("", "MEM"      , _TL("Maximum Membership"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "ENTROPY"  , _TL("Entropy"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "CI"       , _TL("Confusion Index"   ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	for(i=0; i<FE_COUNT; i++)
+	for(int i=0; i<FE_COUNT; i++)
 	{
-		Parameters.Add_Grid("", Form_Def[i].ID, Form_Def[i].Name, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Grid("", Form_Def[i].ID, Form_Def[i].Name  , _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
 	//-----------------------------------------------------
@@ -202,19 +199,19 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 		CSG_String::Format("%s|%s",
 			_TL("degree"),
 			_TL("radians")
-		), 0
+		), m_bToDegree ? 1 : 0
 	);
 
 	Parameters.Add_Range("",
 		"T_SLOPE"	, _TL("Slope Thresholds [Degree]"),
 		_TL("lower and upper thresholds for semantic import model, planar vs. sloped areas"),
-		2., 7., 0., true, 90., true
+		m_loSlope, m_hiSlope, 0., true, 90., true
 	);
 
 	Parameters.Add_Range("",
 		"T_CURVE"	, _TL("Curvature Thresholds [1000 / m]"),
 		_TL("lower and upper thresholds for semantic import model, straight vs. curved areas"),
-		0.02, 0.5
+		m_loCurve, m_hiCurve
 	);
 }
 
@@ -255,22 +252,21 @@ int CFuzzy_Landform_Elements::On_Parameters_Enable(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CFuzzy_Landform_Elements::On_Execute(void)
 {
-	int			i;
-	CSG_Grid	*pInput[IN_COUNT], _Input[IN_COUNT], *pMembership[FE_COUNT], *pForm, *pMem, *pEntropy, *pCI;
+	CSG_Grid *pInput[IN_COUNT], _Input[IN_COUNT], *pMembership[FE_COUNT];
 
 	//-----------------------------------------------------
 	if( Parameters("INPUT")->asInt() == 0 )	// elevation
 	{
-		CSG_Grid	Aspect;	Aspect.Create(Get_System());
+		CSG_Grid Aspect(Get_System());
 
-		for(i=0; i<IN_COUNT; i++)
+		for(int i=0; i<IN_COUNT; i++)
 		{
 			_Input[i].Create(Get_System());
 
-			pInput[i]	= &_Input[i];
+			pInput[i] = &_Input[i];
 		}
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("ta_morphometry", 0);	// Slope, Aspect, Curvatures
+		CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("ta_morphometry", 0);	// Slope, Aspect, Curvatures
 
 		pTool->Set_Manager(NULL);
 
@@ -296,42 +292,42 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	}
 	else
 	{
-		for(i=0; i<IN_COUNT; i++)
+		for(int i=0; i<IN_COUNT; i++)
 		{
-			pInput[i]	= Parameters(IN_Type[i][0])->asGrid();
+			pInput[i] = Parameters(IN_Type[i][0])->asGrid();
 		}
 
-		m_bToDegree	= Parameters("SLOPETODEG")->asInt() == 1;
+		m_bToDegree = Parameters("SLOPETODEG")->asInt() == 1;
 	}
 
 	//-----------------------------------------------------
-	m_loSlope	= Parameters("T_SLOPE.MIN")->asDouble();// * M_DEG_TO_RAD;
-	m_hiSlope	= Parameters("T_SLOPE.MAX")->asDouble();// * M_DEG_TO_RAD;
+	m_loSlope = Parameters("T_SLOPE.MIN")->asDouble();// * M_DEG_TO_RAD;
+	m_hiSlope = Parameters("T_SLOPE.MAX")->asDouble();// * M_DEG_TO_RAD;
 
-	m_loCurve	= Parameters("T_CURVE.MIN")->asDouble() / 1000.;
-	m_hiCurve	= Parameters("T_CURVE.MAX")->asDouble() / 1000.;
+	m_loCurve = Parameters("T_CURVE.MIN")->asDouble() / 1000.;
+	m_hiCurve = Parameters("T_CURVE.MAX")->asDouble() / 1000.;
 
 	//-----------------------------------------------------
-	pForm		= Parameters("FORM"   )->asGrid();
-	pMem		= Parameters("MEM"    )->asGrid();
-	pEntropy	= Parameters("ENTROPY")->asGrid();
-	pCI			= Parameters("CI"     )->asGrid();
+	CSG_Grid *pForm    = Parameters("FORM"   )->asGrid();
+	CSG_Grid *pMem     = Parameters("MEM"    )->asGrid();
+	CSG_Grid *pEntropy = Parameters("ENTROPY")->asGrid();
+	CSG_Grid *pCI      = Parameters("CI"     )->asGrid();
 
-	for(i=0; i<FE_COUNT; i++)
+	for(int i=0; i<FE_COUNT; i++)
 	{
-		pMembership[i]	= Parameters("MEMBERSHIP")->asBool() ? Parameters(Form_Def[i].ID)->asGrid() : NULL;
+		pMembership[i] = Parameters("MEMBERSHIP")->asBool() ? Parameters(Form_Def[i].ID)->asGrid() : NULL;
 
 		DataObject_Set_Colors(pMembership[i], 11, SG_COLORS_WHITE_RED);
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pForm, "LUT");
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(pForm, "LUT");
 
 	if( pLUT && pLUT->asTable() )
 	{
 		pLUT->asTable()->Del_Records();
 
-		for(i=0; i<FE_COUNT; i++)
+		for(int i=0; i<FE_COUNT; i++)
 		{
 			CSG_Table_Record	*pRecord	= pLUT->asTable()->Add_Record();
 
@@ -349,24 +345,20 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		#pragma omp parallel for private(i)
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bOkay;
-			int		Element;
-			double	MaxMem, Entropy, CI, Input[IN_COUNT], Membership[FE_COUNT];
+			bool bOkay = true; double Input[IN_COUNT];
 
-			for(i=0, bOkay=true; i<IN_COUNT && bOkay; i++)
+			for(int i=0; bOkay && i<IN_COUNT; i++)
 			{
-				if( pInput[i]->is_NoData(x, y) )
+				if( (bOkay = !pInput[i]->is_NoData(x, y)) == true )
 				{
-					bOkay	= false;
-				}
-				else
-				{
-					Input[i]	= pInput[i]->asDouble(x, y);
+					Input[i] = pInput[i]->asDouble(x, y);
 				}
 			}
+
+			int Element; double MaxMem, Entropy, CI, Membership[FE_COUNT];
 
 			if( bOkay && Get_Memberships(Input, Membership, Element, MaxMem, Entropy, CI) )
 			{
@@ -375,7 +367,7 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 				if( pEntropy ) pEntropy->Set_Value(x, y, Entropy);
 				if( pCI      ) pCI     ->Set_Value(x, y, CI     );	// confusion index
 
-				for(i=0; i<FE_COUNT; i++)
+				for(int i=0; i<FE_COUNT; i++)
 				{
 					if( pMembership[i] ) pMembership[i]->Set_Value(x, y, Membership[i]);
 				}
@@ -387,7 +379,7 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 				if( pEntropy ) pEntropy->Set_NoData(x, y);
 				if( pCI      ) pCI     ->Set_NoData(x, y);
 
-				for(i=0; i<FE_COUNT; i++)
+				for(int i=0; i<FE_COUNT; i++)
 				{
 					if( pMembership[i] ) pMembership[i]->Set_NoData(x, y);
 				}

@@ -76,15 +76,17 @@ CClassification::CClassification(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid  ("", "ELEVATION"   , _TL("Elevation"                     ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid  ("", "ELEVATION"   , _TL("Elevation"                          ), _TL(""), PARAMETER_INPUT );
 
-	Parameters.Add_Grid  ("", "SPECPOINTS"  , _TL("Surface Specific Points"       ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "CURVATURE"   , _TL("Curvature Classification"      ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "TPI"         , _TL("Topographic Position Index"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "FUZZY"       , _TL("Fuzzy Landform Classification" ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "MORPHOMETRIC", _TL("Morphometric Features"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "TERRAINSURF" , _TL("Terrain Surface Classification"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  ("", "GEOMORPHONS" , _TL("Geomorphons"                   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "SPECPOINTS"  , _TL("Surface Specific Points"            ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "CURVATURE"   , _TL("Curvature Classification"           ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "FUZZY"       , _TL("Fuzzy Landform Classification"      ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "MORPHOMETRIC", _TL("Morphometric Features"              ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "TPI"         , _TL("Topographic Position Classification"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "GEOMORPHONS" , _TL("Geomorphons"                        ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+	Parameters.Add_Grid  ("", "TERRAINSURF" , _TL("Terrain Surface Classification"     ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Char);
+
+	Parameters.Add_Int("", "SCALE", _TL("Scale"), _TL("Targeted scale (cells). Does not affect \"Surface Specific Points\" and  \"Fuzzy Landform Classification\"."), 10, 2, true);
 }
 
 
@@ -98,14 +100,15 @@ bool CClassification::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("ta_morphometry"     ,  3, // Surface Specific Points
 		    SG_TOOL_PARAMETER_SET("ELEVATION"    , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("RESULT"       , Parameters("SPECPOINTS"))
-		&&  SG_TOOL_PARAMETER_SET("METHOD"       , 4) // Peucker & Douglas
+		&&  SG_TOOL_PARAMETER_SET("METHOD"       , 3) // Flow Direction (up and down)
+	//	&&  SG_TOOL_PARAMETER_SET("METHOD"       , 4) // Peucker & Douglas
 	)
 
 	//-----------------------------------------------------
 	SG_RUN_TOOL_ExitOnError("ta_morphometry"     ,  4, // Curvature Classification
 		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("CLASSES"      , Parameters("CURVATURE"))
-		&&  SG_TOOL_PARAMETER_SET("STRAIGHT"     , 20. *  Get_Cellsize())
+		&&  SG_TOOL_PARAMETER_SET("STRAIGHT"     , Parameters("SCALE")->asInt() * Get_Cellsize())
 		&&  SG_TOOL_PARAMETER_SET("SMOOTH"       , 2.)
 	)
 
@@ -119,6 +122,7 @@ bool CClassification::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("ta_morphometry"     , 23, // Morphometric Features
 		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("FEATURES"     , Parameters("MORPHOMETRIC"))
+		&&  SG_TOOL_PARAMETER_SET("SIZE"         , Parameters("SCALE")->asInt())
 	)
 
 	//-----------------------------------------------------
@@ -126,22 +130,25 @@ bool CClassification::On_Execute(void)
 		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("LANDFORMS"    , Parameters("TPI"))
 		&&  SG_TOOL_PARAMETER_SET("RADIUS_A.MIN" ,  0.)
-		&&  SG_TOOL_PARAMETER_SET("RADIUS_A.MAX" ,  2. * Get_Cellsize())
+	//	&&  SG_TOOL_PARAMETER_SET("RADIUS_A.MAX" ,  2 * Get_Cellsize())
+		&&  SG_TOOL_PARAMETER_SET("RADIUS_A.MAX" , Parameters("SCALE")->asInt() * Get_Cellsize() * 0.2)
 		&&  SG_TOOL_PARAMETER_SET("RADIUS_B.MIN" ,  0.)
-		&&  SG_TOOL_PARAMETER_SET("RADIUS_B.MAX" , 10. * Get_Cellsize())
-	)
-
-	//-----------------------------------------------------
-	SG_RUN_TOOL_ExitOnError("ta_morphometry"     , 22, // Terrain Surface Classification (Iwahashi and Pike)
-		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
-		&&  SG_TOOL_PARAMETER_SET("LANDFORMS"    , Parameters("TERRAINSURF"))
+		&&  SG_TOOL_PARAMETER_SET("RADIUS_B.MAX" , Parameters("SCALE")->asInt() * Get_Cellsize())
 	)
 
 	//-----------------------------------------------------
 	SG_RUN_TOOL_ExitOnError("ta_lighting"        ,  8, // Geomorphons
 		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
 		&&  SG_TOOL_PARAMETER_SET("GEOMORPHONS"  , Parameters("GEOMORPHONS"))
-		&&  SG_TOOL_PARAMETER_SET("RADIUS"       , 20. * Get_Cellsize())
+		&&  SG_TOOL_PARAMETER_SET("RADIUS"       , Parameters("SCALE")->asInt() * Get_Cellsize())
+	)
+
+	//-----------------------------------------------------
+	SG_RUN_TOOL_ExitOnError("ta_morphometry"     , 22, // Terrain Surface Classification (Iwahashi and Pike)
+		    SG_TOOL_PARAMETER_SET("DEM"          , Parameters("ELEVATION"))
+		&&  SG_TOOL_PARAMETER_SET("LANDFORMS"    , Parameters("TERRAINSURF"))
+		&&  SG_TOOL_PARAMETER_SET("CONV_SCALE"   , Parameters("SCALE")->asInt())
+		&&  SG_TOOL_PARAMETER_SET("TEXT_SCALE"   , Parameters("SCALE")->asInt())
 	)
 
 	//-----------------------------------------------------

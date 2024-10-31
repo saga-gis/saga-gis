@@ -647,11 +647,11 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_TOPOGRAPHY:
 		Set_Count(5);
-		Set_Color(0, SG_GET_RGB(  0,  63, 127));
+		Set_Color(0, SG_GET_RGB(  0, 143, 127));
 		Set_Color(1, SG_GET_RGB(127, 255,   0));
 		Set_Color(2, SG_GET_RGB(255, 255, 127));
-		Set_Color(3, SG_GET_RGB(191, 127,   0));
-		Set_Color(4, SG_GET_RGB(127,  63,   0));
+		Set_Color(3, SG_GET_RGB(255, 192,   0));
+		Set_Color(4, SG_GET_RGB(192, 143,   0));
 		break;
 
 	case SG_COLORS_TOPOGRAPHY_2:
@@ -814,11 +814,11 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_COUNT + 9:
 		Set_Count(5);
-		Set_Color(0, SG_GET_RGB(  0,   0, 127));
-		Set_Color(1, SG_GET_RGB(  0, 127, 255));
+		Set_Color(0, SG_GET_RGB(255, 255, 127));
+		Set_Color(1, SG_GET_RGB(191, 255,   0));
 		Set_Color(2, SG_GET_RGB(  0, 191,   0));
-		Set_Color(3, SG_GET_RGB(191, 255,   0));
-		Set_Color(4, SG_GET_RGB(255, 255, 127));
+		Set_Color(3, SG_GET_RGB(  0, 127, 255));
+		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
 
 	case SG_COLORS_COUNT + 10:

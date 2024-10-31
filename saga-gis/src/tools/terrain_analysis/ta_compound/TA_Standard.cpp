@@ -65,7 +65,8 @@ CTA_Standard::CTA_Standard(void)
 	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
-		"A selection of basic parameters and objects to be derived from a Digital Terrain Model using standard settings. "
+		"A selection of popular parameters and objects to be derived "
+		"from a Digital Terrain Model using standard settings. "
 		"This one-step tool makes use of tools from the libraries:<ul>"
 		"<li>ta_morphometry</li>"
 		"<li>ta_lighting</li>"

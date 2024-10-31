@@ -6,14 +6,15 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    ta_morphometry                     //
+//                       io_pdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                fuzzy_landform_elements.h              //
+//                   pdal_to_grid.h                      //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (c) 2024                   //
+//                     Olaf Conrad                       //
+//                   Volker Wichmann                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,13 +47,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__fuzzy_landform_elements_H
-#define HEADER_INCLUDED__fuzzy_landform_elements_H
+#ifndef HEADER_INCLUDED__pdal_to_grid_H
+#define HEADER_INCLUDED__pdal_to_grid_H
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
+//                                                       //
+//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -61,44 +62,55 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
+//                                                       //
+//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFuzzy_Landform_Elements : public CSG_Tool_Grid
+class CPDAL_to_Grid : public CSG_Tool
 {
 public:
-	CFuzzy_Landform_Elements(void);
+	CPDAL_to_Grid(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification") );	}
+	virtual CSG_String			Get_MenuPath			(void)  { return( _TL("A:File|Grid|Import") );  }
+
+	virtual bool				do_Sync_Projections		(void)  const { return( false );  }
 
 
 protected:
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool		On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool				m_bToDegree = false;
+	int							m_Aggregation = 1; // last
 
-	double				m_loSlope = 2., m_hiSlope = 7., m_loCurve = 0.02, m_hiCurve = 0.5;
+	CSG_Grid					*m_pGrid = NULL, *m_pCount = NULL;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool				Get_Memberships			(double Input[], double Membership[], int &Element, double &MaxMem, double &Entropy, double &CI);
+	bool						_Find_Class				(const CSG_Array_Int &Classes, int ID);
+
+	void						_Add_Point				(double x, double y, double z);
+	bool						_Read_Points            (const CSG_String &File, const CSG_Array_Int &Classes, bool bStream);
+
+	static bool					_Get_Extent				(const CSG_Strings &Files, CSG_Rect &Extent, bool bStream);
+	static bool					_Get_Extent				(const CSG_String  &File , CSG_Rect &Extent, bool bStream);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
+//                                                       //
+//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__fuzzy_landform_elements_H
+#endif // #ifndef HEADER_INCLUDED__pdal_to_grid_H

@@ -86,7 +86,7 @@ private:
 
 	int						m_Unit_Slope, m_Unit_Aspect;
 
-	CSG_Grid				*m_pDTM, *m_pSlope, *m_pAspect, *m_pC_Gene, *m_pC_Prof, *m_pC_Plan, *m_pC_Tang, *m_pC_Long, *m_pC_Cros, *m_pC_Mini, *m_pC_Maxi, *m_pC_Tota, *m_pC_Roto;
+	CSG_Grid				*m_pDTM, *m_pSlope, *m_pAspect, *m_pNorthness, *m_pEastness, *m_pC_Gene, *m_pC_Prof, *m_pC_Plan, *m_pC_Tang, *m_pC_Long, *m_pC_Cros, *m_pC_Mini, *m_pC_Maxi, *m_pC_Tota, *m_pC_Roto;
 
 
 	//-----------------------------------------------------
