@@ -539,7 +539,7 @@ CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("World File"),
 		_TL(""),
-		CSG_String::Format("%s|*.*|", _TL("All Files")), NULL, true
+		CSG_String::Format("%s|*.tfw;*.pgw;*.jgw;*.bpw|%s|*.*", _TL("Recognized Files"), _TL("All Files")), NULL, true
 	);
 
 	Parameters.Add_Node("",
