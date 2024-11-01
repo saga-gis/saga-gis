@@ -69,21 +69,22 @@ CTopographic_Openness::CTopographic_Openness(void)
 		"It has been proven to be a meaningful input for computer aided geomorphological mapping. "
 	));
 
-	Add_Reference("Anders, N. S. / Seijmonsbergen, A. C. / Bouten, W.", "2009",
+	Add_Reference("Anders, N. S., Seijmonsbergen, A. C., Bouten, W.", "2009",
 		"Multi-Scale and Object-Oriented Image Analysis of High-Res LiDAR Data for Geomorphological Mapping in Alpine Mountains",
 		"Proceedings of Geomorphometry 2009.",
-		SG_T("http://geomorphometry.org/system/files/anders2009geomorphometry.pdf"), SG_T("pdf at geomorphometry.org")
+		SG_T("https://hdl.handle.net/11245/1.308915"), SG_T("online")
 	);
 
-	Add_Reference("Prima, O.D.A / Echigo, A. / Yokoyama, R. / Yoshida, T.", "2006",
+	Add_Reference("Prima, O.D.A, Echigo, A., Yokoyama, R., Yoshida, T.", "2006",
 		"Supervised landform classification of Northeast Honshu from DEM-derived thematic maps",
-		"Geomorphology, vol.78, pp.373-386."
+		"Geomorphology, vol.78, pp.373-386.",
+		SG_T("https://doi.org/10.1016/j.geomorph.2006.02.005"), SG_T("doi:10.1016/j.geomorph.2006.02.005")
 	);
-
-	Add_Reference("Yokoyama, R. / Shirasawa, M. / Pike, R.J.", "2002",
+	Add_Reference(
+		"Yokoyama, R., Shirasawa, M., Pike, R.J.", "2002",
 		"Visualizing topography by openness: A new application of image processing to digital elevation models",
-		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266",
-		SG_T("http://www.asprs.org/a/publications/pers/2002journal/march/2002_mar_257-265.pdf"), SG_T("pdf at ASPRS")
+		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266.",
+		SG_T("https://www.asprs.org/wp-content/uploads/pers/2002journal/march/2002_mar_257-265.pdf"), SG_T("online")
 	);
 
 	//-----------------------------------------------------

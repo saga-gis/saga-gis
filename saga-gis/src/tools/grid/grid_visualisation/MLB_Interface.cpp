@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -76,13 +67,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Visualization") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Wichmann (c) 2002-2014") );
+		return( "O. Conrad, V. Wichmann (c) 2002-2024" );
 
 	case TLB_INFO_Description:
 		return( _TL("Visualization tools for grids.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Visualization|Grid") );
@@ -112,24 +103,23 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CGrid_Color_Rotate );
-	case  1:	return( new CGrid_Color_Blend );
-	case  2:	return( new CGrid_Colors_Fit );
-	case  3:	return( new CGrid_RGB_Composite );
-	case  4:	return( new CGrid_3D_Image );
-	case  5:	return( new CGrid_Color_Triangle );
-	case  6:	return( new CGrid_Histogram_Surface );
-	case  7:	return( new CGrid_Aspect_Slope_Map );
-	case  8:	return( new CGrid_Terrain_Map );
-	case  9:	return( new CGrid_RGB_Split );
-	case 10:	return( new CGrid_LUT_Assign );
-	case 11:	return( new CLUT_Create );
+	case  0: return( new CGrid_Color_Rotate );
+	case  1: return( new CGrid_Color_Blend );
+	case  2: return( new CGrid_Colors_Fit );
+	case  3: return( new CGrid_RGB_Composite );
+	case  4: return( new CGrid_3D_Image );
+	case  5: return( new CGrid_Color_Triangle );
+	case  6: return( new CGrid_Histogram_Surface );
+	case  7: return( new CGrid_Aspect_Slope_Map );
+	case  8: return( new CGrid_Terrain_Map );
+	case  9: return( new CGrid_RGB_Split );
+	case 10: return( new CGrid_LUT_Assign );
+	case 11: return( new CLUT_Create );
 
-	case 12:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 12: return( NULL );
 	}
 
-	return( NULL );
+	return( TLB_INTERFACE_SKIP_TOOL );
 }
 
 

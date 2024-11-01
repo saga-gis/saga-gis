@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,41 +48,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Terrain_Map.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
-	bool	bResult;\
-	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
-	if( !bResult ) return( false );\
-}
-
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
-
 
 //---------------------------------------------------------
 CGrid_Terrain_Map::CGrid_Terrain_Map(void)
 {
-	//-----------------------------------------------------
-	Set_Name(_TL("Terrain Map View"));
+	Set_Name		(_TL("Terrain Map View"));
 
-	Set_Author(_TL("Copyrights (c) 2014 by Volker Wichmann"));
+	Set_Author		("V.Wichmann (c) 2014");
 
 	Set_Description	(_TW(
 		"This tool allows one to create different terrain visualisations from an elevation dataset:\n\n"
@@ -93,122 +70,122 @@ CGrid_Terrain_Map::CGrid_Terrain_Map(void)
 		"* Morphology: a map which visualizes the terrain by combining positive and "
 		"negative openness (Yokoyama et al. 2002) with terrain slope in a single map. "
 		"In contrast to conventional shading methods this has the advantage of being "
-		"independent from the direction of the light source.\n\n"
-		"References:\n"
-		"Yokoyama, R. / Shirasawa, M. / Pike, R.J. (2002): "
-		"Visualizing topography by openness: A new application of image processing to digital elevation models. "
-		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266. "
-		"<a target=\"_blank\" href=\"http://info.asprs.org/publications/pers/2002journal/march/2002_mar_257-265.pdf\">online at ASPRS</a>.\n\n")
+		"independent from the direction of the light source.\n"
+	));
+
+	Add_Reference(
+		"Chiba, T., Kaneta, S., Suzuki, Y.", "2008",
+		"Red Relief Image Map: New Visualization Method for Three Dimensional Data",
+		"The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences. Vol. XXXVII. Part B2. Beijing, pp.1071-1076.",
+		SG_T("https://www.isprs.org/proceedings/XXXVII/congress/2_pdf/11_ThS-6/08.pdf"), SG_T("online")
 	);
 
+	Add_Reference(
+		"Yokoyama, R., Shirasawa, M., Pike, R.J.", "2002",
+		"Visualizing topography by openness: A new application of image processing to digital elevation models",
+		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266.",
+		SG_T("https://www.asprs.org/wp-content/uploads/pers/2002journal/march/2002_mar_257-265.pdf"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"		,_TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"          ,_TL("DEM"),
 		_TL("Digital elevation model."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SHADE"	, _TL("Shade"),
+	Parameters.Add_Grid("",
+		"SHADE"        , _TL("Shade"),
 		_TL("The shaded DTM."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "OPENNESS"	, _TL("Openness"),
+	Parameters.Add_Grid("",
+		"OPENNESS"     , _TL("Openness"),
 		_TL("The difference of positive and negative openness."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"	, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"        , _TL("Slope"),
 		_TL("The calculated terrain slope [radians]."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "CONTOURS"	, _TL("Contours"),
+	Parameters.Add_Shapes("",
+		"CONTOURS"     , _TL("Contours"),
 		_TL("The generated contour lines."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	,	_TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"       , _TL("Method"),
 		_TL("Choose the map type to generate."),
-		CSG_String::Format(SG_T("%s|%s"),
+		CSG_String::Format("%s|%s",
 			_TL("Topography"),
 			_TL("Morphology")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radial Limit"),
+	Parameters.Add_Double("",
+		"RADIUS"       , _TL("Radial Limit"),
 		_TL("Radial search limit for openness calculation."),
-		PARAMETER_TYPE_Double	, 1000.0, 0.0, true
+		1000., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONTOUR_LINES"	, _TL("Contour Lines"),
+	Parameters.Add_Bool("",
+		"CONTOUR_LINES", _TL("Contour Lines"),
 		_TL("Derive contour lines."),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
-	Parameters.Add_Value(
-		Parameters("CONTOUR_LINES")	, "EQUIDISTANCE"	, _TL("Equidistance"),
+	Parameters.Add_Double("CONTOUR_LINES",
+		"EQUIDISTANCE" , _TL("Equidistance"),
 		_TL("Contour lines equidistance [map units]."),
-		PARAMETER_TYPE_Double	, 50.0, 0.0, true
+		50., 0., true
 	);
-}
-
-
-//---------------------------------------------------------
-CGrid_Terrain_Map::~CGrid_Terrain_Map(void)
-{}
-
-
-//---------------------------------------------------------
-int CGrid_Terrain_Map::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
-	{
-		pParameters->Get_Parameter("SHADE")			->Set_Enabled(pParameter->asInt() == 0);
-
-		pParameters->Get_Parameter("OPENNESS")		->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("SLOPE")			->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("RADIUS")		->Set_Enabled(pParameter->asInt() == 1);
-	}
-
-	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier(SG_T("CONTOUR_LINES")) )
-	{
-		pParameters->Get_Parameter("CONTOURS")		->Set_Enabled(pParameter->asBool());
-		pParameters->Get_Parameter("EQUIDISTANCE")	->Set_Enabled(pParameter->asBool());
-	}
-
-	//-----------------------------------------------------
-	return( 0 );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Terrain_Map::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("SHADE"       , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("OPENNESS"    , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("SLOPE"       , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("RADIUS"      , pParameter->asInt() == 1);
+	}
+
+	if(	pParameter->Cmp_Identifier("CONTOUR_LINES") )
+	{
+		pParameters->Set_Enabled("CONTOURS"    , pParameter->asBool());
+		pParameters->Set_Enabled("EQUIDISTANCE", pParameter->asBool());
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Terrain_Map::On_Execute(void)
 {
-	bool	bOkay = false;
+	bool bOkay = false;
 
-	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )
 	{
-	default:
-	case 0:		bOkay = Generate_Topography();		break;
-	case 1:		bOkay = Generate_Morphology();		break;
+	default: bOkay = Generate_Topography(); break;
+	case  1: bOkay = Generate_Morphology(); break;
 	}
 
 	if( !bOkay )
@@ -224,19 +201,18 @@ bool CGrid_Terrain_Map::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
-
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Terrain_Map::Generate_Topography()
 {
-	CSG_Grid	*pShade;
+	CSG_Grid *pShade = Parameters("SHADE")->asGrid();
 
-	pShade		= Parameters("SHADE")->asGrid();
-
-
-	//-----------------------------------------------------
 	if( pShade == NULL )
 	{
 		pShade = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
@@ -244,44 +220,36 @@ bool CGrid_Terrain_Map::Generate_Topography()
 		DataObject_Add(pShade);
 	}
 
+	//-----------------------------------------------------
+	SG_RUN_TOOL_ExitOnError("ta_lighting", 0,
+		   SG_TOOL_PARAMETER_SET("ELEVATION", Parameters("DEM"))
+		&& SG_TOOL_PARAMETER_SET("SHADE"    , pShade)
+		&& SG_TOOL_PARAMETER_SET("METHOD"   , 0)
+	);
 
 	//-----------------------------------------------------
-	RUN_TOOL("ta_lighting"			, 0,
-			SET_PARAMETER("ELEVATION"	, Parameters("DEM"))
-		&&	SET_PARAMETER("SHADE"		, pShade)
-		&&	SET_PARAMETER("METHOD"		, 0)
-	)
+	DataObject_Set_Colors(Parameters("DEM")->asGrid(), 11, SG_COLORS_TOPOGRAPHY , false);
+	DataObject_Set_Colors(pShade                     , 11, SG_COLORS_BLACK_WHITE,  true);
 
-
-	//-----------------------------------------------------
-	DataObject_Set_Colors(Parameters("DEM")->asGrid()	, 11, SG_COLORS_TOPOGRAPHY , false);
-	DataObject_Set_Colors(pShade						, 11, SG_COLORS_BLACK_WHITE, true);
-
-
-	CSG_Parameters	Parms;
-
-	if( DataObject_Get_Parameters(pShade, Parms) && Parms("DISPLAY_TRANSPARENCY") )
-	{
-		Parms("DISPLAY_TRANSPARENCY")->Set_Value(40);
-
-		DataObject_Set_Parameters(pShade, Parms);
-	}
-
+	DataObject_Set_Parameter(pShade, "DISPLAY_TRANSPARENCY", 40);
 
 	pShade->Fmt_Name("%s (%s)", _TL("Shading"), Parameters("DEM")->asGrid()->Get_Name());
-	DataObject_Update(Parameters("DEM")->asGrid()	, SG_UI_DATAOBJECT_SHOW_MAP_NEW);
-	DataObject_Update(pShade						, SG_UI_DATAOBJECT_SHOW_MAP_LAST);
 
+	DataObject_Update(Parameters("DEM")->asGrid(), SG_UI_DATAOBJECT_SHOW_MAP_NEW );
+	DataObject_Update(pShade                     , SG_UI_DATAOBJECT_SHOW_MAP_LAST);
 
 	//-----------------------------------------------------
 	return( true );
 }
 
 
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CGrid_Terrain_Map::Generate_Morphology()
 {
-
 	CSG_Grid	*pOpenness, *pSlope;
 	double		dRadius;
 
@@ -309,23 +277,23 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 
 
 	//-----------------------------------------------------
-	RUN_TOOL("ta_lighting"			, 5,
-			SET_PARAMETER("DEM"			, Parameters("DEM"))
-		&&	SET_PARAMETER("POS"			, pOpenness)
-		&&	SET_PARAMETER("NEG"			, &TMP1)
-		&&	SET_PARAMETER("RADIUS"		, dRadius)
-		&&	SET_PARAMETER("METHOD"		, 1)
-		&&	SET_PARAMETER("NDIRS"		, 8)
-	)
+	SG_RUN_TOOL_ExitOnError("ta_lighting", 5,
+		   SG_TOOL_PARAMETER_SET("DEM"   , Parameters("DEM"))
+		&& SG_TOOL_PARAMETER_SET("POS"   , pOpenness)
+		&& SG_TOOL_PARAMETER_SET("NEG"   , &TMP1)
+		&& SG_TOOL_PARAMETER_SET("RADIUS", dRadius)
+		&& SG_TOOL_PARAMETER_SET("METHOD", 1)
+		&& SG_TOOL_PARAMETER_SET("NDIRS" , 8)
+	);
 
 	pOpenness->Subtract(TMP1);
 
 
 	//-----------------------------------------------------
-	RUN_TOOL("ta_morphometry"			, 0,
-			SET_PARAMETER("ELEVATION"	, Parameters("DEM"))
-		&&	SET_PARAMETER("SLOPE"		, pSlope)
-		&&	SET_PARAMETER("ASPECT"		, &TMP1)
+	SG_RUN_TOOL_ExitOnError("ta_morphometry", 0,
+		   SG_TOOL_PARAMETER_SET("ELEVATION", Parameters("DEM"))
+		&& SG_TOOL_PARAMETER_SET("SLOPE"    , pSlope)
+		&& SG_TOOL_PARAMETER_SET("ASPECT"   , &TMP1)
 	)
 
 
@@ -333,18 +301,11 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	DataObject_Set_Colors(pOpenness, 11, SG_COLORS_BLACK_WHITE, false);
 	DataObject_Set_Colors(pSlope   , 11, SG_COLORS_WHITE_RED  , false);
 
-	CSG_Parameters	Parms;
-
-	if( DataObject_Get_Parameters(pSlope, Parms) && Parms("DISPLAY_TRANSPARENCY") )
-	{
-		Parms("DISPLAY_TRANSPARENCY")->Set_Value(60);
-
-		DataObject_Set_Parameters(pSlope, Parms);
-	}
-
+	DataObject_Set_Parameter(pSlope, "DISPLAY_TRANSPARENCY", 60);
 
 	pOpenness->Fmt_Name("%s (%s)", _TL("Openness"), Parameters("DEM")->asGrid()->Get_Name());
-	pSlope->Fmt_Name("%s (%s)", _TL("Slope"), Parameters("DEM")->asGrid()->Get_Name());
+	pSlope   ->Fmt_Name("%s (%s)", _TL("Slope"   ), Parameters("DEM")->asGrid()->Get_Name());
+
 	DataObject_Update(pOpenness	, SG_UI_DATAOBJECT_SHOW_MAP_NEW);
 	DataObject_Update(pSlope	, SG_UI_DATAOBJECT_SHOW_MAP_LAST);
 
@@ -355,13 +316,14 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 }
 
 
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CGrid_Terrain_Map::Generate_Contours()
 {
-	CSG_Shapes	*pContours;
-
-	pContours	= Parameters("CONTOURS")->asShapes();
-
+	CSG_Shapes *pContours = Parameters("CONTOURS")->asShapes();
 
 	//-----------------------------------------------------
 	if( pContours == NULL )
@@ -374,32 +336,23 @@ bool CGrid_Terrain_Map::Generate_Contours()
 	CSG_Grid *pGrid = Parameters("DEM")->asGrid();
 	double	 zStep	= Parameters("EQUIDISTANCE")->asDouble();
 
-
 	//-----------------------------------------------------
-	RUN_TOOL("shapes_grid"				, 5,
-			SET_PARAMETER("GRID"		, pGrid)
-		&&	SET_PARAMETER("CONTOUR"		, pContours)
-		&&	SET_PARAMETER("INTERVALS"	, 1)
-    	&&	SET_PARAMETER("ZMIN"		, zStep * (ceil (pGrid->Get_Min() / zStep)))
-    	&&	SET_PARAMETER("ZMAX"		, zStep * (floor(pGrid->Get_Max() / zStep)))
-		&&	SET_PARAMETER("ZSTEP"		, zStep)
+	SG_RUN_TOOL_ExitOnError("shapes_grid", 5,
+		   SG_TOOL_PARAMETER_SET("GRID"     , pGrid)
+		&& SG_TOOL_PARAMETER_SET("CONTOUR"  , pContours)
+		&& SG_TOOL_PARAMETER_SET("INTERVALS", 1)
+    	&& SG_TOOL_PARAMETER_SET("ZMIN"     , zStep * (ceil (pGrid->Get_Min() / zStep)))
+    	&& SG_TOOL_PARAMETER_SET("ZMAX"     , zStep * (floor(pGrid->Get_Max() / zStep)))
+		&& SG_TOOL_PARAMETER_SET("ZSTEP"    , zStep)
 	)
 
-
 	//-----------------------------------------------------
-	CSG_Parameters	Parms;
-
-	if( DataObject_Get_Parameters(pContours, Parms) && Parms("SINGLE_COLOR") && Parms("DISPLAY_TRANSPARENCY") )
-	{
-		Parms("SINGLE_COLOR")->Set_Value(0);
-		Parms("DISPLAY_TRANSPARENCY")->Set_Value(70);
-
-		DataObject_Set_Parameters(pContours, Parms);
-	}
+	DataObject_Set_Parameter(pContours, "SINGLE_COLOR", (int)SG_COLOR_BLACK);
+	DataObject_Set_Parameter(pContours, "DISPLAY_TRANSPARENCY", 70);
 
 	pContours->Fmt_Name("%s (%s)", _TL("Contours"), Parameters("DEM")->asGrid()->Get_Name());
-	DataObject_Update(pContours, SG_UI_DATAOBJECT_SHOW_MAP_LAST);
 
+	DataObject_Update(pContours, SG_UI_DATAOBJECT_SHOW_MAP_LAST);
 
 	//-----------------------------------------------------
 	return( true );
@@ -407,9 +360,9 @@ bool CGrid_Terrain_Map::Generate_Contours()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
