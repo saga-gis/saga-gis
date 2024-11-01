@@ -84,8 +84,6 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
-	virtual bool			Set_Progress			(double Position, double Range);
-
 
 private:
 
@@ -99,6 +97,8 @@ private:
 
 	CSG_Parameter_Grid_List	*m_pGrids;
 
+
+	bool					_Set_Progress			(double Position, double Range);
 
 	void					Blend					(int iGrid, bool bLoop);
 
