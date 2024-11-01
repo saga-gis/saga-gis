@@ -216,21 +216,21 @@ bool CGrid_Import::On_Execute(void)
 		DataObject_Set_Colors(pGrid, 11, SG_COLORS_BLACK_WHITE);\
 	}
 
-	wxImageHistogram	Histogram;
+	wxImageHistogram Histogram;
 
 	//-----------------------------------------------------
 	// look-up color table...
 
 	if( Parameters("METHOD")->asInt() == 0 && Image.ComputeHistogram(Histogram) <= 256 )
 	{
-		CSG_Colors	Colors((int)Histogram.size());
+		CSG_Colors Colors((int)Histogram.size());
 
 		for(wxImageHistogram::iterator i=Histogram.begin(); i!=Histogram.end(); ++i)
 		{
 			Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 		}
 
-		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { Parameters("OUT_GRID")->Set_Value(pRGB = SG_Create_Grid()); }
+		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { pRGB = SG_Create_Grid(); }
 		
 		pRGB->Create(Histogram.size() <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
@@ -249,6 +249,8 @@ bool CGrid_Import::On_Execute(void)
 			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
 
+		Parameters("OUT_GRID")->Set_Value(pRGB);
+
 		SET_METADATA(pRGB, "", "OUT_GRID");
 
 		DataObject_Set_Colors(pRGB, Colors);
@@ -260,7 +262,7 @@ bool CGrid_Import::On_Execute(void)
 
 	else if( Parameters("METHOD")->asInt() != 1 ) // true color...
 	{
-		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { Parameters("OUT_GRID")->Set_Value(pRGB = SG_Create_Grid()); }
+		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { pRGB = SG_Create_Grid(); }
 
 		pRGB->Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
@@ -278,6 +280,8 @@ bool CGrid_Import::On_Execute(void)
 		{
 			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
+
+		Parameters("OUT_GRID")->Set_Value(pRGB);
 
 		SET_METADATA(pRGB, "", "OUT_GRID");
 
