@@ -375,7 +375,7 @@ void CGrid_Color_Blend::Blend(int iGrid, bool bLoop)
 			}
 		}
 
-		Set_Progress(iGrid + d, bLoop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1);
+		_Set_Progress(iGrid + d, bLoop ? m_pGrids->Get_Grid_Count() : m_pGrids->Get_Grid_Count() - 1);
 
 		Save_Frame();
 	}
@@ -387,7 +387,7 @@ void CGrid_Color_Blend::Blend(int iGrid, bool bLoop)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Color_Blend::Set_Progress(double Position, double Range)
+bool CGrid_Color_Blend::_Set_Progress(double Position, double Range)
 {
 	bool bResult = CSG_Tool_Grid::Set_Progress(Position, Range);
 
