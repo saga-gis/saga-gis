@@ -32,6 +32,7 @@ CMD /C CALL make_python_api.bat %OUTPUT% false 3.8  %PYTHONS%\Python-3.8
 CMD /C CALL make_python_api.bat %OUTPUT% false 3.9  %PYTHONS%\Python-3.9
 CMD /C CALL make_python_api.bat %OUTPUT% false 3.10 %PYTHONS%\Python-3.10
 CMD /C CALL make_python_api.bat %OUTPUT% false 3.11 %PYTHONS%\Python-3.11
-CMD /C CALL make_python_api.bat %OUTPUT% true  3.12 %PYTHONS%\Python-3.12
+CMD /C CALL make_python_api.bat %OUTPUT% false 3.12 %PYTHONS%\Python-3.12
+CMD /C CALL make_python_api.bat %OUTPUT% true  3.13 %PYTHONS%\Python-3.13
 
 PAUSE
