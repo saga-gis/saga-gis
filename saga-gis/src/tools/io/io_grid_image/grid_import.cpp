@@ -213,7 +213,7 @@ bool CGrid_Import::On_Execute(void)
 		pGrid->Get_Projection().Create(Projection);\
 		Parameters(Output)->Set_Value(pGrid);\
 		DataObject_Add(pGrid);\
-		DataObject_Set_Colors(pGrid, 11, SG_COLORS_BLACK_WHITE);\
+		DataObject_Set_Colors(pGrid, 5, SG_COLORS_BLACK_WHITE);\
 	}
 
 	wxImageHistogram Histogram;
@@ -236,7 +236,7 @@ bool CGrid_Import::On_Execute(void)
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
+			int yy = bTransform ? y : pRGB->Get_NY() - 1 - y;
 
 			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
@@ -268,7 +268,7 @@ bool CGrid_Import::On_Execute(void)
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
+			int yy = bTransform ? y : pRGB->Get_NY() - 1 - y;
 
 			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
@@ -280,8 +280,6 @@ bool CGrid_Import::On_Execute(void)
 		{
 			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
-
-		Parameters("OUT_GRID")->Set_Value(pRGB);
 
 		SET_METADATA(pRGB, "", "OUT_GRID");
 
@@ -297,7 +295,7 @@ bool CGrid_Import::On_Execute(void)
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
-			int	yy	= bTransform ? y : pRGB->Get_NY() - 1 - y;
+			int yy = bTransform ? y : pRGB->Get_NY() - 1 - y;
 
 			for(int x=0; x<pRGB->Get_NX(); x++)
 			{
@@ -354,38 +352,47 @@ void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, 
 	//-----------------------------------------------------
 	CSG_Grid *pSource = *ppImage;
 
-	TSG_Rect r; CSG_Vector XSrc(2), XTgt(2);
+	{
+		TSG_Rect r; CSG_Vector p(2); double c = fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
 
-	XSrc[0] = pSource->Get_XMin(); XSrc[1] = pSource->Get_YMin(); XTgt = D * XSrc + A;
-	r.xMin  = r.xMax = XTgt[0];
-	r.yMin  = r.yMax = XTgt[1];
+		p[0] = pSource->Get_XMin(); p[1] = pSource->Get_YMin(); p = D * p + A;
+		r.xMin  = r.xMax = p[0];
+		r.yMin  = r.yMax = p[1];
 
-	XSrc[0] = pSource->Get_XMin(); XSrc[1] = pSource->Get_YMax(); XTgt = D * XSrc + A;
-	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
-	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
+		p[0] = pSource->Get_XMin(); p[1] = pSource->Get_YMax(); p = D * p + A;
+		if( r.xMin > p[0] ) r.xMin = p[0]; else if( r.xMax < p[0] ) r.xMax = p[0];
+		if( r.yMin > p[1] ) r.yMin = p[1]; else if( r.yMax < p[1] ) r.yMax = p[1];
 
-	XSrc[0] = pSource->Get_XMax(); XSrc[1] = pSource->Get_YMax(); XTgt = D * XSrc + A;
-	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
-	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
+		p[0] = pSource->Get_XMax(); p[1] = pSource->Get_YMax(); p = D * p + A;
+		if( r.xMin > p[0] ) r.xMin = p[0]; else if( r.xMax < p[0] ) r.xMax = p[0];
+		if( r.yMin > p[1] ) r.yMin = p[1]; else if( r.yMax < p[1] ) r.yMax = p[1];
 
-	XSrc[0] = pSource->Get_XMax(); XSrc[1] = pSource->Get_YMin(); XTgt = D * XSrc + A;
-	if( r.xMin > XTgt[0] ) r.xMin = XTgt[0]; else if( r.xMax < XTgt[0] ) r.xMax = XTgt[0];
-	if( r.yMin > XTgt[1] ) r.yMin = XTgt[1]; else if( r.yMax < XTgt[1] ) r.yMax = XTgt[1];
+		p[0] = pSource->Get_XMax(); p[1] = pSource->Get_YMin(); p = D * p + A;
+		if( r.xMin > p[0] ) r.xMin = p[0]; else if( r.xMax < p[0] ) r.xMax = p[0];
+		if( r.yMin > p[1] ) r.yMin = p[1]; else if( r.yMax < p[1] ) r.yMax = p[1];
+
+		*ppImage = SG_Create_Grid(pSource->Get_Type(),
+			1 + (int)((r.xMax - r.xMin) / c),
+			1 + (int)((r.yMax - r.yMin) / c),
+			c, r.xMin, r.yMin
+		);
+	}
+
+	CSG_Grid *pTarget = *ppImage;
 
 	//-----------------------------------------------------
-	double z = fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
-	int    x = 1 + (int)((r.xMax - r.xMin) / z);
-	int    y = 1 + (int)((r.yMax - r.yMin) / z);
-
-	CSG_Grid *pTarget = *ppImage = SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
-
-	for(y=0, XTgt[1]=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, XTgt[1]+=pTarget->Get_Cellsize())
+	for(int y=0; y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++)
 	{
-		for(x=0, XTgt[0]=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, XTgt[0]+=pTarget->Get_Cellsize())
-		{
-			XSrc = DInv * (XTgt - A);
+		double yTarget = pTarget->Get_YMin() + y * pTarget->Get_Cellsize();
 
-			if( pSource->Get_Value(XSrc[0], XSrc[1], z, GRID_RESAMPLING_NearestNeighbour) )
+		#pragma omp parallel for
+		for(int x=0; x<pTarget->Get_NX(); x++)
+		{
+			double z; CSG_Vector p(2); p[1] = yTarget; p[0] = pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
+
+			p = DInv * (p - A);
+
+			if( pSource->Get_Value(p[0], p[1], z, GRID_RESAMPLING_NearestNeighbour) )
 			{
 				pTarget->Set_Value(x, y, z);
 			}
