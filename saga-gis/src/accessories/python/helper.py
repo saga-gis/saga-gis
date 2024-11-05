@@ -418,6 +418,7 @@ class Tool_Wrapper:
                     elif Parameter.is_DataObject_List():
                         for Item in Data[1]:
                             Parameter.asList().Add_Item(Item)
+                        Parameter.has_Changed()
 
             for Option in self.Options: # 2nd pass -> set options that are dependent of input data (-> table fields)
                 self.Tool.Set_Parameter(Option[0], Option[1])
