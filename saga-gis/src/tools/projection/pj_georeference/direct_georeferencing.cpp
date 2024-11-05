@@ -58,7 +58,7 @@
 //---------------------------------------------------------
 CSG_Direct_Georeferencer::CSG_Direct_Georeferencer(void)
 {
-	m_pZRef	= NULL;
+	// nop
 }
 
 
@@ -125,8 +125,16 @@ bool CSG_Direct_Georeferencer::Add_Parameters(CSG_Parameters &Parameters, bool b
 //---------------------------------------------------------
 bool CSG_Direct_Georeferencer::Set_Transformation(CSG_Parameters &Parameters, int nCols, int nRows)
 {
-	m_pZRef	= Parameters("DEM") ? Parameters("DEM")->asGrid() : NULL;
-	m_ZRef	= Parameters("DEM") ? Parameters("DEM")->asDouble() : 0.;
+	if( Parameters("DEM") )
+	{
+		m_pZRef	= Parameters("DEM")->asGrid();
+		m_ZRef	= m_pZRef ? m_pZRef->Get_Mean() : Parameters("DEM")->asDouble();
+	}
+	else
+	{
+		m_pZRef	= NULL;
+		m_ZRef	= 0.;
+	}
 
 	//-----------------------------------------------------
 	m_O.Create(2);
@@ -327,6 +335,8 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 int CDirect_Georeferencing::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter == pParameters->Get_Grid_System_Parameter()
+	||  pParameter->Cmp_Identifier("DEM"        )
+	||  pParameter->Cmp_Identifier("DEM_DEFAULT")
 	||  pParameter->Cmp_Identifier("CFL"        )
 	||  pParameter->Cmp_Identifier("PXSIZE"     )
 	||  pParameter->Cmp_Identifier("X"          )
