@@ -90,7 +90,8 @@ CSG_3DView_Canvas::CSG_3DView_Canvas(void)
 	m_dStereo     = 2.;
 	m_North       = 1;
 	m_North_Size  = 15.;
-	m_Labels      = 0;
+	m_Labels      = 1; // frontal axes
+	m_Label_Dir   = 1; // cross axis
 	m_Label_Res   = 50;
 	m_Label_Scale = 1.;
 	m_Label_zType = SG_DATATYPE_Undefined; // number
@@ -418,16 +419,16 @@ void CSG_3DView_Canvas::_Draw_North(void)
 		A[i].z = 0.;
 	}
 
+	int Color = SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
+
 	Draw_Line(A[1], A[2], SG_COLOR_BLACK);
-	Draw_Line(A[1], A[3], SG_COLOR_BLACK);
+	Draw_Line(A[1], A[3], Color);
+	Draw_Line(A[2], A[3], Color);
 	Draw_Line(A[1], A[4], SG_COLOR_BLACK);
-	Draw_Line(A[2], A[3], SG_COLOR_BLACK);
 	Draw_Line(A[2], A[4], SG_COLOR_BLACK);
 
 	if( m_North == 1 )
 	{
-		int Color = SG_GET_RGB(SG_GET_R(m_bgColor) + 128, SG_GET_G(m_bgColor) + 128, SG_GET_B(m_bgColor) + 128);
-
 		Draw_Line(A[5], A[6], Color);
 		Draw_Line(A[6], A[7], Color);
 		Draw_Line(A[7], A[8], Color);
@@ -469,47 +470,136 @@ void CSG_3DView_Canvas::_Draw_Labels(int Front)
 
 	TSG_Point_3D Box[8]; _Draw_Get_Box(Box, false);
 
-	switch( m_Labels )
+	//-----------------------------------------------------
+	switch( m_Labels ) // x/y-axes
 	{
-	default:
+	default: // all axes
+		switch( m_Label_Dir )
+		{
+		default: // along axis
+			_Draw_Labels(Box[0].x, Box[1].x, Box[0],   0, 0, 0, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(Box[1].y, Box[2].y, Box[1],  90, 0, 0, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(Box[2].x, Box[3].x, Box[2], 180, 0, 0, m_Label_Res, m_Label_Scale);
+			_Draw_Labels(Box[3].y, Box[0].y, Box[3], 270, 0, 0, m_Label_Res, m_Label_Scale);
+			break;
+
+		case  1: // cross axis
+			switch( Front )
+			{
+			default:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  1:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  2:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				break;
+
+			case  3:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				break;
+			}
+			break;
+		}
+		break;
+
+	//-----------------------------------------------------
+	case  1: // frontal axes
+		switch( m_Label_Dir )
+		{
+		default:
+			switch( Front ) // along axis
+			{
+			default:
+				_Draw_Labels(Box[0].x, Box[1].x, Box[0],   0, 0, 0, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(Box[3].y, Box[0].y, Box[3], 270, 0, 0, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  1:
+				_Draw_Labels(Box[0].x, Box[1].x, Box[0],   0, 0, 0, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(Box[1].y, Box[2].y, Box[1],  90, 0, 0, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  2:
+				_Draw_Labels(Box[2].x, Box[3].x, Box[2], 180, 0, 0, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(Box[1].y, Box[2].y, Box[1],  90, 0, 0, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  3:
+				_Draw_Labels(Box[2].x, Box[3].x, Box[2], 180, 0, 0, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(Box[3].y, Box[0].y, Box[3], 270, 0, 0, m_Label_Res, m_Label_Scale);
+				break;
+			}
+			break;
+
+		case  1:
+			switch( Front ) // cross axis
+			{
+			default:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  1:
+				_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				break;
+
+			case  2:
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				break;
+
+			case  3:
+				_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
+				_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
+				break;
+			}
+			break;
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( 1 ) // z-axis
+	{
 		switch( Front )
 		{
 		default:
-			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
-			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[3], Box[7], 180,  90, 270, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[1], Box[5], 180, 270, 180, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  1:
-			_Draw_Labels(0, Box[0], Box[1],   0,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
-			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[0], Box[4], 180,  90, 180, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[2], Box[6], 180, 270, 270, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  2:
-			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
-			_Draw_Labels(1, Box[1], Box[2],  90,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[1], Box[5], 180,  90,  90, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[3], Box[7], 180, 270,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 
 		case  3:
-			_Draw_Labels(0, Box[2], Box[3], 180,   0,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
-			_Draw_Labels(1, Box[3], Box[0], 270,   0,   0, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[2], Box[6], 180,  90,   0, LABEL_ALIGN_RIGHT, m_Label_Res, m_Label_Scale);
 			_Draw_Labels(2, Box[0], Box[4], 180, 270,  90, LABEL_ALIGN_LEFT , m_Label_Res, m_Label_Scale);
 			break;
 		}
-		break;
-
-	case  1:
-		_Draw_Labels(Box[0].x, Box[1].x, Box[0],   0, 0, 0, m_Label_Res, m_Label_Scale);
-		_Draw_Labels(Box[1].y, Box[2].y, Box[1],  90, 0, 0, m_Label_Res, m_Label_Scale);
-		_Draw_Labels(Box[2].x, Box[3].x, Box[2], 180, 0, 0, m_Label_Res, m_Label_Scale);
-		_Draw_Labels(Box[3].y, Box[0].y, Box[3], 270, 0, 0, m_Label_Res, m_Label_Scale);
-		break;
 	}
 }
 

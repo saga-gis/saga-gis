@@ -226,7 +226,8 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	m_Parameters.Add_Choice("3D_VIEW" , "NORTH"       , _TL("North Arrow"          ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("no"), _TL("yes"), _TL("yes, without bounding box")), m_North);
 	m_Parameters.Add_Double("NORTH"   , "NORTH_SIZE"  , _TL("Size"                 ), _TL(""), m_North_Size, 1., true);
 
-	m_Parameters.Add_Choice("3D_VIEW" , "LABELS"      , _TL("Axis Labeling"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all"), _TL("horizontal"), _TL("none")), m_Labels);
+	m_Parameters.Add_Choice("3D_VIEW" , "LABELS"      , _TL("Axis Labeling"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("all axes"), _TL("frontal axes"), _TL("none")), m_Labels);
+	m_Parameters.Add_Choice("LABELS"  , "LABEL_DIR"   , _TL("Label Orientation"    ), _TL(""), CSG_String::Format("%s|%s", _TL("along axis"), _TL("cross axis")), m_Label_Dir);
 	m_Parameters.Add_Int   ("LABELS"  , "LABEL_RES"   , _TL("Resolution"           ), _TL(""), m_Label_Res, 20, true, 1000, true);
 	m_Parameters.Add_Double("LABELS"  , "LABEL_SCALE" , _TL("Size"                 ), _TL(""), m_Label_Scale, 0.1, true, 10., true);
 
@@ -354,6 +355,7 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 		m_Parameters["NORTH_SIZE"  ].Set_Value(m_North_Size );
 
 		m_Parameters["LABELS"      ].Set_Value(m_Labels     );
+		m_Parameters["LABEL_DIR"   ].Set_Value(m_Label_Dir  );
 		m_Parameters["LABEL_RES"   ].Set_Value(m_Label_Res  );
 		m_Parameters["LABEL_SCALE" ].Set_Value(m_Label_Scale);
 
@@ -394,6 +396,7 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 		m_North_Size  = m_Parameters["NORTH_SIZE" ].asDouble();
 
 		m_Labels      = m_Parameters["LABELS"     ].asInt   ();
+		m_Label_Dir   = m_Parameters["LABEL_DIR"  ].asInt   ();
 		m_Label_Res   = m_Parameters["LABEL_RES"  ].asInt   ();
 		m_Label_Scale = m_Parameters["LABEL_SCALE"].asDouble();
 
