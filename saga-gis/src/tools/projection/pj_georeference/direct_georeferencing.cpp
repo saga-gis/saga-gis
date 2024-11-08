@@ -383,7 +383,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid_System	System	= m_Grid_Target.Get_System();
+	CSG_Grid_System	System = m_Grid_Target.Get_System();
 
 	if( !System.is_Valid() )
 	{
@@ -393,14 +393,14 @@ bool CDirect_Georeferencing::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("EXTENT")->asShapes() )
 	{
-		TSG_Point	p[4];	m_Georeferencer.Get_Extent(p);
+		TSG_Point p[4]; m_Georeferencer.Get_Extent(p);
 
-		CSG_Shapes	*pExtent	= Parameters("EXTENT")->asShapes();
+		CSG_Shapes *pExtent = Parameters("EXTENT")->asShapes();
 
 		pExtent->Create(SHAPE_TYPE_Polygon, _TL("Extent"));
 		pExtent->Add_Field(_TL("OID"), SG_DATATYPE_Int);
 
-		CSG_Shape	&Extent	= *pExtent->Add_Shape();
+		CSG_Shape &Extent = *pExtent->Add_Shape();
 
 		Extent.Add_Point(p[0]);
 		Extent.Add_Point(p[1]);
@@ -409,8 +409,8 @@ bool CDirect_Georeferencing::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pInput		= Parameters("INPUT" )->asGridList();
-	CSG_Parameter_Grid_List	*pOutput	= Parameters("OUTPUT")->asGridList();
+	CSG_Parameter_Grid_List	*pInput  = Parameters("INPUT" )->asGridList();
+	CSG_Parameter_Grid_List	*pOutput = Parameters("OUTPUT")->asGridList();
 
 	pOutput->Del_Items();
 
@@ -433,7 +433,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 		default:	{
 			CSG_Grid *pGrid = (CSG_Grid  *)_pInput;
 
-			if( !(_pOutput = SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type())) )
+			if( !(_pOutput = SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pGrid->Get_Type())) )
 			{
 				Error_Set(_TL("failed to allocate memory"));
 
@@ -444,7 +444,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 		case SG_DATAOBJECT_TYPE_Grids:	{
 			CSG_Grids *pGrids = (CSG_Grids *)_pInput;
 
-			if( !(_pOutput = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type(), true)) )
+			if( !(_pOutput = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Type != SG_DATATYPE_Undefined ? Type : pGrids->Get_Type(), true)) )
 			{
 				Error_Set(_TL("failed to allocate memory"));
 
@@ -474,23 +474,23 @@ bool CDirect_Georeferencing::On_Execute(void)
 	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
-	bool	bFlip	= Parameters("ROW_ORDER")->asInt() == 1;
+	bool bFlip = Parameters("ROW_ORDER")->asInt() == 1;
 
 	//-----------------------------------------------------
 	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 	{
-		double	py	= System.Get_YMin() + y * System.Get_Cellsize();
+		double py = System.Get_YMin() + y * System.Get_Cellsize();
 
 		#pragma omp parallel for
 		for(int x=0; x<System.Get_NX(); x++)
 		{
-			double	pz, px	= System.Get_XMin() + x * System.Get_Cellsize();
+			double pz, px = System.Get_XMin() + x * System.Get_Cellsize();
 
-			TSG_Point	p	= m_Georeferencer.World_to_Image(px, py);
+			TSG_Point p = m_Georeferencer.World_to_Image(px, py);
 
 			if( bFlip )
 			{
-				p.y	= (Get_NY() - 1) - p.y;
+				p.y = (Get_NY() - 1) - p.y;
 			}
 
 			for(int i=0; i<pOutput->Get_Grid_Count(); i++)
