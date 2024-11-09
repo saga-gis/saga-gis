@@ -180,6 +180,30 @@ private:
 	std::vector<Flag_Info> 	Get_Flags_Selection 	(CSG_Parameter *pParameter , int Sensor );
 };
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CLandsat_Angle_Import : public CSG_Tool_Grid
+{
+public:
+	CLandsat_Angle_Import(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+};
 
 ///////////////////////////////////////////////////////////
 //														 //

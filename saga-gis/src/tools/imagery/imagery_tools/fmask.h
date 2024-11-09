@@ -69,8 +69,13 @@
 ///////////////////////////////////////////////////////////
 typedef enum SpectralBand
 {
-	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, TIR, QARAD_G, QARAD_R
+	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, CIR, QARAD_G, QARAD_R, SAA, SZA, VAA, VZA, TIR
 } SpectralBand;
+
+typedef enum Algorithm
+{
+	FMASK_1_6 = 0, FMASK_3_2
+} Algorithm;
 
 //---------------------------------------------------------
 class CFmask : public CSG_Tool
@@ -92,10 +97,11 @@ protected:
 private:
 
 	bool						m_bCelsius { false };
+	int 						m_Algorithm;
+	int 						m_Sensor;
 
-	CSG_Grid					*m_pBand[10];
-	
-	CSG_Grid					*m_pResults[8];
+	CSG_Grid					*m_pBand[14];
+	CSG_Grid					*m_pResults[9];
 
 	CSG_Grid_System 			m_pSystem;
 
@@ -103,8 +109,10 @@ private:
 	bool						Get_Brightness			(int x, int y, int Band, double &Value);
 	double 						Get_Brightness			(int x, int y, int Band, bool &Eval );
 	bool 						Is_Saturated			(int x, int y, SpectralBand Band);
+	bool 						Initialize				(void);
 
 	bool 						Get_Flood_Fill			(double Boundary);
+	bool 						Get_Flood_Fill			(double Boundary, int Band_Input, int Band_Output );
 
 	bool 						Get_Sun_Position		(CSG_Grid *pGrid, double &Azimuth, double &Height);
 
@@ -114,7 +122,10 @@ private:
 
 //	bool						Set_ACCA				(CSG_Grid *pClouds);
 
+	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, double T_Low, double T_High);
+
 };
+
 
 
 ///////////////////////////////////////////////////////////

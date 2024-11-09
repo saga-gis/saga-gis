@@ -1962,3 +1962,96 @@ bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CLandsat_Angle_Import::CLandsat_Angle_Import(void)
+{
+	Set_Name		(_TL("Import Landsat Angle Bands"));
+
+	Set_Author		("J.Spitzmueller (c) 2024");
+
+	Set_Version 	("0.9");
+
+	Set_Description	(_TW(
+		"This tool decodes Landsat Multispectral Scanner System (MSS), Thematic Mapper (TM), "
+		"Enhanced Thematic Mapper Plus (ETM+), and Operational Land Imager/Thermal Infrared Sensor (OLI/TIRS) "
+		"Quality Assessment (QA) bands. It splits these QA bands into individual bands and optionally aggregates "
+		"them into a Grid Collection. It is also possible to select individual flags for output. \n\n"
+
+		"Currently, the tool supports Pixel, Radiometric Saturation and Surface Reflectance Aerosol (only OLI/TIRS) Quality Assessment bands from Collection 2 (Level 1 and 2). "
+		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
+		"for classified displaying in the GUI."
+	));
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-1-5-mss-collection-2-level-1-data-format-control-book",
+		SG_T("Landsat 1-5 MSS Collection 2 Level 1 Data Format Control Book V3")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-4-7-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 4-7 Collection 2 Level 2 Science Product Guide V4")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-8-9-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 8-9 Collection 2 Level 2 Science Product Guide V6")
+	);
+
+	//-----------------------------------------------------
+
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Files"),
+		_TL(""),
+		CSG_String::Format("%s|*.tif;*.TIF|%s|*.*",
+			_TL("Recognized Files"),
+			_TL("All Files")
+		), NULL, false, false, true 
+	);
+
+	Parameters.Add_Grid_List("", "BANDS",_TL("Angle Band(s)"), _TL("\"SAA\", \"SZA\", \"VAA\", or \"VZA\"-Suffix"), PARAMETER_INPUT_OPTIONAL );
+	
+	Parameters.Add_Choice("", 
+		"CHOICE", _TL("Option"), _TL(""), 
+		CSG_String::Format("%s|%s|",
+			_TL("Import and Scale"),
+			_TL("Just Scale")
+		)
+	);
+	
+	Parameters.Add_Bool("", "GRIDS", 		_TL("Output as Grid Collection"), 	_TL(""), false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLandsat_Angle_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("GRIDS", pParameters->Get_Parameter("CHOICE")->asInt() == 0 );
+	pParameters->Set_Enabled("FILES", pParameters->Get_Parameter("CHOICE")->asInt() == 0 );
+	pParameters->Set_Enabled("BANDS", pParameters->Get_Parameter("CHOICE")->asInt() == 1 );
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_Angle_Import::On_Execute(void)
+{
+	CSG_Strings Files;
+	if( Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
+	{
+		for(int i=0; i<Files.Get_Size(); i++)
+		{
+		}
+	}
+
+	CSG_Parameter_Grid_List *pGridList = Parameters("BANDS")->asGridList();
+
+	for( int i=0; i<pGridList->Get_Item_Count(); i++ )
+	{
+		pGridList->Get_Grid(i)->Set_Scaling(0.01);
+	}
+
+	return( true );
+}

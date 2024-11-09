@@ -131,6 +131,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 10: return( new CLandsat_Import );
 	case 14: return( new CLandsat_Scene_Import );
 	case 23: return( new CLandsat_QA_Import );
+	case 25: return( new CLandsat_Angle_Import );
 
 	case 11: return( new CTextural_Features );
 	case 12: return( new CLocal_Statistical_Measures );
@@ -151,7 +152,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 22: return( new CSPOT_Scene_Import );
 
 	//-----------------------------------------------------
-	case 25: return( NULL );
+	case 26: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
