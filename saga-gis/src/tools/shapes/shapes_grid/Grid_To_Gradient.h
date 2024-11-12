@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Grid_To_Gradient_H
+#define HEADER_INCLUDED__Grid_To_Gradient_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,12 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Grid_To_Gradient_H
-#define HEADER_INCLUDED__Grid_To_Gradient_H
-
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -87,12 +81,10 @@ protected:
 
 	virtual bool			On_Execute		(void);
 
-	bool					Initialize		(void);
-
 
 private:
 
-	int						m_Method, m_Style;
+	int						m_Method = 0, m_Style = 0;
 
 
 	void					Set_Vector		(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy);

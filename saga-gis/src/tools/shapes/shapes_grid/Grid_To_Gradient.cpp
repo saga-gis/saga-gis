@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_To_Gradient.h"
 
 
@@ -74,7 +62,7 @@ CGrid_To_Gradient::CGrid_To_Gradient(int Method)
 {
 	m_Method	= Method;
 
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	//-----------------------------------------------------
 	switch( m_Method )
@@ -185,21 +173,16 @@ CGrid_To_Gradient::CGrid_To_Gradient(int Method)
 //---------------------------------------------------------
 bool CGrid_To_Gradient::On_Execute(void)
 {
-	int						x, y, Step;
-	double					sMin, sRange, ex, ey, d;
-	TSG_Point				p;
-	TSG_Grid_Resampling	Interpolation;
-	CSG_Grid_System			System;
-	CSG_Grid				EX, EY, D;
-	CSG_Shapes				*pVectors;
+	CSG_Shapes *pVectors = Parameters("VECTORS")->asShapes();
 
-	//-----------------------------------------------------
-	pVectors		= Parameters("VECTORS")->asShapes();
-	Step			= Parameters("STEP"   )->asInt();
-	m_Style			= Parameters("STYLE"  )->asInt();
-	sMin			= Parameters("SIZE"   )->asRange()->Get_Min() * Step * Get_Cellsize() / 100.0;
-	sRange			= Parameters("SIZE"   )->asRange()->Get_Max() * Step * Get_Cellsize() / 100.0 - sMin;
-	Interpolation	= Parameters("AGGR"   )->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
+	m_Style = Parameters("STYLE")->asInt();
+
+	int Step = Parameters("STEP")->asInt();
+
+	double sMin   = Parameters("SIZE.MIN")->asDouble() * Step * Get_Cellsize() / 100.;
+	double sRange = Parameters("SIZE.MAX")->asDouble() * Step * Get_Cellsize() / 100. - sMin;
+
+	TSG_Grid_Resampling Interpolation = Parameters("AGGR")->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
 
 	//-----------------------------------------------------
 	if( Step > Get_NX() || Step > Get_NY() )
@@ -210,31 +193,31 @@ bool CGrid_To_Gradient::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-//	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_NX() / Step, Get_NY() / Step);
-	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_XMax(), Get_YMax());
+//	CSG_Grid_System System(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_NX() / Step, Get_NY() / Step);
+	CSG_Grid_System System(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_XMax(), Get_YMax());
 
-	EX.Create(System);
-	EY.Create(System);
-	D .Create(System);
-	D .Assign_NoData();
+	CSG_Grid EX(System), EY(System), D(System); D.Assign_NoData();
 
 	switch( m_Method )
 	{
 	//-----------------------------------------------------
 	case 0:	// surface
 		{
-			CSG_Grid	Surface(System), *pSurface	= Parameters("SURFACE")->asGrid();	Surface.Assign(pSurface, Interpolation);
+			CSG_Grid Surface(System), *pSurface = Parameters("SURFACE")->asGrid(); Surface.Assign(pSurface, Interpolation);
 			
-			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pSurface->Get_Name(), _TL("Gradient")));
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", pSurface->Get_Name(), _TL("Gradient")));
 
-			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				for(x=0; x<System.Get_NX(); x++)
+				#pragma omp parallel for
+				for(int x=0; x<System.Get_NX(); x++)
 				{
-					if( Surface.Get_Gradient(x, y, d, ey) )
+					double d, e;
+
+					if( Surface.Get_Gradient(x, y, d, e) )
 					{
-						EX.Set_Value(x, y, sin(ey));
-						EY.Set_Value(x, y, cos(ey));
+						EX.Set_Value(x, y, sin(e));
+						EY.Set_Value(x, y, cos(e));
 						D .Set_Value(x, y, tan(d));
 					}
 				}
@@ -245,12 +228,13 @@ bool CGrid_To_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	// direction and length
 		{
-			CSG_Grid	*pDir	= Parameters("DIR")->asGrid(), _X(Get_System());
-			CSG_Grid	*pLen	= Parameters("LEN")->asGrid(), _Y(Get_System());
+			CSG_Grid *pDir = Parameters("DIR")->asGrid(), _X(Get_System());
+			CSG_Grid *pLen = Parameters("LEN")->asGrid(), _Y(Get_System());
 
-			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
+			for(int y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
 			{
-				for(x=0; x<Get_NX(); x++)
+				#pragma omp parallel for
+				for(int x=0; x<Get_NX(); x++)
 				{
 					if( !pDir->is_NoData(x, y) && !pLen->is_NoData(x, y) )
 					{
@@ -265,15 +249,18 @@ bool CGrid_To_Gradient::On_Execute(void)
 				}
 			}
 
-			CSG_Grid	X(System);	X.Assign(&_X, Interpolation);
-			CSG_Grid	Y(System);	Y.Assign(&_Y, Interpolation);
+			CSG_Grid X(System); X.Assign(&_X, Interpolation);
+			CSG_Grid Y(System); Y.Assign(&_Y, Interpolation);
 
 			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s|%s]", _TL("Gradient"), pDir->Get_Name(), pLen->Get_Name()));
 
-			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				for(x=0; x<System.Get_NX(); x++)
+				#pragma omp parallel for
+				for(int x=0; x<System.Get_NX(); x++)
 				{
+					double d;
+
 					if( !X.is_NoData(x, y) && !Y.is_NoData(x, y) && (d = SG_Get_Length(X.asDouble(x, y), Y.asDouble(x, y))) > 0.0 )
 					{
 						EX.Set_Value(x, y, X.asDouble(x, y) / d);
@@ -288,16 +275,19 @@ bool CGrid_To_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	case 2:	// directional components
 		{
-			CSG_Grid	X(System), *pX	= Parameters("X")->asGrid();	X.Assign(pX, Interpolation);
-			CSG_Grid	Y(System), *pY	= Parameters("Y")->asGrid();	Y.Assign(pY, Interpolation);
+			CSG_Grid X(System), *pX = Parameters("X")->asGrid(); X.Assign(pX, Interpolation);
+			CSG_Grid Y(System), *pY = Parameters("Y")->asGrid(); Y.Assign(pY, Interpolation);
 
-			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pX->Get_Name(), pY->Get_Name()));
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s|%s]", _TL("Gradient"), pX->Get_Name(), pY->Get_Name()));
 
-			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{
-				for(x=0; x<System.Get_NX(); x++)
+				#pragma omp parallel for
+				for(int x=0; x<System.Get_NX(); x++)
 				{
-					if( !X.is_NoData(x, y) && !Y.is_NoData(x, y) && (d = SG_Get_Length(X.asDouble(x, y), Y.asDouble(x, y))) > 0.0 )
+					double d;
+
+					if( !X.is_NoData(x, y) && !Y.is_NoData(x, y) && (d = SG_Get_Length(X.asDouble(x, y), Y.asDouble(x, y))) > 0. )
 					{
 						EX.Set_Value(x, y, X.asDouble(x, y) / d);
 						EY.Set_Value(x, y, Y.asDouble(x, y) / d);
@@ -310,35 +300,39 @@ bool CGrid_To_Gradient::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pVectors->Add_Field("EX"	, SG_DATATYPE_Double);
-	pVectors->Add_Field("EY"	, SG_DATATYPE_Double);
-	pVectors->Add_Field("LEN"	, SG_DATATYPE_Double);
-	pVectors->Add_Field("DIR"	, SG_DATATYPE_Double);
+	pVectors->Add_Field("EX" , SG_DATATYPE_Double);
+	pVectors->Add_Field("EY" , SG_DATATYPE_Double);
+	pVectors->Add_Field("LEN", SG_DATATYPE_Double);
+	pVectors->Add_Field("DIR", SG_DATATYPE_Double);
 
-	if( D.Get_Range() > 0.0 )
+	if( D.Get_Range() > 0. )
 	{
-		sRange	= sRange / D.Get_Range();
+		sRange = sRange / D.Get_Range();
 	}
 
 	//-----------------------------------------------------
-	for(y=0, p.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, p.y+=System.Get_Cellsize())
+	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 	{
-		for(x=0, p.x=System.Get_XMin(); x<System.Get_NX(); x++, p.x+=System.Get_Cellsize())
+		double py = System.Get_YMin() + y * System.Get_Cellsize();
+
+		for(int x=0; x<System.Get_NX(); x++)
 		{
+			CSG_Point p(System.Get_XMin() + x * System.Get_Cellsize(), py);
+
 			if( !D.is_NoData(x, y) )
 			{
-				CSG_Shape	*pVector	= pVectors->Add_Shape();
+				CSG_Shape *pVector = pVectors->Add_Shape();
 
-				ex	= EX.asDouble(x, y);
-				ey	= EY.asDouble(x, y);
-				d	= D .asDouble(x, y);
+				double ex = EX.asDouble(x, y);
+				double ey = EY.asDouble(x, y);
+				double d  = D .asDouble(x, y);
 
 				pVector->Set_Value(0, ex);
 				pVector->Set_Value(1, ey);
-				pVector->Set_Value(2, d);
+				pVector->Set_Value(2,  d);
 				pVector->Set_Value(3, atan2(ex, ey) * M_RAD_TO_DEG);
 
-				if( (d = sMin + sRange * (d - D.Get_Min())) > 0.0 )
+				if( (d = sMin + sRange * (d - D.Get_Min())) > 0. )
 				{
 					Set_Vector(pVector, p, d * ex, d * ey);
 				}
@@ -356,11 +350,10 @@ bool CGrid_To_Gradient::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ADD_TO_VECTOR(I, X, Y)	(pVector->Add_Point(Point.x + ((X) * dy + (Y) * dx), Point.y + ((Y) * dy - (X) * dx), I))
-
-//---------------------------------------------------------
 inline void CGrid_To_Gradient::Set_Vector(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy)
 {
+	#define ADD_TO_VECTOR(I, X, Y)	(pVector->Add_Point(Point.x + ((X) * dy + (Y) * dx), Point.y + ((Y) * dy - (X) * dx), I))
+
 	switch( m_Style )
 	{
 	case 0:
