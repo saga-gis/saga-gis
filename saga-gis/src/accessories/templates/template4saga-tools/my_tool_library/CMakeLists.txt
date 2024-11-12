@@ -52,8 +52,8 @@ add_library(${PROJECT_NAME} SHARED ${header_list} ${source_list})
 
 #________________________________________
 # add saga_core to include directories
-find_path   (SAGA_API_INCLUDE NAMES saga_api/saga_api.h      PATHS "$ENV{SAGA}/src/saga_core")
-find_library(SAGA_API_LIBRARY NAMES saga_api.lib libsaga_api PATHS "$ENV{SAGA}/bin/saga_x64")
+find_path   (SAGA_API_INCLUDE NAMES saga_api/saga_api.h         PATHS "$ENV{SAGA}/include" "/usr/include/saga" "/usr/local/include/saga")
+find_library(SAGA_API_LIBRARY NAMES saga_api.lib libsaga_api.so PATHS "$ENV{SAGA}" "/usr/lib" "/usr/local/lib")
 mark_as_advanced(SAGA_API_INCLUDE SAGA_API_LIBRARY)
 
 #_CRT_SECURE_NO_WARNINGS
