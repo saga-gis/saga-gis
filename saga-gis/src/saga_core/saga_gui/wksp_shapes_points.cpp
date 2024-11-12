@@ -70,11 +70,13 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_fValue >= 0 && pShape->is_NoData(m_fValue)) )
+	if( (m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field)) || (m_fValue >= 0 && pShape->is_NoData(m_fValue)) )
+	{
 		return;
+	}
 
 	//-----------------------------------------------------
-	int		Size;
+	int Size;
 
 	if( CWKSP_Shapes_Point::Draw_Initialize(dc_Map, Size, pShape, Selection) )
 	{
@@ -82,7 +84,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int 
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				TSG_Point_Int	p	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+				TSG_Point_Int p = dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
 				Draw_Symbol(dc_Map, p.x, p.y, Size);
 			}
@@ -99,7 +101,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int 
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
+	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
 	dc_Map.DrawText(TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 }

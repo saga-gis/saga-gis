@@ -69,8 +69,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SYMBOL_TYPE_Image		13
-#define SYMBOL_TYPE_Beachball	14
+#define SYMBOL_TYPE_Image     13
+#define SYMBOL_TYPE_Arrow     14
+#define SYMBOL_TYPE_Beachball 15
 
 
 ///////////////////////////////////////////////////////////
@@ -139,6 +140,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 			_TL("circle in triangle (up)"),
 			_TL("circle in triangle (down)"),
 			_TL("image"),
+			_TL("arrow"),
 			_TL("beachball plot")
 		), 0
 	);
@@ -168,9 +170,16 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		)
 	);
 
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE", _TL("Strike"), _TL(""), _TL("<default>"));
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"   , _TL("Dip"   ), _TL(""), _TL("<default>"));
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"  , _TL("Rake"  ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "ARROW_DIRECTION"  , _TL("Direction"  ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Int   ("ARROW_DIRECTION"    , "ARROW_OFFSET"     , _TL("Offset"     ), _TL(""), 0.);
+	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_ORIENTATION", _TL("Orientation"), _TL(""), CSG_String::Format("%s|%s", _TL("clockwise"), _TL("counterclockwise")));
+	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_UNIT"       , _TL("Unit"       ), _TL(""), CSG_String::Format("%s|%s", _TL("degree"), _TL("radians")));
+	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_STYLE"      , _TL("Style"      ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("simple"), _TL("center"), _TL("circle")));
+	m_Parameters.Add_Int   ("ARROW_DIRECTION"    , "ARROW_WIDTH"      , _TL("Line Width" ), _TL(""), 2, 1, true);
+
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE" , _TL("Strike"     ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"    , _TL("Dip"        ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"   , _TL("Rake"       ), _TL(""), _TL("<default>"));
 
 
 	//-----------------------------------------------------
@@ -289,7 +298,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		"SIZE_SCALE"		, _TL("Attribute Values"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
-			_TL("no scaling"),
+			_TL("take as size"),
 			_TL("scale to size range")
 		), 1
 	);
@@ -297,13 +306,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Range("SIZE_ATTRIB",
 		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
-		2, 10, 0, true
+		2., 10., 0., true
 	);
 
 	m_Parameters.Add_Double("SIZE_ATTRIB",
 		"SIZE_DEFAULT"		, _TL("Default Size"),
 		_TL(""),
-		5, 0, true
+		5., 0., true
 	);
 
 
@@ -326,11 +335,12 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	AttributeList_Set(m_Parameters("IMAGE_FIELD"       ),  true);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
+	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
+	AttributeList_Set(m_Parameters("ARROW_DIRECTION"   ), false);
 	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"  ), false);
 	AttributeList_Set(m_Parameters("BEACHBALL_DIP"     ), false);
 	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"    ), false);
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
-	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
 
 	CWKSP_Shapes::On_DataObject_Changed();
 }
@@ -340,89 +350,108 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 {
 	CWKSP_Shapes::On_Parameters_Changed();
 
-	//-----------------------------------------------------
-	m_Symbol_Type	= m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
+	m_Symbol.Type = m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
 
-	if( m_Symbol_Type == SYMBOL_TYPE_Image )
+	switch( m_Symbol.Type )
 	{
-		if( !SG_File_Exists   (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
-		||	!m_Symbol.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Image:
+		if( !SG_File_Exists         (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
+		||	!m_Symbol.Image.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
 		{
-			m_Symbol	= IMG_Get_Bitmap(ID_IMG_DEFAULT).ConvertToImage();
+			m_Symbol.Image = IMG_Get_Bitmap(ID_IMG_DEFAULT).ConvertToImage();
 		}
-	}
+		else
+		{
+			m_Symbol_Image.Destroy();
+		}
+		break;
 
-	if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
-	{
-		m_Beachball[0]	= m_Parameters("BEACHBALL_STRIKE")->asInt();
-		m_Beachball[1]	= m_Parameters("BEACHBALL_DIP"   )->asInt();
-		m_Beachball[2]	= m_Parameters("BEACHBALL_RAKE"  )->asInt();
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Arrow:
+		m_Arrow.Field       = m_Parameters("ARROW_DIRECTION"  )->asInt   ();
+		m_Arrow.Offset      = m_Parameters("ARROW_OFFSET"     )->asDouble();
+		m_Arrow.Orientation = m_Parameters("ARROW_ORIENTATION")->asInt   ();
+		m_Arrow.Unit        = m_Parameters("ARROW_UNIT"       )->asInt   ();
+		m_Arrow.Style       = m_Parameters("ARROW_STYLE"      )->asInt   ();
+		m_Arrow.Width       = m_Parameters("ARROW_WIDTH"      )->asInt   ();
+		break;
+
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Beachball:
+		m_Beachball.Strike  = m_Parameters("BEACHBALL_STRIKE" )->asInt   ();
+		m_Beachball.Dip     = m_Parameters("BEACHBALL_DIP"    )->asInt   ();
+		m_Beachball.Rake    = m_Parameters("BEACHBALL_RAKE"   )->asInt   ();
+		break;
 	}
 
 	//-----------------------------------------------------
-	m_Image_Field	= m_Parameters("IMAGE_FIELD"  )->asInt();
+	m_Image.Field = m_Parameters("IMAGE_FIELD" )->asInt();
 
-	if( m_Image_Field >= Get_Shapes()->Get_Field_Count() )
+	if( m_Image.Field >= Get_Shapes()->Get_Field_Count() )
 	{
-		m_Image_Field	= -1;
-	}
-
-	switch( m_Parameters("IMAGE_ALIGN_X")->asInt() )
-	{
-	default: m_Image_Align  = TEXTALIGN_LEFT   ; break;
-	case  1: m_Image_Align  = TEXTALIGN_XCENTER; break;
-	case  2: m_Image_Align  = TEXTALIGN_RIGHT  ; break;
-	}
-
-	switch( m_Parameters("IMAGE_ALIGN_Y")->asInt() )
-	{
-	default: m_Image_Align |= TEXTALIGN_TOP    ; break;
-	case  1: m_Image_Align |= TEXTALIGN_YCENTER; break;
-	case  2: m_Image_Align |= TEXTALIGN_BOTTOM ; break;
-	}
-
-	m_Image_Offset	= m_Parameters("IMAGE_OFFSET")->asDouble();
-	m_Image_Scale	= m_Parameters("IMAGE_SCALE" )->asDouble();
-	m_Image_Fit		= m_Parameters("IMAGE_FIT"   )->asInt();
-
-	//-----------------------------------------------------
-	m_Size_Type		= m_Parameters("SIZE_TYPE" )->asInt();
-	m_Size_Scale	= m_Parameters("SIZE_SCALE")->asInt();
-
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count()
-	||	(m_dSize	= Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0.0 )
-	{
-		m_iSize		= -1;
-		m_Size		= m_Parameters("SIZE_DEFAULT")->asDouble();
-		m_dSize		= 0.0;
-		m_Size_Min	= 0.0;
+		m_Image.Field = -1;
 	}
 	else
 	{
-		m_Size		=  m_Parameters("SIZE_RANGE")->asRange()->Get_Min();
-		m_dSize		= (m_Parameters("SIZE_RANGE")->asRange()->Get_Max() - m_Size) / m_dSize;
+		m_Image.Offset = m_Parameters("IMAGE_OFFSET")->asDouble();
+		m_Image.Scale  = m_Parameters("IMAGE_SCALE" )->asDouble();
+		m_Image.Fit    = m_Parameters("IMAGE_FIT"   )->asInt();
+
+		switch( m_Parameters("IMAGE_ALIGN_X")->asInt() )
+		{
+		default: m_Image.Align  = TEXTALIGN_LEFT   ; break;
+		case  1: m_Image.Align  = TEXTALIGN_XCENTER; break;
+		case  2: m_Image.Align  = TEXTALIGN_RIGHT  ; break;
+		}
+
+		switch( m_Parameters("IMAGE_ALIGN_Y")->asInt() )
+		{
+		default: m_Image.Align |= TEXTALIGN_TOP    ; break;
+		case  1: m_Image.Align |= TEXTALIGN_YCENTER; break;
+		case  2: m_Image.Align |= TEXTALIGN_BOTTOM ; break;
+		}
+	}
+
+	//-----------------------------------------------------
+	m_Size.Unit   = m_Parameters("SIZE_TYPE" )->asInt(); // screen pixels, map units
+	m_Size.Adjust = m_Parameters("SIZE_SCALE")->asInt(); // adjust to size range
+
+	if( (m_Size.Field = m_Parameters("SIZE_ATTRIB")->asInt()) < Get_Shapes()->Get_Field_Count()
+	&&  (m_Size.Scale = Get_Shapes()->Get_Maximum(m_Size.Field) - Get_Shapes()->Get_Minimum(m_Size.Field)) > 0. )
+	{
+		m_Size.Offset  =  m_Parameters("SIZE_RANGE.MIN")->asDouble();
+		m_Size.Scale   = (m_Parameters("SIZE_RANGE.MAX")->asDouble() - m_Size.Offset) / m_Size.Scale;
+		m_Size.Minimum = Get_Shapes()->Get_Minimum(m_Size.Field);
+	}
+	else
+	{
+		m_Size.Field   = -1;
+		m_Size.Offset  = m_Parameters("SIZE_DEFAULT")->asDouble();
+		m_Size.Scale   = 0.;
+		m_Size.Minimum = 0.;
 	}
 
 	//-----------------------------------------------------
 	switch( m_Parameters("LABEL_ALIGN_X")->asInt() )
 	{
-	default: m_Label_Align  = TEXTALIGN_LEFT   ; break;
-	case  1: m_Label_Align  = TEXTALIGN_XCENTER; break;
-	case  2: m_Label_Align  = TEXTALIGN_RIGHT  ; break;
+	default: m_Label.Align  = TEXTALIGN_LEFT   ; break;
+	case  1: m_Label.Align  = TEXTALIGN_XCENTER; break;
+	case  2: m_Label.Align  = TEXTALIGN_RIGHT  ; break;
 	}
 
 	switch( m_Parameters("LABEL_ALIGN_Y")->asInt() )
 	{
-	default: m_Label_Align |= TEXTALIGN_TOP    ; break;
-	case  1: m_Label_Align |= TEXTALIGN_YCENTER; break;
-	case  2: m_Label_Align |= TEXTALIGN_BOTTOM ; break;
+	default: m_Label.Align |= TEXTALIGN_TOP    ; break;
+	case  1: m_Label.Align |= TEXTALIGN_YCENTER; break;
+	case  2: m_Label.Align |= TEXTALIGN_BOTTOM ; break;
 	}
 
-	m_Label_Angle	= m_Parameters("LABEL_ANGLE" )->asDouble();
+	m_Label.Angle = m_Parameters("LABEL_ANGLE")->asDouble();
 
-	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
+	if( (m_Label.Angle_Field = m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
 	{
-		m_iLabel_Angle	= -1;
+		m_Label.Angle_Field = -1;
 	}
 
 	//-----------------------------------------------------
@@ -462,9 +491,10 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	{
 		if(	pParameter->Cmp_Identifier("DISPLAY_SYMBOL_TYPE") )
 		{
-			int		Value	= pParameter->asInt();
+			int Value = pParameter->asInt();
 
 			pParameters->Set_Enabled("DISPLAY_SYMBOL_IMAGE", Value == SYMBOL_TYPE_Image    );
+			pParameters->Set_Enabled("ARROW_DIRECTION"     , Value == SYMBOL_TYPE_Arrow    );
 			pParameters->Set_Enabled("BEACHBALL_STRIKE"    , Value == SYMBOL_TYPE_Beachball);
 			pParameters->Set_Enabled("BEACHBALL_DIP"       , Value == SYMBOL_TYPE_Beachball);
 			pParameters->Set_Enabled("BEACHBALL_RAKE"      , Value == SYMBOL_TYPE_Beachball);
@@ -472,7 +502,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB") )
 		{
-			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
+			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
 			pParameters->Set_Enabled("LABEL_ANGLE_ATTRIB"  , Value);
 			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
@@ -482,18 +512,23 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
 		{
-			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
+			bool Value = pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
 
 			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
 		}
 
 		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
 		{
-			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
+			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
 			pParameters->Set_Enabled("SIZE_SCALE"          , Value ==  true);
 			pParameters->Set_Enabled("SIZE_RANGE"          , Value ==  true);
 			pParameters->Set_Enabled("SIZE_DEFAULT"        , Value == false);
+		}
+
+		if( pParameter->Cmp_Identifier("SIZT_SCALE") )
+		{
+			pParameters->Set_Enabled("SIZE_RANGE", pParameter->asInt() == 1);
 		}
 
 		if(	pParameter->Cmp_Identifier("IMAGE_FIELD") )
@@ -511,18 +546,18 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName)
+bool CWKSP_Shapes_Point::Get_Style_Size(int &minSize, int &maxSize, double &Minimum, double &Scale, wxString *pName)
 {
-	if( m_iSize >= 0 )
+	if( m_Size.Field >= 0 )
 	{
-		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + (Get_Shapes()->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize);
-		min_Value	= m_Size_Min;
-		dValue		= m_dSize;
+		minSize = (int)(m_Size.Offset);
+		maxSize = (int)(m_Size.Offset + m_Size.Scale * (Get_Shapes()->Get_Maximum(m_Size.Field) - m_Size.Minimum));
+		Minimum = m_Size.Minimum;
+		Scale   = m_Size.Scale;
 
 		if( pName )
 		{
-			pName->Printf(Get_Shapes()->Get_Field_Name(m_iSize));
+			pName->Printf(Get_Shapes()->Get_Field_Name(m_Size.Field));
 		}
 
 		return( true );
@@ -542,16 +577,16 @@ inline void CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 	dc_Map.SetBrush(m_Brush);
 	dc_Map.SetPen  (m_Pen  );
 
-	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
+	m_Sel_Color_Fill = Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
 
-	m_Symbol_Type	= m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
+	m_Symbol.Type = m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
 
 	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) != 0 )
 	{
-		if( m_Symbol_Type == SYMBOL_TYPE_Image
-		||  m_Symbol_Type == SYMBOL_TYPE_Beachball )
+		if( m_Symbol.Type == SYMBOL_TYPE_Image
+		||  m_Symbol.Type == SYMBOL_TYPE_Beachball )
 		{
-			m_Symbol_Type	= 0;
+			m_Symbol.Type = 0;
 		}
 	}
 }
@@ -559,10 +594,9 @@ inline void CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 //---------------------------------------------------------
 inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
 {
-	//-----------------------------------------------------
 	if( m_Brush.IsTransparent() && !m_bOutline && !Selection )
 	{
-		return( false );	// nothing to draw !
+		return( false ); // nothing to draw !
 	}
 
 	//-----------------------------------------------------
@@ -573,141 +607,165 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, C
 	}
 	else
 	{
-		int		Color;
+		int Color;
 
 		if( !Get_Class_Color(pShape, Color) && !m_bNoData )
 		{
 			return( false );
 		}
 
-		if( !m_Brush.IsTransparent() )
+		if( m_Symbol.Type == SYMBOL_TYPE_Arrow && m_Arrow.Style != 2 )
 		{
-			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.SetBrush(Brush);
-		}
+			if( !m_Brush.IsTransparent() )
+			{
+				wxBrush Brush(m_Brush); Brush.SetColour(Get_Color_asWX(Color)); dc_Map.SetBrush(Brush);
+			}
 
-		if( !m_bOutline )
+			wxPen Pen(Get_Color_asWX(Color), 2); dc_Map.SetPen(Pen);
+		}
+		else
 		{
-			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.SetPen(Pen);
+			if( !m_Brush.IsTransparent() )
+			{
+				wxBrush Brush(m_Brush); Brush.SetColour(Get_Color_asWX(Color)); dc_Map.SetBrush(Brush);
+			}
+
+			if( !m_bOutline )
+			{
+				wxPen   Pen  (m_Pen  ); Pen  .SetColour(Get_Color_asWX(Color)); dc_Map.SetPen  (Pen  );
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Label_Offset	= m_Parameters("LABEL_OFFSET")->asDouble();
+	m_Label.Offset = m_Parameters("LABEL_OFFSET")->asDouble();
 
-	if( m_Label_Offset > 0. )
+	if( m_Label.Offset > 0. )
 	{
 		switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
 		{
-		default: m_Label_Offset *= dc_Map.Scale()   ; break;
-		case  1: m_Label_Offset *= dc_Map.World2DC(); break;
+		default: m_Label.Offset *= dc_Map.Scale   (); break;
+		case  1: m_Label.Offset *= dc_Map.World2DC(); break;
 		}
 	}
 
 	//-----------------------------------------------------
-	double	dSize	= m_iSize < 0 ? m_Size : pShape->asDouble(m_iSize);
+	double _Size = m_Size.Field < 0 ? m_Size.Offset : pShape->asDouble(m_Size.Field);
 
-	if( m_Size_Scale != 0 )	// scale to size range
+	if( m_Size.Adjust ) // adjust to size range
 	{
-		dSize	= (dSize - m_Size_Min) * m_dSize + m_Size;
+		_Size = m_Size.Offset + m_Size.Scale * (_Size - m_Size.Minimum);
 	}
 
-	switch( m_Size_Type )
+	switch( m_Size.Unit )
 	{
-	default: dSize *= dc_Map.Scale()   ; break;
-	case  1: dSize *= dc_Map.World2DC(); break;
+	default: _Size *= dc_Map.Scale   (); break;
+	case  1: _Size *= dc_Map.World2DC(); break;
 	}
 
-	return( (Size = (int)(0.5 + dSize)) > 0 );
+	return( (Size = (int)(0.5 + _Size)) > 0 );
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( m_iSize < 0 || !pShape->is_NoData(m_iSize) )
+	if( m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field) )
 	{
-		int		Size;
+		return;
+	}
 
-		if( Draw_Initialize(dc_Map, Size, pShape, Selection) )
+	//-----------------------------------------------------
+	int Size;
+
+	if( !Draw_Initialize(dc_Map, Size, pShape, Selection) )
+	{
+		return;
+	}
+
+	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Point()));
+
+	switch( m_Symbol.Type )
+	{
+	default:
+		Draw_Symbol(dc_Map, p.x, p.y, Size);
+		break;
+
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Image:
 		{
-			TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point()));
+			double d = (double)m_Symbol.Image.GetWidth() / (double)m_Symbol.Image.GetHeight();
 
-			//---------------------------------------------
-			if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
+			int sx = d >  1.0 ? Size : (int)(0.5 + Size * d);
+			int sy = d <= 1.0 ? Size : (int)(0.5 + Size / d);
+
+			if( sx > 0 && sy > 0 )
 			{
-				if( !pShape->is_NoData(m_Beachball[0])
-				&&  !pShape->is_NoData(m_Beachball[1])
-				&&  !pShape->is_NoData(m_Beachball[2])	)
+				wxRect r(p.x - sx, p.y - sy, 2 * sx, 2 * sy);
+
+				if( Selection )
 				{
-					_Beachball_Draw(dc_Map, p.x, p.y, Size,
-						pShape->asDouble(m_Beachball[0]),
-						pShape->asDouble(m_Beachball[1]),
-						pShape->asDouble(m_Beachball[2])
-					);
+					r.Inflate(1); dc_Map.DrawRectangle(r);
 				}
-			}
 
-			//---------------------------------------------
-			else if( m_Symbol_Type == SYMBOL_TYPE_Image )
-			{
-				double	d	= (double)m_Symbol.GetWidth() / (double)m_Symbol.GetHeight();
-
-				int	sx	= d >  1.0 ? Size : (int)(0.5 + Size * d);
-				int	sy	= d <= 1.0 ? Size : (int)(0.5 + Size / d);
-
-				if( sx > 0 && sy > 0 )
-				{
-					wxRect	r(p.x - sx, p.y - sy, 2 * sx, 2 * sy);
-
-					if( Selection )
-					{
-						r.Inflate(1);
-
-						dc_Map.DrawRectangle(r);
-					}
-
-					dc_Map.DrawBitmap(wxBitmap(m_Symbol.Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
-				}
-			}
-
-			//---------------------------------------------
-			else
-			{
-				Draw_Symbol(dc_Map, p.x, p.y, Size);
-			}
-
-			//---------------------------------------------
-			if( m_Image_Field >= 0 )
-			{
-				_Image_Draw(dc_Map, p.x, p.y, Size, pShape->asString(m_Image_Field));
-			}
-
-			//---------------------------------------------
-			if( Selection )
-			{
-				dc_Map.SetBrush(m_Brush);
-				dc_Map.SetPen  (m_Pen  );
+				dc_Map.DrawBitmap(wxBitmap(m_Symbol.Image.Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
 			}
 		}
+		break;
+
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Arrow:
+		if( !pShape->is_NoData(m_Arrow.Field) )
+		{
+			_Arrow_Draw(dc_Map, p.x, p.y, Size, pShape->asDouble(m_Arrow.Field));
+		}
+		break;
+
+	//-----------------------------------------------------
+	case SYMBOL_TYPE_Beachball:
+		if( !pShape->is_NoData(m_Beachball.Strike)
+		&&  !pShape->is_NoData(m_Beachball.Dip   )
+		&&  !pShape->is_NoData(m_Beachball.Rake  ) )
+		{
+			_Beachball_Draw(dc_Map, p.x, p.y, Size,
+				pShape->asDouble(m_Beachball.Strike),
+				pShape->asDouble(m_Beachball.Dip   ),
+				pShape->asDouble(m_Beachball.Rake  )
+			);
+		}
+		break;
+	}
+
+	//---------------------------------------------
+	if( m_Image.Field >= 0 )
+	{
+		_Image_Draw(dc_Map, p.x, p.y, Size, pShape->asString(m_Image.Field));
+	}
+
+	//---------------------------------------------
+	if( Selection )
+	{
+		dc_Map.SetBrush(m_Brush);
+		dc_Map.SetPen  (m_Pen  );
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point()));
+	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Point()));
 
-	if( m_Label_Offset > 0. )
+	if( m_Label.Offset > 0. )
 	{
-		if( (m_Label_Align  & TEXTALIGN_LEFT   ) != 0 ) p.x += m_Label_Offset; else
-		if( (m_Label_Align  & TEXTALIGN_RIGHT  ) != 0 ) p.x -= m_Label_Offset;
+		if( (m_Label.Align & TEXTALIGN_LEFT  ) != 0 ) p.x += m_Label.Offset; else
+		if( (m_Label.Align & TEXTALIGN_RIGHT ) != 0 ) p.x -= m_Label.Offset;
 
-		if( (m_Label_Align  & TEXTALIGN_TOP    ) != 0 ) p.y += m_Label_Offset; else
-		if( (m_Label_Align  & TEXTALIGN_BOTTOM ) != 0 ) p.y -= m_Label_Offset;
+		if( (m_Label.Align & TEXTALIGN_TOP   ) != 0 ) p.y += m_Label.Offset; else
+		if( (m_Label.Align & TEXTALIGN_BOTTOM) != 0 ) p.y -= m_Label.Offset;
 	}
 
-	double	Angle	= m_iLabel_Angle < 0 ? m_Label_Angle : pShape->asDouble(m_iLabel_Angle);
+	double Angle = m_Label.Angle_Field < 0 ? m_Label.Angle : pShape->asDouble(m_Label.Angle_Field);
 
-	dc_Map.DrawText(m_Label_Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+	dc_Map.DrawText(m_Label.Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
 }
 
 
@@ -716,87 +774,88 @@ void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DRAW_CIRCLE(d)		{	int		s	= (int)((d) * Size);\
+#define DRAW_CIRCLE(d)         { int s = d == 1. ? Size : (int)((d) * Size);\
 	dc.DrawCircle(x, y, s);\
 }
 
 //---------------------------------------------------------
-#define DRAW_SQUARE			{	int		s	= (int)(0.7071067812 * Size);\
-	dc.DrawRectangle(x - s, y - s, 2 * s, 2 * s);\
+#define DRAW_SQUARE(d)         { int s = d == 1. ? Size : (int)((d) * Size);\
+	dc.DrawRectangle(x - s, y - s, 1 + 2 * s, 1 + 2 * s);\
 }
 
 //---------------------------------------------------------
-#define DRAW_RHOMBUS		{	wxPoint	p[4];\
-	p[0].y	= p[2].y	= y;\
-	p[1].x	= p[3].x	= x;\
-	p[0].x				= x - Size;\
-	p[2].x				= x + Size;\
-	p[1].y				= y - Size;\
-	p[3].y				= y + Size;\
+#define DRAW_RHOMBUS(d)        { int s = d == 1. ? Size : (int)((d) * Size); wxPoint p[4];\
+	p[0].y = p[2].y = y;\
+	p[1].x = p[3].x = x;\
+	p[0].x = x - s;\
+	p[2].x = x + s;\
+	p[1].y = y - s;\
+	p[3].y = y + s;\
 	dc.DrawPolygon(4, p);\
 }
 
 //---------------------------------------------------------
-#define DRAW_TRIANGLE_UP	{	wxPoint	p[3];\
-	p[0].y	= p[1].y	= y + (Size / 2);\
-	p[2].y				= y - (Size - 1);\
-	p[0].x				= x - (int)(0.8660254038 * Size);\
-	p[1].x				= x + (int)(0.8660254038 * Size);\
-	p[2].x				= x;\
+#define DRAW_TRIANGLE_UP(d)    { int s = d == 1. ? Size : (int)((d) * Size); wxPoint p[3];\
+	p[0].y = p[1].y = y + (s / 2);\
+	p[2].y = y - (s - 1);\
+	p[0].x = x - (int)(0.8660254038 * s);\
+	p[1].x = x + (int)(0.8660254038 * s);\
+	p[2].x = x;\
 	dc.DrawPolygon(3, p);\
 }
 
 //---------------------------------------------------------
-#define DRAW_TRIANGLE_DOWN	{	wxPoint	p[3];\
-	p[0].y	= p[1].y	= y - (Size / 2);\
-	p[2].y				= y + (Size - 1);\
-	p[0].x				= x - (int)(0.8660254038 * Size);\
-	p[1].x				= x + (int)(0.8660254038 * Size);\
-	p[2].x				= x;\
+#define DRAW_TRIANGLE_DOWN(d) { int s = d == 1. ? Size : (int)((d) * Size); wxPoint p[3];\
+	p[0].y = p[1].y = y - (s / 2);\
+	p[2].y = y + (s - 1);\
+	p[0].x = x - (int)(0.8660254038 * s);\
+	p[1].x = x + (int)(0.8660254038 * s);\
+	p[2].x = x;\
 	dc.DrawPolygon(3, p);\
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int Size)
 {
-	switch( m_Symbol_Type )
+	switch( m_Symbol.Type )
 	{
-	default: DRAW_CIRCLE(1.0)                      ; break;	// circle
-	case  1: DRAW_SQUARE                           ; break;	// square
-	case  2: DRAW_RHOMBUS                          ; break;	// rhombus
-	case  3: DRAW_TRIANGLE_UP                      ; break;	// triangle up
-	case  4: DRAW_TRIANGLE_DOWN                    ; break;	// triangle down
-	case  5: DRAW_CIRCLE(1.0)  ; DRAW_SQUARE       ; break;	// square in circle
-	case  6: DRAW_CIRCLE(1.1)  ; DRAW_RHOMBUS      ; break;	// rhombus in circle
-	case  7: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_UP  ; break;	// triangle up in circle
-	case  8: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_DOWN; break;	// triangle down in circle
-	case  9: DRAW_SQUARE       ; DRAW_CIRCLE(0.7)  ; break;	// circle in square
-	case 10: DRAW_RHOMBUS      ; DRAW_CIRCLE(0.7)  ; break;	// circle in rhombus
-	case 11: DRAW_TRIANGLE_UP  ; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle up
-	case 12: DRAW_TRIANGLE_DOWN; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle down
+	default: DRAW_CIRCLE       (1.0)                         ; break; // circle
+	case  1: DRAW_SQUARE       (1.0)                         ; break; // square
+	case  2: DRAW_RHOMBUS      (1.0)                         ; break; // rhombus
+	case  3: DRAW_TRIANGLE_UP  (1.0)                         ; break; // triangle up
+	case  4: DRAW_TRIANGLE_DOWN(1.0)                         ; break; // triangle down
+	case  5: DRAW_CIRCLE       (1.0); DRAW_SQUARE       (0.7); break; // square in circle
+	case  6: DRAW_CIRCLE       (1.0); DRAW_RHOMBUS      (1.0); break; // rhombus in circle
+	case  7: DRAW_CIRCLE       (1.0); DRAW_TRIANGLE_UP  (1.0); break; // triangle up in circle
+	case  8: DRAW_CIRCLE       (1.0); DRAW_TRIANGLE_DOWN(1.0); break; // triangle down in circle
+	case  9: DRAW_SQUARE       (1.0); DRAW_CIRCLE       (0.9); break; // circle in square
+	case 10: DRAW_RHOMBUS      (1.0); DRAW_CIRCLE       (0.7); break; // circle in rhombus
+	case 11: DRAW_TRIANGLE_UP  (1.0); DRAW_CIRCLE       (0.5); break; // circle in triangle up
+	case 12: DRAW_TRIANGLE_DOWN(1.0); DRAW_CIRCLE       (0.5); break; // circle in triangle down
 	}
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::Draw_Symbol(CSG_Map_DC &dc, int x, int y, int Size)
 {
-	switch( m_Symbol_Type )
+	switch( m_Symbol.Type )
 	{
-	default: DRAW_CIRCLE(1.0)                      ; break;	// circle
-	case  1: DRAW_SQUARE                           ; break;	// square
-	case  2: DRAW_RHOMBUS                          ; break;	// rhombus
-	case  3: DRAW_TRIANGLE_UP                      ; break;	// triangle up
-	case  4: DRAW_TRIANGLE_DOWN                    ; break;	// triangle down
-	case  5: DRAW_CIRCLE(1.0)  ; DRAW_SQUARE       ; break;	// square in circle
-	case  6: DRAW_CIRCLE(1.1)  ; DRAW_RHOMBUS      ; break;	// rhombus in circle
-	case  7: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_UP  ; break;	// triangle up in circle
-	case  8: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_DOWN; break;	// triangle down in circle
-	case  9: DRAW_SQUARE       ; DRAW_CIRCLE(0.7)  ; break;	// circle in square
-	case 10: DRAW_RHOMBUS      ; DRAW_CIRCLE(0.7)  ; break;	// circle in rhombus
-	case 11: DRAW_TRIANGLE_UP  ; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle up
-	case 12: DRAW_TRIANGLE_DOWN; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle down
+	default: DRAW_CIRCLE       (1.0)                         ; break; // circle
+	case  1: DRAW_SQUARE       (1.0)                         ; break; // square
+	case  2: DRAW_RHOMBUS      (1.4)                         ; break; // rhombus
+	case  3: DRAW_TRIANGLE_UP  (2.0)                         ; break; // triangle up
+	case  4: DRAW_TRIANGLE_DOWN(2.0)                         ; break; // triangle down
+	case  5: DRAW_CIRCLE       (1.0); DRAW_SQUARE       (0.7); break; // square in circle
+	case  6: DRAW_CIRCLE       (1.0); DRAW_RHOMBUS      (1.0); break; // rhombus in circle
+	case  7: DRAW_CIRCLE       (1.0); DRAW_TRIANGLE_UP  (1.0); break; // triangle up in circle
+	case  8: DRAW_CIRCLE       (1.0); DRAW_TRIANGLE_DOWN(1.0); break; // triangle down in circle
+	case  9: DRAW_SQUARE       (1.0); DRAW_CIRCLE       (1.0); break; // circle in square
+	case 10: DRAW_RHOMBUS      (1.4); DRAW_CIRCLE       (1.0); break; // circle in rhombus
+	case 11: DRAW_TRIANGLE_UP  (2.0); DRAW_CIRCLE       (1.0); break; // circle in triangle up
+	case 12: DRAW_TRIANGLE_DOWN(2.0); DRAW_CIRCLE       (1.0); break; // circle in triangle down
 	}
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -812,19 +871,19 @@ void CWKSP_Shapes_Point::_Image_Draw(CSG_Map_DC &dc_Map, int x, int y, int size,
 		fn.MakeAbsolute(SG_File_Get_Path(Get_Shapes()->Get_File_Name()).c_str());
 	}
 
-	wxImage Symbol;
+	wxImage Image;
 
-	if( fn.Exists() && Symbol.LoadFile(fn.GetFullPath()) )
+	if( fn.Exists() && Image.LoadFile(fn.GetFullPath()) )
 	{
-		double s = m_Image_Scale  * size;
-		double o = m_Image_Offset * size;
+		double s = m_Image.Scale  * size;
+		double o = m_Image.Offset * size;
 
-		int   sx = Symbol.GetWidth ();
-		int   sy = Symbol.GetHeight();
+		int   sx = Image.GetWidth ();
+		int   sy = Image.GetHeight();
 
 		double d = (double)sx / (double)sy;
 
-		switch( m_Image_Fit )
+		switch( m_Image.Fit )
 		{
 		default:
 			sx = d >  1. ? s : (int)(0.5 + s * d);
@@ -844,17 +903,72 @@ void CWKSP_Shapes_Point::_Image_Draw(CSG_Map_DC &dc_Map, int x, int y, int size,
 
 		if( sx > 1 && sy > 1 )
 		{
-			if( m_Image_Align & TEXTALIGN_LEFT    ) { x += o     ; } else
-			if( m_Image_Align & TEXTALIGN_XCENTER ) { x -= sx / 2; } else
-			if( m_Image_Align & TEXTALIGN_RIGHT   ) { x	-= o + sx; }
+			if( m_Image.Align & TEXTALIGN_LEFT    ) { x += o     ; } else
+			if( m_Image.Align & TEXTALIGN_XCENTER ) { x -= sx / 2; } else
+			if( m_Image.Align & TEXTALIGN_RIGHT   ) { x	-= o + sx; }
 
-			if( m_Image_Align & TEXTALIGN_TOP     ) { y += o     ; } else
-			if( m_Image_Align & TEXTALIGN_YCENTER ) { y -= sy / 2; } else
-			if( m_Image_Align & TEXTALIGN_BOTTOM  ) { y -= o + sy; }
+			if( m_Image.Align & TEXTALIGN_TOP     ) { y += o     ; } else
+			if( m_Image.Align & TEXTALIGN_YCENTER ) { y -= sy / 2; } else
+			if( m_Image.Align & TEXTALIGN_BOTTOM  ) { y -= o + sy; }
 
-			dc_Map.DrawBitmap(wxBitmap(Symbol.Scale(sx, sy)), x, y, true);
+			dc_Map.DrawBitmap(wxBitmap(Image.Scale(sx, sy)), x, y, true);
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::_Arrow_Draw(CSG_Map_DC &dc_Map, int x, int y, int size, double angle)
+{
+	static double Template[4][2] =
+	{
+		{  0.0, -1.0 },
+		{  0.0,  1.0 },
+		{  0.3, -0.5 },
+		{ -0.3, -0.5 }
+	};
+
+	angle += m_Arrow.Offset;
+
+	if( m_Arrow.Unit == 0 ) // degree
+	{
+		angle *= M_DEG_TO_RAD;
+	}
+
+	if( m_Arrow.Orientation == 0 ) // clockwise
+	{
+		angle *= -1.;
+	}
+
+	double sin_a = (1 + size) * sin(angle), cos_a = (1 + size) * cos(angle);
+
+	#define ROTATE(i) {\
+		x + (int)(Template[i][0] * cos_a + Template[i][1] * sin_a),\
+		y + (int)(Template[i][1] * cos_a - Template[i][0] * sin_a) }
+
+	int Arrow[4][2] =
+	{
+		ROTATE(0), ROTATE(1), ROTATE(2), ROTATE(3)
+	};
+
+	switch( m_Arrow.Style )
+	{
+	case  1: // arrow with center point
+		dc_Map.DrawCircle(x, y, m_Arrow.Width);
+		break;
+
+	case  2: // arrow in circle
+		dc_Map.DrawCircle(x, y, size);
+		break;
+	}
+
+	dc_Map.DrawLine(Arrow[0][0], Arrow[0][1], Arrow[1][0], Arrow[1][1]);
+	dc_Map.DrawLine(Arrow[0][0], Arrow[0][1], Arrow[2][0], Arrow[2][1]);
+	dc_Map.DrawLine(Arrow[0][0], Arrow[0][1], Arrow[3][0], Arrow[3][1]);
 }
 
 

@@ -78,7 +78,7 @@ public:
 	wxPen						Get_Def_Pen				(void)	{	return( m_Pen      );	}
 	wxBrush						Get_Def_Brush			(void)	{	return( m_Brush    );	}
 
-	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
+	bool						Get_Style_Size			(int &minSize, int &maxSize, double &Minimum, double &Scale, wxString *pName);
 
 	void						Draw_Symbol				(wxDC &dc, int x, int y, int size);
 
@@ -87,18 +87,25 @@ protected:
 
 	bool						m_bOutline;
 
-	int							m_iSize, m_Size_Type, m_Size_Scale, m_Symbol_Type, m_iLabel_Angle, m_Label_Align,
-								m_Image_Field, m_Image_Align, m_Image_Fit, m_Beachball[3];
-
-	double						m_Size, m_dSize, m_Size_Min, m_Label_Offset, m_Label_Angle, m_Image_Offset, m_Image_Scale;
-
 	wxColour					m_Sel_Color_Fill;
 
 	wxPen						m_Pen;
 
 	wxBrush						m_Brush;
 
-	wxImage						m_Symbol;
+	wxImage						m_Symbol_Image;
+
+	struct SSize                { int Unit, Field, Adjust; double Minimum, Offset, Scale;    } m_Size;
+
+	struct SLabel               { int Align, Angle_Field; double Offset, Angle;              } m_Label;
+
+	struct SSymbol              { int Type; wxImage Image;                                   } m_Symbol;
+
+	struct SImage               { int Field, Align, Fit; double Offset, Scale;               } m_Image;
+
+	struct SArrow               { int Field, Style, Width, Orientation, Unit; double Offset; } m_Arrow;
+
+	struct SBeachball           { int Strike, Dip, Rake;                                     } m_Beachball;
 
 
 	virtual void				On_Create_Parameters	(void);
@@ -118,6 +125,8 @@ protected:
 private:
 
 	void						_Image_Draw				(CSG_Map_DC &dc, int x, int y, int size, const wxString &file);
+
+	void						_Arrow_Draw				(CSG_Map_DC &dc_Map, int x, int y, int size, double direction);
 
 	void						_Beachball_Draw			(CSG_Map_DC &dc, int x, int y, int size, double strike, double dip, double rake);
 	void						_Beachball_Get_Plane	(CSG_Shape *pPlane, CSG_Shape *pCircle, const CSG_Vector &Normal);
