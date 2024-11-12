@@ -70,7 +70,14 @@ CExercise_06::CExercise_06(void)
 
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
-		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+		"ediss.uni-goettingen.de.",
+		SG_T("https://ediss.uni-goettingen.de/handle/11858/00-1735-0000-0006-B26C-6"), SG_T("online")
+	);
+
+	Add_Reference("O. Conrad, B. Bechtel, M. Bock, H. Dietrich, E. Fischer, L. Gerlitz, J. Wehberg, V. Wichmann, and J. Böhner", "2015",
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geoscientific Model Development, 8, 1991-2007.",
+		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
 
@@ -112,15 +119,11 @@ CExercise_06::CExercise_06(void)
 //---------------------------------------------------------
 bool CExercise_06::On_Execute(void)
 {
-	int		Radius;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	m_pInput	= Parameters("INPUT" )->asGrid();
-	m_pOutput	= Parameters("OUTPUT")->asGrid();
-
-	Radius		= Parameters("RADIUS")->asInt();
+	m_pInput  = Parameters("INPUT" )->asGrid();
+	m_pOutput = Parameters("OUTPUT")->asGrid();
 
 
 	//-----------------------------------------------------
@@ -128,14 +131,9 @@ bool CExercise_06::On_Execute(void)
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		return( Method_01(Radius) );
-
-	case 1:
-		return( Method_02(Radius) );
-
-	case 2:
-		return( Method_03(Radius) );
+	case 0: return( Method_01(Parameters("RADIUS")->asInt()) );
+	case 1: return( Method_02(Parameters("RADIUS")->asInt()) );
+	case 2: return( Method_03(Parameters("RADIUS")->asInt()) );
 	}
 
 	return( false );
@@ -149,25 +147,19 @@ bool CExercise_06::On_Execute(void)
 //---------------------------------------------------------
 bool CExercise_06::Method_01(int Radius)
 {
-	int		x, y, ix, iy, n;
-	double	s;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			n	= 0;
-			s	= 0.0;
+			int n = 0; double s = 0.;
 
-			for(iy=y-Radius; iy<=y+Radius; iy++)
+			for(int iy=y-Radius; iy<=y+Radius; iy++)
 			{
-				for(ix=x-Radius; ix<=x+Radius; ix++)
+				for(int ix=x-Radius; ix<=x+Radius; ix++)
 				{
 					if( is_InGrid(ix, iy) && !m_pInput->is_NoData(ix, iy) )
 					{
-						n++;
-						s	+= m_pInput->asDouble(ix, iy);
+						n++; s += m_pInput->asDouble(ix, iy);
 					}
 				}
 			}
@@ -183,48 +175,38 @@ bool CExercise_06::Method_01(int Radius)
 		}
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CExercise_06::Method_02(int Radius)
 {
-	int		x, y, ix, iy, xMask, yMask, nMask, n;
-	double	s, Distance;
-	CSG_Grid	gMask;
+	CSG_Grid Mask(SG_DATATYPE_Byte, 1 + 2 * Radius, 1 + 2 * Radius);
 
-	//-----------------------------------------------------
-	nMask	= 1 + 2 * Radius;
-
-	gMask.Create(SG_DATATYPE_Byte, nMask, nMask);
-
-	for(iy=-Radius, yMask=0; yMask<nMask; iy++, yMask++)
+	for(int iy=-Radius, yMask=0; yMask<Mask.Get_NY(); iy++, yMask++)
 	{
-		for(ix=-Radius, xMask=0; xMask<nMask; ix++, xMask++)
+		for(int ix=-Radius, xMask=0; xMask<Mask.Get_NX(); ix++, xMask++)
 		{
-			Distance	= sqrt((double)(ix*ix + iy*iy));
+			double Distance = sqrt(((double)ix*ix + (double)iy*iy));
 
-			gMask.Set_Value(xMask, yMask, Distance <= Radius ? 1.0 : 0.0);
+			Mask.Set_Value(xMask, yMask, Distance <= Radius ? 1. : 0.);
 		}
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			n	= 0;
-			s	= 0.0;
+			int n = 0; double s = 0.;
 
-			for(iy=y-Radius, yMask=0; yMask<nMask; iy++, yMask++)
+			for(int iy=y-Radius, yMask=0; yMask<Mask.Get_NY(); iy++, yMask++)
 			{
-				for(ix=x-Radius, xMask=0; xMask<nMask; ix++, xMask++)
+				for(int ix=x-Radius, xMask=0; xMask<Mask.Get_NX(); ix++, xMask++)
 				{
-					if( is_InGrid(ix, iy) && !m_pInput->is_NoData(ix, iy) && gMask.asByte(xMask, yMask) )
+					if( is_InGrid(ix, iy) && !m_pInput->is_NoData(ix, iy) && Mask.asByte(xMask, yMask) )
 					{
-						n++;
-						s	+= m_pInput->asDouble(ix, iy);
+						n++; s += m_pInput->asDouble(ix, iy);
 					}
 				}
 			}
@@ -240,55 +222,45 @@ bool CExercise_06::Method_02(int Radius)
 		}
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CExercise_06::Method_03(int Radius)
 {
-	int		x, y, ix, iy, xMask, yMask, nMask;
-	double	s, n, Distance, Weight;
-	CSG_Grid	gMask;
+	CSG_Grid Weight(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
 
-	//-----------------------------------------------------
-	nMask	= 1 + 2 * Radius;
-
-	gMask.Create(SG_DATATYPE_Double, nMask, nMask);
-
-	for(iy=-Radius, yMask=0; yMask<nMask; iy++, yMask++)
+	for(int iy=-Radius, wy=0; wy<Weight.Get_NY(); iy++, wy++)
 	{
-		for(ix=-Radius, xMask=0; xMask<nMask; ix++, xMask++)
+		for(int ix=-Radius, wx=0; wx<Weight.Get_NX(); ix++, wx++)
 		{
-			Distance	= sqrt((double)(ix*ix + iy*iy));
+			double Distance = sqrt(((double)ix*ix + (double)iy*iy));
 
-			gMask.Set_Value(xMask, yMask, Distance > 0.0 && Distance <= Radius ? 1.0 / Distance : 0.0);
+			Weight.Set_Value(wx, wy, Distance > Radius ? 0. : 1. / Distance);
 		}
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			n	= 0;
-			s	= 0.0;
+			CSG_Simple_Statistics Statistics;
 
-			for(iy=y-Radius, yMask=0; yMask<nMask; iy++, yMask++)
+			for(int iy=y-Radius, wy=0; wy<Weight.Get_NY(); iy++, wy++)
 			{
-				for(ix=x-Radius, xMask=0; xMask<nMask; ix++, xMask++)
+				for(int ix=x-Radius, wx=0; wx<Weight.Get_NX(); ix++, wx++)
 				{
-					if( is_InGrid(ix, iy) && !m_pInput->is_NoData(ix, iy) && (Weight = gMask.asDouble(xMask, yMask)) > 0.0 )
+					if( m_pInput->is_InGrid(ix, iy) )
 					{
-						n	+= Weight;
-						s	+= Weight * m_pInput->asDouble(ix, iy);
+						Statistics.Add_Value(m_pInput->asDouble(ix, iy), Weight.asDouble(wx, wy));
 					}
 				}
 			}
 
-			if( n > 0 )
+			if( Statistics.Get_Count() > 0 )
 			{
-				m_pOutput->Set_Value(x, y, s / n);
+				m_pOutput->Set_Value(x, y, Statistics.Get_Mean());
 			}
 			else
 			{

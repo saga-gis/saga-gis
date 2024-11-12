@@ -70,7 +70,14 @@ CExercise_04::CExercise_04(void)
 
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
-		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+		"ediss.uni-goettingen.de.",
+		SG_T("https://ediss.uni-goettingen.de/handle/11858/00-1735-0000-0006-B26C-6"), SG_T("online")
+	);
+
+	Add_Reference("O. Conrad, B. Bechtel, M. Bock, H. Dietrich, E. Fischer, L. Gerlitz, J. Wehberg, V. Wichmann, and J. Böhner", "2015",
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geoscientific Model Development, 8, 1991-2007.",
+		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
 
@@ -112,30 +119,24 @@ bool CExercise_04::On_Execute(void)
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	m_pInput	= Parameters("INPUT" )->asGrid();
-	m_pOutput	= Parameters("OUTPUT")->asGrid();
+	m_pInput  = Parameters("INPUT" )->asGrid();
+	m_pOutput = Parameters("OUTPUT")->asGrid();
 
 
 	//-----------------------------------------------------
 	// Execute calculation...
 
-	bool	bResult	= false;
-
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case  0:	bResult	= Method_01();	break;
-	case  1:	bResult	= Method_02();	break;
-	case  2:	bResult	= Method_03();	break;
-	case  3:	bResult	= Method_04();	break;
-	case  4:	bResult	= Method_05();	break;
-	case  5:	bResult	= Method_06();	break;
+	case  0: return( Method_01() );
+	case  1: return( Method_02() );
+	case  2: return( Method_03() );
+	case  3: return( Method_04() );
+	case  4: return( Method_05() );
+	case  5: return( Method_06() );
 	}
 
-
-	//-----------------------------------------------------
-	// Return 'true' if everything is okay...
-
-	return( bResult );
+	return( false );
 }
 
 

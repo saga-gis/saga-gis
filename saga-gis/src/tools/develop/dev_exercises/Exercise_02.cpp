@@ -70,7 +70,14 @@ CExercise_02::CExercise_02(void)
 
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
-		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+		"ediss.uni-goettingen.de.",
+		SG_T("https://ediss.uni-goettingen.de/handle/11858/00-1735-0000-0006-B26C-6"), SG_T("online")
+	);
+
+	Add_Reference("O. Conrad, B. Bechtel, M. Bock, H. Dietrich, E. Fischer, L. Gerlitz, J. Wehberg, V. Wichmann, and J. Böhner", "2015",
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geoscientific Model Development, 8, 1991-2007.",
+		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
 
@@ -113,57 +120,54 @@ CExercise_02::CExercise_02(void)
 //---------------------------------------------------------
 bool CExercise_02::On_Execute(void)
 {
-	int		x, y, Method;
-	double	a, b;
-	CSG_Grid	*pInput_A, *pInput_B, *pOutput;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	pInput_A	= Parameters("INPUT_A")->asGrid();
-	pInput_B	= Parameters("INPUT_B")->asGrid();
-	pOutput		= Parameters("OUTPUT" )->asGrid();
-	Method		= Parameters("METHOD" )->asInt ();
+	CSG_Grid *pA = Parameters("INPUT_A")->asGrid();
+	CSG_Grid *pB = Parameters("INPUT_B")->asGrid();
+	CSG_Grid *pC = Parameters("OUTPUT" )->asGrid();
+
+	int Method = Parameters("METHOD")->asInt ();
 
 
 	//-----------------------------------------------------
 	// Execute calculation...
 
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pInput_A->is_NoData(x, y) || pInput_B->is_NoData(x, y) )	// don't work with 'no data'...
+			if( pA->is_NoData(x, y) || pB->is_NoData(x, y) ) // don't work with 'no data'...
 			{
-				pOutput->Set_NoData(x, y);
+				pC->Set_NoData(x, y);
 			}
 			else
 			{
-				a	= pInput_A->asDouble(x, y);
-				b	= pInput_B->asDouble(x, y);
+				double a = pA->asDouble(x, y);
+				double b = pB->asDouble(x, y);
 
 				switch( Method )
 				{
 				case 0:	// Addition...
-					pOutput->Set_Value(x, y, a + b);
+					pC->Set_Value(x, y, a + b);
 					break;
 
 				case 1:	// Subtraction...
-					pOutput->Set_Value(x, y, a - b);
+					pC->Set_Value(x, y, a - b);
 					break;
 
 				case 2:	// Multiplication...
-					pOutput->Set_Value(x, y, a * b);
+					pC->Set_Value(x, y, a * b);
 					break;
 
 				case 3:	// Division...
-					if( b != 0.0 )	// prevent division by zero...
+					if( b == 0. ) // prevent division by zero...
 					{
-						pOutput->Set_Value(x, y, a / b);
+						pC->Set_NoData(x, y);
 					}
 					else
 					{
-						pOutput->Set_NoData(x, y);
+						pC->Set_Value(x, y, a / b);
 					}
 					break;
 				}

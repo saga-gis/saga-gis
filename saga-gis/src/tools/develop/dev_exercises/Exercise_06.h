@@ -74,7 +74,7 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CSG_Grid			*m_pInput, *m_pOutput;
+	CSG_Grid			*m_pInput = NULL, *m_pOutput = NULL;
 
 
 	bool				Method_01(int Radius);

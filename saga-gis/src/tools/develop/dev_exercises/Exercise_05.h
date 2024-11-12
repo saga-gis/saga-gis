@@ -74,12 +74,12 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CSG_Grid			*m_pDTM, *m_pSlope, *m_pAspect;
+	CSG_Grid			*m_pDTM = NULL, *m_pSlope = NULL, *m_pAspect = NULL;
 
 
-	bool				Method_01(void);
-	bool				Method_02(void);
-	bool				Method_03(void);
+	bool				Method_01(int x, int y);
+	bool				Method_02(int x, int y);
+	bool				Method_03(int x, int y);
 
 };
 
