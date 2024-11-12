@@ -98,7 +98,7 @@ POPD
 
 REM ___________________________________
 REM Include the Python Toolboxes
-%PYTHON% ..\create_python_toolboxes.py "%SAGA_RELEASE_NAME%\saga-gis\src\accessories\python\tools"
+"%SAGA_BIN%\saga_cmd" dev_tools 9 -TARGET=1 -LOADDEFS=1 -NAMING=0 -CLEAN=1 -FOLDER="%SAGA_RELEASE_NAME%\saga-gis\src\accessories\python\tools"
 
 REM ___________________________________
 REM Zip Source Code
@@ -137,7 +137,8 @@ CMD /C CALL ..\make_python_api.bat install false 3.8  F:\develop\libs\Python\Pyt
 CMD /C CALL ..\make_python_api.bat install false 3.9  F:\develop\libs\Python\Python-3.9
 CMD /C CALL ..\make_python_api.bat install false 3.10 F:\develop\libs\Python\Python-3.10
 CMD /C CALL ..\make_python_api.bat install false 3.11 F:\develop\libs\Python\Python-3.11
-CMD /C CALL ..\make_python_api.bat install true  3.12 F:\develop\libs\Python\Python-3.12
+CMD /C CALL ..\make_python_api.bat install false 3.12 F:\develop\libs\Python\Python-3.12
+CMD /C CALL ..\make_python_api.bat install true  3.13 F:\develop\libs\Python\Python-3.13
 
 
 REM ___________________________________
@@ -145,9 +146,7 @@ REM ###################################
 REM PySAGA Toolboxes
 REM ###################################
 
-%PYTHON% ..\create_python_toolboxes.py
-
-RMDIR /S/Q "%SAGA_BIN%\PySAGA\__pycache__"
+"%SAGA_BIN%\saga_cmd" dev_tools 9 -TARGET=1 -LOADDEFS=1 -NAMING=0 -CLEAN=1 -FOLDER="%SAGA_BIN%\PySAGA\tools"
 
 
 REM ___________________________________

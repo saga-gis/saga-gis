@@ -551,12 +551,14 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Parameter *pParameter)
 {
 	#define ADD_PROPERTY(p, limit) if( pParent ) { m_pPG->Insert(pParent, -1, pProperty = p); } else { m_pPG->Append(pProperty = p); }\
-		if( pParameter->is_Information() ) { m_pPG->LimitPropertyEditing(pProperty); m_pPG->EnableProperty(pProperty, false); } else\
-		if( limit ) { m_pPG->LimitPropertyEditing(pProperty); } { CSG_String s, sDesc;\
-		sDesc = pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);\
-		s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT      ); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
-		s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
-		m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str()); }
+		if( pParameter->is_Information() ) { m_pPG->LimitPropertyEditing(pProperty); m_pPG->EnableProperty(pProperty, false); }\
+		else if( limit ) { m_pPG->LimitPropertyEditing(pProperty); }\
+		{   CSG_String s, sDesc;\
+		    sDesc = pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);\
+		    s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT      ); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		    s     = pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		    m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str());\
+		}
 
 	wxPGProperty *pProperty = NULL; wxString Name(pParameter->Get_Name()), ID(pParameter->Get_Identifier());
 

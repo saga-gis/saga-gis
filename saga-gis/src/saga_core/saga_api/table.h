@@ -55,9 +55,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,9 +72,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -83,9 +83,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -109,9 +109,9 @@ TSG_Table_Index_Order;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,9 +120,9 @@ TSG_Table_Index_Order;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -273,9 +273,9 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -430,18 +430,24 @@ public:
 	virtual sLong					Inv_Selection		(void);
 
 	//-----------------------------------------------------
+	bool							Sort				(const char       *Field, bool bAscending = true);
+	bool							Sort				(const wchar_t    *Field, bool bAscending = true);
+	bool							Sort				(const CSG_String &Field, bool bAscending = true);
+	bool							Sort				(int               Field, bool bAscending = true);
+	virtual bool					Sort				(const CSG_Index &Index);
+
 	bool							Set_Index			(CSG_Index &Index, int Field                  , bool bAscending = true)	const;
 	bool							Set_Index			(CSG_Index &Index, int Fields[], int   nFields, bool bAscending = true)	const;
 	bool							Set_Index			(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending = true)	const;
 
-	bool							is_Indexed			(void)	const		{	return( m_nRecords > 0 && m_Index.Get_Count() == m_nRecords );	}
-	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1 = TABLE_INDEX_Ascending, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	bool							Set_Index			(int Field, TSG_Table_Index_Order Order = TABLE_INDEX_Ascending, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
 	bool							Del_Index			(void);
 	bool							Toggle_Index		(int iField);
-	int								Get_Index_Field		(int    i)	const	{	return( i < 0 || i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}
-	TSG_Table_Index_Order			Get_Index_Order		(int    i)	const	{	return( i < 0 || i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending );	}
-	int								Get_Index_Field		(size_t i)	const	{	return( Get_Index_Field((int)i) );	}
-	TSG_Table_Index_Order			Get_Index_Order		(size_t i)	const	{	return( Get_Index_Order((int)i) );	}
+	bool							is_Indexed			(void)     const { return( m_nRecords > 0 && m_nRecords == m_Index.Get_Count() ); }
+	int								Get_Index_Field		(int    i) const { return( i < 0 || i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 ); }
+	TSG_Table_Index_Order			Get_Index_Order		(int    i) const { return( i < 0 || i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending ); }
+	int								Get_Index_Field		(size_t i) const { return( Get_Index_Field((int)i) ); }
+	TSG_Table_Index_Order			Get_Index_Order		(size_t i) const { return( Get_Index_Order((int)i) ); }
 
 
 protected:
@@ -509,9 +515,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -540,9 +546,9 @@ SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &File, TSG_Tab
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -85,7 +85,7 @@ public:
 
 private:
 
-	double						m_f, m_s, m_ZRef;
+	double						m_f = 1., m_s = 1., m_ZRef = 0.;
 
 	CSG_Vector					m_T, m_O;
 

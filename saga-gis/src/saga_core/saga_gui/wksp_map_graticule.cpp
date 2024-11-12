@@ -201,6 +201,15 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	);
 
 	m_Parameters.Add_Choice("LABEL",
+		"LABEL_ORIENT"	, _TL("Latitude Orientation"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("horizontal"),
+			_TL("vertical")
+		), 1
+	);
+
+	m_Parameters.Add_Choice("LABEL",
 		"LABEL_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
@@ -544,6 +553,7 @@ bool CWKSP_Map_Graticule::Draw(CSG_Map_DC &dc_Map)
 
 		if( Size > 2 )
 		{
+			bool     bLatVertical  = m_Parameters("LABEL_ORIENT")->asInt() == 1;
 			int      Effect, Units = m_Parameters("LABEL_UNITS")->asInt(), Decimals = m_Parameters("LABEL_DECIMALS")->asInt();
 			wxColour Effect_Color  = Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
 			wxFont   Font          = Get_Font(m_Parameters("LABEL_FONT"));
@@ -573,15 +583,25 @@ bool CWKSP_Map_Graticule::Draw(CSG_Map_DC &dc_Map)
 
 				TSG_Point_Int p(dc_Map.World2DC(pPoint->Get_Point())); wxString Type(pPoint->asString(0));
 
-				int Align =
-					!Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT   :
-					!Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT  :
-					!Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER :
-					!Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER    : TEXTALIGN_CENTER;
+				CSG_String Coordinate(Get_Unit(pPoint, Units, Decimals, (!Type.Cmp("LAT_MIN") || !Type.Cmp("LAT_MAX"))));
 
-				CSG_String Coordinate(Get_Unit(pPoint, Units, Decimals, (Align & TEXTALIGN_YCENTER) != 0));
+				int Align; double Angle;
 
-				dc_Map.DrawText(Align, p.x, p.y, 0.0, Coordinate.c_str(), Effect, Effect_Color);
+				if( bLatVertical )
+				{
+					Align = !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER : TEXTALIGN_TOPCENTER;
+					Angle = !Type.Cmp("LAT_MIN") ? 90. : !Type.Cmp("LAT_MAX") ? -90. : 0.;
+				}
+				else
+				{
+					Align = !Type.Cmp("LAT_MIN") ? TEXTALIGN_CENTERLEFT
+					      : !Type.Cmp("LAT_MAX") ? TEXTALIGN_CENTERRIGHT
+					      : !Type.Cmp("LON_MIN") ? TEXTALIGN_BOTTOMCENTER
+					      : !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER : TEXTALIGN_CENTER;
+					Angle = 0.;
+				}
+
+				dc_Map.DrawText(Align, p.x, p.y, Angle, Coordinate.c_str(), Effect, Effect_Color);
 			}
 		}
 	}
