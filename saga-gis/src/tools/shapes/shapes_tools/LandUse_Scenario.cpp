@@ -104,7 +104,7 @@ CLandUse_Scenario::CLandUse_Scenario(void)
 	Parameters.Add_Table("",
 		"STATISTICS" , _TL("Crop Statistics"  ),
 		_TW("The first column specifies a crop type id. "
-			"The second column provides a human readible name for the crop type (e.g. 'potatoes') ."
+			"The second column provides a human readable name for the crop type (e.g. 'potatoes') ."
 			"The third column must be an integer value, though this value is not yet used by this tool. "
 			"The following columns provide the yearly amount of each crop type [%] for a sequence of years. "),
 		PARAMETER_INPUT

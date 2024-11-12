@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
             nin = atoi(argv[i]);
             i++;
             if (i >= argc)
-                nn_quit("no number of ouput points per side found after -i\n");
+                nn_quit("no number of output points per side found after -i\n");
             nx = atoi(argv[i]);
             i++;
             break;

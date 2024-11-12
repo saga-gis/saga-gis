@@ -157,7 +157,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( _TL("Clear History") );
 	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Tool Chain") );
-	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collpase Options") );
+	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collapse Options") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_EXPAND:	return( _TL("Expand Options") );
 
 	case ID_CMD_DATA_OPEN:				return( _TL("Open") );

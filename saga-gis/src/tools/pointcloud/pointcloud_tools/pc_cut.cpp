@@ -94,7 +94,7 @@ CPC_Cut::CPC_Cut(void)
 
 	Parameters.Add_PointCloud_List(
 		"", "CUT"		, _TL("Cut"),
-		_TL("The cutted output point cloud dataset(s)."),
+		_TL("The cut output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 
@@ -388,7 +388,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 
 	Parameters.Add_PointCloud_List("",
 		"CUT"		, _TL("Cut"),
-		_TL("The cutted output point cloud dataset(s)."),
+		_TL("The cut output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 

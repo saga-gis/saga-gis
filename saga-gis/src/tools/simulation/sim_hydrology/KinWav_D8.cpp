@@ -185,7 +185,7 @@ CKinWav_D8::CKinWav_D8(void)
 		"P_DISTRIB"		, _TL("Precipitation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Homogenous"),
+			_TL("Homogeneous"),
 			_TL("Above Elevation"),
 			_TL("Left Half")
 		)

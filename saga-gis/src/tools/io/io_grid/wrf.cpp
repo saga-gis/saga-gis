@@ -526,7 +526,7 @@ CWRF_Import::CWRF_Import(void)
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Imports grid(s) from Weather Research and Forcasting Model (WRF) geogrid binary format."
+		"Imports grid(s) from Weather Research and Forecasting Model (WRF) geogrid binary format."
 	));
 
 	Add_Reference(
@@ -610,7 +610,7 @@ bool CWRF_Import::Load(const CSG_String &File)
 
 	if( !Stream.Open(File, SG_FILE_R) )
 	{
-		Error_Set(_TL("data file could not be openend"));
+		Error_Set(_TL("data file could not be opened"));
 
 		return( false );
 	}
@@ -705,7 +705,7 @@ CWRF_Export::CWRF_Export(void)
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Exports grid(s) to Weather Research and Forcasting Model (WRF) geogrid binary format."
+		"Exports grid(s) to Weather Research and Forecasting Model (WRF) geogrid binary format."
 	));
 
 	Add_Reference(
@@ -954,7 +954,7 @@ bool CWRF_Export::Save(const CSG_String &Directory, CSG_Parameter_Grid_List *pGr
 
 	if( !Stream.Open(SG_File_Make_Path(Directory, Name), SG_FILE_W) )
 	{
-		Error_Set(_TL("data file could not be openend"));
+		Error_Set(_TL("data file could not be opened"));
 
 		return( false );
 	}

@@ -91,7 +91,7 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 	);
 
 	Parameters.Add_Choice("",
-		"OUTPUT"     , _TL("Output Measurment"),
+		"OUTPUT"     , _TL("Output Measurement"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("total area"),

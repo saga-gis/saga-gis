@@ -18,7 +18,7 @@
 			<name>List of 2nd Grids</name>
 		</input>
 		<output varname="MEAN" type="grid_list">
-			<name>Weigthed Mean</name>
+			<name>Weighted Mean</name>
 		</output>
 		<option varname="RATIO" type="double">
 			<name>Weighting Ratio</name>

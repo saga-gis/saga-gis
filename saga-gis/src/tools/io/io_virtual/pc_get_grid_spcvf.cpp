@@ -537,7 +537,7 @@ CPointCloud_Get_Grid_SPCVF::CPointCloud_Get_Grid_SPCVF(void)
 
 	Parameters.Add_Choice(
 		NULL	, "GRID_SYSTEM_FIT"		, _TL("Grid System Fit"),
-		_TL("Choose how to align the ouput grid system to the AOI"),
+		_TL("Choose how to align the output grid system to the AOI"),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("nodes"),
 			_TL("cells")
@@ -799,7 +799,7 @@ CPointCloud_Get_Grid_SPCVF_Interactive::CPointCloud_Get_Grid_SPCVF_Interactive(v
 
 	Parameters.Add_Choice(
 		NULL	, "GRID_SYSTEM_FIT"		, _TL("Grid System Fit"),
-		_TL("Choose how to align the ouput grid system to the AOI"),
+		_TL("Choose how to align the output grid system to the AOI"),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("nodes"),
 			_TL("cells")

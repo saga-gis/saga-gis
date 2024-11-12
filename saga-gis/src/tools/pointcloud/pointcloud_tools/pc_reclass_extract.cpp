@@ -541,14 +541,14 @@ bool CPC_Reclass_Extract::Reclass_Table(bool bUser)
 
 	if( pReTab == NULL )
 	{
-		Error_Set(_TL("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n"));
+		Error_Set(_TL("You must specify a reclass table with a minimum (field 1), a maximum (field 2) and a code value (field 3)!\n"));
 
 		return( false );
 	}
 
 	if( pReTab->Get_Count() == 0 )
 	{
-		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
+		Error_Set(_TL("You must specify a reclass table with a minimum of one record!\n"));
 
 		return( false );
 	}

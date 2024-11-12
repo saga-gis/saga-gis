@@ -48,7 +48,7 @@ private:
       m_bCliffTopQualityFlag,
       m_bCliffToeQualityFlag;
    int
-      m_nNumCoastPoint,          // The coastline point at which this profile hits the coast (not necessarily coincident wih the profile start cell)
+      m_nNumCoastPoint,          // The coastline point at which this profile hits the coast (not necessarily coincident with the profile start cell)
       m_nCliffTopPoint,          // The profile point at which the cliff top is located
       m_nCliffToePoint;          // The profile point at which the cliff toe is located
    double

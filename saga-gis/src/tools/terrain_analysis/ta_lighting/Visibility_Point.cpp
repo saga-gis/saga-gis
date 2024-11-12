@@ -326,7 +326,7 @@ bool CVisibility::_Trace_Point(int x, int y, double dx, double dy, double dz, in
 			if (x == xOrigin && y == yOrigin)
 			{
 				// because of floating point precision issues the check "id < dist" can fail on
-				// the observer cell and we move on into another cell, so check this explictly
+				// the observer cell and we move on into another cell, so check this explicitly
 
 				break;
 			}

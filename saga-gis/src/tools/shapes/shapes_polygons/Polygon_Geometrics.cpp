@@ -56,7 +56,7 @@ CPolygon_Geometrics::CPolygon_Geometrics(void)
 
 	Parameters.Add_Shapes("",
 		"OUTPUT"	, _TL("Polygons with Property Attributes"),
-		_TL("If not set property attributes will be added to the orignal layer."),
+		_TL("If not set property attributes will be added to the original layer."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 

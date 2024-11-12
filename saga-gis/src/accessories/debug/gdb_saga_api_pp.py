@@ -1,4 +1,4 @@
-# Note on my maschine the gnu pretty-printers are in this file /usr/share/gcc-xx.x.x/python/libstdcxx/printers.py
+# Note on my machine the gnu pretty-printers are in this file /usr/share/gcc-xx.x.x/python/libstdcxx/printers.py
 
 import gdb
 import datetime
@@ -268,7 +268,7 @@ class rect_printer:
         ymin = self.val['yMin']
         xmax = self.val['xMax']
         ymax = self.val['yMax']
-        return "left = %f, rigth = %f, up = %f, down = %f" % ( xmin, xmax, ymax, ymin )
+        return "left = %f, right = %f, up = %f, down = %f" % ( xmin, xmax, ymax, ymin )
 
     def to_string(self):
         return "CSG_Rect: {%s}" % ( self.format() )
@@ -427,7 +427,7 @@ class shape_points_printer:
 CSG_Shape_Points: {
     parts = 3, points = 3, 
     exten ={
-        left = 0.356161, rigth = 0.728781, up = 0.924634, down = 0.619644
+        left = 0.356161, right = 0.728781, up = 0.924634, down = 0.619644
     }, 
     z min = 0.000000, z max = 0.329412, m min = 0.000000, m max = 0.000000, table 
     record ={index = 0, 

@@ -202,7 +202,7 @@ void    E00WriteClose(E00WritePtr psInfo)
  * convert it to the requested compression level, and write the 
  * compressed result to the output file.
  *
- * Returns 0 if the line was processed succesfully, or an error number
+ * Returns 0 if the line was processed successfully, or an error number
  * (> 0) if an error happened.
  **********************************************************************/
 int     E00WriteNextLine(E00WritePtr psInfo, const char *pszLine)
@@ -276,7 +276,7 @@ int     E00WriteNextLine(E00WritePtr psInfo, const char *pszLine)
  * Compress one line of input, and store the compressed copy at the
  * end of psInfo->pszOutBuf.
  *
- * Returns 0 if the line was compressed succesfully, or an error number
+ * Returns 0 if the line was compressed successfully, or an error number
  * (> 0) if an error happened.
  **********************************************************************/
 static int _CompressLine(E00WritePtr psInfo, const char *pszLine)
@@ -496,7 +496,7 @@ static int _CompressLine(E00WritePtr psInfo, const char *pszLine)
     }
 
     /* Terminate this line with a newline code 
-     * This code applies to both PARTIAL and FULL compresion.
+     * This code applies to both PARTIAL and FULL compression.
      */
     strcpy( psInfo->szOutBuf+psInfo->iOutBufPtr, "~}");
     psInfo->iOutBufPtr += 2;
@@ -515,7 +515,7 @@ static int _CompressLine(E00WritePtr psInfo, const char *pszLine)
  * Pass bFlushBuffer == 1 to force writing the whole contents of szOutBuf
  * at once.
  *
- * Returns 0 if the line was written succesfully, or an error number
+ * Returns 0 if the line was written successfully, or an error number
  * (> 0) if an error happened.
  **********************************************************************/
 static int _WriteNextCompressedLine(E00WritePtr psInfo, int bFlushWholeBuffer)

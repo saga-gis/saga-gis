@@ -97,7 +97,7 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 		"network by a limiting transport capacity given in absolute values.\n\n"
 		"\t* ACCUFRACTIONFLUX / STATE: The operation limits the flow over the network by a "
 		"parameter which controls the proportion (0-1) of the material that can flow through each cell.\n\n"
-		"\t* ACCUTHRESHOLDFLUX / STATE: The operation modifies the accummulation of flow over "
+		"\t* ACCUTHRESHOLDFLUX / STATE: The operation modifies the accumulation of flow over "
 		"the network by limiting transport to values greater than a minimum threshold value "
 		"per cell. No flow occurs if the threshold is not exceeded.\n\n"
 		"\t* ACCUTRIGGERFLUX / STATE: The operation only allows transport (flux) to occur if "
@@ -138,7 +138,7 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 
     Parameters.Add_Grid("",
         "OPERATION_GRID", _TL("Operation Grid"), 
-        _TL("Grid encoding the mode of operation per grid cell. Can be used instead of a global setting (\"Operation\" choice). Operations use the same identifers as the \"Operation\" choice parameter [0-4]."), 
+        _TL("Grid encoding the mode of operation per grid cell. Can be used instead of a global setting (\"Operation\" choice). Operations use the same identifiers as the \"Operation\" choice parameter [0-4]."), 
         PARAMETER_INPUT_OPTIONAL
     );
 
@@ -361,7 +361,7 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 
                 default:
                     state	= 0.0;
-                    Message_Add(CSG_String::Format(_TL("Unkown operation value %d in grid cell %d,%d (x,y), computing accuflux ..."), operation, x, y));
+                    Message_Add(CSG_String::Format(_TL("Unknown operation value %d in grid cell %d,%d (x,y), computing accuflux ..."), operation, x, y));
                     break;
 			    }
 

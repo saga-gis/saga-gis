@@ -82,7 +82,7 @@ CHTML_ImageMap::CHTML_ImageMap(void)
 		"\n"
 		"<b>How to build the link:</b>"
 		"<ul>"
-		"<li><b>Link</b> Select link identfier from the attribute table of the polygon data layer.\n"
+		"<li><b>Link</b> Select link identifier from the attribute table of the polygon data layer.\n"
 		"<li><b>Prefix</b> Adds a prefix to the link identifier. If just for icon with alternative text and, add <i>'#'</i>).\n"
 		"<li><b>Suffix</b> Adds a suffix of the link identifier. Likewise <i>'.txt, .html, .doc, .png'</i>.\n"
 		"</ul>The link will be built with the pattern <i>'Prefix + Identifier + Suffix'</i>.\n"

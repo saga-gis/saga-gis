@@ -93,7 +93,7 @@ class MaxEntTrainer;
     integers in the vector).
 */
 class MaxEntEvent : public vector<unsigned long> {
-  double _count; // the number of instances of this event (typicall 1).
+  double _count; // the number of instances of this event (typically 1).
   unsigned long _classId; // the class that this event belongs to.
 public:
   double count() const { return _count;}

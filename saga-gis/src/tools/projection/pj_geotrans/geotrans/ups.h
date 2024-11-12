@@ -141,7 +141,7 @@ extern "C" {
  *  longitude) coordinates to UPS (hemisphere, easting, and northing)
  *  coordinates, according to the current ellipsoid parameters. If any 
  *  errors occur, the error code(s) are returned by the function, 
- *  otherwide UPS_NO_ERROR is returned.
+ *  otherwise UPS_NO_ERROR is returned.
  *
  *    Latitude      : Latitude in radians                       (input)
  *    Longitude     : Longitude in radians                      (input)

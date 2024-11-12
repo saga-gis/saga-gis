@@ -177,7 +177,7 @@ bool CExercise_10::Next_Step(void)
 		for(int x=0; x<Get_NX(); x++)
 		{
 			//---------------------------------------------
-			// Count neighours...
+			// Count neighbours...
 
 			int	n = 0;
 

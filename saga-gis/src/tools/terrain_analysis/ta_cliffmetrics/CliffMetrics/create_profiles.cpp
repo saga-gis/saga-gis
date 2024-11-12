@@ -208,7 +208,7 @@ int CDelineation::nCreateProfile(int const nCoast, int const nProfileStartPoint,
 
 /*==============================================================================================================================
 
- Finds the end point of a coastline-normal line, given the start point on the vector coastline. All co-ordinates are in the external CRS
+ Finds the end point of a coastline-normal line, given the start point on the vector coastline. All coordinates are in the external CRS
 
 ===============================================================================================================================*/
 int CDelineation::nGetCoastNormalEndPoint(int const nCoast, int const nStartCoastPoint, int const nCoastSize, C2DPoint* const pPtStart, double const dLineLength, C2DPoint* pPtSeaEnd, C2DPoint* pPtLandEnd)
@@ -1040,7 +1040,7 @@ void CDelineation::RasterizeProfile(int const nCoast, int const nProfile, vector
          }
 
          // Append this point to the output vector
-         pVIPointsOut->push_back(C2DIPoint(nX, nY));         // Is in raster-grid co-ordinates
+         pVIPointsOut->push_back(C2DIPoint(nX, nY));         // Is in raster-grid coordinates
          pbVShared->push_back(bShared);
 
          // And increment for next time

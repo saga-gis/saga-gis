@@ -272,7 +272,7 @@ typedef int otl_stream_buffer_size_type;
 
 #else
 
-// Only one OTL is being intantiated
+// Only one OTL is being instantiated
 #if defined(OTL_ODBC)&&!defined(OTL_ORA8)&& \
     !defined(OTL_ORA7)&&!defined(OTL_DB2_CLI) \
  || !defined(OTL_ODBC)&&defined(OTL_ORA8)&& \
@@ -16945,7 +16945,7 @@ private:
 
   friend class otl_cur;
   Lda_Def* lda;
-  unsigned char hda[512];
+  unsigned char had[512];
   int extern_lda;
 
 public:
@@ -29325,7 +29325,7 @@ public:
    sprintf(temp_buf,"procedure %s",full_name);
 #endif
    {
-     // last ditch attemp to identify a global SP with no parms
+     // last ditch attempt to identify a global SP with no parms
      bool global_sp_no_parms=false;
      if(schema_name==0){
        // schema name is not specified

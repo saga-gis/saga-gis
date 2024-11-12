@@ -68,7 +68,7 @@ CGrid_Export::CGrid_Export(void)
 
 	Set_Description	(_TW(
 		"With this tool you can save a RGB to an image file. "
-		"Optionally, a shade RGB can be overlayed using the "
+		"Optionally, a shade RGB can be overlaid using the "
 		"specified transparency and brightness adjustment. "
 		"\nIf input rasters come with geographic coordinates an additional"
 		"option for KML file creation (Google Earth) is selectable. "

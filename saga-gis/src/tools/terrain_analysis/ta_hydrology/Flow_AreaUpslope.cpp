@@ -94,8 +94,8 @@ CSG_String CFlow_AreaUpslope::Get_Methods(void)
 		_TL("Deterministic 8"),
 		_TL("Deterministic Infinity"),
 		_TL("Multiple Flow Direction"),
-		_TL("Multiple Triangular Flow Directon"),
-		_TL("Multiple Maximum Downslope Gradient Based Flow Directon")
+		_TL("Multiple Triangular Flow Direction"),
+		_TL("Multiple Maximum Downslope Gradient Based Flow Direction")
 	));
 }
 
@@ -639,7 +639,7 @@ CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 
 	Parameters.Add_Double("",
 		"CONVERGE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Direction Algorithm."),
 		1.1, 0.001, true
 	);
 

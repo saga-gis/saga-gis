@@ -415,7 +415,7 @@ CExecute_SQL::CExecute_SQL(void)
 	));
 
 	Parameters.Add_String(
-		"", "SQL"	, _TL("SQL Statment"),
+		"", "SQL"	, _TL("SQL Statement"),
 		_TL(""),
 		"CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n"
 		"INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n"

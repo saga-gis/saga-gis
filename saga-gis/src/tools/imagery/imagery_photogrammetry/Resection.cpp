@@ -327,7 +327,7 @@ bool CResection::On_Execute(void)
 			double x_i = (1 - dR) * x_u + ppOffsetX * pixWmm;
 			double z_i = (1 - dR) * y_u + ppOffsetY * pixWmm;
 
-			// Shortened obervation vector: dxi & dzi
+			// Shortened observation vector: dxi & dzi
 			double dx_i = pPoints->Get_Attribute(i,0) * pixWmm - x_i;
 			double dz_i = pPoints->Get_Attribute(i,1) * pixWmm - z_i;
 			SS += pow(dx_i,2) + pow(dz_i,2);
@@ -381,7 +381,7 @@ bool CResection::On_Execute(void)
 				}
 			}
 
-			// Build Tranpose (J) * I * (Shortened obs. vector)
+			// Build Transpose (J) * I * (Shortened obs. vector)
 			for (int m=0; m < n; m++) {
 				ATL[m] += design[0][m] * dx_i + design[1][m] * dz_i;
 			}

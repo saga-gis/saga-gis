@@ -680,7 +680,7 @@ CGrids_Extract_Grid::CGrids_Extract_Grid(void)
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Nearest Neigbhour"   ),
+			_TL("Nearest Neighbour"   ),
 			_TL("Linear Interpolation"),
 			_TL("Spline Interpolation")
 		), 1

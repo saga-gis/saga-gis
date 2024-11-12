@@ -92,7 +92,7 @@ CMBASpline_for_Categories::CMBASpline_for_Categories(void)
 	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("CATEGORIES" , _TL("Categories" ), false);
-	m_Grid_Target.Add_Grid("PROPABILITY", _TL("Propability"), false);
+	m_Grid_Target.Add_Grid("PROBABILITY", _TL("Probability"), false);
 }
 
 
@@ -151,7 +151,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	CSG_Grid	*pGrid, *pProp, Prop;
 
 	if( !(pGrid = m_Grid_Target.Get_Grid("CATEGORIES", nCategories < 128 ? SG_DATATYPE_Char : SG_DATATYPE_Int))
-	||  !(pProp = m_Grid_Target.Get_Grid("PROPABILITY")) )
+	||  !(pProp = m_Grid_Target.Get_Grid("PROBABILITY")) )
 	{
 		return( false );
 	}
@@ -184,7 +184,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 
 	//-----------------------------------------------------
 	pGrid->Fmt_Name("%s"     , Points.Get_Field_Name(0));
-	pProp->Fmt_Name("%s [%s]", Points.Get_Field_Name(0), _TL("Propability"));
+	pProp->Fmt_Name("%s [%s]", Points.Get_Field_Name(0), _TL("Probability"));
 
 	pProp->Assign(0.0);
 	pProp->Set_NoData_Value(0.0);

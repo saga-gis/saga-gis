@@ -498,7 +498,7 @@ static void csa_squarize(csa* a)
 
     /*
      * Create a list of "primary" triangles, for which spline coefficients
-     * will be calculated directy (by least squares method), without using
+     * will be calculated directly (by least squares method), without using
      * C1 smoothness conditions. 
      */
     a->pt = (triangle **)malloc((a->ni / 2 + 1) * a->nj * sizeof(triangle*));
@@ -757,7 +757,7 @@ static int n2q(int n)
  * @param a Input matrix A = U.W[0..m-1][0..n-1]; output matrix U
  * @param n Number of columns
  * @param m Number of rows
- * @param w Ouput vector that presents diagonal matrix W
+ * @param w Output vector that presents diagonal matrix W
  * @param V output matrix V
  */
 static void svd(double** a, int n, int m, double* w, double** v)

@@ -377,7 +377,7 @@ bool CESRI_E00_Import::Load(void)
 			continue;
 		}
 
-		// UNKNOW KEYWORD SECTION. Don't know what to do with. Does anybody have an idea?
+		// UNKNOWN KEYWORD SECTION. Don't know what to do with. Does anybody have an idea?
 		if( !strncmp(line, "LNK  ", 5) )
 		{
 			skip("END OF LINK DATA");
@@ -420,7 +420,7 @@ bool CESRI_E00_Import::Load(void)
 			continue;
 		}
 
-		if(	!strncmp(line, "RPL  ", 5)		// Specific to regions. Contains PAL formated data for each subclass
+		if(	!strncmp(line, "RPL  ", 5)		// Specific to regions. Contains PAL formatted data for each subclass
 		||	!strncmp(line, "RXP  ", 5)		// Specific to regions. Seems to link regions IDs to PAL polygons IDs
 		||	!strncmp(line, "TX6  ", 5)		// Other kind of annotations not same termination. Other differences ?
 		||	!strncmp(line, "TX7  ", 5)	)	// Very close from TX6. So same questions and same rules...

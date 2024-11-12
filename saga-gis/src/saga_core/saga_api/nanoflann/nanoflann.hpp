@@ -1083,7 +1083,7 @@ namespace nanoflann {
 	* non-virtual, inlined methods):
 	*
 	*  \code
-	*   // Must return the number of data poins
+	*   // Must return the number of data points
 	*   inline size_t kdtree_get_point_count() const { ... }
 	*
 	*
@@ -1434,7 +1434,7 @@ namespace nanoflann {
 	   * non-virtual, inlined methods):
 	   *
 	   *  \code
-	   *   // Must return the number of data poins
+	   *   // Must return the number of data points
 	   *   inline size_t kdtree_get_point_count() const { ... }
 	   *
 	   *   // Must return the dim'th component of the idx'th point in the class:
@@ -1530,7 +1530,7 @@ namespace nanoflann {
 				BaseClassRef::m_leaf_max_size = params.leaf_max_size;
 			}
 
-			/** Assignment operator definiton */
+			/** Assignment operator definition */
 			KDTreeSingleIndexDynamicAdaptor_
 				operator=(const KDTreeSingleIndexDynamicAdaptor_ &rhs) {
 				KDTreeSingleIndexDynamicAdaptor_ tmp(rhs);

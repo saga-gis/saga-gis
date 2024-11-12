@@ -49,7 +49,7 @@
 #define ADD_REFERENCES	{\
     Add_Reference("Al-Smadi, Mohammad", "1998",\
 		"Incorporating spatial and temporal variation of watershed response in a gis-based hydrologic model",\
-		"Faculty of the Virginia Polythecnic Insitute and State University. MsC Thesis.",\
+		"Faculty of the Virginia Polythecnic Institute and State University. MSc Thesis.",\
 		SG_T("scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"),\
 		SG_T("online")\
 	);\

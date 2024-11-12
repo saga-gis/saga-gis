@@ -113,8 +113,8 @@ static double es2 = 0.0066943799901413800;             /* Eccentricity (0.081819
 static double es4 = 4.4814723452405e-005;              /* es2 * es2  */
 static double es6 = 3.0000678794350e-007;              /* es4 * es2  */
 
-static double Ra0 = 2690082.6043273;                   /* 0.4222382 * Sperical Radius (6371007.1810824) */
-static double Ra1 = 8451143.5741087;                   /* 1.3265004 * Sperical Radius (6371007.1810824) */
+static double Ra0 = 2690082.6043273;                   /* 0.4222382 * Spherical Radius (6371007.1810824) */
+static double Ra1 = 8451143.5741087;                   /* 1.3265004 * Spherical Radius (6371007.1810824) */
 
 /* Eckert4 projection Parameters */
 static double Eck4_Origin_Long = 0.0;                  /* Longitude of origin in radians    */

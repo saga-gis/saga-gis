@@ -61,7 +61,7 @@
 CInterpolation_Shepard::CInterpolation_Shepard(void)
 	: CInterpolation(true, false)
 {
-	Set_Name		(_TL("Modifed Quadratic Shepard"));
+	Set_Name		(_TL("Modified Quadratic Shepard"));
 
 	Set_Author		("A.Ringeler (c) 2003");
 

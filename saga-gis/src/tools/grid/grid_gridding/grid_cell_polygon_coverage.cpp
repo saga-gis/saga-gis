@@ -319,7 +319,7 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Multiple Polygons"),
-		_TL("Output value for cells that intersect wiht more than one polygon."),
+		_TL("Output value for cells that intersect with more than one polygon."),
 		CSG_String::Format("%s|%s",
 			_TL("minimum coverage"),
 			_TL("maximum coverage")

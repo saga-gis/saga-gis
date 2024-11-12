@@ -321,13 +321,13 @@ bool CSG_Projection::Load(const CSG_MetaData &Projection)
 	if( Projection("PROJ") && Create(Projection["PROJ"].Get_Content()) ) { return( true ); }
 
 	//-----------------------------------------------------
-	// >>> backward compatibilty
+	// >>> backward compatibility
 
 	if( Projection("WKT1"   ) && Create(Projection["WKT1"   ].Get_Content()) ) { return( true ); }
 	if( Projection("OGC_WKT") && Create(Projection["OGC_WKT"].Get_Content()) ) { return( true ); }
 	if( Projection("PROJ4"  ) && Create(Projection["PROJ4"  ].Get_Content()) ) { return( true ); }
 
-	// <<< backward compatibilty
+	// <<< backward compatibility
 	//-----------------------------------------------------
 
 	return( false );

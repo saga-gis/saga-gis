@@ -985,7 +985,7 @@ CSoilWater_Glugla_Grid::CSoilWater_Glugla_Grid(void)
 
 	Parameters.Add_Grid_List("", "FC"     , _TL("Field Capacity"              ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
 	Parameters.Add_Grid_List("", "PWP"    , _TL("Permanent Wilting Point"     ), _TL("[vol.%]"     ), PARAMETER_INPUT_OPTIONAL, false);
-	Parameters.Add_Grid_List("", "ETMAX"  , _TL("Maxmimum Evapotranspiration" ), _TL("[vol.%/day]" ), PARAMETER_INPUT_OPTIONAL, false);
+	Parameters.Add_Grid_List("", "ETMAX"  , _TL("Maximum Evapotranspiration"  ), _TL("[vol.%/day]" ), PARAMETER_INPUT_OPTIONAL, false);
 //	Parameters.Add_Grid_List("", "ROOTING", _TL("Rooting"                     ), _TL("[% of total]"), PARAMETER_INPUT_OPTIONAL, false);
 
 	Parameters.Add_Grid_or_Const("",

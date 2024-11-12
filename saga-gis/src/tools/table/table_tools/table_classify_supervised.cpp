@@ -149,7 +149,7 @@ CTable_Classify_Supervised::CTable_Classify_Supervised(void)
 
 	Parameters.Add_Double("METHOD",
 		"THRESHOLD_DIST", _TL("Distance Threshold"),
-		_TL("Let pixel stay unclassified, if minimum euclidian or mahalanobis distance is greater than threshold."),
+		_TL("Let pixel stay unclassified, if minimum euclidean or mahalanobis distance is greater than threshold."),
 		0., 0., true
 	);
 

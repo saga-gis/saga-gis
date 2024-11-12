@@ -1,8 +1,8 @@
 /*!
  *
  * \class C2DIPoint
- * \brief Class used to represent 2D point objects with integer co-ordinates
- * \details The C2DIPoint class is used to represent 2D points where the x and y co-ordinates can only be integer values, e.g. points for which the x and y co-ordinates are in the raster-grid CRS (co-ordinate reference system)
+ * \brief Class used to represent 2D point objects with integer coordinates
+ * \details The C2DIPoint class is used to represent 2D points where the x and y coordinates can only be integer values, e.g. points for which the x and y coordinates are in the raster-grid CRS (coordinate reference system)
  * \author David Favis-Mortlock
  * \author Andres Payo
  * \author Jim Hall

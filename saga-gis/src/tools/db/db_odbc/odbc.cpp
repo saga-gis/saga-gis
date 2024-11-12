@@ -537,7 +537,7 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 	//		return( bCommit ? Commit() : true );
 	//	}
 
-	//	_Error_Message(_TL("sql excution error"), SQL);
+	//	_Error_Message(_TL("sql execution error"), SQL);
 	}
 	catch( otl_exception &e )
 	{

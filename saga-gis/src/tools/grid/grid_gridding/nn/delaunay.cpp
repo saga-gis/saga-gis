@@ -527,7 +527,7 @@ static int onrightside(point* p, point* p0, point* p1)
 * @param d Delaunay triangulation
 * @param p Point to be mapped
 * @param seed Triangle index to start with
-* @return Triangle id if successful, -1 otherwhile
+* @return Triangle id if successful, -1 otherwise
 */
 int delaunay_xytoi(delaunay* d, point* p, int id)
 {
@@ -636,7 +636,7 @@ void delaunay_circles_find(delaunay* d, point* p, int* n, int** out)
 
 	/*
 	* It is important to have a reasonable seed here. If the last search
-	* was successful -- start with the last found tricircle, otherwhile (i) 
+	* was successful -- start with the last found tricircle, otherwise (i)
 	* try to find a triangle containing p; if fails then (ii) check
 	* tricircles from the last search; if fails then (iii) make linear
 	* search through all tricircles 

@@ -125,7 +125,7 @@ extern "C" {
                                           double Scale_Factor);
 /*
  * The function Set_Tranverse_Mercator_Parameters receives the ellipsoid
- * parameters and Tranverse Mercator projection parameters as inputs, and
+ * parameters and Transverse Mercator projection parameters as inputs, and
  * sets the corresponding state variables. If any errors occur, the error
  * code(s) are returned by the function, otherwise TRANMERC_NO_ERROR is
  * returned.

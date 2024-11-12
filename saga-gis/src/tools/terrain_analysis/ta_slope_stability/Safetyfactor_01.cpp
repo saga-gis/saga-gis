@@ -385,7 +385,7 @@ bool CSafetyfactor::On_Execute(void)
 				else
 					pG->Set_Value(x, y, 10);
 
-				if (pH)			//create optional binary stabilty grid
+				if (pH)			//create optional binary stability grid
 				{
 					if (g < 1)
 						pH->Set_Value(x, y, FS_UNSTABLE);

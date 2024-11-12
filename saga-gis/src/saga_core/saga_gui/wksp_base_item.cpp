@@ -101,7 +101,7 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 	case WKSP_ITEM_Map               :	return( _TL("Map"                ) );
 	case WKSP_ITEM_Map_Layer         :	return( _TL("Map Layer"          ) );
 
-	default                          :	return( _TL("unkown"             ) );
+	default                          :	return( _TL("unknown"            ) );
 	}
 }
 

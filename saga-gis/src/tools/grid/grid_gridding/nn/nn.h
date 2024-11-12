@@ -112,7 +112,7 @@ void points_generate(double xmin, double xmax, double ymin, double ymax, int nx,
 
 /** Reads array of points from a columnar file.
  *
- * @param fname File name (can be "stdin" dor stndard input)
+ * @param fname File name (can be "stdin" or standard input)
  * @param dim Number of dimensions (must be 2 or 3)
  * @param n Pointer to number of points (output)
  * @param points Pointer to array of points [*n] (output)
@@ -170,7 +170,7 @@ void lpi_interpolate_point(lpi* l, point* p);
  *
  * @param nin Number of input points
  * @param pin Array of input points [pin]
- * @param nout Number of ouput points
+ * @param nout Number of output points
  * @param pout Array of output points [nout]
  */
 void lpi_interpolate_points(int nin, point pin[], int nout, point pout[]);
@@ -179,7 +179,7 @@ void lpi_interpolate_points(int nin, point pin[], int nout, point pout[]);
  ** Natural Neighbours interpolation of data on a "point-to-point" basis.
  *
  * Because it involves weight calculation for each output point, it is not
- * designed to take advantage of consequitive interpolations on the same 
+ * designed to take advantage of consecutive interpolations on the same
  * sets of input and output points -- use `nnhpi' or `nnai' in these cases.
  */
 struct nnpi;
@@ -226,7 +226,7 @@ void nnpi_interpolate_points(int nin, point pin[], double wmin, int nout, point 
 void nnpi_setwmin(nnpi* nn, double wmin);
 
 /** `nnhpi' -- "Natural Neighbours Hashing Point Interpolator" -- is a
- ** structure for conducting consequitive Natural Neighbours interpolations
+ ** structure for conducting consecutive Natural Neighbours interpolations
  ** from the same set of observation points, designed to take advantage of
  ** repeated interpolations in the same point. It allows modifying Z
  ** coordinate of observed data between interpolations (because this does not
@@ -278,7 +278,7 @@ void nnhpi_modify_data(nnhpi* nn, point* p);
 void nnhpi_setwmin(nnhpi* nn, double wmin);
 
 /** `nnai' -- "Natural Neighbours Array Interpolator" is a structure for
- ** conducting consequitive Natural Neighbours interpolations from the same
+ ** conducting consecutive Natural Neighbours interpolations from the same
  ** set of observation points in the same set of points. It allows modifying Z
  ** coordinate of data between interpolations (because this does not
  ** affect the interpolant weights).

@@ -80,7 +80,7 @@ CGrid_Autocorrelation::CGrid_Autocorrelation(void)
 
 	Parameters.Add_Choice(
 		"", "CONTIGUITY"	, _TL("Case of contiguity"),
-		_TL("Choose case: Rook's case contiguity compares only cell wich share an edge. Queen's case contiguity compares also cells which share just corners."),
+		_TL("Choose case: Rook's case contiguity compares only cell which share an edge. Queen's case contiguity compares also cells which share just corners."),
 		CSG_String::Format("%s|%s",
 			_TL("Rook"),
 			_TL("Queen")

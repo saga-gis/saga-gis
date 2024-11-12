@@ -343,7 +343,7 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 	: CPolygon_Overlay(_TL("Intersect"))
 {
 	Add_Description(_TW(
-		"Calculates the geometric intersection of the overlayed polygon layers, "
+		"Calculates the geometric intersection of the overlaid polygon layers, "
 		"i.e. layer A and layer B."
 	));
 }
@@ -371,7 +371,7 @@ CPolygon_Difference::CPolygon_Difference(void)
 	: CPolygon_Overlay(_TL("Difference"))
 {
 	Add_Description(_TW(
-		"Calculates the geometric difference of the overlayed polygon layers, "
+		"Calculates the geometric difference of the overlaid polygon layers, "
 		"i.e. layer A less layer B. Sometimes referred to as \'Erase\' command."
 	));
 }
@@ -399,7 +399,7 @@ CPolygon_SymDifference::CPolygon_SymDifference(void)
 	: CPolygon_Overlay(_TL("Symmetrical Difference"))
 {
 	Add_Description(_TW(
-		"Calculates the symmetrical geometric difference of the overlayed polygon layers, "
+		"Calculates the symmetrical geometric difference of the overlaid polygon layers, "
 		"i.e. layer A less layer B plus layer B less layer A."
 	));
 }
@@ -428,7 +428,7 @@ CPolygon_Union::CPolygon_Union(void)
 	: CPolygon_Overlay(_TL("Union"))
 {
 	Add_Description(_TW(
-		"Calculates the geometric union of the overlayed polygon layers, "
+		"Calculates the geometric union of the overlaid polygon layers, "
 		"i.e. the intersection plus the symmetrical difference of layers A and B."
 	));
 }

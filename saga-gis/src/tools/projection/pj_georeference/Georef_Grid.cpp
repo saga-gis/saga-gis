@@ -68,7 +68,7 @@ CGeoref_Grid::CGeoref_Grid(bool bList)
 	Set_Description	(_TW(
 		"Georeferencing and rectification for grids. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply an "
-		"additional points layer with correspondend points in the target projection. "
+		"additional points layer with correspondent points in the target projection. "
 	));
 
 	//-----------------------------------------------------

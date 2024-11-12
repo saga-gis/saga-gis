@@ -63,7 +63,7 @@ CGrid_Combine_Classes::CGrid_Combine_Classes(void)
 	Set_Author		("O.Conrad (c) 2017");
 
 	Set_Description	(_TW(
-		"Based on the look-up table classfication of a grid, this tool "
+		"Based on the look-up table classification of a grid, this tool "
 		"allows changing and combining class belongings of the cells. "
 	));
 

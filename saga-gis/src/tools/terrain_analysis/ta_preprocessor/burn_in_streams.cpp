@@ -210,7 +210,7 @@ bool CBurnIn_Streams::Burn_Simple(bool bNeighbours)
 			{
 				double	zMin	= m_pDEM->asDouble(x, y);
 
-				if( bNeighbours )	// assure lower than neighourhood
+				if( bNeighbours )	// assure lower than neighbourhood
 				{
 					for(int i=0; i<8; i++)
 					{

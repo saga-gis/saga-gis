@@ -77,8 +77,8 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 	Add_Reference("Friedrich, K.", "1998",
 		"Multivariate distance methods for geomorphographic relief classification",
 		"In: Heinecke, H., Eckelmann, W., Thomasson, A., Jones, J., Montanarella, L., Buckley, B. (eds.): "
-		"Land Inforamtion Systems - Developments for planning the sustainable use of land resources. "
-		"European Soil Bureau - Research Report 4, EUR 17729 EN, Office for oficial publications of the European Communities, Ispra, pp. 259-266.",
+		"Land Information Systems - Developments for planning the sustainable use of land resources. "
+		"European Soil Bureau - Research Report 4, EUR 17729 EN, Office for official publications of the European Communities, Ispra, pp. 259-266.",
 		SG_T("https://esdac.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/contents.html"), SG_T("online")
 	//	SG_T("https://esdac.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/4_4.doc"), SG_T("online")
 	);

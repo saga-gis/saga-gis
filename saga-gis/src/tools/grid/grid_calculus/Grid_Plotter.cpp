@@ -128,7 +128,7 @@ bool CGrid_Plotter::On_Execute(void)
 
 		if( !Formula.Get_Error(Message) )
 		{
-			Message	= _TL("unknown errror parsing formula");
+			Message	= _TL("unknown error parsing formula");
 		}
 
 		Error_Set(Message);

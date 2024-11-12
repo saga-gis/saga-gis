@@ -78,7 +78,7 @@ CConnected_Components::CConnected_Components(void)
 	Parameters.Set_Description(_TW(
 		"The tool allows one to label subsets of connected components with a unique identifier. "
         "Connected component labeling (CCL) is an operator which turns a binary image into "
-        "a symbolic image in which the label assigned to each pixel is an integer uniquely identifiying "
+        "a symbolic image in which the label assigned to each pixel is an integer uniquely identifying "
         "the connected component to which that pixel belongs (Shapiro 1996).\n"
         "The tool takes a grid as input and treats it as a binary image. The foreground is defined by "
         "all cell values greater than zero, the background by NoData cells and all cell values less than one. "

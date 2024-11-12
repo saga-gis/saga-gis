@@ -787,7 +787,7 @@ int Solver::select_working_set(int &out_i, int &out_j)
 	// return i,j such that
 	// i: maximizes -y_i * grad(f)_i, i in I_up(\alpha)
 	// j: minimizes the decrease of obj value
-	//    (if quadratic coefficeint <= 0, replace it with tau)
+	//    (if quadratic coefficient <= 0, replace it with tau)
 	//    -y_j*grad(f)_j < -y_i*grad(f)_i, j in I_low(\alpha)
 	
 	double Gmax = -INF;
@@ -1030,7 +1030,7 @@ int Solver_NU::select_working_set(int &out_i, int &out_j)
 	// return i,j such that y_i = y_j and
 	// i: maximizes -y_i * grad(f)_i, i in I_up(\alpha)
 	// j: minimizes the decrease of obj value
-	//    (if quadratic coefficeint <= 0, replace it with tau)
+	//    (if quadratic coefficient <= 0, replace it with tau)
 	//    -y_j*grad(f)_j < -y_i*grad(f)_i, j in I_low(\alpha)
 
 	double Gmaxp = -INF;
@@ -1700,7 +1700,7 @@ static decision_function svm_train_one(
 	return f;
 }
 
-// Platt's binary SVM Probablistic Output: an improvement from Lin et al.
+// Platt's binary SVM Probabilistic Output: an improvement from Lin et al.
 static void sigmoid_train(
 	int l, const double *dec_values, const double *labels, 
 	double& A, double& B)

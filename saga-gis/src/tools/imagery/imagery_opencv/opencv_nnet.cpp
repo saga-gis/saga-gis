@@ -193,7 +193,7 @@ COpenCV_NNet::COpenCV_NNet(void)
 		NULL	, "TRAINING_METHOD"		, _TL("Training method"),
 		_TL("Choose the training method used for the neronal network."),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Resilent propagation (RPROP)"),	
+			_TL("Resilient propagation (RPROP)"),
 			_TL("Backpropagation algorithm")
 		), 1
 	);
@@ -714,7 +714,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 	// since we cannot dynamically resize the CvMat
 	t_data = new CSG_Table();
 	
-	// We need a column for each grid and the output lable
+	// We need a column for each grid and the output label
 	for (int i = 0; i < gl_grids->Get_Data_Count(); i++)
 	{
 		t_data->Add_Field(CSG_String::Format(SG_T("GRID_%d"), i), SG_DATATYPE_Float, i); 
@@ -807,7 +807,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Table *t_trainData, int type, 
 
 			if(!b_isOutputFeature)
 			{
-				// Store the value inside the traning data matrix
+				// Store the value inside the training data matrix
 				cvSetReal2D(mat_trainData, i, j-i_idxCorrection, (float)d_value);
 			}
 		}
@@ -849,7 +849,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	// since we cannot dynamically resize the CvMat
 	t_data = new CSG_Table();
 	
-	// We need a column for each grid and the output lable
+	// We need a column for each grid and the output label
 	for (int i = 0; i < gl_grids->Get_Data_Count(); i++)
 	{
 		t_data->Add_Field(CSG_String::Format(SG_T("GRID_%d"), i), SG_DATATYPE_Float, i); 

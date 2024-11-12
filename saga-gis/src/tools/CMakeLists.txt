@@ -11,7 +11,7 @@ message(STATUS "folder: tools")
 #   liblas-dev
 #   libpdal-dev
 #
-# System alternatives to build-in code
+# System alternatives to built-in code
 #   libcurl-dev
 #   libsvm-dev
 #   libqhull-dev

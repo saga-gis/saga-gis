@@ -65,7 +65,7 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 
 	Set_Description	(_TW(
 		"Grid based analysis of diversity. It is assumed that the "
-		"input grid provides a classification (i.e. not a contiuous field). "
+		"input grid provides a classification (i.e. not a continuous field). "
 		"For each cell it counts the number of different categories (classes) "
 		"as well as the connectivity within the chosen search window. "
 	));

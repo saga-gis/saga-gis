@@ -1407,7 +1407,7 @@ bool CSG_Histogram::_Update(sLong nElements)
 
 //---------------------------------------------------------
 /**
-* Returns the correspondend value for the requested quantile.
+* Returns the correspondent value for the requested quantile.
 */
 double CSG_Histogram::Get_Quantile(double Quantile)	const
 {
@@ -1442,7 +1442,7 @@ double CSG_Histogram::Get_Quantile(double Quantile)	const
 
 //---------------------------------------------------------
 /**
-* Returns the correspondend value for the requested percentile.
+* Returns the correspondent value for the requested percentile.
 */
 double CSG_Histogram::Get_Percentile(double Percentile) const
 {
@@ -1451,7 +1451,7 @@ double CSG_Histogram::Get_Percentile(double Percentile) const
 
 //---------------------------------------------------------
 /**
-* Returns the correspondend quantile for the requested value.
+* Returns the correspondent quantile for the requested value.
 */
 double CSG_Histogram::Get_Quantile_Value(double Value) const
 {
@@ -1482,7 +1482,7 @@ double CSG_Histogram::Get_Quantile_Value(double Value) const
 
 //---------------------------------------------------------
 /**
-* Returns the correspondend percentile for the requested value.
+* Returns the correspondent percentile for the requested value.
 */
 double CSG_Histogram::Get_Percentile_Value(double Value) const
 {
@@ -2049,7 +2049,7 @@ bool CSG_Cluster_Analysis::Set_Feature(sLong iElement, int iFeature, double Valu
 * to this step. Method is minimum distance (= default), hill
 * climbing (= 1), or both methods in combination. If nMaxIterations
 * is set to zero, the analysis is iterated until it converges.
-* Initilization is done randomely (= default), periodically (= 1),
+* Initialization is done randomly (= default), periodically (= 1),
 * or skipped (= 2). The latter case allows starting the clustering
 * with user supplied start partitions.
 */

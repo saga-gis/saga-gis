@@ -22,11 +22,11 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-# Platform independant compiler requirements 
+# Platform independent compiler requirements
 set(CMAKE_CXX_STANDARD		 		14		CACHE STRING "C++ standard to be used")
 set(CMAKE_CXX_STANDARD_REQUIRED		ON 		CACHE STRING "The C++ standard is required")
 
-# Platform dependant compiler requirements
+# Platform dependent compiler requirements
 if(MSVC)
 	set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
@@ -70,7 +70,7 @@ include(cmake/modules/GNUInstallDirs.cmake)
 # clang uses this compile commands for the language server protocol
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
 
-# create windows resouce file
+# create windows resource file
 set(windows_version_rc "${CMAKE_BINARY_DIR}/win_version_info.rc")
 gen_win_version_resource("${PROJECT_NAME}" "${windows_version_rc}"
 	${SAGA_VERSION_MAJOR} ${SAGA_VERSION_MINOR} ${SAGA_VERSION_PATCH} ${GIT_COUNT}

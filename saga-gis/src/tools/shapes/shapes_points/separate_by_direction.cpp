@@ -72,7 +72,7 @@ CSeparate_by_Direction::CSeparate_by_Direction(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes_List("",
-		"OUTPUT"	, _TL("Ouput"),
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);

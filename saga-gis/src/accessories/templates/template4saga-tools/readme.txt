@@ -31,7 +31,7 @@ Project configuration for your building environment expects CMake installed on y
 > cmake ..
 > make
 
-Under Windows you can define an evironment variable 'SAGA' pointing to your SAGA installation folder, which allows CMake directly to find the dependencies, e.g.:
+Under Windows you can define an environment variable 'SAGA' pointing to your SAGA installation folder, which allows CMake directly to find the dependencies, e.g.:
 
 > cd C:\my_tool_library
 > mkdir build

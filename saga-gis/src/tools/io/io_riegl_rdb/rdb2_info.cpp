@@ -138,7 +138,7 @@ bool CRDB2_Info::On_Execute(void)
 			// Get list of point attributes
 			std::vector<std::string> attributes = rdb.pointAttribute().list();
 
-			// check for existance of specific rdb attribute
+			// check for existence of specific rdb attribute
 			auto listContains = [] (std::vector<std::string> &attributes, const char *att)
 			{
 				return std::find(attributes.begin(),attributes.end(), att) != attributes.end();

@@ -91,7 +91,7 @@ CRelative_Heights::CRelative_Heights(void)
 	Parameters.Add_Grid("", "HU" , _TL("Valley Depth"       ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid("", "NH" , _TL("Normalized Height"  ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid("", "SH" , _TL("Standardized Height"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "MS" , _TL("Mid-Slope Positon"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "MS" , _TL("Mid-Slope Position" ), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Double("", "W", _TL("w"), _TL(""),  0.5, 0., true);
 	Parameters.Add_Double("", "T", _TL("t"), _TL(""), 10.0, 0., true);

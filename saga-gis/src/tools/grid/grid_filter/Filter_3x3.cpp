@@ -95,7 +95,7 @@ CFilter_3x3::CFilter_3x3(void)
 
 	Parameters.Add_Bool("",
 		"ABSOLUTE"  , _TL("Absolute Weighting"),
-		_TL("If not checked to be absolute resulting sum will become devided by the sum of filter kernel's weights."),
+		_TL("If not checked to be absolute resulting sum will become divided by the sum of filter kernel's weights."),
 		true
 	);
 

@@ -193,7 +193,7 @@ extern "C" {
 /*
  *    Index   : Index of a given ellipsoid.in the ellipsoid table with the
  *                 specified index                             (input)
- *    Name    : Name of the ellipsoid referencd by index       (output)
+ *    Name    : Name of the ellipsoid referenced by index      (output)
  *
  *  The Function Ellipsoid_Name returns the name of the ellipsoid in 
  *  the ellipsoid table with the specified index.  If index is valid, 

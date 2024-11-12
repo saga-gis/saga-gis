@@ -265,7 +265,7 @@ enum
 #define KMAX     3
 #define KMIN     4
 
- /* re-use value */
+ /* reuse value */
 #define KLOWER   0
 #define KUPPER   1
 #define MEAN     2
@@ -357,7 +357,7 @@ void CACCA::acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, 
 		signa[KMEAN]);
 	G_message(("** Minimum: %.2lf K"), signa[KMIN]);
 
-	/* WARNING: re-use of the variable 'value' with new meaning */
+	/* WARNING: reuse of the variable 'value' with new meaning */
 
 	/* step 14 */
 

@@ -1,6 +1,6 @@
 ************************************************************************
                             SAGA TOOL CHAINS
-                              cheat sheat
+                              cheat sheet
 
                          Volker Wichmann, 2017-19
 ************************************************************************
@@ -118,7 +118,7 @@ attribute "optional", indicating whether a dataset is mandatory or optional.
 
 Some attributes are special to certain dataobjects, see the examples below.
 
-The name of output datasets can be set explicitely:
+The name of output datasets can be set explicitly:
 
 <output varname="OUTPUT_GRID" type="grid">
 	<name>Output Grid</name>
@@ -131,7 +131,7 @@ an suffix:
 <output_name input="true" suffix="Gaussian Filter">GRIDS</output_name>
 
 
-For ouput datasets there is also the possibility to specify a colour palette
+For output datasets there is also the possibility to specify a colour palette
 with the <colours> element (using the SAGA API enumerator value):
 
 <colours>14</colours>
@@ -244,7 +244,7 @@ Shapes layers are defined as of type "shapes" and can be input or output:
 	<name>Output Shapes</name>
 </output>
 
-The feature type of an input or output shapes layer can be defined explicitely
+The feature type of an input or output shapes layer can be defined explicitly
 with the "feature_type" attribute:
 
 <input varname="INPUT_POINT_SHAPE" type="shapes" feature_type="point">
@@ -664,16 +664,16 @@ This is an other example, this time with a shapes input list:
 
 
 
-Single data objects in parameter lists can be adressed via the index operator:
+Single data objects in parameter lists can be addressed via the index operator:
 
 <input id="ELEVATION">CLIPPED[0]</input>
 
 with 'CLIPPED' being defined as parameter list. The index values start at 0,
-i.e. the fist data object in a list is adressed by [0], the second by [1] and
+i.e. the fist data object in a list is addressed by [0], the second by [1] and
 so on. 
 
 
-Table fields are passed as a comma seperated string with the field numbers:
+Table fields are passed as a comma separated string with the field numbers:
 
 <tool library="table_calculus" tool="14" name="Cluster Analysis (Shapes)">
 	<option id="FIELDS">3,4,5,10,11</option>
@@ -786,7 +786,7 @@ dataset:
 Within a <condition> element, a <if> and <else> elements can be used to control
 which code is executed if the condition evaluates to "true" and which code
 when the condition evaluates to "false". For example, if the "CHANNEL_LINES"
-dataset alraedy exists, it is directly converted to a grid, otherwise it is
+dataset already exists, it is directly converted to a grid, otherwise it is
 first created from a DEM and then gridded:
 
 <condition type="exists" variable="CHANNEL_LINES">
