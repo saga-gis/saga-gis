@@ -68,11 +68,6 @@ CExercise_05::CExercise_05(void)
 		"Simple neighbourhood analysis for grid cells."
 	));
 
-	Add_Reference("Zevenbergen, L.W. & Thorne, C.R.", "1987",
-		"Quantitative analysis of land surface topography",
-		"Earth Surface Processes and Landforms, 12: 47-56."
-	);
-
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
 		"ediss.uni-goettingen.de.",
@@ -85,28 +80,33 @@ CExercise_05::CExercise_05(void)
 		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
+	Add_Reference("Zevenbergen, L.W. & Thorne, C.R.", "1987",
+		"Quantitative analysis of land surface topography",
+		"Earth Surface Processes and Landforms, 12: 47-56."
+	);
+
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "ELEVATION"	, _TL("Input grid"),
+		"", "ELEVATION", _TL("Input grid"),
 		_TL("This must be your input data of type grid."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "SLOPE"		, _TL("Slope"),
+		"", "SLOPE"    , _TL("Slope"),
 		_TL("This will contain your output data of type grid."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "ASPECT"		, _TL("Aspect"),
+		"", "ASPECT"   , _TL("Aspect"),
 		_TL("This will contain your output data of type grid."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		"", "METHOD"		, _TL("Method"),
+		"", "METHOD"   , _TL("Method"),
 		_TL("Choose a method"),
 		CSG_String::Format("%s|%s|%s",
 			_TL("Steepest gradient (first version)"),
@@ -152,9 +152,9 @@ bool CExercise_05::On_Execute(void)
 
 			switch( Parameters("METHOD")->asInt() )
 			{
-			case  0: return( Method_01(x, y) );
-			case  1: return( Method_02(x, y) );
-			default: return( Method_03(x, y) );
+			case  0: Method_01(x, y); break;
+			case  1: Method_02(x, y); break;
+			default: Method_03(x, y); break;
 			}
 		}
 	}
@@ -249,14 +249,7 @@ bool CExercise_05::Method_03(int x, int y)
 	{
 		int ix = x + x_To[i], iy = y + y_To[i];
 
-		if( m_pDTM->is_NoData(ix, iy) )
-		{
-			dz[i] = 0.;
-		}
-		else
-		{
-			dz[i] = m_pDTM->asDouble(ix, iy) - z;
-		}
+		dz[i] = m_pDTM->is_InGrid(ix, iy) ? m_pDTM->asDouble(ix, iy) - z : 0.;
 	}
 
 	//-----------------------------------------

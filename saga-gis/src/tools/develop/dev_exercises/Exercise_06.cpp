@@ -104,7 +104,7 @@ CExercise_06::CExercise_06(void)
 		"", "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Quadratic"),
+			_TL("Square"),
 			_TL("Circle"),
 			_TL("Distance Weighted (inverse distance)")
 		)
@@ -236,7 +236,7 @@ bool CExercise_06::Method_03(int Radius)
 		{
 			double Distance = sqrt(((double)ix*ix + (double)iy*iy));
 
-			Weight.Set_Value(wx, wy, Distance > Radius ? 0. : 1. / Distance);
+			Weight.Set_Value(wx, wy, Distance == 0. ? 1. : Distance > Radius ? 0. : 1. / Distance);
 		}
 	}
 

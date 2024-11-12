@@ -100,7 +100,7 @@ CExercise_03::CExercise_03(void)
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Difference to left neighbour"),
 			_TL("Difference to left neighbour (using a while loop)"),
-			_TL("Slope gradient to left neighbour [%%]"),
+			_TL("Slope gradient to left neighbour [%]"),
 			_TL("Slope gradient to left neighbour [Degree]")
 		)
 	);
