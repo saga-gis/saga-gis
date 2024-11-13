@@ -491,7 +491,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	m_Classes.Add_Field("BLUE" , SG_DATATYPE_Double);	// CLASS_B
 
 	//-----------------------------------------------------
-	if( Parameters("TRAIN_SAMPLES")->asTable() )
+	if( Parameters("MODEL_TRAIN")->asInt() == 1 && Parameters("TRAIN_SAMPLES")->asTable() )
 	{
 		CSG_Table *pSamples = Parameters("TRAIN_SAMPLES")->asTable();
 
@@ -526,7 +526,7 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	}
 
 	//-----------------------------------------------------
-	else if( Parameters("TRAIN_AREAS")->asShapes() )
+	else if( Parameters("MODEL_TRAIN")->asInt() == 0 && Parameters("TRAIN_AREAS")->asShapes() )
 	{
 		CSG_Shapes Polygons, *pPolygons = Parameters("TRAIN_AREAS")->asShapes();
 
