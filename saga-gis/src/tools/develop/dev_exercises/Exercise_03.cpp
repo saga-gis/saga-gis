@@ -70,30 +70,37 @@ CExercise_03::CExercise_03(void)
 
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
-		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+		"ediss.uni-goettingen.de.",
+		SG_T("https://ediss.uni-goettingen.de/handle/11858/00-1735-0000-0006-B26C-6"), SG_T("online")
+	);
+
+	Add_Reference("O. Conrad, B. Bechtel, M. Bock, H. Dietrich, E. Fischer, L. Gerlitz, J. Wehberg, V. Wichmann, and J. Böhner", "2015",
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geoscientific Model Development, 8, 1991-2007.",
+		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "INPUT"	, _TL("Input grid"),
+		"", "INPUT" , _TL("Input grid"),
 		_TL("This must be your input data of type grid."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "OUTPUT"	, _TL("Output"),
+		"", "OUTPUT", _TL("Output"),
 		_TL("This will contain your output data of type grid."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		"", "METHOD"	, _TL("Method"),
+		"", "METHOD", _TL("Method"),
 		_TL("Choose a method"),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Difference to left neighbour"),
 			_TL("Difference to left neighbour (using a while loop)"),
-			_TL("Slope gradient to left neighbour [%%]"),
+			_TL("Slope gradient to left neighbour [%]"),
 			_TL("Slope gradient to left neighbour [Degree]")
 		)
 	);
@@ -107,48 +114,25 @@ CExercise_03::CExercise_03(void)
 //---------------------------------------------------------
 bool CExercise_03::On_Execute(void)
 {
-	bool	bResult;
-	int		Method;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	m_pInput	= Parameters("INPUT" )->asGrid();
-	m_pOutput	= Parameters("OUTPUT")->asGrid();
-
-	Method		= Parameters("METHOD")->asInt();
+	m_pInput  = Parameters("INPUT" )->asGrid();
+	m_pOutput = Parameters("OUTPUT")->asGrid();
 
 
 	//-----------------------------------------------------
 	// Execute calculation...
 
-	switch( Method )
+	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		bResult	= Method_01();
-		break;
-
-	case 1:
-		bResult	= Method_02();
-		break;
-
-	case 2:
-		bResult	= Method_03();
-		break;
-
-	case 3:
-		bResult	= Method_04();
-		break;
-
-	default:
-		bResult	= false;
+	case  0: return( Method_01() );
+	case  1: return( Method_02() );
+	case  2: return( Method_03() );
+	case  3: return( Method_04() );
 	}
 
-
-	//-----------------------------------------------------
-	// Return 'true' if everything went okay...
-
-	return( bResult );
+	return( false );
 }
 
 
@@ -159,35 +143,26 @@ bool CExercise_03::On_Execute(void)
 //---------------------------------------------------------
 bool CExercise_03::Method_01(void)
 {
-	int		x, y, ix;
-	double	a, b, c;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX()-1; x++)
+		for(int x=0, ix=1; x<Get_NX()-1; x++, ix++)
 		{
-			ix	= x + 1;
-
 			if( m_pInput->is_NoData(x, y) || m_pInput->is_NoData(ix, y) )	// don't work with 'no data'...
 			{
 				m_pOutput->Set_NoData(x, y);
 			}
 			else
 			{
-				a	= m_pInput->asDouble( x, y);
-				b	= m_pInput->asDouble(ix, y);
+				double a = m_pInput->asDouble( x, y);
+				double b = m_pInput->asDouble(ix, y);
 
-				c	= a - b;
-
-				m_pOutput->Set_Value(x, y, c);
+				m_pOutput->Set_Value(x, y, a - b);
 			}
 		}
 
 		m_pOutput->Set_NoData(Get_NX() - 1, y);	// what shall we do with the last cell in a row ??!!
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -199,17 +174,13 @@ bool CExercise_03::Method_01(void)
 //---------------------------------------------------------
 bool CExercise_03::Method_02(void)
 {
-	int		x, y, ix;
-	double	a, b, c;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		x	= 0;	// initialize x...
+		int x = 0;	// initialize x...
 		
 		while( x < Get_NX() - 1 )	// condition for x...
 		{
-			ix	= x + 1;
+			int ix = x + 1;
 
 			if( m_pInput->is_NoData(x, y) || m_pInput->is_NoData(ix, y) )	// don't work with 'no data'...
 			{
@@ -217,15 +188,13 @@ bool CExercise_03::Method_02(void)
 			}
 			else
 			{
-				a	= m_pInput->asDouble( x, y);
-				b	= m_pInput->asDouble(ix, y);
+				double a = m_pInput->asDouble( x, y);
+				double b = m_pInput->asDouble(ix, y);
 
-				c	= a - b;
-
-				m_pOutput->Set_Value(x, y, c);
+				m_pOutput->Set_Value(x, y, a - b);
 			}
 
-			x++;	// increment x...
+			x++; // increment x...
 		}
 
 		m_pOutput->Set_NoData(Get_NX() - 1, y);	// what shall we do with the last cell in a row ??!!
@@ -243,13 +212,9 @@ bool CExercise_03::Method_02(void)
 //---------------------------------------------------------
 bool CExercise_03::Method_03(void)
 {
-	int		x, y, ix;
-	double	a, b, c;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0, ix=1; x<Get_NX()-1; x++, ix++)
+		for(int x=0, ix=1; x<Get_NX()-1; x++, ix++)
 		{
 			if( m_pInput->is_NoData(x, y) || m_pInput->is_NoData(ix, y) )	// don't work with 'no data'...
 			{
@@ -257,16 +222,14 @@ bool CExercise_03::Method_03(void)
 			}
 			else
 			{
-				a	= m_pInput->asDouble( x, y);
-				b	= m_pInput->asDouble(ix, y);
+				double a = m_pInput->asDouble( x, y);
+				double b = m_pInput->asDouble(ix, y);
 
-				c	= 100.0 * (a - b) / Get_Cellsize();
-
-				m_pOutput->Set_Value(x, y, c);
+				m_pOutput->Set_Value(x, y, 100. * (a - b) / Get_Cellsize());
 			}
 		}
 
-		m_pOutput->Set_NoData(x, y);	// what shall we do with the last cell in a row ??!!
+		m_pOutput->Set_NoData(Get_NX() - 1, y);	// what shall we do with the last cell in a row ??!!
 	}
 
 	//-----------------------------------------------------
@@ -281,13 +244,9 @@ bool CExercise_03::Method_03(void)
 //---------------------------------------------------------
 bool CExercise_03::Method_04(void)
 {
-	int		x, y, ix;
-	double	a, b, c;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0, ix=1; x<Get_NX()-1; x++, ix++)
+		for(int x=0, ix=1; x<Get_NX()-1; x++, ix++)
 		{
 			if( m_pInput->is_NoData(x, y) || m_pInput->is_NoData(ix, y) )	// don't work with 'no data'...
 			{
@@ -295,16 +254,14 @@ bool CExercise_03::Method_04(void)
 			}
 			else
 			{
-				a	= m_pInput->asDouble( x, y);
-				b	= m_pInput->asDouble(ix, y);
+				double a = m_pInput->asDouble( x, y);
+				double b = m_pInput->asDouble(ix, y);
 
-				c	= atan((a - b) / Get_Cellsize()) * 180.0 / M_PI;
-
-				m_pOutput->Set_Value(x, y, c);
+				m_pOutput->Set_Value(x, y, atan((a - b) / Get_Cellsize()) * 180.0 / M_PI);
 			}
 		}
 
-		m_pOutput->Set_NoData(x, y);	// what shall we do with the last cell in a row ??!!
+		m_pOutput->Set_NoData(Get_NX() - 1, y);	// what shall we do with the last cell in a row ??!!
 	}
 
 	//-----------------------------------------------------

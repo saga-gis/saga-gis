@@ -92,10 +92,10 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CMy_Tool );
+	case  0: return( new CMy_Tool );
 
-	case 11:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 11: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

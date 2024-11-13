@@ -73,7 +73,14 @@ CExercise_01::CExercise_01(void)
 
 	Add_Reference("Conrad, O.", "2007",
 		"SAGA - Entwurf, Funktionsumfang und Anwendung eines Systems für Automatisierte Geowissenschaftliche Analysen",
-		"ediss.uni-goettingen.de.", SG_T("http://hdl.handle.net/11858/00-1735-0000-0006-B26C-6"), SG_T("Online")
+		"ediss.uni-goettingen.de.",
+		SG_T("https://ediss.uni-goettingen.de/handle/11858/00-1735-0000-0006-B26C-6"), SG_T("online")
+	);
+
+	Add_Reference("O. Conrad, B. Bechtel, M. Bock, H. Dietrich, E. Fischer, L. Gerlitz, J. Wehberg, V. Wichmann, and J. Böhner", "2015",
+		"System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geoscientific Model Development, 8, 1991-2007.",
+		SG_T("https://doi.org/10.5194/gmd-8-1991-2015"), SG_T("doi:10.5194/gmd-8-1991-2015")
 	);
 
 
@@ -118,17 +125,14 @@ CExercise_01::CExercise_01(void)
 //---------------------------------------------------------
 bool CExercise_01::On_Execute(void)
 {
-	int		x, y, Method;
-	double	Factor, Value_Input, Value_Output;
-	CSG_Grid	*pInput, *pOutput;
-
 	//-----------------------------------------------------
 	// Get parameter settings...
 
-	pInput		= Parameters("INPUT" )->asGrid();
-	pOutput		= Parameters("OUTPUT")->asGrid();
-	Factor		= Parameters("FACTOR")->asDouble();
-	Method		= Parameters("METHOD")->asInt();
+	CSG_Grid  *pInput = Parameters("INPUT" )->asGrid();
+	CSG_Grid *pOutput = Parameters("OUTPUT")->asGrid();
+
+	int    Method = Parameters("METHOD")->asInt();
+	double Factor = Parameters("FACTOR")->asDouble();
 
 
 	//-----------------------------------------------------
@@ -139,39 +143,39 @@ bool CExercise_01::On_Execute(void)
 		Message_Add(_TL("Division by zero is not allowed !!!"));
 		Message_Dlg(_TL("Division by zero is not allowed !!!"));
 
-		return( false );	// prevent a division by zero!!!
+		return( false ); // prevent a division by zero!!!
 	}
 
 
 	//-----------------------------------------------------
 	// Execute calculation...
 
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			Value_Input	= pInput->asDouble(x, y);
+			double value = pInput->asDouble(x, y);
 
 			switch( Method )
 			{
 			case 0:	// Addition...
-				Value_Output	= Value_Input + Factor;
+				value += Factor;
 				break;
 
 			case 1:	// Subtraction...
-				Value_Output	= Value_Input - Factor;
+				value -= Factor;
 				break;
 
 			case 2:	// Multiplication...
-				Value_Output	= Value_Input * Factor;
+				value *= Factor;
 				break;
 
 			case 3:	// Division...
-				Value_Output	= Value_Input / Factor;
+				value /= Factor;
 				break;
 			}
 
-			pOutput->Set_Value(x, y, Value_Output);
+			pOutput->Set_Value(x, y, value);
 		}
 	}
 
