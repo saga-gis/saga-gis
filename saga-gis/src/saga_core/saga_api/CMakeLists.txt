@@ -141,6 +141,7 @@ else()
 		clipper2/clipper.minkowski.h
 		clipper2/clipper.offset.h
 		clipper2/clipper.rectclip.h
+		clipper2/clipper.version.h
 		shapes_clipper.cpp
 	)
 endif()
