@@ -104,7 +104,7 @@ CSG_mRMR::CSG_mRMR(void)
 	m_Samples		= NULL;
 	m_nSamples		= 0;
 	m_nVars			= 0;
-	m_bDiscretized	= false;	// initialize the data as continous
+	m_bDiscretized	= false;	// initialize the data as continuous
 	m_bVerbose		= false;
 
 	m_pSelection	= new CSG_Table;
@@ -135,7 +135,7 @@ void CSG_mRMR::Destroy(void)
 	m_VarNames		.Clear();
 	m_nSamples		= 0;
 	m_nVars			= 0;
-	m_bDiscretized	= false;	// initialize the data as continous
+	m_bDiscretized	= false;	// initialize the data as continuous
 
 	m_pSelection	->Del_Records();
 }

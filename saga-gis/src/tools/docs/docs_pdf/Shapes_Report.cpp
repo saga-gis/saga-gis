@@ -151,7 +151,7 @@ CShapes_Report::CShapes_Report(void)
 
 	Parameters.Add_Value(
 		pNode	, "COLUMNS"		, _TL("Columns"),
-		_TL("Number of atttribute table columns."),
+		_TL("Number of attribute table columns."),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 

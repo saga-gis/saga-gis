@@ -329,7 +329,7 @@ CSG_KDTree_2D::~CSG_KDTree_2D(void)
 //---------------------------------------------------------
 /**
 * Creates a spatial index for the given points. If 'Field'
-* refers to a valid field, an internal points arrray is created
+* refers to a valid field, an internal points array is created
 * which omits points with no-data entries for the given field.
 */
 //---------------------------------------------------------
@@ -710,7 +710,7 @@ CSG_KDTree_3D::~CSG_KDTree_3D(void)
 //---------------------------------------------------------
 /**
 * Creates a spatial index for the given points. If 'Field'
-* refers to a valid field, an internal points arrray is created
+* refers to a valid field, an internal points array is created
 * which omits points with no-data entries for the given field.
 * If 'zField' refers to a valid field, its values are taken as
 * coordinate of the 3rd dimension. Else it is expected that the

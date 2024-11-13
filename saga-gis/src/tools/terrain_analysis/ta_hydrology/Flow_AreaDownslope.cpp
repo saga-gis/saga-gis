@@ -149,8 +149,8 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 			_TL("Braunschweiger Reliefmodell"),
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
-			_TL("Multiple Triangular Flow Directon"),
-			_TL("Multiple Maximum Downslope Gradient Based Flow Directon"),
+			_TL("Multiple Triangular Flow Direction"),
+			_TL("Multiple Maximum Downslope Gradient Based Flow Direction"),
 			_TL("Kinematic Routing Algorithm"),
 			_TL("DEMON")
 		), 4
@@ -158,7 +158,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 
 	Parameters.Add_Double("",
 		"CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Direction Algorithm."),
 		1.1, 0.001, true
 	);
 
@@ -239,7 +239,7 @@ bool CFlow_AreaDownslope::On_Execute(void)
 		m_pTool->Set_Parameter("METHOD", 5);
 		break;
 
-	case 6:	// Multiple Maximum Downslope Gradient Based Flow Directon...
+	case 6:	// Multiple Maximum Downslope Gradient Based Flow Direction...
 		m_pTool	= new CFlow_Parallel;
 		m_pTool->Set_Parameter("METHOD", 6);
 		break;

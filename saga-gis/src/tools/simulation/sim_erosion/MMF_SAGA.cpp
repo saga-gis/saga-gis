@@ -128,7 +128,7 @@ CMMF_SAGA::CMMF_SAGA(void)
 
 	//pNodeVegetation = Parameters.Add_Node(NULL, "VEGETATION", _TL("Vegetation"), _TL("Vegetation parameters"));
 	Parameters.Add_Grid(
-		NULL, "PI", _TL("Permament Interception"),
+		NULL, "PI", _TL("Permanent Interception"),
 		_TL("PI, permanent interception expressed as the proportion [between 0-1] of rainfall"),
 		PARAMETER_INPUT
 	);

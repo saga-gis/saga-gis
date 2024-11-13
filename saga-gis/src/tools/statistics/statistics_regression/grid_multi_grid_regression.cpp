@@ -63,7 +63,7 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Linear regression analysis of one grid as dependent and multiple grids as indepentent (predictor) variables. "
+		"Linear regression analysis of one grid as dependent and multiple grids as independent (predictor) variables. "
 		"Details of the regression/correlation analysis will be saved to a table. "
 		"Optionally the regression model is used to create a new grid with regression based values. "
 		"The multiple regression analysis uses a forward selection procedure. "

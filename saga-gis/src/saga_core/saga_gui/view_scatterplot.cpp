@@ -369,7 +369,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 //	m_Parameters.Add_Parameters("", "OPTIONS", _TL("Options"), _TL(""));
 
 	m_Options.Add_Int("",
-		"SAMPLES_MAX", _TL("Maximimum Number of Samples"),
+		"SAMPLES_MAX", _TL("Maximum Number of Samples"),
 		_TL(""),
 		100000, 0, true
 	);

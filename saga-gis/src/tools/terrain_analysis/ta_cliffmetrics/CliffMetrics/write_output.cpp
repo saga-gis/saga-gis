@@ -61,7 +61,7 @@ void CDelineation::WriteStartRunDetails(void)
    // Same info. for Log file
    LogStream << m_strRunName << " run started on " << ctime(&m_tSysStartTime) << endl;
 
-   // Contine with Out file
+   // Continue with Out file
    OutStream << " Initialization file                                       \t: "
 #ifdef _WIN32
       << pstrChangeToForwardSlash(&m_strCLIFFIni) << endl;

@@ -146,7 +146,7 @@ CFit::CFit(void)
 	
 	Parameters.Add_Value(NULL, "ITER", _TL("Iterationen"), _TL(""), PARAMETER_TYPE_Int, 1000, 1, true);
 	
-	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), _TL(""), PARAMETER_TYPE_Double, 10000, 1, true);
+	Parameters.Add_Value(NULL, "LAMBDA", _TL("Max Lambda"), _TL(""), PARAMETER_TYPE_Double, 10000, 1, true);
 
 	Formel.Add_Function("NUG", (TSG_Formula_Function_1) NUG, 1, false);
 	Formel.Add_Function("SPH", (TSG_Formula_Function_1) SPH, 2, false);
@@ -280,7 +280,7 @@ bool CFit::On_Execute(void)
 	Fit = new TLMFit(x, y, StartValue,  FitFunc);
 	
 	int max_iter = Parameters("ITER")->asInt();
-	double Max_lamda = Parameters("LAMDA")->asInt();
+	double Max_lamda = Parameters("LAMBDA")->asInt();
 	
 	int iter = 0; 
 	
@@ -298,7 +298,7 @@ bool CFit::On_Execute(void)
 	{
 		if (E.Type == 1 || E.Type == 2)
 		{
-			msg.Printf(_TL("Matrix signular\n"));
+			msg.Printf(_TL("Matrix singular\n"));
 			
 			Message_Add(msg);
 			

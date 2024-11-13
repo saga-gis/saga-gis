@@ -106,7 +106,7 @@ CShapes_Polar_to_Cartes::CShapes_Polar_to_Cartes(void)
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "CARTES"			, _TL("Cartesion Coordinates"),
+		NULL	, "CARTES"			, _TL("Cartesian Coordinates"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);

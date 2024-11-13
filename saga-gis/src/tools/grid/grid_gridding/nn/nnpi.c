@@ -242,7 +242,7 @@ static void nnpi_triangle_process(nnpi* nn, point* p, int i)
              * Here, if the determinant is NaN, then the interpolation point
              * is almost in between two data points. This case is difficult to
              * handle robustly because the areas (determinants) calculated by
-             * Watson's algorithm are obtained as a diference between two big
+             * Watson's algorithm are obtained as a difference between two big
              * numbers. This case is handled here in the following way.
              *
              * If a circle is recognised as very large in circle_build2(), then
@@ -256,7 +256,7 @@ static void nnpi_triangle_process(nnpi* nn, point* p, int i)
              * of each pair cancelling if the point moves slightly off the edge.
              *
              * Each of the determinants corresponds to the (signed) area of a
-             * triangle, and an inifinite determinant corresponds to the area of
+             * triangle, and an infinite determinant corresponds to the area of
              * a triangle with one vertex moved to infinity. "Subtracting" one
              * triangle from another within each pair yields a valid
              * quadrilateral (in fact, a trapezoid). The doubled area of these
@@ -1007,7 +1007,7 @@ int main(int argc, char* argv[])
             nin = atoi(argv[i]);
             i++;
             if (i >= argc)
-                nn_quit("no number of ouput points per side found after -i\n");
+                nn_quit("no number of output points per side found after -i\n");
             nx = atoi(argv[i]);
             i++;
             break;

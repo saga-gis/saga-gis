@@ -157,7 +157,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 		"RESAMPLING_XY"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("Nearest Neigbhour"),
+			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation"),
@@ -176,7 +176,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 		"RESAMPLING_Z"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Nearest Neigbhour"),
+			_TL("Nearest Neighbour"),
 			_TL("Linear Interpolation"),
 			_TL("Spline Interpolation")
 		), 1

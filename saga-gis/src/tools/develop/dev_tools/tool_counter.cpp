@@ -80,7 +80,7 @@ CTool_Counter::CTool_Counter(void)
 		"Extracts SAGA tool instantiations directly from source by analyzing TLB_Interface.cpp files. "
 		"Helps to correctly find the number of tools in a certain SAGA distribution, which became "
 		"necessary due to a tool counting bug in the tool library interface function after introducing "
-		"the 'skip tool' option for maintainance of tool identifiers. "
+		"the 'skip tool' option for maintenance of tool identifiers. "
 	);
 
 	//-----------------------------------------------------

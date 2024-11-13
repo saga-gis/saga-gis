@@ -113,7 +113,7 @@ CTOPMODEL::CTOPMODEL(void)
 	));
 
 	Add_Reference("Beven, K., Kirkby, M.J., Schofield, N., Tagg, A.F.", "1984",
-		"Testing a physically-based flood forecasting model (TOPMODEL) for threee U.K. catchments",
+		"Testing a physically-based flood forecasting model (TOPMODEL) for three U.K. catchments",
 		"Journal of Hydrology, H.69, S.119-143."
 	);
 

@@ -307,7 +307,7 @@ bool CGrid_Tiling::On_Execute(void)
 
 	switch( Parameters("OVERLAP_SYM")->asInt() )
 	{
-	default:	// symetric
+	default:	// symmetric
 		nx		+= Overlap * 2;
 		ny		+= Overlap * 2;
 		break;

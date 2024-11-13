@@ -122,7 +122,7 @@ private:
 	C_IHAC_NonLinearParms*	m_p_nonlinparms;	// parameters of the non-linear rainfall loss module
 	CSnowParms*		m_pSnowparms_lb;
 	CSnowParms*		m_pSnowparms_ub;
-	CSnowParms*		m_pSnowparms;				// 3 snow module paramters
+	CSnowParms*		m_pSnowparms;				// 3 snow module parameters
 	CSnowModule*	m_p_SnowModule;
 	int				m_delay;
 	double*			m_vq;

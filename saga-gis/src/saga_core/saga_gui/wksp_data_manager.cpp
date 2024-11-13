@@ -1278,11 +1278,11 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 		{
 			if( bSilent )
 			{
-				MSG_General_Add(_TL("Stop running tool or wait until its exection has been finished!"), true, false);
+				MSG_General_Add(_TL("Stop running tool or wait until its execution has been finished!"), true, false);
 			}
 			else
 			{
-				DLG_Message_Show(_TL("Stop running tool or wait until its exection has been finished!"), g_pTool->Get_Name());
+				DLG_Message_Show(_TL("Stop running tool or wait until its execution has been finished!"), g_pTool->Get_Name());
 			}
 
 			return( false );

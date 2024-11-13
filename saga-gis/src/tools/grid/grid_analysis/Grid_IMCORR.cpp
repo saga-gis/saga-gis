@@ -85,7 +85,7 @@ CGrid_IMCORR::CGrid_IMCORR(void)
 
 	Set_Description	(_TW(
 		"The tool performs an image correlation based on two raster data sets. "
-		"Additionally, two DTMs can be given and used to optain 3D displacement vectors.\n"
+		"Additionally, two DTMs can be given and used to obtain 3D displacement vectors.\n"
 		"This is a SAGA implementation of the standalone IMCORR software provided by the "
 		"National Snow and Ice Data Center in Boulder, Colorado / US."
 	));
@@ -625,7 +625,7 @@ void CGrid_IMCORR::esterr(std::vector<double> z, std::vector<double> wghts,std::
 	// compute constants to use the weights
 	c = var/19.0;
 
-	// compute partial derivatives of peak offsets with respect to polynomal coefficients
+	// compute partial derivatives of peak offsets with respect to polynomial coefficients
 	denom = 4.0 * coeffs[4] * coeffs[6] - (coeffs[5] * coeffs[5]);
 	du[1] = 0.0;
 	du[2] = -2.0 * coeffs[6]/denom;
@@ -716,12 +716,12 @@ void CGrid_IMCORR::sums(std::vector<double> cpval, int mfit, std::vector<double>
 			else
 				val = 1.0;
 
-			if (mfit == 1) // eliptical paraboloid
+			if (mfit == 1) // elliptical paraboloid
 			{
 				z[ivalpt] = val;
 				wghts[ivalpt] = 1.0;
 			}
-			else if (mfit == 2) // eliptical gaussian
+			else if (mfit == 2) // elliptical gaussian
 			{
 				z[ivalpt] = log(val);
 				wghts[ivalpt] = pow(val,2);

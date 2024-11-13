@@ -88,7 +88,7 @@ CLine_Properties::CLine_Properties(void)
 
 	Parameters.Add_Shapes(
 		NULL	, "OUTPUT"		, _TL("Lines with Property Attributes"),
-		_TL("If not set property attributes will be added to the orignal layer."),
+		_TL("If not set property attributes will be added to the original layer."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
 	);
 

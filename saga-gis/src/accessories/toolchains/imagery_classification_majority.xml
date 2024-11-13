@@ -9,7 +9,7 @@
 		The majority choice tool for supervised image classification runs the selected classification tools using standard settings and takes for each pixel of the resulting classification the class that has been identified most often by the individual classifiers.
 
 		[[i]]Random Forest[[/i]] is not selected by default because it generates randomized results with more or less strong differences each time it is run.
-		[[i]]K-Nearest Neighbours[[/i]] and [[i]]Artifical Neural Network[[/i]] have been excluded from default, because using them might be a bit more time consuming.
+		[[i]]K-Nearest Neighbours[[/i]] and [[i]]Artificial Neural Network[[/i]] have been excluded from default, because using them might be a bit more time consuming.
 	</description>
 
 	<parameters>
@@ -252,7 +252,7 @@
 		</condition>
 
 		<condition value="1" type="=" variable="CLASSIFY_KNN">
-			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighours Classification">
+			<tool library="imagery_opencv" tool="6" name="K-Nearest Neighbours Classification">
 				<option id="NEIGHBOURS">3</option>
 				<option id="TRAINING">0</option>
 				<option id="ALGORITHM">0</option>

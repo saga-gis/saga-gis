@@ -148,7 +148,7 @@ bool CGrowing_Degree_Days::On_Execute(void)
 
 	if( pTmean->Get_Grid_Count() != 12 && pTmean->Get_Grid_Count() < 365 )
 	{
-		SG_UI_Msg_Add_Error(_TL("There has to be one input grid eiter for each month (12) or for each day of the year (365)."));
+		SG_UI_Msg_Add_Error(_TL("There has to be one input grid either for each month (12) or for each day of the year (365)."));
 
 		return( false );
 	}

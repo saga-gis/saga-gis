@@ -188,7 +188,7 @@ CWETNESS::CWETNESS(void)
 			_TL("Braunschweiger Reliefmodell"),
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
-			_TL("Multiple Triangular Flow Directon")
+			_TL("Multiple Triangular Flow Direction")
 		), 4
 	);
 

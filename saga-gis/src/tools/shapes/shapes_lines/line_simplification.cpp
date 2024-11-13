@@ -123,7 +123,7 @@ CLine_Simplification::CLine_Simplification(void)
 	Set_Description	(_TW(
 		"Line simplification implementing the Ramer-Douglas-Peucker algorithm.\n"
 		"\n"
-		"Refererences:\n"
+		"References:\n"
 		"- Ramer, U. (1972): An iterative procedure for the polygonal approximation of plane curves. Computer Graphics and Image Processing, 1(3), 244-256\n"
 		"- Douglas, D., Peucker, T. (1973): Algorithms for the reduction of the number of points required to represent a digitized line or its caricature. The Canadian Cartographer 10(2), 112-122\n"
 		"\n"

@@ -640,7 +640,7 @@ bool CLine_Smoothing::Calc_Gaussian(CSG_Shapes *pLines, CSG_Shapes *pSmooth, dou
 
 				if( abs(denom) < EPSILON )
 				{
-					Error_Set(_TL("First Derivative is singular! Probably the shape containes consecutive identical points.\n\n"));
+					Error_Set(_TL("First Derivative is singular! Probably the shape contains consecutive identical points.\n\n"));
 
 					return( false );
 				}

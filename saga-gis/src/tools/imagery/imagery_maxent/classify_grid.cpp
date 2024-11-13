@@ -129,7 +129,7 @@ CClassify_Grid::CClassify_Grid(void)
 	);
 
 	Parameters.Add_Bool("",
-		"PROBS_CREATE"	, _TL("Create Propabilities"),
+		"PROBS_CREATE"	, _TL("Create Probabilities"),
 		_TL(""),
 		false
 	);

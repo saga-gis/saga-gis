@@ -289,7 +289,7 @@ int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
    // Tell the user what is happening
    AnnounceIsRunning();
 
-      // Do per-timestep intialization: set up the grid cells ready for this timestep, also initialize per-timestep totals
+      // Do per-timestep initialization: set up the grid cells ready for this timestep, also initialize per-timestep totals
       nRet = nInitGridAndCalcStillWaterLevel();
       if (nRet != RTN_OK)
          return nRet;
@@ -469,7 +469,7 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 	// Tell the user what is happening
 	AnnounceIsRunning();
 
-	// Do per-timestep intialization: set up the grid cells ready for this timestep, also initialize per-timestep totals
+	// Do per-timestep initialization: set up the grid cells ready for this timestep, also initialize per-timestep totals
 	nRet = nInitGridAndCalcStillWaterLevel();
 	if (nRet != RTN_OK)
 		return nRet;

@@ -803,8 +803,8 @@ long Get_Coordinate_System_Index ( const char *Code,
 long Get_Coordinate_System_Type ( const long Index,
                                   Coordinate_Type *System ); 
 /*
- *    Index   : Index of a specific coordinate system            (input)
- *    System  : Type of the coordinate system referencd by index (output)
+ *    Index   : Index of a specific coordinate system             (input)
+ *    System  : Type of the coordinate system referenced by index (output)
  *
  *  The Function Get_Coordinate_System_Type returns the type of the coordinate 
  *  system with the specified index.  If theh index is valid, ENGINE_NO_ERROR is 
@@ -815,8 +815,8 @@ long Get_Coordinate_System_Type ( const long Index,
 long Get_Coordinate_System_Name ( const long Index, 
                                   char *Name );
 /*
- *    Index   : Index of a specific coordinate system            (input)
- *    Name    : Name of the coordinate system referencd by index (output)
+ *    Index   : Index of a specific coordinate system             (input)
+ *    Name    : Name of the coordinate system referenced by index (output)
  *
  *  The Function Get_Coordinate_System_Name returns the name of the coordinate 
  *  system with the specified index.  If the index is valid, ENGINE_NO_ERROR is 
@@ -1139,7 +1139,7 @@ long Get_Ellipsoid_Name ( const long Index,
 /*
  *    Index   : Index of a given ellipsoid.in the ellipsoid table with the
  *                 specified index                             (input)
- *    Name    : Name of the ellipsoid referencd by index       (output)
+ *    Name    : Name of the ellipsoid referenced by index      (output)
  *
  *  The Function Get_Ellipsoid_Name returns the name of the ellipsoid in 
  *  the ellipsoid table with the specified index.  If index is valid, 

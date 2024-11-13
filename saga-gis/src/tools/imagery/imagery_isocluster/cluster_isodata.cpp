@@ -766,7 +766,7 @@ double CCluster_ISODATA::_Get_Cluster_Distance(int iCluster, int jCluster)
 //isodata_out.txt output data file name
 //2 maximum number of clusters
 //999 maximum number of iterations
-//1 minumum number of samples in cluster
+//1 minimum number of samples in cluster
 //3.0 maximum standard deviation of one cluster
 //2.0 maximum distance to merge clusters
 //0 number of initial cluster centers

@@ -149,7 +149,7 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 
 	Parameters.Add_Double(
 		"SAVI", "SOIL"	, _TL("Soil Adjustment Factor"), 
-		_TL("For SAVI, suggested values (after Silleos et al. 2006): 1.0 = very low, 0.5 = intermediate, 0.25 = high densitity vegetation."),
+		_TL("For SAVI, suggested values (after Silleos et al. 2006): 1.0 = very low, 0.5 = intermediate, 0.25 = high density vegetation."),
 		0.5, 0., true, 1., true
 	);
 }

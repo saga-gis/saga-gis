@@ -32,9 +32,9 @@
 CA2WiTh::CA2WiTh(void)
 {
 	// 1. Info...
-	Set_Name(_TL("Average With Thereshold 2"));
+	Set_Name(_TL("Average With Threshold 2"));
 	Set_Author(_TL("Alessandro Perego"));
-	Set_Description(_TL("Average 2 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 1)."));
+	Set_Description(_TL("Average 2 With Threshold for Grids calculates average in X and Y distances using only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 1)."));
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);

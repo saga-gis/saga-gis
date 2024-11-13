@@ -56,7 +56,7 @@ March	März
 May	Mai
 Moment [h]	
 Month	Monat
-No output grid has been choosen.	
+No output grid has been chosen.	
 November	
 October	Oktober
 Olaf Conrad, Goettingen (c) 2003	

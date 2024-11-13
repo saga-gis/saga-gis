@@ -401,7 +401,7 @@ void CCell::IncrCliffCollapseDeposition(double const dDepth)
    m_dTotCliffCollapseDeposition += dDepth;
 }
 
-//! Retuns the depth of this-timestep cliff deposition collapse on this cell
+//! Returns the depth of this-timestep cliff deposition collapse on this cell
 double CCell::dGetCliffCollapseDeposition(void) const
 {
    return m_dCliffCollapseDeposition;

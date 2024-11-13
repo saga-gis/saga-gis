@@ -1105,7 +1105,7 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 	//-----------------------------------------------------
 	// Raster System
 
-	bool   bSwap   = Bytes.Read_Byte  () == 0; // endiannes: 1=ndr/little endian, 0=xdr/big endian
+	bool   bSwap   = Bytes.Read_Byte  () == 0; // endianness: 1=ndr/little endian, 0=xdr/big endian
 	short  version = Bytes.Read_Short (bSwap); // version
 	short  nBands  = Bytes.Read_Short (bSwap); // number of bands
 	double dx      = Bytes.Read_Double(bSwap); // scaleX
@@ -1206,7 +1206,7 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 		SRID = pGrid->Get_Projection().Get_EPSG();
 	}
 
-	Bytes += (BYTE  )1                    ; // endiannes
+	Bytes += (BYTE  )1                    ; // endianness
 	Bytes += (short )0                    ; // version
 	Bytes += (short )1                    ; // number of bands
 	Bytes += (double)pGrid->Get_Cellsize(); // scaleX

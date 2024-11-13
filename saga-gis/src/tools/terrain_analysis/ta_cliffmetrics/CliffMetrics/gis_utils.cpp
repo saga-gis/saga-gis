@@ -43,7 +43,7 @@ using std::ios;
 
 
 /*
- Notes re. co-ordinate systems used
+ Notes re. coordinate systems used
 
  1. In the raster CRS, cell[0][0] is at the top left (NW) corner of the grid. Raster grid co-oordinate [0][0] is actually the top left (NW) corner of this cell.
 

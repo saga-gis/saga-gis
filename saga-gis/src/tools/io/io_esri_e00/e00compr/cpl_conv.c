@@ -153,7 +153,7 @@ char *CPLStrdup( const char * pszString )
 /*                            CPLReadLine()                             */
 /*                                                                      */
 /*      Read a line of text from the given file handle, taking care     */
-/*      to capture CR and/or LF and strip off ... equivelent of         */
+/*      to capture CR and/or LF and strip off ... equivalent of         */
 /*      DKReadLine().  Pointer to an internal buffer is returned.       */
 /*      The application shouldn't free it, or depend on it's value      */
 /*      past the next call to CPLReadLine()                             */

@@ -85,8 +85,8 @@ CThermal_Belts::CThermal_Belts(void)
 	);
 
 	Parameters.Add_Grid("",
-		"FROST"		, _TL("Frost occurence"),
-		_TL("Frost occurence as binary factor."),
+		"FROST"		, _TL("Frost occurrence"),
+		_TL("Frost occurrence as binary factor."),
 		PARAMETER_INPUT
 	);
 

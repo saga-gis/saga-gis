@@ -82,7 +82,7 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
         "and optional categorical grids (e.g. landcover, soil, ...). The derived UCUs can be output "
         "as a grid dataset.\n"
         "The tool then calculates descriptive statistics (n, min, max, mean, standard "
-		"deviation and sum) for each UCU from (optional) grids with continious data (e.g. slope). A grid "
+		"deviation and sum) for each UCU from (optional) grids with continuous data (e.g. slope). A grid "
         "storing aspect must be treated specially (circular statistics), please use the \"Aspect\" "
         "input parameter for such a grid.\n\n"
 		"The tool has four different modes of operation:\n"

@@ -128,7 +128,7 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 
 	Parameters.Add_Bool("",
 		"COPY"			, _TL("Copy"),
-		_TL("If set the projected data will be created as a copy of the orignal, if not vertices will be projected in place thus reducing memory requirements."),
+		_TL("If set the projected data will be created as a copy of the original, if not vertices will be projected in place thus reducing memory requirements."),
 		true
 	);
 }

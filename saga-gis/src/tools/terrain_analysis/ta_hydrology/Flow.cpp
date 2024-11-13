@@ -571,7 +571,7 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 	FL_Vec[1]	= Get_yTo( FL_Dir );
 	FL_Vec[2]	= 0.; //z-component is normally 0
 	
-	// Write the streamflow directon as vector:
+	// Write the streamflow direction as vector:
 	stream1_Vec[0]		= Get_xTo( stream1_Dir );
 	stream1_Vec[1]		= Get_yTo( stream1_Dir );
 	stream1_Vec[2]		= 0.;//z-component is normally 0

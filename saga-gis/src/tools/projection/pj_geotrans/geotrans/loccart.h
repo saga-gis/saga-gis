@@ -49,7 +49,7 @@
  *    Further information on GEOCENTRIC can be found in the Reuse Manual.
  *
  *    LOCCART originated from : U.S. Army Topographic Engineering Center
- *                              Geospatial Inforamtion Division
+ *                              Geospatial Information Division
  *                              7701 Telegraph Road
  *                              Alexandria, VA  22310-3864
  *

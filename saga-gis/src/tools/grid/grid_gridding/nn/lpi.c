@@ -122,7 +122,7 @@ void lpi_interpolate_point(lpi* l, point* p)
  *
  * @param nin Number of input points
  * @param pin Array of input points [pin]
- * @param nout Number of ouput points
+ * @param nout Number of output points
  * @param pout Array of output points [nout]
  */
 void lpi_interpolate_points(int nin, point pin[], int nout, point pout[])

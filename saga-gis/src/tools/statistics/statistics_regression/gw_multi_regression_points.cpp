@@ -233,7 +233,7 @@ bool CGW_Multi_Regression_Points::Initialize(void)
 
 	if( !m_Search.Initialize(pPoints, -1) )
 	{
-		Error_Set(_TL("failed to create searche engine"));
+		Error_Set(_TL("failed to create search engine"));
 
 		return( false );
 	}

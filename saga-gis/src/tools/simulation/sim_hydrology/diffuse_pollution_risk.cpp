@@ -77,7 +77,7 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 	);
 
 	Add_Reference("Milledge, D.G.; Lane, N.S.; Heathwait, A.L.; Reaney, S.M.", "2012",
-		"A monte carlo approach to the invers problem of diffuse pollution risk in agricultural catchments",
+		"A monte carlo approach to the inverse problem of diffuse pollution risk in agricultural catchments",
 		"In: Science of the Total Environment. Vol. 433, S. 434-449."
 	);
 
@@ -360,7 +360,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 	//-----------------------------------------------------
 	CSG_Grid	Channel, *pChannel	= Parameters("CHANNEL")->asGrid();
 
-	if( !pChannel )	// no channel network is provided, so create a tempory channel network out of the box!
+	if( !pChannel )	// no channel network is provided, so create a temporary channel network out of the box!
 	{
 		Process_Set_Text(_TL("Channel Network"));
 
@@ -433,7 +433,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 //---------------------------------------------------------
 bool CDiffuse_Pollution_Risk::Get_Risk_Diffuse(void)
 {
-	Process_Set_Text(_TL("Difuse Pollution Risk"));
+	Process_Set_Text(_TL("Diffuse Pollution Risk"));
 
 	m_pRisk_Diffuse->Assign(0.0);
 

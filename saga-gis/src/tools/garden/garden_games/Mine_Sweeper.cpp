@@ -116,7 +116,7 @@ CMine_Sweeper::CMine_Sweeper(void)
 		NULL	,"LEVEL"	,_TL("Level"),
 		_TL("Game Level"),
 		_TW(	
-		"Beginer|"
+		"Beginner|"
 		"Advanced|"
 		"Profi|")	,1
 	);	

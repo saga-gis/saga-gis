@@ -52,7 +52,7 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general module library information here...
 
 CSG_String Get_Info(int i)
 {

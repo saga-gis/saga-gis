@@ -418,7 +418,7 @@ int CSG_Data_Object::Get_File_Type(void)	const
 
 //---------------------------------------------------------
 /*
-* If the data object has a file asssociation, this function
+* If the data object has a file association, this function
 * can be used to reload its content.
 */
 //---------------------------------------------------------
@@ -430,7 +430,7 @@ bool CSG_Data_Object::Reload(void)
 //---------------------------------------------------------
 /*
 * If the data object is stored in a native SAGA format,
-* this function can be used to delete all files asssociated
+* this function can be used to delete all files associated
 * with it.
 */
 //---------------------------------------------------------

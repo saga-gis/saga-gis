@@ -183,7 +183,7 @@ bool CGet_Table::On_Execute(void)
 	
 
 
-	// Get the intput variables
+	// Get the input variables
 	MyServer		= Parameters("SERVER")			->asString();
 	MyPort			= Parameters("PORT")			->asInt();
 	MyUsername		= Parameters("USERNAME")		->asString();
@@ -228,12 +228,12 @@ bool CGet_Table::On_Execute(void)
 
    // Get the number of rows and inform
    NR=(int)mysql_num_rows(res); 
-   sprintf(SQL,"%i number of rows are avaliable", NR);
+   sprintf(SQL,"%i number of rows are available", NR);
    Message_Add(_TL(SQL)); 
    
    // Get the number of fields and inform 
    NF=mysql_num_fields(res);
-   sprintf(SQL,"%i number of fields are avaliable", NF);
+   sprintf(SQL,"%i number of fields are available", NF);
    Message_Add(_TL(SQL)); 
 
 	// Get the field types

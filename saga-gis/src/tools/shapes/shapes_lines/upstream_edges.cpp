@@ -119,7 +119,7 @@ bool CLine_UpstreamEdges::On_Execute(void)
         int end_id = pLine->Get_Value(end_field)->asInt();
         const int line_id = pLine->Get_Value(line_field)->asInt();
 
-        // skip lines which connect to themselve (eg when using a large tolerance)
+        // skip lines which connect to themself (eg when using a large tolerance)
         if (start_id == end_id) continue;
 
         edges[line_id].start_node = start_id;

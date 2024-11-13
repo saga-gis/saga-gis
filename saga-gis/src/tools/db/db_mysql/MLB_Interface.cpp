@@ -94,7 +94,7 @@
 
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
+// 2. Place general tool library information here...
 
 const SG_Char *	Get_Info(int i)
 {

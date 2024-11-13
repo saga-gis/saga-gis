@@ -1,8 +1,8 @@
 /*!
  *
  * \class C2DPoint
- * \brief Class used to represent 2D point objects with floating-point co-ordinates
- * \details The C2DPoint class is used to represent 2D points where the x and y co-ordinates are floating-point values, e.g. points for which the x and y co-ordinates are in the external CRS (co-ordinate reference system)
+ * \brief Class used to represent 2D point objects with floating-point coordinates
+ * \details The C2DPoint class is used to represent 2D points where the x and y coordinates are floating-point values, e.g. points for which the x and y coordinates are in the external CRS (coordinate reference system)
  * \author David Favis-Mortlock
  * \author Andres Payo
  * \author Jim Hall

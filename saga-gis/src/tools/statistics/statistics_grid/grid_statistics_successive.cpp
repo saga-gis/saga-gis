@@ -547,7 +547,7 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 
 	if( !(!pCount || !pSum || !pSum2) && !(!pMin || !pMax) && !pHistogram )
 	{
-		Error_Set(_TL("unsufficient input"));
+		Error_Set(_TL("insufficient input"));
 
 		return( false );
 	}

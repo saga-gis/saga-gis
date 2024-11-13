@@ -377,7 +377,7 @@ bool CRGA_Basic::Add_To_Segment(int x, int y, int Segment)
 {
 	if( is_InGrid(x, y) && m_pSegments->is_NoData(x, y) )			// if the pixel is not element of any segment...
 	{
-		m_pSegments->Set_Value(x, y, Segment);						// the candidate is added to the correspondig region
+		m_pSegments->Set_Value(x, y, Segment);						// the candidate is added to the corresponding region
 	
 		for(int i=0, ix, iy; i<8; i+=m_dNeighbour)					// update of candidate-grid - all 8-Neigbours of the added pixel are checked
 		{

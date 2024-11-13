@@ -1,8 +1,8 @@
 /*!
  *
  * \file 2di_point.cpp
- * \brief Class used to represent 2D point objects with integer co-ordinates
- * \details The C2DIPoint class is used to represent 2D points where the x and y co-ordinates can only be integer values, e.g. points for which the x and y co-ordinates are in the raster-grid CRS (co-ordinate reference system)
+ * \brief Class used to represent 2D point objects with integer coordinates
+ * \details The C2DIPoint class is used to represent 2D points where the x and y coordinates can only be integer values, e.g. points for which the x and y coordinates are in the raster-grid CRS (coordinate reference system)
  * \author David Favis-Mortlock
  * \author Andres Payo
  * \author Jim Hall
@@ -25,14 +25,14 @@
 #include "2di_point.h"
 
 
-//! Constructor with no parameters (the X and Y co-ordinates of the C2DIPoint object are set to zero)
+//! Constructor with no parameters (the X and Y coordinates of the C2DIPoint object are set to zero)
 C2DIPoint::C2DIPoint(void)
 :  nX(0),
    nY(0)
 {
 }
 
-//! Constructor with two integer parameters, for the X and Y co-ordinates of the C2DIPoint object
+//! Constructor with two integer parameters, for the X and Y coordinates of the C2DIPoint object
 C2DIPoint::C2DIPoint(int const nNewX, int const nNewY)
 :  nX(nNewX),
    nY(nNewY)
@@ -40,38 +40,38 @@ C2DIPoint::C2DIPoint(int const nNewX, int const nNewY)
 }
 
 
-//! Returns the C2DIPoint object's integer X co-ordinate
+//! Returns the C2DIPoint object's integer X coordinate
 int C2DIPoint::nGetX(void) const
 {
    return nX;
 }
 
-//! Returns the C2DIPoint object's integer Y co-ordinate
+//! Returns the C2DIPoint object's integer Y coordinate
 int C2DIPoint::nGetY(void) const
 {
    return nY;
 }
 
-//! The integer parameter sets a value for the C2DIPoint object's X co-ordinate
+//! The integer parameter sets a value for the C2DIPoint object's X coordinate
 void C2DIPoint::SetX(int const nNewX)
 {
    nX = nNewX;
 }
 
-//! The integer parameter sets a value for the C2DIPoint object's Y co-ordinate
+//! The integer parameter sets a value for the C2DIPoint object's Y coordinate
 void C2DIPoint::SetY(int const nNewY)
 {
    nY = nNewY;
 }
 
-//! The two integer parameters set values for the C2DIPoint object's X and Y co-ordinates
+//! The two integer parameters set values for the C2DIPoint object's X and Y coordinates
 // void C2DIPoint::SetXY(int const nNewX, int const nNewY)
 // {
 //    nX = nNewX;
 //    nY = nNewY;
 // }
 
-//! The parameter is a pointer to a C2DIPoint object, this is used to set values for the C2DIPoint object's X and Y co-ordinates
+//! The parameter is a pointer to a C2DIPoint object, this is used to set values for the C2DIPoint object's X and Y coordinates
 // void C2DIPoint::SetXY(C2DIPoint const* Pti)
 // {
 //    nX = Pti->nGetX();
@@ -79,7 +79,7 @@ void C2DIPoint::SetY(int const nNewY)
 // }
 
 
-//! Adds the first parameter to the C2DIPoint object's X co-ordinate, adds the second parameter to the C2DIPoint object's Y co-ordinate
+//! Adds the first parameter to the C2DIPoint object's X coordinate, adds the second parameter to the C2DIPoint object's Y coordinate
 void C2DIPoint::AddXAddY(int const nXToAdd, int const nYToAdd)
 {
    nX += nXToAdd;

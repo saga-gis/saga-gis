@@ -60,7 +60,7 @@ void ht_destroy(hashtable* table);
 /** Inserts a new entry into the hash table.
  *
  * @param table The hash table
- * @param key Ponter to entry's key
+ * @param key Pointer to entry's key
  * @param data Pointer to associated data
  * @return Pointer to the old data associated with the key, NULL if the key
  *         wasn't in the table previously

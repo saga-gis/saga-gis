@@ -43,9 +43,9 @@
     <tool id_or_name="Sudoku">Garden|Recreations|Games</tool>
   </library>
   <library name="contrib_perego">
-    <tool id_or_name="Average With Thereshold 1">Grid|Filter|Averages</tool>
-    <tool id_or_name="Average With Thereshold 2">Grid|Filter|Averages</tool>
-    <tool id_or_name="Average With Thereshold 3">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Threshold 1">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Threshold 2">Grid|Filter|Averages</tool>
+    <tool id_or_name="Average With Threshold 3">Grid|Filter|Averages</tool>
     <tool id_or_name="Average With Mask 1">Grid|Filter|Averages</tool>
     <tool id_or_name="Average With Mask 2">Grid|Filter|Averages</tool>
     <tool id_or_name="Destriping">Grid|Filter</tool>
@@ -120,7 +120,7 @@
     <tool id_or_name="Inverse Distance Weighted">Grid|Gridding|Interpolation from Points</tool>
     <tool id_or_name="Nearest Neighbour">Grid|Gridding|Interpolation from Points</tool>
     <tool id_or_name="Natural Neighbour">Grid|Gridding|Interpolation from Points</tool>
-    <tool id_or_name="Modifed Quadratic Shepard">Grid|Gridding|Interpolation from Points</tool>
+    <tool id_or_name="Modified Quadratic Shepard">Grid|Gridding|Interpolation from Points</tool>
     <tool id_or_name="Triangulation">Grid|Gridding|Interpolation from Points</tool>
     <tool id_or_name="Kernel Density Estimation">Grid|Gridding</tool>
     <tool id_or_name="Angular Distance Weighted">Grid|Gridding|Interpolation from Points</tool>

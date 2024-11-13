@@ -352,7 +352,7 @@ bool CBreach_Depressions::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			if( !Cells.empty() ) // else active cell list is empty. I think this occurs when there are rounding errors and the only lower cell is the centre cell itself. It is an unusal occurrance.
+			if( !Cells.empty() ) // else active cell list is empty. I think this occurs when there are rounding errors and the only lower cell is the centre cell itself. It is an unusual occurrence.
 			{
 				while( !Cells.empty() )
 				{
@@ -1017,7 +1017,7 @@ public class BreachDepressions implements WhiteboxPlugin {
 							}
 						} else { // active cell list is empty. I think this occurs
 								 // when there are rounding errors and the only lower cell
-								 // is the centre cell itself. It is an unusal occurrance.
+								 // is the centre cell itself. It is an unusual occurrence.
 							numUnsolvedCells++;
 						}
 					} else {

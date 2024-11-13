@@ -385,7 +385,7 @@ public:
 											 bool bSnowModule,double T_Rain,
 											 int size);
 
-	// calculate the effecive or excess rainfall and
+	// calculate the effective or excess rainfall and
 	// calculate total effective rainfall over the period in [mm]
 	double			CalcExcessRain			(vector_d &precipitation,
 											 vector_d &temperature,

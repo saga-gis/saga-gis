@@ -104,7 +104,7 @@
  *      Calculates and stores all the fuel-dependent combustion variables.
  *
  *  Side Effects
- *      All combustion varaiables are reclaculated for the model.
+ *      All combustion variables are reclaculated for the model.
  *      All behavior and environment variables are reset to zero.
  *
  *  Function Returns
@@ -683,7 +683,7 @@ Fire_SpreadWindSlopeMax ( FuelCatalogPtr catalog, size_t model, double windFpm, 
         /* There IS an effective wind even if there is no fire. */
         doEffectiveWind = 1;
         /* But since BEHAVE doesn't calculate effective wind when no spread. */
-        /* we wont either. */
+        /* we won't either. */
         effectiveWind = 0.;
         doEffectiveWind = 0;
         checkWindLimit = 0;
@@ -1496,7 +1496,7 @@ Fire_FuelCatalogDestroy ( FuelCatalogPtr catalog )
  *      Allocates the fuel model's description string.
  *      Allocates the fuel model's fuel particle pointer array of maxParticles
  *      (the FuelParticleData blocks are actually allocated within
- *      Fire_FuelparticleAdd() and thier pointers stored in this array).
+ *      Fire_FuelparticleAdd() and their pointers stored in this array).
  *      The fuel model's address is stored in the fuel catalog's pointer array.
  *
  *  Function Returns

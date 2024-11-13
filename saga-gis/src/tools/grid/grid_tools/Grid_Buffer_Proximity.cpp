@@ -69,7 +69,7 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 	Set_Name(_TL("Grid Proximity Buffer"));
 	Set_Author(_TL("Copyrights (c) 2006 by Volker Wichmann"));
 	Set_Description(_TW(
-		"This tool calculates the euclidian distance within a buffer distance from all NoData cells to the nearest "
+		"This tool calculates the euclidean distance within a buffer distance from all NoData cells to the nearest "
 		"valid neighbour in a source grid. Additionally, the source cells define the zones that will be used in the "
 		"euclidean allocation calculations. Cell values in the source grid are treated as IDs (integer) and "
 		"used in the allocation grid to identify the grid value of the closest source cell. If a cell is at an equal "
@@ -89,7 +89,7 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 	Parameters.Add_Grid(NULL, 
 						"DISTANCE", 
 						_TL("Distance Grid"), 
-						_TL("Grid with euclidian distance to nearest source cell [grid units]"), 
+						_TL("Grid with euclidean distance to nearest source cell [grid units]"), 
 						PARAMETER_OUTPUT, 
 						true, 
 						SG_DATATYPE_Double);

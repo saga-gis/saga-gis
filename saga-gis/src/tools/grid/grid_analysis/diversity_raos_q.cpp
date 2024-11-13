@@ -273,7 +273,7 @@ CDiversity_Raos_Q::CDiversity_Raos_Q(void)
 		"DISTANCE"	, _TL("Distance"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
-			_TL("Euclidian"),
+			_TL("Euclidean"),
 			_TL("Manhatten"),
 			_TL("Canberra"),
 			_TL("Minkowski")

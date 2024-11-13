@@ -1209,7 +1209,7 @@ void CGPP_Model_BASE::Run_GPP_Model(std::vector<class CGPP_Model_Particle> *pvPr
 
 				if( (sLong)Particle.Get_Count_Path_Positions() > m_pDEM->Get_NCells() )
 				{
-					SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: particle %zu of release area %d terminated in interation %d in order to prevent endless loop!"), iParticle, Particle.Get_ReleaseID(), iIter), true);
+					SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: particle %zu of release area %d terminated in iteration %d in order to prevent endless loop!"), iParticle, Particle.Get_ReleaseID(), iIter), true);
 
                     if( m_pObjects != NULL )
                     {

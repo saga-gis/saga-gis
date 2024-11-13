@@ -63,7 +63,7 @@
 
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
+// 2. Place general tool library information here...
 
 CSG_String Get_Info(int i)
 {

@@ -103,7 +103,7 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	);
 
 	Parameters.Add_Bool(
-		"", "EXTENDED"		, _TL("Extended Neighourhood"),
+		"", "EXTENDED"		, _TL("Extended Neighbourhood"),
 		_TL(""),
 		false
 	);
