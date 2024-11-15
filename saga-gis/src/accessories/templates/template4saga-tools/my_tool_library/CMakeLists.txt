@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.13.3)
 
 #________________________________________
-# define the tool library project
-project(my_tool_library)
+# The library name is derived from the project's folder name.
+get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+string(REPLACE " " "_" ProjectId ${ProjectId})
+project(${ProjectId})
 
 set(TOP_PROJECT ${PROJECT_NAME})
-set(PROJECT_DESCRIPTION "My Tool Library")
 
 #________________________________________
 # Set a default build type for single-configuration cmake generators if no build type is set.

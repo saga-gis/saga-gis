@@ -13,6 +13,9 @@ Files:
 ___________________________
 Source code files
 
+The tool library configuration file.
+	./my_tool_library/CMakeLists.txt
+
 The tool library interface definition.
 	./my_tool_library/TLB_Interface.cpp
 
@@ -23,7 +26,7 @@ The tool implementation. Just says 'Hello World' and prints a number.
 ___________________________
 Configuration and building
 
-Project configuration for your building environment expects CMake installed on your system (see https://cmake.org/ for details). In the simplest case the building procedure can then look like this (example for Linux):
+Project configuration for your building environment expects CMake installed on your system (see https://cmake.org/ for details). The library name is derived from the project's folder name. Simply rename the folder name before running CMake. In the simplest case the building procedure can then look like this (example for Linux):
 
 > cd ~/my_tool_library
 > mkdir build
