@@ -328,7 +328,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		for(int i=0; i<nFields; i++)
 		{
 			Names += CSG_String::Format("%s;", Fields(GET_ID_NAME(i))->asString());
-			Types += CSG_String::Format("%d;", Fields(GET_ID_TYPE(i))->asString());
+			Types += CSG_String::Format("%d;", Fields(GET_ID_TYPE(i))->asInt   ());
 		}
 
 		Parameters("FIELDNAMES")->Set_Value(Names);
