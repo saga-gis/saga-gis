@@ -659,10 +659,14 @@ void		Print_Execution	(CSG_Tool *pTool)
 		}
 		else
 		{
+			CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(pTool->Get_Library(), true,
+				pTool->Get_Type() != TOOL_TYPE_Chain ? ESG_Library_Type::Library : ESG_Library_Type::Chain
+			);
+
 			CMD_Print("____________________________");
-			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str()));
-			CMD_Print(CSG_String::Format("%s: %s", _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str()));
-			CMD_Print(CSG_String::Format("%s: %s", _TL("library     "), pTool->Get_Library().c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str()));
+			CMD_Print(CSG_String::Format("%s: %s", _TL("library     "), pLibrary->Get_Name().c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("tool        "), pTool->Get_Name   ().c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("identifier  "), pTool->Get_ID     ().c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("author      "), pTool->Get_Author ().c_str()));
