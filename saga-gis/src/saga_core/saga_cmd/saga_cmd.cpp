@@ -661,7 +661,6 @@ void		Print_Execution	(CSG_Tool *pTool)
 		{
 			CMD_Print("____________________________");
 			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str()));
-			CMD_Print(CSG_String::Format("%s: %s", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("library     "), pTool->Get_Library().c_str()));
 			CMD_Print(CSG_String::Format("%s: %s", _TL("tool        "), pTool->Get_Name   ().c_str()));
