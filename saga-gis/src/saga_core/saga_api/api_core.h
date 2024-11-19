@@ -1153,6 +1153,8 @@ public:
 
 	sLong							Tell				(void)	const;
 
+	bool							Flush				(void);
+
 	int								Printf				(const char    *Format, ...);
 	int								Printf				(const wchar_t *Format, ...);
 

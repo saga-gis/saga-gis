@@ -274,6 +274,12 @@ sLong CSG_File::Tell(void) const
 }
 
 //---------------------------------------------------------
+bool CSG_File::Flush(void)
+{
+	return( m_pStream_O && m_pStream_O->GetFile()->Flush() );
+}
+
+//---------------------------------------------------------
 int CSG_File::Printf(const char *Format, ...)
 {
 	if( !is_Writing() )
