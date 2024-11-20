@@ -518,7 +518,7 @@ void CPDAL_Reader::_Init_PointCloud(CSG_PointCloud *pPoints, pdal::BasePointTabl
 		{
 			Field_RGB = pPoints->Get_Field_Count();
 
-			pPoints->Add_Field("Color", SG_DATATYPE_DWord);
+			pPoints->Add_Field("RGB Color Value", SG_DATATYPE_DWord);
 		}
 	}
 }

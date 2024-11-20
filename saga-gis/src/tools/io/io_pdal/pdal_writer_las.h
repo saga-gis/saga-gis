@@ -58,11 +58,6 @@
 //---------------------------------------------------------
 #include "pdal_driver.h"
 
-#include <pdal/Options.hpp>
-#include <pdal/PointTable.hpp>
-#include <pdal/StageFactory.hpp>
-#include <pdal/io/BufferReader.hpp>
-
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -74,22 +69,19 @@
 class CPDAL_Writer_Las : public CSG_Tool
 {
 public:
-    CPDAL_Writer_Las(void);
+	CPDAL_Writer_Las(void);
 
-    virtual CSG_String  Get_MenuPath            (void)  { return( _TL("Export") );  }
+	virtual CSG_String	Get_MenuPath			(void)       { return( _TL("Export") );  }
 
-    virtual bool        do_Sync_Projections     (void)  const { return( false );  }
+	virtual bool		do_Sync_Projections		(void) const { return( false );  }
 
 
 protected:
 
-    virtual int         On_Parameters_Enable    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-    virtual int         On_Parameter_Changed    (CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-    virtual bool        On_Execute              (void);
-
-
-private:
+	virtual bool		On_Execute				(void);
 
 };
 
