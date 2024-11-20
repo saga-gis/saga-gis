@@ -111,11 +111,6 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 		Format	= SG_File_Cmp_Extension(FileName, "dbf") ? TABLE_FILETYPE_DBase : TABLE_FILETYPE_Text;
 	}
 
-	if( Separator == '\0' )
-	{
-		Separator	= SG_File_Cmp_Extension(FileName, "csv") ? ',' : '\t';	// comma separated values or tab spaced text
-	}
-
 	//-----------------------------------------------------
 	Destroy();
 
@@ -288,9 +283,9 @@ size_t	CSG_Table::_Load_Text_EndQuote(const CSG_String &s, const SG_Char Separat
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_Char Separator)
+bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_Char _Separator)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( Stream.Open(FileName, SG_FILE_R, false, m_Encoding) == false )
 	{
@@ -304,7 +299,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		return( false );
 	}
 
-	CSG_String	sLine;
+	CSG_String sLine;
 
 	if( !Stream.Read_Line(sLine) )
 	{
@@ -312,25 +307,42 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	Table;
+	SG_Char Separator = _Separator;
+
+	if( Separator == '\0' )
+	{
+		if( SG_File_Cmp_Extension(FileName, "csv") ) // comma separated values
+		{
+			Separator = sLine.Find(';') >= 0 ? ';' : ','; // assume semicolon as value separator, comma as decimal separator!
+		}
+		else // assume tab spaced text table
+		{
+			Separator = '\t';
+		}
+	}
+
+	bool bComma2Point = SG_File_Cmp_Extension(FileName, "csv") && Separator == ';';
+
+	//-----------------------------------------------------
+	CSG_Table Table;
 
 	_Load_Text_Trim(sLine, Separator);
 
 	while( !sLine.is_Empty() )
 	{
-		CSG_String	sField;
+		CSG_String sField;
 
-		if( sLine[0] == '\"' )	// value in quotas
+		if( sLine[0] == '\"' ) // value in quotas
 		{
-			sField	= sLine.AfterFirst('\"').BeforeFirst('\"');
-			sLine	= sLine.AfterFirst('\"').AfterFirst ('\"');
+			sField = sLine.AfterFirst('\"').BeforeFirst('\"');
+			sLine  = sLine.AfterFirst('\"').AfterFirst ('\"');
 		}
 		else
 		{
-			sField	= sLine.BeforeFirst(Separator);
+			sField = sLine.BeforeFirst(Separator);
 		}
 
-		sLine	= sLine.AfterFirst(Separator);	_Load_Text_Trim(sLine, Separator);
+		sLine = sLine.AfterFirst(Separator); _Load_Text_Trim(sLine, Separator);
 
 		if( !bHeadline || sField.Length() == 0 )
 		{
@@ -341,11 +353,11 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type	*Type	= new TSG_Data_Type[Table.Get_Field_Count()];
+	TSG_Data_Type *Type = new TSG_Data_Type[Table.Get_Field_Count()];
 
 	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
-		Type[iField]	= SG_DATATYPE_Int;
+		Type[iField] = SG_DATATYPE_Int;
 	}
 
 	if( !bHeadline )
@@ -368,27 +380,32 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		{
 			size_t Position = _Load_Text_EndQuote(sLine, Separator); CSG_String sField;
 
-			if( Position > 0 )	// value in quotas !!!
+			if( Position > 0 ) // value in quotas !!!
 			{
 				if( Position - 2 > 0 )
 				{
-					sField	= sLine.Mid(1, Position - 2);
+					sField = sLine.Mid(1, Position - 2);
 				}
 				else
 				{
 					sField.Clear();
 				}
 
-				sLine	= sLine.Right(sLine.Length() - Position);
+				sLine = sLine.Right(sLine.Length() - Position);
 
-				Type[iField]	= SG_DATATYPE_String;
+				Type[iField] = SG_DATATYPE_String;
 			}
 			else
 			{
-				sField	= sLine.BeforeFirst(Separator);
+				sField = sLine.BeforeFirst(Separator);
+
+				if( bComma2Point )
+				{
+					sField.Replace(",", ".");
+				}
 			}
 
-			sLine	= sLine.AfterFirst(Separator);	_Load_Text_Trim(sLine, Separator);
+			sLine = sLine.AfterFirst(Separator); _Load_Text_Trim(sLine, Separator);
 
 			//---------------------------------------------
 			if( Type[iField] != SG_DATATYPE_String && !sField.is_Empty() )
@@ -399,16 +416,16 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 
 					if( pos < sField.Length() )
 					{
-						Type[iField]	= SG_DATATYPE_String;
+						Type[iField] = SG_DATATYPE_String;
 					}
 					else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || sField.Find('.') >= 0) )
 					{
-						Type[iField]	= SG_DATATYPE_Double;
+						Type[iField] = SG_DATATYPE_Double;
 					}
 				}
 				catch(...)
 				{
-					Type[iField]	= SG_DATATYPE_String;
+					Type[iField] = SG_DATATYPE_String;
 				}
 			}
 
