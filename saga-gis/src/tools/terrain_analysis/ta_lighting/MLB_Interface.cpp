@@ -59,22 +59,22 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Lighting, Visibility" ));
+		return( _TL("Lighting & Visibility" ));
 
 	case TLB_INFO_Category:
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( "O.Conrad, V.Wichmann (c) 2003-23" );
+		return( "O.Conrad, V.Wichmann (c) 2003-24" );
 
 	case TLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
+		return( _TL("Lighting and visibility related analyses for digital terrain models." ));
 
 	case TLB_INFO_Version:
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
+		return( _TL("Terrain Analysis|Lighting and Visibility" ));
 	}
 }
 
