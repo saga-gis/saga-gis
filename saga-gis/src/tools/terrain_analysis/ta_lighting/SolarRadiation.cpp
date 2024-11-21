@@ -121,8 +121,8 @@ CSolarRadiation::CSolarRadiation(void)
 	Parameters.Add_Choice("",
 		"UNITS"			, _TL("Units"),
 		_TL("Units for output radiation values."),
-		"kWh/m²|kJ/m²|J/cm²"    // time span  => energy (sum)
-	//	"kW/m²|kJ/s/m²|J/s/cm²" // for moment => power
+		SG_T("kWh/m²|kJ/m²|J/cm²")    // time span  => energy (sum)
+	//	SG_T("kW/m²|kJ/s/m²|J/s/cm²") // for moment => power
 	);
 
 	Parameters.Add_Choice("",
@@ -463,9 +463,9 @@ bool CSolarRadiation::Finalize(void)
 	}
 	else switch( Parameters("UNITS")->asInt() )
 	{
-	default: dUnit =    1.; Unit = "kWh/m²"; break; // [kWh/m²]
-	case  1: dUnit = 3600.; Unit = "kJ/m²" ; break; // [kJ/m²]
-	case  2: dUnit =  360.; Unit = "J/cm²" ; break; // [Ws/cm²] = [J/cm²]
+	default: dUnit =    1.; Unit = SG_T("kWh/m²"); break; // [kWh/m²]
+	case  1: dUnit = 3600.; Unit = SG_T("kJ/m²" ); break; // [kJ/m²]
+	case  2: dUnit =  360.; Unit = SG_T("J/cm²" ); break; // [Ws/cm²] = [J/cm²]
 	}
 
 	m_pDirect->Multiply(dUnit); m_pDirect->Set_Unit(Unit);
