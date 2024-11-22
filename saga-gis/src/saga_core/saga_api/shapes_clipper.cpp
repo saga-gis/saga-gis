@@ -240,8 +240,6 @@ public:
 
 			if( pShape->Get_Type() != SHAPE_TYPE_Polygon )
 			{
-				Delta *= 2.;
-
 				EndType = Clipper2Lib::EndType::Round;
 			}
 			else
