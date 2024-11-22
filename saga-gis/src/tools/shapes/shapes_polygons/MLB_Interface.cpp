@@ -76,7 +76,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-14") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-24") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for polygons.") );
@@ -110,6 +110,7 @@ CSG_String Get_Info(int i)
 #include "polygon_flatten.h"
 #include "polygon_shared_edges.h"
 #include "polygon_generalization.h"
+#include "polygon_invert_ring_ordering.h"
 
 
 //---------------------------------------------------------
@@ -141,13 +142,12 @@ CSG_Tool *		Create_Tool(int i)
 	case 20:	return( new CAdd_Point_Attributes );
 
 	case 21:	return( new CPolygon_Flatten );
-
 	case 22:	return( new CPolygon_Shared_Edges );
-
 	case 23:	return( new CPolygon_Generalization );
+	case 24:	return( new CPolygon_Invert_Ring_Ordering );
 
 	//-----------------------------------------------------
-	case 24:	return( NULL );
+	case 25:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 
