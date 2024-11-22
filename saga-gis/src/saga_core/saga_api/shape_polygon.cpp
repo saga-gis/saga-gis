@@ -158,99 +158,54 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, 
 {
 	if(	m_nPoints > 2 && Get_Extent().Contains(x, y) )
 	{
-		TSG_Point	*pA	= m_Points;
-		TSG_Point	*pB	= m_Points + m_nPoints - 1;
+		TSG_Point *pB = m_Points + m_nPoints - 1;
 
-		if( x == pB->x && y == pB->y )	// for performance reason check vertex first
+		if( x == pB->x && y == pB->y ) // check identity
 		{
 			return( SG_POLYGON_POINT_Vertex );
 		}
 
-		double	dy	= pB->y - pA->y;	// indicates the direction that we come from
-
-		if( dy == 0.0 )
-		{
-			for(int iPoint=m_nPoints-2; dy==0.0 && iPoint>0; iPoint--)
-			{
-				dy	= m_Points[iPoint].y - pA->y;
-			}
-		}
-
-		int	nCrossings	= 0;
+		TSG_Point *pA = m_Points; bool bInterior = false;
 
 		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pB=pA++)
 		{
-			if( x == pA->x && y == pA->y )	// for performance reason check vertex first
-			{
-				return( SG_POLYGON_POINT_Vertex );
-			}
-
-			if( pA->x == pB->x && pA->y == pB->y )	// ignore doubles
+			if( pA->x == pB->x && pA->y == pB->y ) // ignore duplicates
 			{
 				continue;
 			}
 
-			if( y < pA->y )			// pA above y
+			if( x == pA->x && y == pA->y ) // check identity (previous vertex has already been checked)
 			{
-				if( y > pB->y )		// pB below y
-				{
-					double	cx	= pB->x + (y - pB->y) * (pA->x - pB->x) / (pA->y - pB->y);
-
-					if( cx == x )
-					{
-						return( SG_POLYGON_POINT_Edge );
-					}
-
-					if( cx < x )
-					{
-						nCrossings++;
-					}
-				}
-				else if( y == pB->y && pB->x < x && dy < 0.0 )
-				{
-					nCrossings++;
-				}
-			}
-			else if( y > pA->y )	// pA below y
-			{
-				if( y < pB->y )		// pB above y
-				{
-					double	cx	= pB->x + (y - pB->y) * (pA->x - pB->x) / (pA->y - pB->y);
-
-					if( cx == x )
-					{
-						return( SG_POLYGON_POINT_Edge );
-					}
-
-					if( cx < x )
-					{
-						nCrossings++;
-					}
-				}
-				else if( y == pB->y && pB->x < x && dy > 0.0 )
-				{
-					nCrossings++;
-				}
-			}
-			else					// pA on line y
-			{
-				if( y == pB->y )	// pB on line y
-				{
-					if( (pA->x < x && x < pB->x)
-					||  (pA->x > x && x > pB->x) )
-					{
-						return( SG_POLYGON_POINT_Edge );
-					}
-				}
+				return( SG_POLYGON_POINT_Vertex );
 			}
 
-			if( pA->y != pB->y )
+			if( pA->y == pB->y && y == pA->y && SG_IS_BETWEEN(pA->x, x, pB->x) )
 			{
-				dy	= pB->y - pA->y;
+				return( SG_POLYGON_POINT_Edge );
+			}
+
+			if( SG_IS_BETWEEN(pA->y, y, pB->y) )
+			{
+				if( (y == pA->y && pB->y >= pA->y) || (y == pB->y && pA->y >= pB->y) ) // filter out "ray pass vertex" problem by treating the line a little lower
+				{
+					continue;
+				}
+
+				double c = (pB->x - x) * (pA->y - y) - (pA->x - x) * (pB->y - y); // cross product PA X PB, P(x, y) is on left side of AB if c > 0.
+
+				if( c == 0. )
+				{
+					return( SG_POLYGON_POINT_Edge );
+				}
+
+				if( (pB->y < pA->y) == (c > 0.) )
+				{
+					bInterior = !bInterior;
+				}
 			}
 		}
 
-		if( nCrossings % 2 != 0 )
+		if( bInterior )
 		{
 			return( SG_POLYGON_POINT_Interior );
 		}
