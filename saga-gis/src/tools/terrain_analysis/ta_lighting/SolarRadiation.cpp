@@ -667,7 +667,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 
 	Process_Set_Text(Date.Format("%A, %d. %B %Y, %X"));
 
-	double JDN = floor(Date.Get_JDN()) - 0.5 + Hour / 24.; // relate to UTC, avoid problems with daylight saving time
+//	double JDN = Date.Get_JDN(); // relate to UTC, avoid problems with daylight saving time
+	double JDN = SG_Date_To_JulianDayNumber(Date.Get_Year(), 1 + Date.Get_Month(), Date.Get_Day()) + Hour / 24.; // relate to UTC, avoid problems with daylight saving time
 
 	//-----------------------------------------------------
 	m_Solar_Const = Parameters("SOLARCONST")->asDouble() / 1000.; // >> [kW/m²]
@@ -709,6 +710,18 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 
 		if( SG_Get_Sun_Position(JDN, 0., m_Latitude, Sun_Height, Sun_Azimuth) )
 		{
+			if( Parameters("PERIOD")->asInt() == 0 ) // moment
+			{
+				Message_Fmt("\n____\n%s\n%s: %f\n%s: %02d:%02.2f\n%s: %f\n%s: %f\n",
+					_TL("Solar Position"   ),
+					_TL("Julian Day Number"), JDN,
+					_TL("Local Time"       ), (int)Hour, (Hour - (int)Hour) * 60.,
+					_TL("Height"           ), Sun_Height  * M_RAD_TO_DEG,
+					_TL("Azimuth"          ), Sun_Azimuth * M_RAD_TO_DEG
+				);
+				Message_Fmt("\nJDN: %f\n", Date.Get_JDN());
+			}
+
 			return( Get_Insolation(Sun_Height, Sun_Azimuth, Hour) );
 		}
 	}

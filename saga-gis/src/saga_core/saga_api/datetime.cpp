@@ -723,51 +723,45 @@ CSG_String		SG_JulianDayNumber_To_Date(int JDN)
 
 //---------------------------------------------------------
 /**
-  * Returns the Julian Day Number calculated from Gregorian date (year, month, day).
+  * Returns the Julian Day Number for the requested Gregorian
+  * date (year, month, day). Month should be in the range of
+  * 1 (= january) to 12 (= december), day in the range of 1
+  * to 31.
 */
 //---------------------------------------------------------
-double			SG_Date_To_JulianDayNumber(int y, int m, int d)
+double			SG_Date_To_JulianDayNumber(int Year, int Month, int Day)
 {
-	int	a	= m <= 2 ? 1 : 0;
-
-	y	+= 4800 - a;
-	m	+= 12 * a - 3;
-
-	double	JDN	= d + floor((153. * m + 2.) / 5.) + 365. * y + floor(y / 4.) - floor(y / 100.) + floor(y / 400.) - 32045.;
-
-	return( JDN );
+	return( 2 - int(Year / 100) + int(Year / 400) + int(365.25 * (Year + 4716)) + int(30.6001 * (Month + 1)) + Day - 1524.5 );
 }
 
 //---------------------------------------------------------
 /**
-  * Returns the Julian Day Number.
+  * Returns the Julian Day Number for the requested date.
+  * Date string is best provided be given in ISO format
+  * (YYYY-MM-DD), or alternatively as YY-MM-DD or DD-MM-YYYY.
 */
 //---------------------------------------------------------
 double			SG_Date_To_JulianDayNumber(const CSG_String &Date)
 {
-	if( Date.Length() < 10 )
+	if( Date.Length() >= 10 )
 	{
-		return( 0.0 );
+		bool BC = Date[0] == '-';
+
+		CSG_Strings ymd(SG_String_Tokenize(BC ? Date.AfterFirst('-') : Date, "-./"));
+
+		if( ymd.Get_Count() >= 3 )
+		{
+			bool inv = ymd[2].Length() == 4;
+
+			int y = ymd[inv ? 2 : 0].asInt(); if( BC ) { y = -y; }
+			int m = ymd[          1].asInt(); if( m < 1 ) { m = 1; } else if( m > 12 ) { m = 12; }
+			int d = ymd[inv ? 0 : 2].asInt(); if( d < 1 ) { d = 1; } else if( d > 31 ) { d = 31; }
+
+			return( SG_Date_To_JulianDayNumber(y, m, d) );
+		}
 	}
 
-	int	bBC	= Date[0] == '-' ? -1 : 1;
-
-	CSG_String_Tokenizer	t(bBC < 0 ? Date.AfterFirst('-') : Date, "-./");
-
-	if( t.Get_Tokens_Count() < 3 )
-	{
-		return( 0.0 );
-	}
-
-	CSG_Strings	s; for(int i=0; i<3; i++) s += t.Get_Next_Token();
-
-	bool	bISO	= s[0].Length() == 4;	// yyyy-mm-dd (ISO 8601)
-
-	int	y	= s[bISO ? 0 : 2].asInt() * bBC;
-	int	m	= s[         1  ].asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
-	int	d	= s[bISO ? 2 : 0].asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
-
-	return( SG_Date_To_JulianDayNumber(y, m, d) );
+	return( 0. );
 }
 
 
