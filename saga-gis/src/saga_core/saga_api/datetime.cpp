@@ -677,15 +677,25 @@ CSG_String CSG_DateTime::Get_Month_Choices(void)
 //---------------------------------------------------------
 bool		SG_JulianDayNumber_To_Date(double JDN, int &y, int &m, int &d)
 {
-	int	J	= (int)floor(JDN);
-	int	f	= J + 1401 + (((4 * J + 274277) / 146097) * 3) / 4 - 38;
-	int	e	= 4 * f + 3;
-	int	g	= (e % 1461) / 4;
-	int	h	= 5 * g + 2;
+	double Z = floor(JDN + 0.5);
+	double F = JDN + 0.5 - Z;
+	double a = floor((Z - 1867216.25) / 36524.25);
+	double A = Z + 1 + a - floor(a / 4);
+	double B = A + 1524;
+	double C = floor((B - 122.1) / 365.25);
+	double D = floor(365.25 * C);
+	double E = floor((B - D) / 30.6001);
 
-	d	= (h % 153) / 5 + 1;
-	m	= (h / 153 + 2) % 12 + 1;
-	y	= (e / 1461) - 4716 + (12 + 2 - m) / 12; 
+	d = int(B - D - floor(30.6001 * E) + F);
+
+	if( E <= 13 )
+	{
+		m = E -  1; y = C - 4716;
+	}
+	else
+	{
+		m = E - 13; y = C - 4715;
+	}
 
 	return( true );
 }
@@ -697,11 +707,7 @@ bool		SG_JulianDayNumber_To_Date(double JDN, int &y, int &m, int &d)
 //---------------------------------------------------------
 CSG_String		SG_JulianDayNumber_To_Date(double JDN)
 {
-	JDN	= 0.5 + floor(JDN);
-
-	CSG_String	Date;
-
-	int	y, m, d;
+	CSG_String Date; int y, m, d;
 
 	if( SG_JulianDayNumber_To_Date(JDN, y, m, d) )
 	{
@@ -731,7 +737,9 @@ CSG_String		SG_JulianDayNumber_To_Date(int JDN)
 //---------------------------------------------------------
 double			SG_Date_To_JulianDayNumber(int Year, int Month, int Day)
 {
-	return( 2 - int(Year / 100) + int(Year / 400) + int(365.25 * (Year + 4716)) + int(30.6001 * (Month + 1)) + Day - 1524.5 );
+	if( Month <= 2 ) { Year--; Month += 12; }
+
+	return( floor(365.25 * (Year + 4716)) + floor(30.6001 * (Month + 1)) + Day + 2. - floor(Year / 100) + floor(Year / 400) - 1524.5 );
 }
 
 //---------------------------------------------------------
