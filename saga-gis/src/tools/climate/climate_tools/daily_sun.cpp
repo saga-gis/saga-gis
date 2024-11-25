@@ -51,24 +51,24 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 double SG_Range_Set_0_to_24(double Value)
 {
-	Value	= fmod(Value, 24.);
+	Value = fmod(Value, 24.);
 
 	return( Value < 0. ? Value	+ 24. : Value );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -109,7 +109,7 @@ CDaily_Sun::CDaily_Sun(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,13 +120,13 @@ int CDaily_Sun::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CDaily_Sun::On_Execute(void)
 {
-	CSG_Grid	*pTarget	= Parameters("TARGET")->asGrid();
+	CSG_Grid *pTarget = Parameters("TARGET")->asGrid();
 
 	if( !pTarget->Get_Projection().is_Okay() )
 	{
@@ -135,7 +135,7 @@ bool CDaily_Sun::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid	Lon(Get_System()), Lat(Get_System());
+	CSG_Grid Lon(Get_System()), Lat(Get_System());
 
 	SG_RUN_TOOL_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
 			SG_TOOL_PARAMETER_SET("GRID", pTarget)
@@ -143,34 +143,34 @@ bool CDaily_Sun::On_Execute(void)
 		&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 	)
 
-	Lon	*= M_DEG_TO_RAD;
-	Lat	*= M_DEG_TO_RAD;
+	Lon *= M_DEG_TO_RAD;
+	Lat *= M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
-	CSG_Grid	*pSunset	= Parameters("SUNSET" )->asGrid();
-	CSG_Grid	*pSunrise	= Parameters("SUNRISE")->asGrid();
-	CSG_Grid	*pDuration	= Parameters("LENGTH" )->asGrid();
+	CSG_Grid *pSunset   = Parameters("SUNSET" )->asGrid();
+	CSG_Grid *pSunrise  = Parameters("SUNRISE")->asGrid();
+	CSG_Grid *pDuration = Parameters("LENGTH" )->asGrid();
 
-	bool	bWorld	= Parameters("TIME")->asInt() == 1;
+	bool bWorld = Parameters("TIME")->asInt() == 1;
 
 	//-----------------------------------------------------
-	CSG_DateTime	Time(Parameters("DAY")->asDate()->Get_Date());
+	CSG_DateTime Time(Parameters("DAY")->asDate()->Get_Date());
 
 	Time.Reset_Time();
 
 	Message_Add(Time.Format("\n%A, %d. %B %Y"), false);
 
 	//-----------------------------------------------------
-	double	Dec, RA, RAm, T;
+	double Dec, RA, RAm, T;
 
 	SG_Get_Sun_Position(Time, RA, Dec);
 
-	T	= ((int)Time.Get_JDN() - 2451545. ) / 36525.;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.)
+	T   = ((int)Time.Get_JDN() - 2451545. ) / 36525.;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.)
 
-	RAm	= fmod(18.71506921 + 2400.0513369 * T + (2.5862e-5 - 1.72e-9 * T) * T*T, 24.);
-	RA	= fmod(RA * 12. / M_PI, 24.);	if( RA < 0. ) RA += 24.;
+	RAm = fmod(18.71506921 + 2400.0513369 * T + (2.5862e-5 - 1.72e-9 * T) * T*T, 24.);
+	RA  = fmod(RA * 12. / M_PI, 24.);	if( RA < 0. ) RA += 24.;
 
-	T	= 1.0027379 * (RAm - RA);
+	T   = 1.0027379 * (RAm - RA);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
@@ -186,7 +186,7 @@ bool CDaily_Sun::On_Execute(void)
 			}
 			else
 			{
-				double	dT	= (sin(-Lat.asDouble(x, y) / 60.) - sin(Lat.asDouble(x, y)) * sin(Dec)) / (cos(Lat.asDouble(x, y)) * cos(Dec));
+				double dT = (sin(-Lat.asDouble(x, y) / 60.) - sin(Lat.asDouble(x, y)) * sin(Dec)) / (cos(Lat.asDouble(x, y)) * cos(Dec));
 
 				if( dT > 1. )
 				{
@@ -202,21 +202,21 @@ bool CDaily_Sun::On_Execute(void)
 				}
 				else
 				{
-					dT	= acos(dT) * 12. / M_PI;
+					dT = acos(dT) * 12. / M_PI;
 
-					double	Sunrise	= SG_Range_Set_0_to_24(12. - dT - T);
-					double	Sunset	= SG_Range_Set_0_to_24(12. + dT - T);
+					double Sunrise = SG_Range_Set_0_to_24(12. - dT - T);
+					double Sunset  = SG_Range_Set_0_to_24(12. + dT - T);
 
 					pDuration->Set_Value(x, y, Sunset - Sunrise);
 
 					if( bWorld )
 					{
-						Sunrise	= SG_Range_Set_0_to_24(Sunrise - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
-						Sunset	= SG_Range_Set_0_to_24(Sunset  - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
+						Sunrise = SG_Range_Set_0_to_24(Sunrise - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
+						Sunset  = SG_Range_Set_0_to_24(Sunset  - M_RAD_TO_DEG * Lon.asDouble(x, y) / 15.);
 					}
 
-					pSunrise ->Set_Value(x, y, Sunrise);
-					pSunset  ->Set_Value(x, y, Sunset );
+					pSunrise->Set_Value(x, y, Sunrise);
+					pSunset ->Set_Value(x, y, Sunset );
 				}
 			}
 		}
@@ -228,9 +228,9 @@ bool CDaily_Sun::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -255,19 +255,19 @@ CSolarRadiation::CSolarRadiation(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
-		"MONTH"		, _TL("Month"),
+		"MONTH"   , _TL("Month"),
 		_TL(""),
 		CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month()
 	);
 
 	Parameters.Add_Int("TIME",
-		"DAY"		, _TL("Day of Month"),
+		"DAY"     , _TL("Day of Month"),
 		_TL(""),
 		CSG_DateTime::Get_Current_Day(), 1, true, 31, true
 	);
 
 	Parameters.Add_Double("",
-		"SUNSHINE"	, _TL("Sunshine Duration"),
+		"SUNSHINE", _TL("Sunshine Duration"),
 		_TL("Daily sunshine duration as percentage of its potential maximum."),
 		50., 0., true, 100., true
 	);
@@ -275,7 +275,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -286,7 +286,7 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -296,9 +296,9 @@ bool CSolarRadiation::On_Execute(void)
 	CSG_Grid *pSR  = Parameters("SOLARRAD")->asGrid();
 
 	pSR->Fmt_Name("%s [%s, %d]", _TL("Solar Radiation"), Parameters("MONTH")->asString(), Parameters("DAY")->asInt());
-	pSR->Set_Unit("J/cm²");
+	pSR->Set_Unit(SG_T("J/cm²"));
 
-	CSG_DateTime	Date(
+	CSG_DateTime Date(
 		(CSG_DateTime::TSG_DateTime)Parameters("DAY"  )->asInt(),
 		(CSG_DateTime::Month       )Parameters("MONTH")->asInt()
 	);
@@ -327,9 +327,137 @@ bool CSolarRadiation::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSolarPosition::CSolarPosition(void)
+{
+	Set_Name		(_TL("Solar Position"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"This tool calculates the solar position for requested "
+		"latitude, date range and daily time range."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Table("", "TABLE", _TL("Solar Position"), _TL(""), PARAMETER_OUTPUT);
+
+//	Parameters.Add_Double("", "LATITUDE", _TL("Latitude"), _TL(""), 53., -90., true, 90., true);
+	Parameters.Add_Degree("", "LATITUDE", _TL("Latitude"), _TL(""), 53., -90., true, 90., true);
+
+	Parameters.Add_Node  ("", "DATE", _TL("Date"), _TL(""));
+	Parameters.Add_Date  ("DATE", "DATE_FROM", _TL("From"), _TL(""), CSG_DateTime("2000-01-01").Get_JDN());
+	Parameters.Add_Date  ("DATE", "DATE_TO"  , _TL("To"  ), _TL(""), CSG_DateTime("2000-12-31").Get_JDN());
+	Parameters.Add_Int   ("DATE", "DATE_STEP", _TL("Step"), _TL(""), 10, 0, true);
+
+	Parameters.Add_Node  ("", "TIME", _TL("Time"), _TL("hour"));
+	Parameters.Add_Double("TIME", "TIME_FROM", _TL("From"), _TL(""),  0.);
+	Parameters.Add_Double("TIME", "TIME_TO"  , _TL("To"  ), _TL(""), 23.);
+	Parameters.Add_Double("TIME", "TIME_STEP", _TL("Step"), _TL(""),  1., 0., true);
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSolarPosition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("DATE_STEP") )
+	{
+		pParameters->Set_Enabled("DATE_TO", pParameter->asInt() > 0);
+	}
+
+	if( pParameter->Cmp_Identifier("TIME_STEP") )
+	{
+		pParameters->Set_Enabled("TIME_TO", pParameter->asDouble() > 0.);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSolarPosition::On_Execute(void)
+{
+	CSG_Table &Table = *Parameters("TABLE")->asTable();
+	Table.Destroy();
+	Table.Set_Name(_TL("Solar Position"));
+	Table.Add_Field(_TL("JDN"    ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Date"   ), SG_DATATYPE_Date  );
+	Table.Add_Field(_TL("Time"   ), SG_DATATYPE_String);
+	Table.Add_Field(_TL("Height" ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Azimuth"), SG_DATATYPE_Double);
+
+	//-----------------------------------------------------
+	double Date_Start = Parameters("DATE_FROM")->asDouble();
+	double Date_Stop  = Parameters("DATE_TO"  )->asDouble();
+	double Date_Step  = Parameters("DATE_STEP")->asDouble();
+
+	if( Date_Stop < Date_Start || Date_Step <= 0. )
+	{
+		Date_Stop = Date_Start; Date_Step = 1.;
+	}
+
+	//-----------------------------------------------------
+	double Time_Start = Parameters("TIME_FROM")->asDouble();
+	double Time_Stop  = Parameters("TIME_TO"  )->asDouble();
+	double Time_Step  = Parameters("TIME_STEP")->asDouble();
+
+	if( Time_Stop < Time_Start || Time_Step <= 0. )
+	{
+		Time_Stop = Time_Start; Time_Step = 1.;
+	}
+
+	double Latitude = Parameters("LATITUDE")->asDouble() * M_DEG_TO_RAD, Height, Azimuth;
+
+	//-----------------------------------------------------
+	for(double Date=Date_Start; Date<=Date_Stop; Date+=Date_Step)
+	{
+		CSG_String ISODate(CSG_DateTime(Date).Format_ISODate());
+
+		for(double Time=Time_Start; Time<=Time_Stop; Time+=Time_Step)
+		{
+			Process_Set_Text("%s: %s %02d%02.2f", _TL("Time"), ISODate.c_str(), (int)Time, (Time - (int)Time) * 60.);
+
+			double JDN = ((int)Date) + (Time - 12.) / 24.;
+
+			SG_Get_Sun_Position(JDN, 0., Latitude, Height, Azimuth);
+
+			if( 1 )
+			{
+				Azimuth = fmod(Azimuth + M_PI_360, M_PI_360);
+			}
+
+			CSG_Table_Record &Record = *Table.Add_Record();
+
+			Record.Set_Value(0, JDN);
+			Record.Set_Value(1, ISODate);
+			Record.Set_Value(2, CSG_String::Format("%02d:%02d", (int)Time, (int)((Time - (int)Time) * 60.)));
+			Record.Set_Value(3, Height  * M_RAD_TO_DEG);
+			Record.Set_Value(4, Azimuth * M_RAD_TO_DEG);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

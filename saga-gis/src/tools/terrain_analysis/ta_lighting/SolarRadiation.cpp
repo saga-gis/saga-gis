@@ -109,7 +109,7 @@ CSolarRadiation::CSolarRadiation(void)
 	Parameters.Add_Double("",
 		"SOLARCONST"	, _TL("Solar Constant [W/m²]"),
 		_TL(""),
-		1367., 0., true
+		1361., 0., true
 	);
 
 	Parameters.Add_Bool("",
@@ -716,10 +716,9 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date, double Hour)
 					_TL("Solar Position"   ),
 					_TL("Julian Day Number"), JDN,
 					_TL("Local Time"       ), (int)Hour, (Hour - (int)Hour) * 60.,
-					_TL("Height"           ), Sun_Height  * M_RAD_TO_DEG,
-					_TL("Azimuth"          ), Sun_Azimuth * M_RAD_TO_DEG
+					_TL("Height"           ), M_RAD_TO_DEG * Sun_Height,
+					_TL("Azimuth"          ), M_RAD_TO_DEG * fmod(Sun_Azimuth + M_PI_360, M_PI_360)
 				);
-				Message_Fmt("\nJDN: %f\n", Date.Get_JDN());
 			}
 
 			return( Get_Insolation(Sun_Height, Sun_Azimuth, Hour) );

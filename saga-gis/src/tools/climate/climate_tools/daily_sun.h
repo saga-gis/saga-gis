@@ -51,9 +51,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,9 +61,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,7 +72,7 @@ class CDaily_Sun : public CSG_Tool_Grid
 public:
 	CDaily_Sun(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Sun") );	}
 
 
 protected:
@@ -85,7 +85,7 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -94,7 +94,7 @@ class CSolarRadiation : public CSG_Tool_Grid
 public:
 	CSolarRadiation(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Sun") );	}
 
 
 protected:
@@ -107,9 +107,31 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSolarPosition : public CSG_Tool
+{
+public:
+	CSolarPosition(void);
+
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Sun") );	}
+
+
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
