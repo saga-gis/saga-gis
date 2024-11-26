@@ -69,7 +69,7 @@ Dir_Global = os.getcwd() + '/global'
 Dir_Target = os.getcwd() + '/aoi'
 Ext_Target = 'sg-grd-z'
 
-Download_Root = 'https://os.zhdk.cloud.switch.ch/envicloud/chelsa'
+Download_Root = 'https://os.zhdk.cloud.switch.ch'
 Download_Retries = 4
 
 
@@ -134,7 +134,7 @@ def Get_Global_Climatology_Month(Variable, Month):
 
     File       = 'CHELSA_{:s}{:s}_{:02d}_1981-2010_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'chelsa_V2/GLOBAL/climatologies/1981-2010/{:s}'.format(Variable)
+    Remote_Dir = 'chelsav2/GLOBAL/climatologies/1981-2010/{:s}'.format(Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
@@ -193,7 +193,7 @@ def Get_Global_Projection(Variable, Month, Period = '2041-2070', Model = 'MPI-ES
 
     File       = 'CHELSA_{:s}_r1i1p1f1_w5e5_ssp{:s}_{:s}_{:02d}_{:s}_norm.tif'.format(Model.lower(), SSP, Variable, Month, Period.replace('-', '_'))
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'chelsa_V2/GLOBAL/climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
+    Remote_Dir = 'chelsav2/GLOBAL/climatologies/{:s}/{:s}/ssp{:s}/{:s}'.format(Period, Model.upper(), SSP, Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
@@ -252,7 +252,7 @@ def Get_Global_Monthly(Variable, Year, Month):
 
     File       = 'CHELSA_{:s}{:s}_{:02d}_{:04d}_V.2.1.tif'.format(Variable, _Variable_File_Suffix(Variable), Month, Year)
     Local_Dir  = '{:s}/{:s}'.format(Dir_Global, Variable)
-    Remote_Dir = 'chelsa_V2/GLOBAL/monthly/{:s}'.format(Variable)
+    Remote_Dir = 'chelsav2/GLOBAL/monthly/{:s}'.format(Variable)
 
     return PySAGA.data.helper.Get_File(File, Local_Dir, Download_Root + '/' + Remote_Dir, Download_Retries)
 
