@@ -834,28 +834,32 @@ int SG_Get_Day_MidOfMonth(int Month, bool bLeapYear)
   * Jean Meeus: Astronomical Algorithms, accuracy of 0.01 degree
 */
 //---------------------------------------------------------
-bool SG_Get_Sun_Position(double JulianDayNumber, double &RA, double &Dec)
+bool SG_Get_Sun_Position(double JDN, double &RA, double &Dec)
 {
-	//-----------------------------------------------------
-	double	T	= (JulianDayNumber - 2451545.0 ) / 36525.0;	// Number of Julian centuries since 2000/01/01 at 12 UT (JDN = 2451545.0)
+	double T = (JDN - 2451545.) / 36525.; // Number of Julian centuries since 2000-01-01 at 12 UT (JDN = 2451545.0)
 
-	double	M	= M_DEG_TO_RAD *  (357.52910 + 35999.05030 * T - 0.0001559 * T*T - 0.00000048 * T*T*T);	// mean anomaly
-	double	L	= M_DEG_TO_RAD * ((280.46645 + 36000.76983 * T + 0.0003032 * T*T)						// mean longitude
-							   + ((1.914600 - 0.004817 * T - 0.000014  * T*T) * sin(M)
-							   +  (0.019993 - 0.000101 * T) * sin(2.0 * M) + 0.000290 * sin(3.0 * M)));	// true longitude
+	double M =  357.52910 + 35999.05030 * T - 0.0001559 * T*T - 0.00000048 * T*T*T; // mean anomaly
+
+	M *= M_DEG_TO_RAD;
+
+	double L = (280.46645 + 36000.76983 * T + 0.0003032 * T*T)                      // mean longitude
+	         + ((1.914600 - 0.004817 * T - 0.000014  * T*T) * sin(M)
+	         +  (0.019993 - 0.000101 * T) * sin(2. * M) + 0.000290 * sin(3. * M));  // true longitude
+
+	L *= M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
 	// convert ecliptic longitude to right ascension RA and declination delta
 
-	static const double	Ecliptic_Obliquity	= M_DEG_TO_RAD * 23.43929111;
+	static const double	Ecliptic_Obliquity = M_DEG_TO_RAD * 23.43929111;
 
-	double	X	= cos(L);
-	double	Y	= cos(Ecliptic_Obliquity) * sin(L);
-	double	Z	= sin(Ecliptic_Obliquity) * sin(L);
-	double	R	= sqrt(1.0 - Z*Z); 
+	double X = cos(L);
+	double Y = cos(Ecliptic_Obliquity) * sin(L);
+	double Z = sin(Ecliptic_Obliquity) * sin(L);
+	double R = sqrt(1. - Z*Z); 
 
 	Dec	= atan2(Z, R);
-	RA	= 2.0 * atan2(Y, (X + R));
+	RA	= 2. * atan2(Y, (X + R));
 
 	return( true );
 }
@@ -874,36 +878,89 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double &RA, double &Dec)
   * Returns true if Sun is above horizon.
 */
 //---------------------------------------------------------
-bool SG_Get_Sun_Position(double JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth)
+bool SG_Get_Sun_Position(double JDN, double Longitude, double Latitude, double &Height, double &Azimuth, bool bRefraction)
 {
 	//-----------------------------------------------------
 	// 1. Get right ascension RA and declination delta
 
-	double	RA, Delta;	SG_Get_Sun_Position(JulianDayNumber, RA, Delta);
+	double RA, Dec; SG_Get_Sun_Position(JDN, RA, Dec);
 
 	//-----------------------------------------------------
 	// 2. compute sidereal time (radians) at Greenwich local sidereal time at longitude (radians)
 
-	double	T		= (JulianDayNumber - 2451545.0 ) / 36525.0;
+	double T     = (JDN - 2451545.) / 36525.;
 
-	double	Theta	= Longitude + M_DEG_TO_RAD * (280.46061837 + 360.98564736629 * (JulianDayNumber - 2451545.0) + T*T * (0.000387933 - T / 38710000.0));
+	double Theta = Longitude + M_DEG_TO_RAD * (280.46061837 + 360.98564736629 * (JDN - 2451545.) + T*T * (0.000387933 - T / 38710000.));
 
-	double	Tau		= Theta - RA;	// compute local hour angle (radians)
+	double HA    = Theta - RA; // compute local hour angle (radians)
 
 	//-----------------------------------------------------
-	// 3. convert (tau, delta) to horizon coordinates (h, az) of the observer
+	// 3. convert (HA, Dec) to horizon coordinates (height, azimuth) of the observer
 
-	Height	= asin ( sin(Latitude) * sin(Delta) + cos(Latitude) * cos(Delta) * cos(Tau));
-	Azimuth	= atan2(-sin(Tau) * cos(Delta), cos(Latitude) * sin(Delta) - sin(Latitude) * cos(Delta) * cos(Tau));
-//	Azimuth	= atan2(-sin(Tau), cos(Latitude) * tan(Delta) - sin(Latitude) * cos(Tau));	// previous formula gives same result but is better because of division by zero effects...
+	Height	= asin ( sin(Latitude) * sin(Dec) + cos(Latitude) * cos(Dec) * cos(HA));
+	Azimuth	= atan2(-sin(HA) * cos(Dec), cos(Latitude) * sin(Dec) - sin(Latitude) * cos(Dec) * cos(HA));
+//	Azimuth	= atan2(-sin(HA), cos(Latitude) * tan(Dec) - sin(Latitude) * cos(HA)); // previous formula gives same result but is better because of division by zero effects...
 
-	return( Height > 0.0 );
+	if( bRefraction )
+	{
+		double Refraction = SG_Get_Sun_Refraction(Height, true);
+
+		if( Refraction >= 0. )
+		{
+			Height += Refraction;
+		}
+	}
+
+	return( Height > 0. );
 }
 
 //---------------------------------------------------------
-bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth)
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth, bool bRefraction)
 {
-	return( SG_Get_Sun_Position(Time.Get_JDN(), Longitude, Latitude, Height, Azimuth) );
+	return( SG_Get_Sun_Position(Time.Get_JDN(), Longitude, Latitude, Height, Azimuth, bRefraction) );
+}
+
+//---------------------------------------------------------
+bool SG_Get_Sun_Position(double JDN, double Longitude, double Latitude, CSG_Vector &Position, bool bRefraction)
+{
+	Position.Create(2); return( SG_Get_Sun_Position(JDN, Longitude, Latitude, Position[0], Position[1], bRefraction) );
+}
+
+//---------------------------------------------------------
+bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, CSG_Vector &Position, bool bRefraction)
+{
+	Position.Create(2); return( SG_Get_Sun_Position(Time.Get_JDN(), Longitude, Latitude, Position[0], Position[1], bRefraction) );
+}
+
+//---------------------------------------------------------
+/**
+* Refraction correction for U.S. Standard Atmosphere.
+* If bRadians is true input Height is expected to be
+* given in radians and returned height will be in
+* radians too.
+*/
+//---------------------------------------------------------
+double SG_Get_Sun_Refraction(double Height, bool bRadians)
+{
+	// 3.51823 = 1013.25mb / 288K
+
+	double z = bRadians ? M_RAD_TO_DEG * Height : Height;
+
+	if( z > -0.766 )
+	{
+		if( z >= 19.225 )
+		{
+			z = 3.51823 * 0.00452 / tan(z * M_DEG_TO_RAD);
+		}
+		else
+		{
+			z = 3.51823 * (0.1594 + z * (0.0196 + 0.00002 * z) ) / (1. + z * (0.505 + 0.0845 * z));
+		}
+
+		return( bRadians ? M_DEG_TO_RAD * z : z );
+	}
+
+	return( -1. );
 }
 
 
@@ -914,13 +971,13 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Lati
 //---------------------------------------------------------
 double SG_Get_Day_Length(int DayOfYear, double Latitude)
 {
-	double	tanLat	= tan(Latitude * M_DEG_TO_RAD);
+	double tanLat = tan(Latitude * M_DEG_TO_RAD);
 
-	double	JD		= DayOfYear * M_PI * 2. / 365.;
+	double JD     = DayOfYear * M_PI_360 / 365.;
 
-	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
+	double SunDec = 0.4093 * sin(JD - 1.405); // solar declination
 
-	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
+	double d      = -tanLat * tan(SunDec); // sunset hour angle
 
 	return( acos(d < -1 ? -1 : d < 1 ? d : 1) * 24. / M_PI );
 }

@@ -353,11 +353,11 @@ CSolarPosition::CSolarPosition(void)
 	Parameters.Add_Node  ("", "DATE", _TL("Date"), _TL(""));
 	Parameters.Add_Date  ("DATE", "DATE_FROM", _TL("From"), _TL(""), CSG_DateTime("2000-01-01").Get_JDN());
 	Parameters.Add_Date  ("DATE", "DATE_TO"  , _TL("To"  ), _TL(""), CSG_DateTime("2000-12-31").Get_JDN());
-	Parameters.Add_Int   ("DATE", "DATE_STEP", _TL("Step"), _TL(""), 10, 0, true);
+	Parameters.Add_Int   ("DATE", "DATE_STEP", _TL("Step"), _TL(""), 5, 0, true);
 
 	Parameters.Add_Node  ("", "TIME", _TL("Time"), _TL("hour"));
-	Parameters.Add_Double("TIME", "TIME_FROM", _TL("From"), _TL(""),  0.);
-	Parameters.Add_Double("TIME", "TIME_TO"  , _TL("To"  ), _TL(""), 23.);
+	Parameters.Add_Double("TIME", "TIME_FROM", _TL("From"), _TL(""),  1.);
+	Parameters.Add_Double("TIME", "TIME_TO"  , _TL("To"  ), _TL(""), 24.);
 	Parameters.Add_Double("TIME", "TIME_STEP", _TL("Step"), _TL(""),  1., 0., true);
 }
 
@@ -390,14 +390,15 @@ int CSolarPosition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CSolarPosition::On_Execute(void)
 {
-	CSG_Table &Table = *Parameters("TABLE")->asTable();
-	Table.Destroy();
+	CSG_Table &Table = *Parameters("TABLE")->asTable(); Table.Destroy();
 	Table.Set_Name(_TL("Solar Position"));
-	Table.Add_Field(_TL("JDN"    ), SG_DATATYPE_Double);
-	Table.Add_Field(_TL("Date"   ), SG_DATATYPE_Date  );
-	Table.Add_Field(_TL("Time"   ), SG_DATATYPE_String);
-	Table.Add_Field(_TL("Height" ), SG_DATATYPE_Double);
-	Table.Add_Field(_TL("Azimuth"), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("JDN"           ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Date"          ), SG_DATATYPE_Date  );
+	Table.Add_Field(_TL("Time"          ), SG_DATATYPE_String);
+	Table.Add_Field(_TL("Azimuth"       ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Height"        ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Refraction"    ), SG_DATATYPE_Double);
+	Table.Add_Field(_TL("Visible Height"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	double Date_Start = Parameters("DATE_FROM")->asDouble();
@@ -444,8 +445,20 @@ bool CSolarPosition::On_Execute(void)
 			Record.Set_Value(0, JDN);
 			Record.Set_Value(1, ISODate);
 			Record.Set_Value(2, CSG_String::Format("%02d:%02d", (int)Time, (int)((Time - (int)Time) * 60.)));
-			Record.Set_Value(3, Height  * M_RAD_TO_DEG);
-			Record.Set_Value(4, Azimuth * M_RAD_TO_DEG);
+			Record.Set_Value(3, M_RAD_TO_DEG * Azimuth);
+			Record.Set_Value(4, M_RAD_TO_DEG * Height);
+
+			double Refraction = SG_Get_Sun_Refraction(Height, true);
+
+			if( Refraction < 0. )
+			{
+				Record.Set_NoData(5); Record.Set_Value(6, 0.);
+			}
+			else
+			{
+				Record.Set_Value(5, M_RAD_TO_DEG * Refraction);
+				Record.Set_Value(6, M_RAD_TO_DEG * (Height + Refraction));
+			}
 		}
 	}
 

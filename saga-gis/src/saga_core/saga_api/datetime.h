@@ -397,8 +397,12 @@ SAGA_API_DLL_EXPORT int			SG_Get_Day_MidOfMonth			(int Month, bool bLeapYear = f
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double &RA, double &Dec);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double &RA, double &Dec);
 
-SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth);
-SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth);
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth, bool bRefraction = false);
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth, bool bRefraction = false);
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, class CSG_Vector &Position     , bool bRefraction = false);
+SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, class CSG_Vector &Position     , bool bRefraction = false);
+
+SAGA_API_DLL_EXPORT double		SG_Get_Sun_Refraction	(double Height, bool bRadians);
 
 SAGA_API_DLL_EXPORT double		SG_Get_Day_Length		(int            DayOfYear, double Latitude);
 SAGA_API_DLL_EXPORT double		SG_Get_Day_Length		(const CSG_DateTime &Date, double Latitude);
