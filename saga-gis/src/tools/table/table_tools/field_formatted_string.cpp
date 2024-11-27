@@ -177,8 +177,8 @@ int CField_Formatted_String::On_Parameters_Enable(CSG_Parameters *pParameters, C
 	}
 	else
 	{
-		pParameters->Set_Enabled("RESULT_TABLE" , pTable->asShapes() == NULL);
-		pParameters->Set_Enabled("RESULT_SHAPES", pTable->asShapes() != NULL);
+		pParameters->Set_Enabled("RESULT_TABLE" , false);
+		pParameters->Set_Enabled("RESULT_SHAPES", false);
 		pParameters->Set_Enabled("FIELD"        , false);
 		pParameters->Set_Enabled("NAME"         , false);
 	}
