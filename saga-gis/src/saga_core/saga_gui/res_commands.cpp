@@ -172,46 +172,47 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_SETTINGS_LOAD:		return( _TL("Load Settings") );
 	case ID_CMD_DATA_SETTINGS_COPY:		return( _TL("Copy Settings") );
 
-	case ID_CMD_GRID_OPEN:
-	case ID_CMD_GRIDS_OPEN:
-	case ID_CMD_SHAPES_OPEN:
-	case ID_CMD_TABLE_OPEN:
-	case ID_CMD_TIN_OPEN:
-	case ID_CMD_POINTCLOUD_OPEN:		return( _TL("Load") );
+	case ID_CMD_GRID_OPEN           :
+	case ID_CMD_GRIDS_OPEN          :
+	case ID_CMD_SHAPES_OPEN         :
+	case ID_CMD_TABLE_OPEN          :
+	case ID_CMD_TIN_OPEN            :
+	case ID_CMD_POINTCLOUD_OPEN     :	return( _TL("Load") );
 
-	case ID_CMD_GRID_SHOW:
-	case ID_CMD_GRIDS_SHOW:
-	case ID_CMD_SHAPES_SHOW:
-	case ID_CMD_TIN_SHOW:
-	case ID_CMD_POINTCLOUD_SHOW:		return( _TL("Add to Map") );
+	case ID_CMD_GRID_SHOW           :
+	case ID_CMD_GRIDS_SHOW          :
+	case ID_CMD_SHAPES_SHOW         :
+	case ID_CMD_TIN_SHOW            :
+	case ID_CMD_POINTCLOUD_SHOW     :	return( _TL("Add to Map") );
 
-	case ID_CMD_TABLE_SHOW:				return( _TL("Show") );
+	case ID_CMD_TABLE_SHOW          :	return( _TL("Show Table") );
 
-	case ID_CMD_GRID_SET_LUT:
-	case ID_CMD_SHAPES_SET_LUT:			return( _TL("Classify") );
+	case ID_CMD_GRID_SET_LUT        :
+	case ID_CMD_SHAPES_SET_LUT      :	return( _TL("Classify") );
 
 	case ID_CMD_DATA_CLASSIFY_IMPORT:	return( _TL("Import Classification") );
 
-	case ID_CMD_GRID_HISTOGRAM:
-	case ID_CMD_SHAPES_HISTOGRAM:		return( _TL("Histogram") );
+	case ID_CMD_GRID_HISTOGRAM      :
+	case ID_CMD_SHAPES_HISTOGRAM    :	return( _TL("Histogram") );
 
-	case ID_CMD_GRID_SCATTERPLOT:
-	case ID_CMD_GRIDS_SCATTERPLOT:
-	case ID_CMD_TABLE_SCATTERPLOT:		return( _TL("Scatterplot") );
+	case ID_CMD_GRID_SCATTERPLOT    :
+	case ID_CMD_GRIDS_SCATTERPLOT   :
+	case ID_CMD_TABLE_SCATTERPLOT   :	return( _TL("Scatterplot") );
 
-	case ID_CMD_TABLE_DIAGRAM:			return( _TL("Diagram") );
+	case ID_CMD_TABLE_DIAGRAM       :	return( _TL("Diagram") );
+	case ID_CMD_TABLE_JOIN_DATA     :	return( _TL("Join Data") );
 
-	case ID_CMD_GRID_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
+	case ID_CMD_GRID_SAVEAS_IMAGE   :	return( _TL("Save as Image...") );
 	case ID_CMD_GRID_CLIPBOARD_IMAGE:	return( _TL("Copy to Clipboard") );
-	case ID_CMD_GRID_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
-	case ID_CMD_GRID_SEL_CLEAR:			return( _TL("Clear Selection") );
-	case ID_CMD_GRID_SEL_DELETE:		return( _TL("Delete Selection") );
+	case ID_CMD_GRID_EQUALINTERVALS :	return( _TL("Create Normalised Classification") );
+	case ID_CMD_GRID_SEL_CLEAR      :	return( _TL("Clear Selection") );
+	case ID_CMD_GRID_SEL_DELETE     :	return( _TL("Delete Selection") );
 
-	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
-	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
-	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
-	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
-	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
+	case ID_CMD_GRIDS_SAVEAS_IMAGE  :	return( _TL("Save as Image...") );
+	case ID_CMD_GRIDS_FIT_MINMAX    :	return( _TL("Histogram Stretch to Minimum/Maximum") );
+	case ID_CMD_GRIDS_FIT_STDDEV    :	return( _TL("Histogram Stretch to Standard Deviation") );
+	case ID_CMD_GRIDS_FIT_PCTL      :	return( _TL("Histogram Stretch to Percentile") );
+	case ID_CMD_GRIDS_FIT_DIALOG    :	return( _TL("Histogram Stretch Dialog") );
 
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:             return( _TL("Save Attributes as...") );
 	case ID_CMD_SHAPES_EDIT_SHAPE:                  return( _TL("Edit Selection") );

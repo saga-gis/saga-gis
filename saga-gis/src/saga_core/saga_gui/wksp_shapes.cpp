@@ -232,6 +232,7 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_SCATTERPLOT);
+	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_JOIN_DATA);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
 
@@ -281,20 +282,34 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLE_SHOW   :	m_pTable->Toggle_View   ();	break;
-	case ID_CMD_TABLE_DIAGRAM:	m_pTable->Toggle_Diagram();	break;
+	case ID_CMD_TABLE_SHOW       : m_pTable->Toggle_View   (); break;
+	case ID_CMD_TABLE_DIAGRAM    : m_pTable->Toggle_Diagram(); break;
+	case ID_CMD_TABLE_SCATTERPLOT:          Add_ScatterPlot(); break;
 
-	case ID_CMD_TABLE_SCATTERPLOT:
-		Add_ScatterPlot();
+	//-----------------------------------------------------
+	case ID_CMD_TABLE_JOIN_DATA:
+		{
+			CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("table_tools", 3);
+		
+			if(	pTool && pTool->On_Before_Execution()
+			 && pTool->Set_Parameter("TABLE_A", m_pObject)
+			 && DLG_Parameters(pTool->Get_Parameters()) )
+			{
+				pTool->Execute();
+			}
+
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+		}
 		break;
 
+	//-----------------------------------------------------
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:
 		{
-			wxString	File(m_pObject->Get_File_Name());
+			wxString File(m_pObject->Get_File_Name());
 
 			if( DLG_Save(File, ID_DLG_TABLE_SAVE) )
 			{
-				CSG_Table	Table(*((CSG_Table *)m_pObject));
+				CSG_Table Table(*m_pObject->asTable(true));
 
 				Table.Save(&File);
 			}
