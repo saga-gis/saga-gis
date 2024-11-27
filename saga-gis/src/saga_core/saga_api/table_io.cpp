@@ -55,9 +55,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -74,7 +74,7 @@ bool CSG_Table::On_Delete(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -82,7 +82,7 @@ bool CSG_Table::Set_File_Encoding(int Encoding)
 {
 	if( Encoding >= 0 && Encoding < SG_FILE_ENCODING_UNDEFINED )
 	{
-		m_Encoding	= Encoding;
+		m_Encoding = Encoding;
 
 		return( true );
 	}
@@ -92,7 +92,7 @@ bool CSG_Table::Set_File_Encoding(int Encoding)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -108,7 +108,7 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 	//-----------------------------------------------------
 	if( Format == TABLE_FILETYPE_Undefined )
 	{
-		Format	= SG_File_Cmp_Extension(FileName, "dbf") ? TABLE_FILETYPE_DBase : TABLE_FILETYPE_Text;
+		Format = SG_File_Cmp_Extension(FileName, "dbf") ? TABLE_FILETYPE_DBase : TABLE_FILETYPE_Text;
 	}
 
 	//-----------------------------------------------------
@@ -126,7 +126,7 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 	Load_MetaData(FileName);
 
-	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+	CSG_MetaData *pFields = Get_MetaData_DB().Get_Child("FIELDS");
 
 	if( pFields && pFields->Get_Children_Count() == Get_Field_Count() )
 	{
@@ -158,21 +158,21 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 	{
 		if( SG_File_Cmp_Extension(FileName, "dbf") )
 		{
-			Format	= TABLE_FILETYPE_DBase;
+			Format = TABLE_FILETYPE_DBase;
 		}
 		else
 		{
-			Format	= TABLE_FILETYPE_Text;
+			Format = TABLE_FILETYPE_Text;
 
 			if( Separator == '\0' )
 			{
-				Separator	= SG_File_Cmp_Extension(FileName, "csv") ? ',' : '\t';	// comma separated values or tab spaced text
+				Separator = SG_File_Cmp_Extension(FileName, "csv") ? ',' : '\t'; // comma separated values or tab spaced text
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= false;
+	bool bResult = false;
 
 	switch( Format )
 	{
@@ -182,11 +182,11 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+	CSG_MetaData *pFields = Get_MetaData_DB().Get_Child("FIELDS");
 
 	if( !pFields )
 	{
-		pFields	= Get_MetaData_DB().Add_Child("FIELDS");
+		pFields = Get_MetaData_DB().Add_Child("FIELDS");
 	}
 
 	pFields->Del_Children();
@@ -221,9 +221,9 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Text							 //
-//														 //
+//                                                       //
+//                         Text                          //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -231,13 +231,13 @@ size_t CSG_Table::_Load_Text_Trim(CSG_String &s, const SG_Char Separator)
 {
 	for(size_t i=0; i<s.Length(); i++)
 	{
-		SG_Char	c	= s[i];
+		SG_Char c = s[i];
 
 		if( c == Separator || (c != ' ' && c != '\t' && c != '\n' && c != '\v' && c != '\f' && c != '\r') )
 		{
 			if( i > 0 )
 			{
-				s	= s.Right(s.Length() - i);
+				s = s.Right(s.Length() - i);
 			}
 
 			return( i );
@@ -252,7 +252,7 @@ size_t	CSG_Table::_Load_Text_EndQuote(const CSG_String &s, const SG_Char Separat
 {
 	if( s.Length() > 1 && s[0] == '\"' )
 	{
-		bool	bInQuotes	= true;
+		bool bInQuotes = true;
 
 		for(size_t i=1; i<s.Length(); i++)
 		{
@@ -260,12 +260,12 @@ size_t	CSG_Table::_Load_Text_EndQuote(const CSG_String &s, const SG_Char Separat
 			{
 				if( s[i] == '\"' )
 				{
-					bInQuotes	= false;
+					bInQuotes = false;
 				}
 			}
 			else if( s[i] == '\"' )
 			{
-				bInQuotes	= true;
+				bInQuotes = true;
 			}
 			else if( s[i] == Separator )
 			{
@@ -294,16 +294,32 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 
 	sLong fLength = Stream.Length();
 
-	if( fLength <= 0 )
+	if( fLength < 1 )
 	{
 		return( false );
 	}
 
-	CSG_String sLine;
+	//-----------------------------------------------------
+	CSG_String Line;
 
-	if( !Stream.Read_Line(sLine) )
+	if( !Stream.Read_Line(Line) ) // end-of-file !
 	{
 		return( false );
+	}
+
+	if( Line[0] == 65279 ) // 65279 => '\uFEFF' => BOM => zero-width no-break space ! ...to do: recognizing other 'magic' first characters !
+	{
+		Line.Remove(0, 1);
+	}
+
+	bool bCSV = SG_File_Cmp_Extension(FileName, "csv");
+
+	while( Line.is_Empty() || (bCSV && Line[0] == '#') ) // empty or comment
+	{
+		if( !Stream.Read_Line(Line) ) // end-of-file !
+		{
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
@@ -311,9 +327,9 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 
 	if( Separator == '\0' )
 	{
-		if( SG_File_Cmp_Extension(FileName, "csv") ) // comma separated values
+		if( bCSV ) // comma separated values
 		{
-			Separator = sLine.Find(';') >= 0 ? ';' : ','; // assume semicolon as value separator, comma as decimal separator!
+			Separator = Line.Find(';') >= 0 ? ';' : ','; // assume semicolon as value separator, comma as decimal separator!
 		}
 		else // assume tab spaced text table
 		{
@@ -321,35 +337,35 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		}
 	}
 
-	bool bComma2Point = SG_File_Cmp_Extension(FileName, "csv") && Separator == ';';
+	bool bComma2Point = bCSV && Separator == ';';
 
 	//-----------------------------------------------------
 	CSG_Table Table;
 
-	_Load_Text_Trim(sLine, Separator);
+	_Load_Text_Trim(Line, Separator);
 
-	while( !sLine.is_Empty() )
+	while( !Line.is_Empty() )
 	{
-		CSG_String sField;
+		CSG_String Field;
 
-		if( sLine[0] == '\"' ) // value in quotas
+		if( Line[0] == '\"' ) // value in quotas
 		{
-			sField = sLine.AfterFirst('\"').BeforeFirst('\"');
-			sLine  = sLine.AfterFirst('\"').AfterFirst ('\"');
+			Field = Line.AfterFirst('\"').BeforeFirst('\"');
+			Line  = Line.AfterFirst('\"').AfterFirst ('\"');
 		}
 		else
 		{
-			sField = sLine.BeforeFirst(Separator);
+			Field = Line.BeforeFirst(Separator);
 		}
 
-		sLine = sLine.AfterFirst(Separator); _Load_Text_Trim(sLine, Separator);
+		Line = Line.AfterFirst(Separator); _Load_Text_Trim(Line, Separator);
 
-		if( !bHeadline || sField.Length() == 0 )
+		if( !bHeadline || Field.Length() == 0 )
 		{
-			sField.Printf("F%02d", Table.Get_Field_Count() + 1);
+			Field.Printf("F%02d", Table.Get_Field_Count() + 1);
 		}
 
-		Table.Add_Field(sField, SG_DATATYPE_String);
+		Table.Add_Field(Field, SG_DATATYPE_String);
 	}
 
 	//-----------------------------------------------------
@@ -365,60 +381,65 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		Stream.Seek_Start();
 	}
 
-	while( Stream.Read_Line(sLine) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
+	while( Stream.Read_Line(Line) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{
-		if( sLine.Length() < 1 )
+		if( Line.is_Empty() || (bCSV && Line[0] == '#') ) // empty or comment
 		{
 			continue;
 		}
 
 		CSG_Table_Record *pRecord = Table.Add_Record();
 
-		_Load_Text_Trim(sLine, Separator);
+		_Load_Text_Trim(Line, Separator);
 
-		for(int iField=0; iField<Table.Get_Field_Count() && !sLine.is_Empty(); iField++)
+		for(int iField=0; iField<Table.Get_Field_Count() && !Line.is_Empty(); iField++)
 		{
-			size_t Position = _Load_Text_EndQuote(sLine, Separator); CSG_String sField;
+			size_t Position = _Load_Text_EndQuote(Line, Separator); CSG_String Field;
 
 			if( Position > 0 ) // value in quotas !!!
 			{
 				if( Position - 2 > 0 )
 				{
-					sField = sLine.Mid(1, Position - 2);
+					Field = Line.Mid(1, Position - 2);
 				}
 				else
 				{
-					sField.Clear();
+					Field.Clear();
 				}
 
-				sLine = sLine.Right(sLine.Length() - Position);
+				Line = Line.Right(Line.Length() - Position);
 
 				Type[iField] = SG_DATATYPE_String;
 			}
 			else
 			{
-				sField = sLine.BeforeFirst(Separator);
+				Field = Line.BeforeFirst(Separator);
 
 				if( bComma2Point )
 				{
-					sField.Replace(",", ".");
+					Field.Replace(",", ".");
+				}
+
+				if( Field[0] == '0' && Field[1] != '.' ) // keep leading zero(s) => don't interpret as number !
+				{
+					Type[iField] = SG_DATATYPE_String;
 				}
 			}
 
-			sLine = sLine.AfterFirst(Separator); _Load_Text_Trim(sLine, Separator);
+			Line = Line.AfterFirst(Separator); _Load_Text_Trim(Line, Separator);
 
 			//---------------------------------------------
-			if( Type[iField] != SG_DATATYPE_String && !sField.is_Empty() )
+			if( Type[iField] != SG_DATATYPE_String && !Field.is_Empty() )
 			{
 				try
 				{
-					size_t pos; double Value = std::stod(sField.to_StdString(), &pos);
+					size_t pos; double Value = std::stod(Field.to_StdString(), &pos);
 
-					if( pos < sField.Length() )
+					if( pos < Field.Length() )
 					{
 						Type[iField] = SG_DATATYPE_String;
 					}
-					else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || sField.Find('.') >= 0) )
+					else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || Field.Find('.') >= 0) )
 					{
 						Type[iField] = SG_DATATYPE_Double;
 					}
@@ -429,7 +450,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 				}
 			}
 
-			pRecord->Set_Value(iField, sField);
+			pRecord->Set_Value(iField, Field);
 		}
 	}
 
@@ -523,9 +544,9 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						DBase							 //
-//														 //
+//                                                       //
+//                        DBase                          //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -546,9 +567,9 @@ bool CSG_Table::_Save_DBase(const CSG_String &FileName)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Serialize						 //
-//														 //
+//                                                       //
+//                      Serialize                        //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -616,9 +637,9 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
