@@ -97,7 +97,7 @@ bool CSG_Shapes::On_Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static TSG_Shape_File_Format	gSG_Shape_File_Format_Default	= SHAPE_FILE_FORMAT_ESRI;
+static TSG_Shape_File_Format gSG_Shape_File_Format_Default = SHAPE_FILE_FORMAT_ESRI;
 
 //---------------------------------------------------------
 bool					SG_Shapes_Set_File_Format_Default	(int Format)
@@ -107,7 +107,7 @@ bool					SG_Shapes_Set_File_Format_Default	(int Format)
 	case SHAPE_FILE_FORMAT_ESRI      :
 	case SHAPE_FILE_FORMAT_GeoPackage:
 	case SHAPE_FILE_FORMAT_GeoJSON   :
-		gSG_Shape_File_Format_Default	= (TSG_Shape_File_Format)Format;
+		gSG_Shape_File_Format_Default = (TSG_Shape_File_Format)Format;
 		return( true );
 	}
 
@@ -263,51 +263,50 @@ bool CSG_Shapes::_Save_GDAL(const CSG_String &File_Name, const CSG_String &Drive
 //---------------------------------------------------------
 bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 {
-	int				Type, iField, iPart, nParts, *Parts, iPoint, nPoints, iOffset;
-	double			*pZ	= NULL, *pM	= NULL;
-	TSG_Point		*pPoint;
-	CSG_Buffer		File_Header(100), Record_Header(8), Content;
-	CSG_File		fSHP;
+	CSG_File Stream;
+
+	//-----------------------------------------------------
+	// Open Encoding File...
+
+	m_Encoding = SG_FILE_ENCODING_ANSI;
+
+	if( Stream.Open(SG_File_Make_Path("", File_Name, "cpg")) )
+	{
+		CSG_String Line;
+
+		if( Stream.Read_Line(Line) && Line.Find("UTF-8") >= 0 )
+		{
+			m_Encoding = SG_FILE_ENCODING_UTF8;
+		}
+
+		Stream.Close();
+	}
 
 	//-----------------------------------------------------
 	// Open DBase File...
 
-	m_Encoding	= SG_FILE_ENCODING_ANSI;
+	CSG_Table_DBase	DBase(m_Encoding);
 
-	if( fSHP.Open(SG_File_Make_Path("", File_Name, "cpg")) )
+	if( DBase.Open_Read(SG_File_Make_Path("", File_Name, "dbf"), this, false) && DBase.Get_Field_Count() < 1 )
 	{
-		CSG_String	sLine;
+		SG_UI_Msg_Add_Error(CSG_String::Format("[%s] DBase %s.", _TL("Warning"), _TL("file does not provide data.")));
 
-		if( fSHP.Read_Line(sLine) && sLine.Find("UTF-8") >= 0 )
-		{
-			m_Encoding	= SG_FILE_ENCODING_UTF8;
-		}
-
-		fSHP.Close();
+		DBase.Close();
 	}
 
-	CSG_Table_DBase	fDBF(m_Encoding);
-
-	if( !fDBF.Open_Read(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
+	if( DBase.is_Open() )
 	{
-		SG_UI_Msg_Add_Error(_TL("DBase file could not be opened."));
-
-		return( false );
+		DBase.Move_First();
 	}
-
-    fDBF.Move_First();
-
-    if( fDBF.Get_Field_Count() < 1 )
+	else
 	{
-		SG_UI_Msg_Add_Error(_TL("DBase file does not contain any attribute fields."));
-
-		return( false );
+		Add_Field("FID", SG_DATATYPE_Int);
 	}
 
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	if( !fSHP.Open(SG_File_Make_Path("", File_Name, "shp"), SG_FILE_R, true) )
+	if( !Stream.Open(SG_File_Make_Path("", File_Name, "shp"), SG_FILE_R, true) )
 	{
 		SG_UI_Msg_Add_Error(_TL("Shape file could not be opened."));
 
@@ -317,7 +316,9 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Read File Header (100 Bytes)...
 
-	if( fSHP.Read(File_Header.Get_Data(), sizeof(char), 100) != 100 )
+	CSG_Buffer File_Header(100);
+
+	if( Stream.Read(File_Header.Get_Data(), sizeof(char), 100) != 100 )
 	{
 		SG_UI_Msg_Add_Error(_TL("corrupted file header"));
 
@@ -338,68 +339,71 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		return( false );
 	}
 
-	switch( Type = File_Header.asInt(32) )	// Byte 32 -> Shape Type (Integer Little)...
+	int Type = File_Header.asInt(32);
+
+	switch( Type )	// Byte 32 -> Shape Type (Integer Little)...
 	{
-	case 1:		m_Type	= SHAPE_TYPE_Point;		m_Vertex_Type	= SG_VERTEX_TYPE_XY;	break;	// Point
-	case 8:		m_Type	= SHAPE_TYPE_Points;	m_Vertex_Type	= SG_VERTEX_TYPE_XY;	break;	// MultiPoint
-	case 3:		m_Type	= SHAPE_TYPE_Line;		m_Vertex_Type	= SG_VERTEX_TYPE_XY;	break;	// PolyLine
-	case 5:		m_Type	= SHAPE_TYPE_Polygon;	m_Vertex_Type	= SG_VERTEX_TYPE_XY;	break;	// Polygon
+	case  1: m_Type = SHAPE_TYPE_Point  ; m_Vertex_Type = SG_VERTEX_TYPE_XY  ; break; // Point
+	case  8: m_Type = SHAPE_TYPE_Points ; m_Vertex_Type = SG_VERTEX_TYPE_XY  ; break; // MultiPoint
+	case  3: m_Type = SHAPE_TYPE_Line   ; m_Vertex_Type = SG_VERTEX_TYPE_XY  ; break; // PolyLine
+	case  5: m_Type = SHAPE_TYPE_Polygon; m_Vertex_Type = SG_VERTEX_TYPE_XY  ; break; // Polygon
 
-	case 11:	m_Type	= SHAPE_TYPE_Point;		m_Vertex_Type	= SG_VERTEX_TYPE_XYZM;	break;	// PointZ
-	case 18:	m_Type	= SHAPE_TYPE_Points;	m_Vertex_Type	= SG_VERTEX_TYPE_XYZM;	break;	// MultiPointZ
-	case 13:	m_Type	= SHAPE_TYPE_Line;		m_Vertex_Type	= SG_VERTEX_TYPE_XYZM;	break;	// PolyLineZ
-	case 15:	m_Type	= SHAPE_TYPE_Polygon;	m_Vertex_Type	= SG_VERTEX_TYPE_XYZM;	break;	// PolygonZ
+	case 11: m_Type = SHAPE_TYPE_Point  ; m_Vertex_Type = SG_VERTEX_TYPE_XYZM; break; // PointZ
+	case 18: m_Type = SHAPE_TYPE_Points ; m_Vertex_Type = SG_VERTEX_TYPE_XYZM; break; // MultiPointZ
+	case 13: m_Type = SHAPE_TYPE_Line   ; m_Vertex_Type = SG_VERTEX_TYPE_XYZM; break; // PolyLineZ
+	case 15: m_Type = SHAPE_TYPE_Polygon; m_Vertex_Type = SG_VERTEX_TYPE_XYZM; break; // PolygonZ
 
-	case 21:	m_Type	= SHAPE_TYPE_Point;		m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;	break;	// PointM
-	case 28:	m_Type	= SHAPE_TYPE_Points;	m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;	break;	// MultiPointM
-	case 23:	m_Type	= SHAPE_TYPE_Line;		m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;	break;	// PolyLineM
-	case 25:	m_Type	= SHAPE_TYPE_Polygon;	m_Vertex_Type	= SG_VERTEX_TYPE_XYZ;	break;	// PolygonM
+	case 21: m_Type = SHAPE_TYPE_Point  ; m_Vertex_Type = SG_VERTEX_TYPE_XYZ ; break; // PointM
+	case 28: m_Type = SHAPE_TYPE_Points ; m_Vertex_Type = SG_VERTEX_TYPE_XYZ ; break; // MultiPointM
+	case 23: m_Type = SHAPE_TYPE_Line   ; m_Vertex_Type = SG_VERTEX_TYPE_XYZ ; break; // PolyLineM
+	case 25: m_Type = SHAPE_TYPE_Polygon; m_Vertex_Type = SG_VERTEX_TYPE_XYZ ; break; // PolygonM
 
-	default:	// unsupported...
-	case 31:	// unsupported: MultiPatch...
+	case 31: // unsupported: MultiPatch...
+	default: // unsupported...
 		SG_UI_Msg_Add_Error(_TL("unsupported shape type."));
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	// Load Shapes...
 
-	for(int iShape=0; iShape<fDBF.Get_Count() && SG_UI_Process_Set_Progress(iShape, fDBF.Get_Count()); iShape++)
+	CSG_Buffer Record_Header(8), Content; sLong Length = Stream.Length();
+
+	for(int iShape=0; Stream.Tell() < Length && SG_UI_Process_Set_Progress(Stream.Tell(), Length); iShape++)
 	{
-		if( fSHP.Read(Record_Header.Get_Data(0), sizeof(int), 2) != 2 )		// read record header
+		if( Stream.Read(Record_Header.Get_Data(0), sizeof(int), 2) != 2 ) // read record header
 		{
 			SG_UI_Msg_Add_Error(_TL("corrupted record header"));
 
 			return( false );
 		}
 
-		if( Record_Header.asInt(0, true) != iShape + 1 )					// record number
+		if( Record_Header.asInt(0, true) != iShape + 1 ) // record number
 		{
 			SG_UI_Msg_Add_Error(CSG_String::Format("%s (%d != %d)", _TL("corrupted shapefile."), Record_Header.asInt(0, true), iShape + 1));
 
 			return( false );
 		}
 
-		size_t	Length	= 2 * Record_Header.asInt(4, true);	// content length as 16-bit words !!!
+		size_t nBytes = 2 * (size_t)Record_Header.asInt(4, true); // content length as 16-bit words !!!
 
-		if( !Content.Set_Size(Length, false) )
+		if( !Content.Set_Size(nBytes, false) )
 		{
 			SG_UI_Msg_Add_Error(_TL("memory allocation error."));
 
 			return( false );
 		}
 
-		if( fSHP.Read(Content.Get_Data(), sizeof(char), Length) != Length )
+		if( Stream.Read(Content.Get_Data(), sizeof(char), nBytes) != nBytes )
 		{
 			SG_UI_Msg_Add_Error(_TL("corrupted shapefile."));
 
 			return( false );
 		}
 
-		if( fDBF.isDeleted() )
+		if( DBase.is_Open() && DBase.isDeleted() )
 		{
-			continue;	// nop
+			continue; // nop
 		}
 
 		if( Content.asInt(0) != Type )
@@ -419,22 +423,20 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		else
 		{
-			CSG_Shape	*pShape	= Add_Shape();
+			CSG_Shape *pShape = Add_Shape(); TSG_Point *pPoint; int nPoints, nParts, *Parts; double *pZ = NULL, *pM = NULL;
 
 			switch( m_Type )
 			{
-			default:	break;
-
 			//---------------------------------------------
 			case SHAPE_TYPE_Point: ////////////////////////
 
-				pPoint	= (TSG_Point *)Content.Get_Data(4);
+				pPoint = (TSG_Point *)Content.Get_Data(4);
 
 				pShape->Add_Point(pPoint->x, pPoint->y);
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
-				default:	break;
+				default: break;
 				case SG_VERTEX_TYPE_XYZM: pShape->Set_M(Content.asDouble(28), 0);
 				case SG_VERTEX_TYPE_XYZ : pShape->Set_Z(Content.asDouble(20), 0);
 				}
@@ -444,31 +446,30 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			//---------------------------------------------
 			case SHAPE_TYPE_Points: ///////////////////////
 
-				nPoints	= Content.asInt(36);
-				pPoint	= (TSG_Point *)Content.Get_Data(40);
+				nPoints = Content.asInt(36);
+				pPoint  = (TSG_Point *)Content.Get_Data(40);
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
-				default:
-					break;
+				default: break;
 
 				case SG_VERTEX_TYPE_XYZ:
-					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
+					pZ = 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL; // [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					break;
 
 				case SG_VERTEX_TYPE_XYZM:
-					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
-					pM	= 72 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(72 + nPoints * 24) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] + [nPoints * 8]
+					pZ = 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL; // [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
+					pM = 72 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(72 + nPoints * 24) : NULL; // [40 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] + [nPoints * 8]
 					break;
 				}
 
 				//-----------------------------------------
-				for(iPoint=0; iPoint<nPoints; iPoint++, pPoint++)
+				for(int iPoint=0; iPoint<nPoints; iPoint++, pPoint++)
 				{
 					pShape->Add_Point(pPoint->x, pPoint->y);
 
-					if( pZ )	{	pShape->Set_Z(*(pZ++), iPoint);	}
-					if( pM )	{	pShape->Set_M(*(pM++), iPoint);	}
+					if( pZ ) { pShape->Set_Z(*(pZ++), iPoint); }
+					if( pM ) { pShape->Set_M(*(pM++), iPoint); }
 				}
 
 				break;
@@ -477,15 +478,14 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			case SHAPE_TYPE_Line   : //////////////////////
 			case SHAPE_TYPE_Polygon: //////////////////////
 
-				nParts	= Content.asInt(36);
-				nPoints	= Content.asInt(40);
-				Parts	= (int       *)Content.Get_Data(44);
-				pPoint	= (TSG_Point *)Content.Get_Data(44 + 4 * nParts);
+				nParts  = Content.asInt(36);
+				nPoints = Content.asInt(40);
+				Parts   = (int       *)Content.Get_Data(44);
+				pPoint  = (TSG_Point *)Content.Get_Data(44 + 4 * nParts);
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
-				default:
-					break;
+				default: break;
 
 				case SG_VERTEX_TYPE_XYZ:
 					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
@@ -498,69 +498,72 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				}
 
 				//-----------------------------------------
-				iOffset = 0;
-
-				for(iPoint=0, iPart=0; iPoint<nPoints; iPoint++, pPoint++)
+				for(int iPoint=0, iPart=0, Offset=0; iPoint<nPoints; iPoint++, pPoint++, Offset++)
 				{
 					if( iPart < nParts - 1 && iPoint >= Parts[iPart + 1] )
 					{
-						iPart++;
-						iOffset = 0;
+						iPart++; Offset = 0;
 					}
 
 					pShape->Add_Point(pPoint->x, pPoint->y, iPart);
 
-					if( pZ )	{	pShape->Set_Z(*(pZ++), iOffset, iPart);	}
-					if( pM )	{	pShape->Set_M(*(pM++), iOffset, iPart);	}
-
-					iOffset++;
+					if( pZ ) { pShape->Set_Z(*(pZ++), Offset, iPart); }
+					if( pM ) { pShape->Set_M(*(pM++), Offset, iPart); }
 				}
 
 				break;
+
+			//---------------------------------------------
+			default: break;
 			}
 
 			//---------------------------------------------
-			for(iField=0; iField<Get_Field_Count(); iField++)
+			if( DBase.is_Open() )
 			{
-				switch( fDBF.Get_Field_Type(iField) )
+				for(int iField=0; iField<Get_Field_Count(); iField++)
 				{
-				default:
-					pShape->Set_Value(iField, fDBF.asString(iField));
-					break;
-
-				case DBF_FT_FLOAT:
-				case DBF_FT_NUMERIC:
+					switch( DBase.Get_Field_Type(iField) )
 					{
-						double	Value;
+					default:
+						pShape->Set_Value(iField, DBase.asString(iField));
+						break;
 
-						if( fDBF.asDouble(iField, Value) )
+					case DBF_FT_FLOAT: case DBF_FT_NUMERIC:
 						{
-							pShape->Set_Value(iField, Value);
+							double Value;
+
+							if( DBase.asDouble(iField, Value) )
+							{
+								pShape->Set_Value(iField, Value);
+							}
+							else
+							{
+								pShape->Set_NoData(iField);
+							}
 						}
-						else
-						{
-							pShape->Set_NoData(iField);
-						}
-					}
 					break;
+					}
 				}
+
+				DBase.Move_Next();
+			}
+			else
+			{
+				pShape->Set_Value(0, iShape);
 			}
 		}
-
-		fDBF.Move_Next();
 	}
 
 	//-----------------------------------------------------
 	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"));
 
-	//-----------------------------------------------------
 	Load_MetaData(File_Name);
 
-	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+	CSG_MetaData *pFields = Get_MetaData_DB().Get_Child("FIELDS");
 
 	if( pFields && pFields->Get_Children_Count() == Get_Field_Count() )
 	{
-		for(iField=0; iField<Get_Field_Count(); iField++)
+		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
 			Set_Field_Name(iField, pFields->Get_Content(iField));
 		}
@@ -590,13 +593,10 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 //---------------------------------------------------------
 bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
-	int			Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
-	TSG_Point	Point;
-	CSG_Buffer	File_Header(100), Record_Header(8), Content;
-	CSG_File	fSHP, fSHX;
-
 	//-----------------------------------------------------
 	// Determine Shape Type...
+
+	int Type;
 
 	switch( m_Type )
 	{
@@ -604,7 +604,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	case SHAPE_TYPE_Points  : Type  =  8; break;
 	case SHAPE_TYPE_Line    : Type  =  3; break;
 	case SHAPE_TYPE_Polygon : Type  =  5; break;
-	default:	return( false );
+	default: return( false );
 	}
 
 	TSG_Vertex_Type	Vertex_Type	= m_Vertex_Type == 0 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZM;
@@ -612,9 +612,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	switch( Vertex_Type )
 	{
 	case SG_VERTEX_TYPE_XY  :             break;
-	case SG_VERTEX_TYPE_XYZ : Type += 20; break;	// M
-	case SG_VERTEX_TYPE_XYZM: Type += 10; break;	// Z (+M)
-	default:	return( false );
+	case SG_VERTEX_TYPE_XYZ : Type += 20; break; // M
+	case SG_VERTEX_TYPE_XYZM: Type += 10; break; // Z (+M)
+	default: return( false );
 	}
 
 	//-----------------------------------------------------
@@ -624,17 +624,19 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	if( m_Encoding == SG_FILE_ENCODING_UTF8 )
 	{
-		if( fSHP.Open(SG_File_Make_Path("", File_Name, "cpg"), SG_FILE_W, false) )
-		{
-			fSHP.Printf("UTF-8\n");
+		CSG_File Stream;
 
-			fSHP.Close();
+		if( Stream.Open(SG_File_Make_Path("", File_Name, "cpg"), SG_FILE_W, false) )
+		{
+			Stream.Printf("UTF-8\n");
+
+			Stream.Close();
 		}
 	}
 
-	CSG_Table_DBase	fDBF(m_Encoding);
+	CSG_Table_DBase DBase(m_Encoding);
 
-	if( !fDBF.Open_Write(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
+	if( !DBase.Open_Write(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
 	{
 		return( false );
 	}
@@ -642,16 +644,18 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Shape File Access...
 
+	CSG_File fSHP, fSHX;
+
 	if( !fSHX.Open(SG_File_Make_Path("", File_Name, "shx"), SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add_Error(_TL("index file could not be opened"));
+		SG_UI_Msg_Add_Error(_TL("could not create index file"));
 
 		return( false );
 	}
 
 	if( !fSHP.Open(SG_File_Make_Path("", File_Name, "shp"), SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add_Error(_TL("shape file could not be opened."));
+		SG_UI_Msg_Add_Error(_TL("could not create shape file"));
 
 		return( false );
 	}
@@ -663,29 +667,31 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	Update();
 
-	File_Header.Set_Value( 0, 9994					, true );	// Byte  0  Integer Big     File Code = 9994
-	File_Header.Set_Value( 4, 0						, true );	// Byte  4  Integer Big     unused
-	File_Header.Set_Value( 8, 0						, true );	// Byte  8  Integer Big     unused
-	File_Header.Set_Value(12, 0						, true );	// Byte 12  Integer Big     unused
-	File_Header.Set_Value(16, 0						, true );	// Byte 16  Integer Big     unused
-	File_Header.Set_Value(20, 0						, true );	// Byte 20  Integer Big     unused
-	File_Header.Set_Value(24, 0						, true );	// Byte 24  Integer Big     File Length
-	File_Header.Set_Value(28, 1000					, false);	// Byte 28  Integer Little  Version   = 1000
-	File_Header.Set_Value(32, Type					, false);	// Byte 32  Integer Little  Shape Type
-	File_Header.Set_Value(36, m_Extent.Get_XMin()	, false);	// Byte 36  Double  Little  Bounding Box Xmin
-	File_Header.Set_Value(44, m_Extent.Get_YMin()	, false);	// Byte 44  Double  Little  Bounding Box Ymin
-	File_Header.Set_Value(52, m_Extent.Get_XMax()	, false);	// Byte 52  Double  Little  Bounding Box Xmax
-	File_Header.Set_Value(60, m_Extent.Get_YMax()	, false);	// Byte 60  Double  Little  Bounding Box Ymax
-	File_Header.Set_Value(68,          Get_ZMin()	, false);	// Byte 68  Double  Little  Bounding Box Zmin
-	File_Header.Set_Value(76,          Get_ZMax()	, false);	// Byte 76  Double  Little  Bounding Box Zmax
-	File_Header.Set_Value(84,          Get_MMin()	, false);	// Byte 84  Double  Little  Bounding Box Mmin
-	File_Header.Set_Value(92,          Get_MMax()	, false);	// Byte 92  Double  Little  Bounding Box Mmax
+	CSG_Buffer File_Header(100);
+
+	File_Header.Set_Value( 0, 9994               , true ); // Byte  0  Integer Big     File Code = 9994
+	File_Header.Set_Value( 4, 0                  , true ); // Byte  4  Integer Big     unused
+	File_Header.Set_Value( 8, 0                  , true ); // Byte  8  Integer Big     unused
+	File_Header.Set_Value(12, 0                  , true ); // Byte 12  Integer Big     unused
+	File_Header.Set_Value(16, 0                  , true ); // Byte 16  Integer Big     unused
+	File_Header.Set_Value(20, 0                  , true ); // Byte 20  Integer Big     unused
+	File_Header.Set_Value(24, 0                  , true ); // Byte 24  Integer Big     File Length
+	File_Header.Set_Value(28, 1000               , false); // Byte 28  Integer Little  Version   = 1000
+	File_Header.Set_Value(32, Type               , false); // Byte 32  Integer Little  Shape Type
+	File_Header.Set_Value(36, m_Extent.Get_XMin(), false); // Byte 36  Double  Little  Bounding Box Xmin
+	File_Header.Set_Value(44, m_Extent.Get_YMin(), false); // Byte 44  Double  Little  Bounding Box Ymin
+	File_Header.Set_Value(52, m_Extent.Get_XMax(), false); // Byte 52  Double  Little  Bounding Box Xmax
+	File_Header.Set_Value(60, m_Extent.Get_YMax(), false); // Byte 60  Double  Little  Bounding Box Ymax
+	File_Header.Set_Value(68,          Get_ZMin(), false); // Byte 68  Double  Little  Bounding Box Zmin
+	File_Header.Set_Value(76,          Get_ZMax(), false); // Byte 76  Double  Little  Bounding Box Zmax
+	File_Header.Set_Value(84,          Get_MMin(), false); // Byte 84  Double  Little  Bounding Box Mmin
+	File_Header.Set_Value(92,          Get_MMax(), false); // Byte 92  Double  Little  Bounding Box Mmax
 
 	fSHP.Write(File_Header.Get_Data(), sizeof(char), 100);
 	fSHX.Write(File_Header.Get_Data(), sizeof(char), 100);
 
-	fSHP_Size	= 50;	// file size measured in 16-bit words...
-	fSHX_Size	= 50;	// file size measured in 16-bit words...
+	int fSHP_Size = 50; // file size measured in 16-bit words...
+	int fSHX_Size = 50; // file size measured in 16-bit words...
 
 	//-----------------------------------------------------
 	// Save Shapes...
@@ -697,12 +703,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		// geometries...
 
-		Record_Header.Set_Value(0, (int)iShape + 1, true);	// record number
+		CSG_Buffer Record_Header(8), Content;
 
-		for(iPart=0, nPoints=0; iPart<pShape->Get_Part_Count(); iPart++)
-		{
-			nPoints	+= pShape->Get_Point_Count(iPart);	// total number of points in shape
-		}
+		Record_Header.Set_Value(0, (int)iShape + 1, true);	// record number
 
 		//-------------------------------------------------
 		switch( m_Type )			// write content header
@@ -719,7 +722,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(18); break;
 			}
 
-			fSHP.Write_Int		(Type);
+			fSHP.Write_Int   (Type);
 
 			break;
 
@@ -728,17 +731,17 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 			switch( Vertex_Type )
 			{
-			case SG_VERTEX_TYPE_XY  : Set_Content_Length(20 +  8 * nPoints); break;
-			case SG_VERTEX_TYPE_XYZ : Set_Content_Length(28 + 12 * nPoints); break;
-			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(36 + 16 * nPoints); break;
+			case SG_VERTEX_TYPE_XY  : Set_Content_Length(20 +  8 * pShape->Get_Point_Count()); break;
+			case SG_VERTEX_TYPE_XYZ : Set_Content_Length(28 + 12 * pShape->Get_Point_Count()); break;
+			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(36 + 16 * pShape->Get_Point_Count()); break;
 			}
 
-			fSHP.Write_Int		(Type);
-			fSHP.Write_Double	(pShape->Get_Extent().Get_XMin());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_YMin());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_XMax());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_YMax());
-			fSHP.Write_Int		(nPoints);
+			fSHP.Write_Int   (Type);
+			fSHP.Write_Double(pShape->Get_Extent().Get_XMin());
+			fSHP.Write_Double(pShape->Get_Extent().Get_YMin());
+			fSHP.Write_Double(pShape->Get_Extent().Get_XMax());
+			fSHP.Write_Double(pShape->Get_Extent().Get_YMax());
+			fSHP.Write_Int   (pShape->Get_Point_Count());
 
 			break;
 
@@ -748,20 +751,20 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 			switch( Vertex_Type )
 			{
-			case SG_VERTEX_TYPE_XY:		Set_Content_Length(22 + 2 * pShape->Get_Part_Count() +  8 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZ:	Set_Content_Length(30 + 2 * pShape->Get_Part_Count() + 12 * nPoints);	break;
-			case SG_VERTEX_TYPE_XYZM:	Set_Content_Length(38 + 2 * pShape->Get_Part_Count() + 16 * nPoints);	break;
+			case SG_VERTEX_TYPE_XY  : Set_Content_Length(22 + 2 * pShape->Get_Part_Count() +  8 * pShape->Get_Point_Count()); break;
+			case SG_VERTEX_TYPE_XYZ : Set_Content_Length(30 + 2 * pShape->Get_Part_Count() + 12 * pShape->Get_Point_Count()); break;
+			case SG_VERTEX_TYPE_XYZM: Set_Content_Length(38 + 2 * pShape->Get_Part_Count() + 16 * pShape->Get_Point_Count()); break;
 			}
 
-			fSHP.Write_Int		(Type);
-			fSHP.Write_Double	(pShape->Get_Extent().Get_XMin());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_YMin());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_XMax());
-			fSHP.Write_Double	(pShape->Get_Extent().Get_YMax());
-			fSHP.Write_Int		(pShape->Get_Part_Count());
-			fSHP.Write_Int		(nPoints);
+			fSHP.Write_Int   (Type);
+			fSHP.Write_Double(pShape->Get_Extent().Get_XMin());
+			fSHP.Write_Double(pShape->Get_Extent().Get_YMin());
+			fSHP.Write_Double(pShape->Get_Extent().Get_XMax());
+			fSHP.Write_Double(pShape->Get_Extent().Get_YMax());
+			fSHP.Write_Int   (pShape->Get_Part_Count());
+			fSHP.Write_Int   (pShape->Get_Point_Count());
 
-			for(iPart=0, iPoint=0; iPart<pShape->Get_Part_Count(); iPoint+=pShape->Get_Point_Count(iPart++))
+			for(int iPart=0, iPoint=0; iPart<pShape->Get_Part_Count(); iPoint+=pShape->Get_Point_Count(iPart++))
 			{
 				fSHP.Write_Int(iPoint);
 			}
@@ -770,12 +773,14 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		}
 
 		//-------------------------------------------------
-		switch( m_Type )			// write point data
+		TSG_Point Point;
+
+		switch( m_Type ) // write point data
 		{
-		default:	break;
+		default: break;
 
 		//-------------------------------------------------
-		case SHAPE_TYPE_Point:		///////////////////////
+		case SHAPE_TYPE_Point  : //////////////////////////
 
 			fSHP.Write(&(Point = pShape->Get_Point()), sizeof(TSG_Point));
 
@@ -793,13 +798,13 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			break;
 
 		//-------------------------------------------------
-		case SHAPE_TYPE_Points:		///////////////////////
-		case SHAPE_TYPE_Line:		///////////////////////
-		case SHAPE_TYPE_Polygon:	///////////////////////
+		case SHAPE_TYPE_Points : //////////////////////////
+		case SHAPE_TYPE_Line   : //////////////////////////
+		case SHAPE_TYPE_Polygon: //////////////////////////
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					fSHP.Write(&(Point = pShape->Get_Point(iPoint, iPart)), sizeof(TSG_Point));
 				}
@@ -811,9 +816,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 				fSHP.Write_Double(pShape->Get_ZMin());
 				fSHP.Write_Double(pShape->Get_ZMax());
 
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
 						fSHP.Write_Double(pShape->Get_Z(iPoint, iPart));
 					}
@@ -824,9 +829,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 					fSHP.Write_Double(pShape->Get_MMin());
 					fSHP.Write_Double(pShape->Get_MMax());
 
-					for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+					for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 					{
-						for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+						for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 						{
 							fSHP.Write_Double(pShape->Get_M(iPoint, iPart));
 						}
@@ -838,28 +843,27 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		// attributes...
 
-		fDBF.Add_Record();
+		DBase.Add_Record();
 
-		for(iField=0; iField<Get_Field_Count(); iField++)
+		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
 			if( pShape->is_NoData(iField) )
 			{
-				fDBF.Set_NoData(iField);
+				DBase.Set_NoData(iField);
 			}
-			else switch( fDBF.Get_Field_Type(iField) )
+			else switch( DBase.Get_Field_Type(iField) )
 			{
 			default:
-				fDBF.Set_Value(iField, pShape->asString(iField));
+				DBase.Set_Value(iField, pShape->asString(iField));
 				break;
 
-			case DBF_FT_FLOAT:
-			case DBF_FT_NUMERIC:
-				fDBF.Set_Value(iField, pShape->asDouble(iField));
+			case DBF_FT_FLOAT: case DBF_FT_NUMERIC:
+				DBase.Set_Value(iField, pShape->asDouble(iField));
 				break;
 			}
 		}
 
-		fDBF.Flush_Record();
+		DBase.Flush_Record();
 	}
 
 	//-----------------------------------------------------
@@ -875,16 +879,16 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"));
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
+	CSG_MetaData *pFields = Get_MetaData_DB().Get_Child("FIELDS");
 
 	if( !pFields )
 	{
-		pFields	= Get_MetaData_DB().Add_Child("FIELDS");
+		pFields = Get_MetaData_DB().Add_Child("FIELDS");
 	}
 
 	pFields->Del_Children();
 
-	for(iField=0; iField<Get_Field_Count(); iField++)
+	for(int iField=0; iField<Get_Field_Count(); iField++)
 	{
 		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
 	}

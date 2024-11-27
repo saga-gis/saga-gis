@@ -94,10 +94,12 @@ public:
 	virtual ~CSG_Table_DBase(void);
 
 	//-----------------------------------------------------
-	void						Close				(void);
-
 	bool						Open_Read			(const SG_Char *FileName, class CSG_Table *pTable, bool bRecords_Load = true);
 	bool						Open_Write			(const SG_Char *FileName, class CSG_Table *pTable, bool bRecords_Save = true);
+
+	void						Close				(void);
+
+	bool						is_Open				(void) const { return( m_hFile != NULL ); }
 
 	//-----------------------------------------------------
 	int							Get_Field_Count		(void)
