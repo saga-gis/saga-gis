@@ -289,16 +289,13 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	//-----------------------------------------------------
 	case ID_CMD_TABLE_JOIN_DATA:
 		{
-			CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("table_tools", 3);
+			CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("table_tools", 3);
 		
-			if(	pTool && pTool->On_Before_Execution()
-			 && pTool->Set_Parameter("TABLE_A", m_pObject)
-			 && DLG_Parameters(pTool->Get_Parameters()) )
+			if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE_A", m_pObject)
+			&&  DLG_Parameters(pTool->Get_Parameters()) )
 			{
 				pTool->Execute();
 			}
-
-			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 		}
 		break;
 
