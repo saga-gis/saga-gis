@@ -302,6 +302,20 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		6, 0, true
 	);
 
+	m_Parameters.Add_Choice("NODE_TABLE",
+		"TABLE_ENCODING"		, _TL("Default Encoding"),
+		_TL("Default encoding used when loading a table."),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
+			SG_T("ANSI"),
+			SG_T("UTF-7"),
+			SG_T("UTF-8"),
+			SG_T("UTF-16 (Little Endian)"),
+			SG_T("UTF-16 (Big Endian)"),
+			SG_T("UTF-32 (Little Endian)"),
+			SG_T("UTF-32 (Big Endian)")
+		), 2
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_SHAPES", _TL("Shapes"), _TL(""));
 
@@ -811,7 +825,24 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 
 	switch( DataType )
 	{
-	case SG_DATAOBJECT_TYPE_Table     : pObject = SG_Create_Table     (&File); break;
+	case SG_DATAOBJECT_TYPE_Table     : {
+		int Encoding;
+
+		switch( m_Parameters("TABLE_ENCODING")->asInt() )
+		{
+		case  0: Encoding = SG_FILE_ENCODING_ANSI     ; break;
+		case  1: Encoding = SG_FILE_ENCODING_UTF7     ; break;
+		case  2: Encoding = SG_FILE_ENCODING_UTF8     ; break;
+		case  3: Encoding = SG_FILE_ENCODING_UTF16LE  ; break;
+		case  4: Encoding = SG_FILE_ENCODING_UTF16BE  ; break;
+		case  5: Encoding = SG_FILE_ENCODING_UTF32LE  ; break;
+		case  6: Encoding = SG_FILE_ENCODING_UTF32BE  ; break;
+		default: Encoding = SG_FILE_ENCODING_UNDEFINED; break;
+		}
+
+		pObject = SG_Create_Table(&File, TABLE_FILETYPE_Undefined, Encoding);
+		break; }
+
 	case SG_DATAOBJECT_TYPE_Shapes    : pObject = SG_Create_Shapes    (&File); break;
 	case SG_DATAOBJECT_TYPE_TIN       : pObject = SG_Create_TIN       (&File); break;
 	case SG_DATAOBJECT_TYPE_PointCloud: pObject = SG_Create_PointCloud(&File); break;
