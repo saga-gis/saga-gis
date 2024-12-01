@@ -135,6 +135,8 @@ private:
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 struct LUT_Keys 
 {
 	long Color; const char *Name; const char *Description; int Value;

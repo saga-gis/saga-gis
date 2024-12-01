@@ -192,8 +192,6 @@ CFmask::CFmask(void)
 	Parameters.Add_Grid("BANDS_30M", "NIR_TM"    	, _TL("Near Infrared (Band 4)"       	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "SWIR1_TM"  	, _TL("Shortwave Infrared 1 (Band 5)"	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "SWIR2_TM"  	, _TL("Shortwave Infrared 2 (Band 7)"	), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "QARAD_G_TM"	, _TL("Radiometric Saturation Green" 	), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid("BANDS_30M", "QARAD_R_TM"	, _TL("Radiometric Saturation Red"		), _TL(""), PARAMETER_INPUT );
 	
 	//Parameters.Add_Grid("BANDS_30M", "SAA_TM"		, _TL("Sun Azimuth Angle"				), _TL(""), PARAMETER_INPUT );
 	//Parameters.Add_Grid("BANDS_30M", "SZA_TM"		, _TL("Sun Zenith Angle"				), _TL(""), PARAMETER_INPUT );
@@ -205,7 +203,6 @@ CFmask::CFmask(void)
 	Parameters.Add_Grid("BANDS_120M","THERMAL_TM"	, _TL("Thermal Infrared (Band 6)"	  	), _TL(""), PARAMETER_INPUT );
 	//Parameters.Add_Grid("BANDS_15M", "PANCROMATIC_ETM", _TL("Thermal Infrared (Band 8)"	), _TL(""), PARAMETER_INPUT	);
 	
-	Parameters.Add_Grid("BANDS_30M", "COASTAL_OLI"	, _TL("Blue (Band 1)"                	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "BLUE_OLI"   	, _TL("Blue (Band 2)"                	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "GREEN_OLI"  	, _TL("Green (Band 3)"               	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "RED_OLI"    	, _TL("Red (Band 4)"                 	), _TL(""), PARAMETER_INPUT );
@@ -214,6 +211,9 @@ CFmask::CFmask(void)
 	Parameters.Add_Grid("BANDS_30M", "SWIR2_OLI"  	, _TL("Shortwave Infrared 2 (Band 7)"	), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("BANDS_30M", "CIRRUS_OLI"	, _TL("Cirrus (Band 9)"					), _TL(""), PARAMETER_INPUT	);
 	Parameters.Add_Grid("BANDS_100M","THERMAL_OLI"	, _TL("Thermal Infrared 1 (Band 10)"	), _TL(""), PARAMETER_INPUT	);
+
+	Parameters.Add_Grid("BANDS_30M", "QARAD_G_TM"	, _TL("Radiometric Saturation Green" 	), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("BANDS_30M", "QARAD_R_TM"	, _TL("Radiometric Saturation Red"		), _TL(""), PARAMETER_INPUT );
 
 	Parameters.Add_Choice("", "THERMAL_UNIT", _TL("Unit" ), _TL(""), CSG_String::Format("%s|%s", _TL("Kelvin"), _TL("Celsius")), 0);
 
@@ -403,6 +403,9 @@ bool CFmask::Initialize(void)
 		m_pBand[SWIR2] 	= Parameters("SWIR2_OLI")->asGrid();
 		m_pBand[TIR] 	= Parameters("THERMAL_OLI")->asGrid();
 		m_pBand[CIR] 	= Parameters("CIRRUS_OLI")->asGrid();
+		
+		m_pBand[QARAD_G]= Parameters("QARAD_G_TM")->asGrid();
+		m_pBand[QARAD_R]= Parameters("QARAD_R_TM")->asGrid();
 	}
 
 	if( Parameters("ALGORITHM")->asInt() == 0 )
