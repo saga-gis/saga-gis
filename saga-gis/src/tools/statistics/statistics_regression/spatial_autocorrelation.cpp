@@ -194,6 +194,12 @@ bool CSpatial_Autocorrelation::On_Execute(void)
 			}
 
 			double Dij = SG_Get_Distance(Pi.Get_Point(), Pj.Get_Point());
+
+			if( Dij == 0. )
+			{
+				continue;
+			}
+
 			double Wij = m_Weighting.Get_Weight(Dij);
 			double Xj  = Pj.asDouble(Field);
 

@@ -170,6 +170,7 @@ public:
 	virtual void				Divide			(double Value);
 
 	virtual double				Get_Length		(void)	const;
+	virtual double				Get_Distance	(const CSG_Point &Point)	const	{	CSG_Point d(*this - Point); return( d.Get_Length() );	}
 
 	virtual bool				is_Equal		(const CSG_Point &Point, double epsilon = 0.)	const	{	return(	is_Equal(Point.x, Point.y, epsilon) ); }
 	virtual bool				is_Equal		(double _x,   double _y, double epsilon = 0.)	const
@@ -306,6 +307,7 @@ public:
 	virtual void				Divide			(double Value);
 
 	virtual double				Get_Length		(void)	const;
+	virtual double				Get_Distance	(const CSG_Point_3D &Point)	const	{	CSG_Point_3D d(*this - Point); return( d.Get_Length() ); }
 
 	virtual bool				is_Equal		(const CSG_Point_3D &Point      , double epsilon = 0.)	const	{	return(	is_Equal(Point.x, Point.y, Point.y, epsilon) );	}
 	virtual bool				is_Equal		(double _x, double _y, double _z, double epsilon = 0.)	const
@@ -399,6 +401,7 @@ public:
 	virtual void				Divide			(double Value);
 
 	virtual double				Get_Length		(void)	const;
+	virtual double				Get_Distance	(const CSG_Point_4D &Point)	const	{	CSG_Point_4D d(*this - Point); return( d.Get_Length() ); }
 
 	virtual bool				is_Equal		(const CSG_Point_4D &Point                 , double epsilon = 0.)	const	{	return(	is_Equal(Point.x, Point.y, Point.y, Point.m, epsilon) );	}
 	virtual bool				is_Equal		(double _x, double _y, double _z, double _m, double epsilon = 0.)	const

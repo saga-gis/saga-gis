@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1922 2014-01-09 10:28:46Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2024 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,30 +40,75 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// 1. Include the appropriate SAGA-API header...
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__statistics_points_H
-#define HEADER_INCLUDED__statistics_points_H
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+//---------------------------------------------------------
+// 2. Place general tool library information here...
+
+CSG_String Get_Info(int i)
+{
+	switch( i )
+	{
+	case TLB_INFO_Name:	default:
+		return( _TL("Points") );
+
+	case TLB_INFO_Category:
+		return( _TL("Spatial and Geostatistics") );
+
+	case TLB_INFO_Author:
+		return( "O.Conrad (c) 2002-24" );
+
+	case TLB_INFO_Description:
+		return( _TL("Spatial and geostatistical analyses of point data.") );
+
+	case TLB_INFO_Version:
+		return( "1.0" );
+
+	case TLB_INFO_Menu_Path:
+		return( _TL("Spatial and Geostatistics|Points") );
+	}
+}
+
+
+//---------------------------------------------------------
+// 3. Include the headers of your tools here...
+
+#include "GSPoints_Semi_Variances.h"
+#include "GSPoints_Variogram_Cloud.h"
+#include "GSPoints_Variogram_Surface.h"
+#include "GSPoints_Distances.h"
+#include "GSPoints_Pattern_Analysis.h"
+
+
+//---------------------------------------------------------
+// 4. Allow your tools to be created here...
+
+CSG_Tool *		Create_Tool(int i)
+{
+	switch( i )
+	{
+	case  0: return( new CGSPoints_Semi_Variances );
+	case  1: return( new CGSPoints_Variogram_Cloud );
+	case  2: return( new CGSPoints_Variogram_Surface );
+	case  3: return( new CGSPoints_Distances );
+	case  4: return( new CGSPoints_Pattern_Analysis );
+
+	//-----------------------------------------------------
+	case 10: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
+	}
+}
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -74,4 +116,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__statistics_points_H
+//{{AFX_SAGA
+
+	TLB_INTERFACE
+
+//}}AFX_SAGA
