@@ -132,8 +132,10 @@ class SAGA_API_DLL_EXPORT CSG_Table_Record
 
 public:
 
-	class CSG_Table *			Get_Table		(void)			{	return( m_pTable );	}
-	sLong						Get_Index		(void)	const	{	return( m_Index  );	}
+	class CSG_Table *			Get_Table		(void)       { return( m_pTable ); }
+	sLong						Get_Index		(void) const { return( m_Index  ); }
+
+	virtual bool				is_Valid		(void) const { return( true     ); }
 
 	bool						Set_Value		(int               Field, const CSG_String &Value);
 	bool						Set_Value		(int               Field, const char       *Value) { return( Set_Value(           Field , CSG_String(Value)) ); }

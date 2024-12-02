@@ -150,8 +150,6 @@ public:
 	virtual bool				Assign				(CSG_Table_Record *pRecord, bool bAssign_Attributes);
 	virtual bool				Assign				(CSG_Table_Record *pRecord, TSG_ADD_Shape_Copy_Mode mCopy);
 
-	virtual bool				is_Valid			(void)	const = 0;
-
 	TSG_Shape_Type				Get_Type			(void)	const;
 	TSG_Vertex_Type				Get_Vertex_Type		(void)	const;
 
