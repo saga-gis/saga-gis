@@ -99,7 +99,7 @@ bool CPolygon_Split_Parts::On_Execute(void)
 	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 	CSG_Shapes *pParts    = Parameters("PARTS"   )->asShapes();
 
-	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Parts")), pPolygons);
+	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Parts")), pPolygons, pPolygons->Get_Vertex_Type());
 
 	bool bLakes = Parameters("LAKES")->asBool();
 
@@ -108,7 +108,7 @@ bool CPolygon_Split_Parts::On_Execute(void)
 	{
 		CSG_Shape_Polygon *pPolygon = pPolygons->Get_Shape(iPolygon)->asPolygon();
 
-		for(int iPart=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
+		for(int iPart=0, iPartOut=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
 		{
 			if( bLakes || !pPolygon->is_Lake(iPart) )
 			{
@@ -117,6 +117,16 @@ bool CPolygon_Split_Parts::On_Execute(void)
 				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 				{
 					pPart->Add_Point(pPolygon->Get_Point(iPoint, iPart));
+
+					if( pPolygons->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+					{
+						pPart->Set_Z(pPolygon->Get_Z(iPoint, iPart), iPoint, iPartOut);
+
+						if( pPolygons->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pPart->Set_M(pPolygon->Get_M(iPoint, iPart), iPoint, iPartOut);
+						}
+					}
 				}
 
 				if( !bLakes )
@@ -128,6 +138,16 @@ bool CPolygon_Split_Parts::On_Execute(void)
 							for(int jPoint=0, nPart=pPart->Get_Part_Count(); jPoint<pPolygon->Get_Point_Count(jPart); jPoint++)
 							{
 								pPart->Add_Point(pPolygon->Get_Point(jPoint, jPart), nPart);
+
+								if( pPolygons->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+								{
+									pPart->Set_Z(pPolygon->Get_Z(jPoint, jPart), jPoint, nPart);
+
+									if( pPolygons->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+									{
+										pPart->Set_M(pPolygon->Get_M(jPoint, jPart), jPoint, nPart);
+									}
+								}
 							}
 						}
 					}
