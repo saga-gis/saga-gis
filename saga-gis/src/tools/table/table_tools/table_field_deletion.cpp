@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_field_deletion.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,56 +46,45 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_field_deletion.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CTable_Field_Deletion::CTable_Field_Deletion(void)
 {
-	//-----------------------------------------------------
-	Set_Name	(_TL("Delete Fields"));
+	Set_Name       (_TL("Delete Fields"));
 
-	Set_Author	(_TL("O.Conrad (c) 2013"));
+	Set_Author     ("O.Conrad (c) 2013");
 
-	Set_Description	(_TW(
+	Set_Description(_TW(
 		"Deletes selected fields from a table or shapefile. "
 	));
 
-	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"     , _TL("Table"),
 		_TL("Input table or shapefile"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Fields"),
+	Parameters.Add_Table_Fields("TABLE",
+		"FIELDS"    , _TL("Fields"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUT_TABLE"	, _TL("Output table with field(s) deleted"),
+	Parameters.Add_Table("",
+		"OUT_TABLE" , _TL("Output table with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUT_SHAPES"	, _TL("Output shapes with field(s) deleted"),
+	Parameters.Add_Shapes("",
+		"OUT_SHAPES", _TL("Output shapes with field(s) deleted"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -106,7 +92,7 @@ CTable_Field_Deletion::CTable_Field_Deletion(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -114,7 +100,7 @@ int CTable_Field_Deletion::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		CSG_Data_Object	*pObject	= pParameter->asDataObject();
+		CSG_Data_Object *pObject = pParameter->asDataObject();
 
 		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
 			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
@@ -130,15 +116,14 @@ int CTable_Field_Deletion::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Field_Deletion::On_Execute(void)
 {
-	//-----------------------------------------------------
-	int	*Fields	= (int *)Parameters("FIELDS")->asPointer();
-	int	nFields	=        Parameters("FIELDS")->asInt    ();
+	int *Fields = (int *)Parameters("FIELDS")->asPointer();
+	int nFields =        Parameters("FIELDS")->asInt    ();
 
 	if( nFields <= 0 )
 	{
@@ -148,8 +133,8 @@ bool CTable_Field_Deletion::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pInput  = Parameters("TABLE")->asTable();
-	CSG_Table	*pOutput = NULL;
+	CSG_Table  *pInput = Parameters("TABLE")->asTable();
+	CSG_Table *pOutput = NULL;
 
 	if( pInput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
@@ -180,18 +165,16 @@ bool CTable_Field_Deletion::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		bool	*bDelete	= (bool *)SG_Calloc(pInput->Get_Field_Count(), sizeof(bool));
+		bool *bDelete = (bool *)SG_Calloc(pInput->Get_Field_Count(), sizeof(bool));
 
-		int		i, j;
-
-		for(i=0; i<nFields; i++)
+		for(int i=0; i<nFields; i++)
 		{
 			bDelete[Fields[i]]	= true;
 		}
 
 		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Changed"));
 
-		for(i=0; i<pInput->Get_Field_Count(); i++)
+		for(int i=0; i<pInput->Get_Field_Count(); i++)
 		{
 			if( !bDelete[i] )
 			{
@@ -201,22 +184,22 @@ bool CTable_Field_Deletion::On_Execute(void)
 
 		for(sLong iRecord=0; iRecord<pInput->Get_Count() && Set_Progress(iRecord, pInput->Get_Count()); iRecord++)
 		{
-			CSG_Table_Record	*pOut, *pIn	= pInput->Get_Record(iRecord);
+			CSG_Table_Record *pOut, *pIn = pInput->Get_Record(iRecord);
 
 			if( pOutput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 			{
-				pOut	= ((CSG_Shapes *)pOutput)->Add_Shape(pIn, SHAPE_COPY_GEOM);
+				pOut = ((CSG_Shapes *)pOutput)->Add_Shape(pIn, SHAPE_COPY_GEOM);
 			}
 			else
 			{
-				pOut	= pOutput->Add_Record();
+				pOut = pOutput->Add_Record();
 			}
 
-			for(i=0, j=0; i<pInput->Get_Field_Count(); i++)
+			for(int i=0, j=0; i<pInput->Get_Field_Count(); i++)
 			{
 				if( !bDelete[i] )
 				{
-					*pOut->Get_Value(j++)	= *pIn->Get_Value(i);
+					*pOut->Get_Value(j++) = *pIn->Get_Value(i);
 				}
 			}
 		}
@@ -230,9 +213,9 @@ bool CTable_Field_Deletion::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

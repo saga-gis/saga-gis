@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     SearchInTable.h
     Copyright (C) Victor Olaya
@@ -22,19 +20,19 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -43,34 +41,36 @@ class CSelect_String : public CSG_Tool
 public:
 	CSelect_String(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool						m_Case;
+	bool					m_Case = false;
 
-	int							m_Field, m_Compare;
+	int						m_Field = -1, m_Compare = 0;
 
-	CSG_String					m_Expression;
+	CSG_String				m_Expression;
 
 
-	bool						Do_Compare		(const SG_Char *Value);
+	bool					Do_Compare				(const SG_Char *Value);
 
-	bool						Do_Select		(CSG_Shape *pShape);
+	bool					Do_Select				(CSG_Shape *pShape);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

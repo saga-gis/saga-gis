@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -73,9 +73,9 @@ double	fnc_is_NoData_Value(double Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -89,11 +89,11 @@ CTable_Field_Calculator::CTable_Field_Calculator(void)
 		"The table calculator calculates a new attribute from existing "
 		"attributes based on a mathematical formula. Attributes are addressed "
 		"by the character 'f' (for 'field') followed by the field number "
-		"(i.e.: f1, f2, ..., fn) or by the field name in square brackets "
-		"(e.g.: [Field Name]).\n"
+		"(i.e.: f1, f2, ..., fn) or by the field name in quotation marks or square brackets "
+		"(e.g.: \"Field Name\").\n"
 		"Examples:\n"
 		"- sin(f1) * f2 + f3\n"
-		"- [Population] / [Area]\n"
+		"- \"Population\" / \"Area\"\n"
 		"One can also use the drop-down-menu to append fields numbers to the formula.\n"
 		"\n"
 		"If the use no-data flag is unchecked and a no-data value appears in "
@@ -166,7 +166,7 @@ CTable_Field_Calculator::CTable_Field_Calculator(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -245,7 +245,7 @@ int CTable_Field_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, C
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -261,7 +261,7 @@ bool CTable_Field_Calculator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !m_Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, m_Values)) )
+	if( !m_Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, m_Fields)) )
 	{
 		CSG_String Message; m_Formula.Get_Error(Message); Error_Set(Message);
 
@@ -327,21 +327,21 @@ bool CTable_Field_Calculator::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Field_Calculator::Get_Value(CSG_Table_Record *pRecord)
 {
-	CSG_Vector Values(m_Values.Get_uSize());
+	CSG_Vector Values(m_Fields.Get_uSize());
 
 	bool bNoData = false;
 
-	for(sLong i=0; i<m_Values.Get_Size(); i++)
+	for(sLong i=0; i<m_Fields.Get_Size(); i++)
 	{
-		Values[i] = pRecord->asDouble(m_Values[i]);
+		Values[i] = pRecord->asDouble(m_Fields[i]);
 
-		if( !m_bNoData && pRecord->is_NoData(m_Values[i]) )
+		if( !m_bNoData && pRecord->is_NoData(m_Fields[i]) )
 		{
 			bNoData = true;
 		}
@@ -361,52 +361,32 @@ bool CTable_Field_Calculator::Get_Value(CSG_Table_Record *pRecord)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CTable_Field_Calculator::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values)
+CSG_String CTable_Field_Calculator::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Fields)
 {
 	const SG_Char vars[27] = SG_T("abcdefghijklmnopqrstuvwxyz");
 
-	Values.Destroy();
+	Fields.Destroy();
 
-	for(int iField=pTable->Get_Field_Count()-1; iField>=0 && Values.Get_Size()<26; iField--)
+	for(int Field=pTable->Get_Field_Count()-1; Field>=0 && Fields.Get_Size()<26; Field--)
 	{
 		bool bUse = false;
 
-		CSG_String s;
-
-		s.Printf("f%d", iField + 1);
-
-		if( Formula.Find(s) >= 0 )
-		{
-			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
-
-			bUse	= true;
+		#define FINDVAR(fmt, val) { CSG_String s; s.Printf(fmt, val); if( Formula.Find(s) >= 0 )\
+			{ Formula.Replace(s, CSG_String(vars[Fields.Get_Size()])); bUse = true; }\
 		}
 
-		s.Printf("F%d", iField + 1);
-
-		if( Formula.Find(s) >= 0 )
-		{
-			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
-
-			bUse	= true;
-		}
-
-		s.Printf("[%s]", pTable->Get_Field_Name(iField));
-
-		if( Formula.Find(s) >= 0 )
-		{
-			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
-
-			bUse	= true;
-		}
+		FINDVAR("f%d", Field + 1);
+		FINDVAR("F%d", Field + 1);
+		FINDVAR( "[%s]" , pTable->Get_Field_Name(Field));
+		FINDVAR("\"%s\"", pTable->Get_Field_Name(Field));
 
 		if( bUse )
 		{
-			Values	+= iField;
+			Fields += Field;
 		}
 	}
 
@@ -415,9 +395,9 @@ CSG_String CTable_Field_Calculator::Get_Formula(CSG_String Formula, CSG_Table *p
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_selection.h 1246 2011-11-25 13:42:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,22 +46,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__table_selection_H
 #define HEADER_INCLUDED__table_selection_H
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -72,9 +61,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -83,20 +72,20 @@ class CSelection_Copy : public CSG_Tool
 public:
 	CSelection_Copy(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Table|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Table|Selection") );	}
 
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -105,18 +94,18 @@ class CSelection_Delete : public CSG_Tool
 public:
 	CSelection_Delete(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Table|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Table|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -125,18 +114,18 @@ class CSelection_Invert : public CSG_Tool
 public:
 	CSelection_Invert(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Table|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Table|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -145,23 +134,25 @@ class CSelect_Numeric : public CSG_Tool
 public:
 	CSelect_Numeric(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Table|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Table|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_String					Get_Formula		(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
+	CSG_String				Get_Formula				(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -170,34 +161,36 @@ class CSelect_String : public CSG_Tool
 public:
 	CSelect_String(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Table|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Table|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool						m_Case;
+	bool					m_Case = false;
 
-	int							m_Field, m_Compare;
+	int						m_Field = -1, m_Compare = 0;
 
-	CSG_String					m_Expression;
+	CSG_String				m_Expression;
 
 
-	bool						Do_Compare		(const SG_Char *Value);
+	bool					Do_Compare				(const SG_Char *Value);
 
-	bool						Do_Select		(CSG_Table_Record *pRecord);
+	bool					Do_Select				(CSG_Table_Record *pRecord);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

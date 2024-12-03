@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     QueryBuilder.h
     Copyright (C) Victor Olaya
@@ -22,9 +20,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -32,9 +30,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -43,25 +41,27 @@ class CSelect_Numeric : public CSG_Tool
 public:
 	CSelect_Numeric(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Shapes|Selection") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_String					Get_Formula		(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
+	CSG_String				Get_Formula				(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
