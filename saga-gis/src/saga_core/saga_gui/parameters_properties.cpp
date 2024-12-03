@@ -85,7 +85,7 @@
 
 //---------------------------------------------------------
 #define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() && !p->is_DataObject_List()\
-	? wxString::Format(p->Get_Name())\
+	? wxString::Format("%s", p->Get_Name())\
 	: wxString::Format("%s %s", p->is_Input()\
 	? (p->is_Optional() ? ">" : ">>")\
 	: (p->is_Optional() ? "<" : "<<"), p->Get_Name()))
@@ -101,7 +101,7 @@
 CParameters_PG_Choice::CParameters_PG_Choice(CSG_Parameter *pParameter)
 	: wxEnumProperty(GET_DATAOBJECT_LABEL(pParameter), pParameter->Get_Identifier())
 {
-	m_pParameter	= pParameter;
+	m_pParameter = pParameter;
 
 	_Create();
 }
