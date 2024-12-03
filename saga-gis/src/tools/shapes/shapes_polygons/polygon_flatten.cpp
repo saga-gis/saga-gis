@@ -166,6 +166,16 @@ bool CPolygon_Flatten::On_Execute(void)
 				for(int iPoint=0, jPart=pOuter->Get_Part_Count(); iPoint<pInner->Get_Point_Count(iPart); iPoint++)
 				{
 					pOuter->Add_Point(pInner->Get_Point(iPoint, iPart), jPart);
+
+					if( pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+					{
+						pOuter->Set_Z(pInner->Get_Z(iPoint, iPart), iPoint, jPart);
+
+						if( pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pOuter->Set_M(pInner->Get_M(iPoint, iPart), iPoint, jPart);
+						}
+					}
 				}
 			}
 
