@@ -62,7 +62,7 @@ CWind_Effect::CWind_Effect(void)
 {
 	Set_Name		(_TL("Wind Effect (Windward / Leeward Index)"));
 
-	Set_Author		("J.Boehner, A.Ringeler (c) 2008, O.Conrad (c) 2011");
+	Set_Author		(SG_T("J.Böhner, A.Ringeler (c) 2008, O.Conrad (c) 2011"));
 
 	Set_Description	(_TW(
 		"The 'Wind Effect' is a dimensionless index. Values below 1 indicate wind shadowed areas "
@@ -71,7 +71,7 @@ CWind_Effect::CWind_Effect(void)
 		"either constant or variying in space, if a wind direction grid is supplied."
 	));
 
-	Add_Reference("Boehner, J., & Antonic, O.", "2009",
+	Add_Reference(SG_T("Böhner, J., & Antonic, O."), "2009",
 		"Land-surface parameters specific to topo-climatology",
 		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
 		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
@@ -79,7 +79,7 @@ CWind_Effect::CWind_Effect(void)
 	);
 
 	Add_Reference(
-		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
+		SG_T("Gerlitz, L., Conrad, O., Böhner, J."), "2015",
 		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
 		"Earth System Dynamics, 6, 1-21.",
 		SG_T("https://doi.org/10.5194/esd-6-61-2015"), SG_T("doi:10.5194/esd-6-61-2015")
@@ -568,7 +568,7 @@ CWind_Exposition::CWind_Exposition(void)
 {
 	Set_Name		(_TL("Wind Exposition Index"));
 
-	Set_Author		("J.Boehner, O.Conrad (c) 2015");
+	Set_Author		(SG_T("J.Böhner, O.Conrad (c) 2015"));
 
 	Set_Description	(_TW(
 		"This tool calculates the average 'Wind Effect Index' for all directions using an angular step. "
@@ -577,14 +577,14 @@ CWind_Exposition::CWind_Exposition(void)
 	));
 
 	Add_Reference(
-		"Boehner, J., Antonic, O.", "2009",
+		SG_T("Böhner, J., Antonic, O."), "2009",
 		"Land-surface parameters specific to topo-climatology",
 		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
 		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
 	);
 
 	Add_Reference(
-		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
+		SG_T("Gerlitz, L., Conrad, O., Böhner, J."), "2015",
 		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
 		"Earth System Dynamics, 6, 1-21.",
 		SG_T("https://www.earth-syst-dynam.net/6/61/2015/"), SG_T("doi:10.5194/esd-6-61-2015.")
