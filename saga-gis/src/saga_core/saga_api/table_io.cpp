@@ -130,9 +130,9 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 	if( pFields && pFields->Get_Children_Count() == Get_Field_Count() )
 	{
-		for(int iField=0; iField<Get_Field_Count(); iField++)
+		for(int Field=0; Field<Get_Field_Count(); Field++)
 		{
-			Set_Field_Name(iField, pFields->Get_Content(iField));
+			Set_Field_Name(Field, pFields->Get_Content(Field));
 		}
 	}
 
@@ -191,9 +191,9 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 	pFields->Del_Children();
 
-	for(int iField=0; iField<Get_Field_Count(); iField++)
+	for(int Field=0; Field<Get_Field_Count(); Field++)
 	{
-		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
+		pFields->Add_Child("FIELD", Get_Field_Name(Field))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(Field)]);
 	}
 
 	//-----------------------------------------------------
@@ -346,34 +346,34 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 
 	while( !Line.is_Empty() )
 	{
-		CSG_String Field;
+		CSG_String Value;
 
 		if( Line[0] == '\"' ) // value in quotas
 		{
-			Field = Line.AfterFirst('\"').BeforeFirst('\"');
+			Value = Line.AfterFirst('\"').BeforeFirst('\"');
 			Line  = Line.AfterFirst('\"').AfterFirst ('\"');
 		}
 		else
 		{
-			Field = Line.BeforeFirst(Separator);
+			Value = Line.BeforeFirst(Separator);
 		}
 
 		Line = Line.AfterFirst(Separator); _Load_Text_Trim(Line, Separator);
 
-		if( !bHeadline || Field.Length() == 0 )
+		if( !bHeadline || Value.Length() == 0 )
 		{
-			Field.Printf("F%02d", Table.Get_Field_Count() + 1);
+			Value.Printf("F%02d", Table.Get_Field_Count() + 1);
 		}
 
-		Table.Add_Field(Field, SG_DATATYPE_String);
+		Table.Add_Field(Value, SG_DATATYPE_String);
 	}
 
 	//-----------------------------------------------------
-	TSG_Data_Type *Type = new TSG_Data_Type[Table.Get_Field_Count()];
+	TSG_Data_Type *Types = new TSG_Data_Type[Table.Get_Field_Count()];
 
-	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
+	for(int Field=0; Field<Table.Get_Field_Count(); Field++)
 	{
-		Type[iField] = SG_DATATYPE_Int;
+		Types[Field] = SG_DATATYPE_Int;
 	}
 
 	if( !bHeadline )
@@ -388,99 +388,98 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 			continue;
 		}
 
-		CSG_Table_Record *pRecord = Table.Add_Record();
+		CSG_Table_Record &Record = *Table.Add_Record();
 
 		_Load_Text_Trim(Line, Separator);
 
-		for(int iField=0; iField<Table.Get_Field_Count() && !Line.is_Empty(); iField++)
+		for(int Field=0; Field<Table.Get_Field_Count() && !Line.is_Empty(); Field++)
 		{
-			size_t Position = _Load_Text_EndQuote(Line, Separator); CSG_String Field;
+			size_t Position = _Load_Text_EndQuote(Line, Separator); CSG_String Value;
 
 			if( Position > 0 ) // value in quotas !!!
 			{
 				if( Position - 2 > 0 )
 				{
-					Field = Line.Mid(1, Position - 2);
+					Value = Line.Mid(1, Position - 2);
 				}
 				else
 				{
-					Field.Clear();
+					Value.Clear();
 				}
 
 				Line = Line.Right(Line.Length() - Position);
 
-				Type[iField] = SG_DATATYPE_String;
+				Types[Field] = SG_DATATYPE_String;
 			}
 			else
 			{
-				Field = Line.BeforeFirst(Separator);
+				Value = Line.BeforeFirst(Separator);
 
 				if( bComma2Point )
 				{
-					Field.Replace(",", ".");
-				}
-
-				if( Field[0] == '0' && Field[1] != '.' ) // keep leading zero(s) => don't interpret as number !
-				{
-					Type[iField] = SG_DATATYPE_String;
+					Value.Replace(",", ".");
 				}
 			}
 
 			Line = Line.AfterFirst(Separator); _Load_Text_Trim(Line, Separator);
 
 			//---------------------------------------------
-			if( Type[iField] != SG_DATATYPE_String && !Field.is_Empty() )
+			if( Types[Field] != SG_DATATYPE_String && !Value.is_Empty() )
 			{
-				try
+				if( Value[0] == '0' && Value[1] != '.' ) // keep leading zero(s) => don't interpret as number !
 				{
-					size_t pos; double Value = std::stod(Field.to_StdString(), &pos);
+					Types[Field] = SG_DATATYPE_String;
+				}
+				else try
+				{
+					size_t pos; double number = std::stod(Value.to_StdString(), &pos);
 
-					if( pos < Field.Length() )
+					if( pos < Value.Length() )
 					{
-						Type[iField] = SG_DATATYPE_String;
+						Types[Field] = SG_DATATYPE_String;
 					}
-					else if( Type[iField] != SG_DATATYPE_Double && (Value - (int)Value != 0. || Field.Find('.') >= 0) )
+					else if( Types[Field] != SG_DATATYPE_Double && (number - (int)number != 0. || Value.Find('.') >= 0) )
 					{
-						Type[iField] = SG_DATATYPE_Double;
+						Types[Field] = SG_DATATYPE_Double;
 					}
 				}
 				catch(...)
 				{
-					Type[iField] = SG_DATATYPE_String;
+					Types[Field] = SG_DATATYPE_String;
 				}
 			}
 
-			pRecord->Set_Value(iField, Field);
+			Record.Set_Value(Field, Value);
 		}
 	}
 
 	//-----------------------------------------------------
 	if( Table.Get_Field_Count() > 0 )
 	{
-		for(int iField=0; iField<Table.Get_Field_Count(); iField++)
+		for(int Field=0; Field<Table.Get_Field_Count(); Field++)
 		{
-			Add_Field(Table.Get_Field_Name(iField), Type[iField]);
+			Add_Field(Table.Get_Field_Name(Field), Types[Field]);
 		}
 
-		for(sLong iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+		for(sLong i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
 		{
-			CSG_Table_Record *pRecord = Add_Record();
+			CSG_Table_Record &Record = *Add_Record();
 
-			for(int iField=0; iField<Get_Field_Count(); iField++)
+			for(int Field=0; Field<Get_Field_Count(); Field++)
 			{
-				if( *Table[iRecord].asString(iField) )
+				if( *Table[i].asString(Field) )
 				{
-					pRecord->Set_Value(iField, Table[iRecord].asString(iField));
+					Record.Set_Value(Field, Table[i].asString(Field));
 				}
 				else
 				{
-					pRecord->Set_NoData(iField);
+					Record.Set_NoData(Field);
 				}
 			}
 		}
 	}
 
-	delete[](Type);
+	delete[](Types);
 
 	SG_UI_Process_Set_Ready();
 
@@ -498,25 +497,25 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	for(int iField=0; iField<Get_Field_Count(); iField++)
+	for(int Field=0; Field<Get_Field_Count(); Field++)
 	{
-		Stream.Printf("%s%c", Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
+		Stream.Printf("%s%c", Get_Field_Name(Field), Field < Get_Field_Count() - 1 ? Separator : '\n');
 	}
 
 	//-----------------------------------------------------
-	for(sLong iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
+	for(sLong i=0; i<Get_Count() && SG_UI_Process_Set_Progress(i, Get_Count()); i++)
 	{
-		CSG_Table_Record *pRecord = Get_Record_byIndex(iRecord);
+		CSG_Table_Record &Record = *Get_Record_byIndex(i);
 
-		for(int iField=0; iField<Get_Field_Count(); iField++)
+		for(int Field=0; Field<Get_Field_Count(); Field++)
 		{
-			switch( Get_Field_Type(iField) )
+			switch( Get_Field_Type(Field) )
 			{
 			case SG_DATATYPE_String:
 			case SG_DATATYPE_Date  :
-				if( !pRecord->is_NoData(iField) )
+				if( !Record.is_NoData(Field) )
 				{
-					Stream.Printf("\"%s\"", pRecord->asString(iField));
+					Stream.Printf("\"%s\"", Record.asString(Field));
 				}
 				else
 				{
@@ -525,14 +524,14 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 				break;
 
 			default:
-				if( !pRecord->is_NoData(iField) )
+				if( !Record.is_NoData(Field) )
 				{
-					Stream.Printf("%s", pRecord->asString(iField));
+					Stream.Printf("%s", Record.asString(Field));
 				}
 				break;
 			}
 
-			Stream.Printf("%c", iField < Get_Field_Count() - 1 ? Separator : '\n');
+			Stream.Printf("%c", Field < Get_Field_Count() - 1 ? Separator : '\n');
 		}
 	}
 
@@ -568,6 +567,91 @@ bool CSG_Table::_Save_DBase(const CSG_String &FileName)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
+//                      From Text                        //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Table::from_Text(const CSG_String &Text)
+{
+	if( Text.is_Empty() )
+	{
+		return( false );
+	}
+
+	Destroy(); Set_Name(_TL("New Table"));
+
+	//-----------------------------------------------------
+	CSG_Strings Values, Records(SG_String_Tokenize(Text, "\r\n"));
+
+	Values = (SG_String_Tokenize(Records[0], "\t"));
+
+	TSG_Data_Type *Types = new TSG_Data_Type[Values.Get_Count()];
+
+	for(int Field=0; Field<Values.Get_Count(); Field++)
+	{
+		Add_Field(Values[Field], SG_DATATYPE_String); Types[Field] = SG_DATATYPE_Int;
+	}
+
+	//-----------------------------------------------------
+	for(int i=1; i<Records.Get_Count(); i++)
+	{
+		CSG_Table_Record &Record = *Add_Record();
+
+		Values = (SG_String_Tokenize(Records[i], "\t"));
+
+		for(int Field=0; Field<Values.Get_Count() && Field<Get_Field_Count(); Field++)
+		{
+			CSG_String Value(Values[Field]); Record.Set_Value(Field, Value);
+
+			if( Types[Field] != SG_DATATYPE_String && !Value.is_Empty() )
+			{
+				if( Value.Length() >= 2 && Value[0] == '\"' && Value[Value.Length() - 1] == '\"' ) // in quota
+				{
+					Types[Field] = SG_DATATYPE_String;
+				}
+				else if( Value[0] == '0' && Value[1] != '.' ) // keep leading zero(s) => don't interpret as number !
+				{
+					Types[Field] = SG_DATATYPE_String;
+				}
+				else try
+				{
+					size_t pos; double number = std::stod(Value.to_StdString(), &pos);
+
+					if( pos < Value.Length() )
+					{
+						Types[Field] = SG_DATATYPE_String;
+					}
+					else if( Types[Field] != SG_DATATYPE_Double && (number - (int)number != 0. || Value.Find('.') >= 0) )
+					{
+						Types[Field] = SG_DATATYPE_Double;
+					}
+				}
+				catch(...)
+				{
+					Types[Field] = SG_DATATYPE_String;
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int Field=0; Field<Get_Field_Count(); Field++)
+	{
+		if( Types[Field] != SG_DATATYPE_String )
+		{
+			Set_Field_Type(Field, Types[Field]);
+		}
+	}
+
+	delete[](Types);
+
+	return( Get_Field_Count() > 1 || Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 //                      Serialize                        //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -582,16 +666,16 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 	{
 		Stream.Printf("%d %d\n", m_nFields, m_nRecords);
 
-		for(int iField=0; iField<m_nFields; iField++)
+		for(int Field=0; Field<m_nFields; Field++)
 		{
-			Stream.Printf("%d \"%s\"\n", Get_Field_Type(iField), Get_Field_Name(iField));
+			Stream.Printf("%d \"%s\"\n", Get_Field_Type(Field), Get_Field_Name(Field));
 		}
 
-		for(sLong iRecord=0; iRecord<m_nRecords; iRecord++)
+		for(sLong i=0; i<m_nRecords; i++)
 		{
-			for(int iField=0; iField<m_nFields; iField++)
+			for(int Field=0; Field<m_nFields; Field++)
 			{
-				Stream.Printf("%s%c", Get_Record(iRecord)->asString(iField), iField < m_nFields - 1 ? Separator : '\n');
+				Stream.Printf("%s%c", Get_Record(i)->asString(Field), Field < m_nFields - 1 ? Separator : '\n');
 			}
 		}
 
@@ -605,7 +689,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 	{
 		Destroy();
 
-		for(int iField=0; iField<nFields; iField++)
+		for(int Field=0; Field<nFields; Field++)
 		{
 			if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d"), &FieldType) == 1 )
 			{
@@ -613,15 +697,15 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 			}
 		}
 
-		for(sLong iRecord=0; iRecord<nRecords; iRecord++)
+		for(sLong i=0; i<nRecords; i++)
 		{
 			if( Stream.Read_Line(sLine) )
 			{
-				CSG_Table_Record *pRecord = Add_Record();
+				CSG_Table_Record &Record = *Add_Record();
 
-				for(int iField=0; iField<m_nFields; iField++)
+				for(int Field=0; Field<m_nFields; Field++)
 				{
-					pRecord->Set_Value(iField, sLine.BeforeFirst(Separator));
+					Record.Set_Value(Field, sLine.BeforeFirst(Separator));
 
 					sLine = sLine.AfterFirst(Separator);
 				}
