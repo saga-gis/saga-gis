@@ -233,6 +233,7 @@ bool CGrid_Import::On_Execute(void)
 		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { pRGB = SG_Create_Grid(); }
 		
 		pRGB->Create(Histogram.size() <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		pRGB->Set_NoData_Value(-1.);
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
@@ -264,7 +265,8 @@ bool CGrid_Import::On_Execute(void)
 	{
 		CSG_Grid *pRGB = Parameters("OUT_GRID")->asGrid(); if( !pRGB ) { pRGB = SG_Create_Grid(); }
 
-		pRGB->Create(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		pRGB->Create(SG_DATATYPE_DWord, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		pRGB->Set_NoData_Value(-1.);
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
@@ -291,7 +293,7 @@ bool CGrid_Import::On_Execute(void)
 
 	else
 	{
-		CSG_Grid *pRGB = SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
+		CSG_Grid *pRGB = SG_Create_Grid(SG_DATATYPE_DWord, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{
@@ -308,9 +310,9 @@ bool CGrid_Import::On_Execute(void)
 			Set_Transformation(&pRGB, m[4], m[5], m[0], m[3], m[2], m[1]);
 		}
 
-		CSG_Grid *pR = Parameters("OUT_RED"  )->asGrid(); if( !pR ) { Parameters("OUT_RED"  )->Set_Value(pR = SG_Create_Grid()); } pR->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
-		CSG_Grid *pG = Parameters("OUT_GREEN")->asGrid(); if( !pG ) { Parameters("OUT_GREEN")->Set_Value(pG = SG_Create_Grid()); } pG->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
-		CSG_Grid *pB = Parameters("OUT_BLUE" )->asGrid(); if( !pB ) { Parameters("OUT_BLUE" )->Set_Value(pB = SG_Create_Grid()); } pB->Create(pRGB->Get_System(), SG_DATATYPE_Byte);
+		CSG_Grid *pR = Parameters("OUT_RED"  )->asGrid(); if( !pR ) { Parameters("OUT_RED"  )->Set_Value(pR = SG_Create_Grid()); } pR->Create(pRGB->Get_System(), SG_DATATYPE_Byte); pR->Set_NoData_Value(-1.);
+		CSG_Grid *pG = Parameters("OUT_GREEN")->asGrid(); if( !pG ) { Parameters("OUT_GREEN")->Set_Value(pG = SG_Create_Grid()); } pG->Create(pRGB->Get_System(), SG_DATATYPE_Byte); pG->Set_NoData_Value(-1.);
+		CSG_Grid *pB = Parameters("OUT_BLUE" )->asGrid(); if( !pB ) { Parameters("OUT_BLUE" )->Set_Value(pB = SG_Create_Grid()); } pB->Create(pRGB->Get_System(), SG_DATATYPE_Byte); pB->Set_NoData_Value(-1.);
 
 		for(int y=0; y<pRGB->Get_NY() && Set_Progress(y, pRGB->Get_NY()); y++)
 		{

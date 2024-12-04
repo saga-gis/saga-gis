@@ -53,6 +53,7 @@
 #endif
 
 #include <wx/filename.h>
+#include <wx/clipbrd.h>
 
 #include <saga_api/saga_api.h>
 
@@ -108,16 +109,16 @@ CWKSP_Data_Manager	*g_pData	= NULL;
 //---------------------------------------------------------
 CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 {
-	g_pData			= this;
+	g_pData        = this;
 
-	m_pTables		= NULL;
-	m_pShapes		= NULL;
-	m_pTINs			= NULL;
-	m_pPointClouds	= NULL;
-	m_pGrids		= NULL;
+	m_pTables      = NULL;
+	m_pShapes      = NULL;
+	m_pTINs        = NULL;
+	m_pPointClouds = NULL;
+	m_pGrids       = NULL;
 
-	m_pProject		= new CWKSP_Project;
-	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
+	m_pProject     = new CWKSP_Project;
+	m_pMenu_Files  = new CWKSP_Data_Menu_Files;
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
@@ -521,7 +522,7 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 {
 	if( m_Sel_Items.Count() > 0 )
 	{
-		wxMenu	*pMenu	= new wxMenu;
+		wxMenu *pMenu = new wxMenu;
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
@@ -534,7 +535,7 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	}
 
 	//-----------------------------------------------------
-	wxMenu	*pMenu	= new wxMenu(_TL("Data"));
+	wxMenu *pMenu = new wxMenu(_TL("Data"));
 
 	if( wxGetKeyState(WXK_CONTROL) ) // add advanced/hidden commands
 	{
@@ -559,6 +560,18 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY_DB);
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
+	}
+
+	//-----------------------------------------------------
+	if( wxTheClipboard->Open() )
+	{
+		if( wxTheClipboard->IsSupported(wxDF_TEXT) || wxTheClipboard->IsSupported(wxDF_BITMAP) )
+		{
+			pMenu->AppendSeparator();
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE);
+		}
+
+		wxTheClipboard->Close();
 	}
 
 	//-----------------------------------------------------
@@ -635,6 +648,67 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_POINTCLOUD_OPEN      : Open(SG_DATAOBJECT_TYPE_PointCloud); break;
 	case ID_CMD_GRID_OPEN            : Open(SG_DATAOBJECT_TYPE_Grid      ); break;
 	case ID_CMD_GRIDS_OPEN           : Open(SG_DATAOBJECT_TYPE_Grids     ); break;
+
+	//-----------------------------------------------------
+	case ID_CMD_DATA_CLIPBOARD_PASTE : {
+		if( wxTheClipboard->Open() )
+		{
+			if( wxTheClipboard->IsSupported(wxDF_TEXT) )
+			{
+				wxTextDataObject Data;
+
+				if( wxTheClipboard->GetData(Data) )
+				{
+					wxString Text(Data.GetText()); CSG_Table *pTable = SG_Create_Table();
+
+					if( pTable->from_Text(&Text) )
+					{
+						Add(pTable)->Show();
+					}
+					else
+					{
+						delete(pTable);
+
+						DLG_Message_Show_Error(_TL("Failed to convert clipboard text to a new table!"), _TL("Paste from Clipboard"));
+					}
+				}
+			}
+
+			else if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
+			{
+				wxBitmapDataObject Data;
+
+				if( wxTheClipboard->GetData(Data) && Data.GetBitmap().IsOk() )
+				{
+					wxImage Image(Data.GetBitmap().ConvertToImage());
+
+					CSG_Grid *pGrid = SG_Create_Grid(SG_DATATYPE_DWord, Image.GetWidth(), Image.GetHeight());
+
+					if( pGrid )
+					{
+						pGrid->Set_Name(_TL("New Image"));
+						pGrid->Set_NoData_Value(-1.);
+
+						for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--) for(int x=0; x<pGrid->Get_NX(); x++)
+						{
+							pGrid->Set_Value(x, yy, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
+						}
+
+						CWKSP_Data_Item *pItem = Add(pGrid);
+						
+						if( pItem )
+						{
+							pItem->Get_Parameters()->Set_Parameter("COLORS_TYPE", 5); // RGB Coded Values
+							pItem->Parameters_Changed();
+							pItem->Show(SG_UI_DATAOBJECT_SHOW_MAP);
+						}
+					}
+				}
+			}
+
+			wxTheClipboard->Close();
+		}
+		break; }
 
 	//-----------------------------------------------------
 	case ID_CMD_DATA_MANAGER_LIST    : {

@@ -160,17 +160,18 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collapse Options") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_EXPAND:	return( _TL("Expand Options") );
 
-	case ID_CMD_DATA_OPEN:				return( _TL("Open") );
-	case ID_CMD_DATA_SAVE:				return( _TL("Save") );
-	case ID_CMD_DATA_SAVEAS:			return( _TL("Save as...") );
-	case ID_CMD_DATA_SAVETODB:			return( _TL("Save to Database...") );
-	case ID_CMD_DATA_RELOAD:			return( _TL("Reload") );
-	case ID_CMD_DATA_DEL_FILES:			return( _TL("Delete Associated Files") );
-	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
-	case ID_CMD_DATA_METADATA:			return( _TL("View Metadata") );
-	case ID_CMD_DATA_FORCE_UPDATE:		return( _TL("Force Update") );
-	case ID_CMD_DATA_SETTINGS_LOAD:		return( _TL("Load Settings") );
-	case ID_CMD_DATA_SETTINGS_COPY:		return( _TL("Copy Settings") );
+	case ID_CMD_DATA_OPEN           : return( _TL("Open") );
+	case ID_CMD_DATA_SAVE           : return( _TL("Save") );
+	case ID_CMD_DATA_SAVEAS         : return( _TL("Save as...") );
+	case ID_CMD_DATA_SAVETODB       : return( _TL("Save to Database...") );
+	case ID_CMD_DATA_RELOAD         : return( _TL("Reload") );
+	case ID_CMD_DATA_DEL_FILES      : return( _TL("Delete Associated Files") );
+	case ID_CMD_DATA_CLIPBOARD_PASTE: return( _TL("Paste from Clipboard") );
+	case ID_CMD_DATA_PROJECTION     : return( _TL("Spatial Reference") );
+	case ID_CMD_DATA_METADATA       : return( _TL("View Metadata") );
+	case ID_CMD_DATA_FORCE_UPDATE   : return( _TL("Force Update") );
+	case ID_CMD_DATA_SETTINGS_LOAD  : return( _TL("Load Settings") );
+	case ID_CMD_DATA_SETTINGS_COPY  : return( _TL("Copy Settings") );
 
 	case ID_CMD_GRID_OPEN           :
 	case ID_CMD_GRIDS_OPEN          :
