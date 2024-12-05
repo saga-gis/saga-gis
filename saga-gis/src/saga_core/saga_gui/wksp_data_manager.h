@@ -77,69 +77,73 @@ public:
 	CWKSP_Data_Manager(void);
 	virtual ~CWKSP_Data_Manager(void);
 
-	bool							Initialise			(void);
-	bool							Finalise			(void);
+	bool							Initialise				(void);
+	bool							Finalise				(void);
 
-	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Data_Manager );	}
+	virtual TWKSP_Item				Get_Type				(void)		{	return( WKSP_ITEM_Data_Manager );	}
 
-	virtual wxString				Get_Name			(void);
-	virtual wxString				Get_Description		(void);
+	virtual wxString				Get_Name				(void);
+	virtual wxString				Get_Description			(void);
 
-	virtual wxMenu *				Get_Menu			(void);
+	virtual wxMenu *				Get_Menu				(void);
 
-	virtual bool					On_Command			(int Cmd_ID);
-	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
+	virtual bool					On_Command				(int Cmd_ID);
+	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CSG_Parameters *		Get_Parameters		(void);
-	virtual void					Parameters_Changed	(void);
-	virtual int						On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+	virtual CSG_Parameters *		Get_Parameters			(void);
+	virtual void					Parameters_Changed		(void);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	CWKSP_Base_Manager *			Get_Manager			(TSG_Data_Object_Type Type, bool bAdd = false);
-	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
-	void							Del_Manager			(CWKSP_Base_Item *pItem);
+	CWKSP_Base_Manager *			Get_Manager				(TSG_Data_Object_Type Type, bool bAdd = false);
+	CWKSP_Base_Manager *			Get_Manager				(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
+	void							Del_Manager				(CWKSP_Base_Item *pItem);
 
-	class CWKSP_Table_Manager *		Get_Tables			(void)		{	return( m_pTables      );	}
-	class CWKSP_Shapes_Manager *	Get_Shapes			(void)		{	return( m_pShapes      );	}
-	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs        );	}
-	class CWKSP_PointCloud_Manager *Get_PointClouds		(void)		{	return( m_pPointClouds );	}
-	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids       );	}
+	class CWKSP_Table_Manager *		Get_Tables				(void)		{	return( m_pTables      );	}
+	class CWKSP_Shapes_Manager *	Get_Shapes				(void)		{	return( m_pShapes      );	}
+	class CWKSP_TIN_Manager *		Get_TINs				(void)		{	return( m_pTINs        );	}
+	class CWKSP_PointCloud_Manager *Get_PointClouds			(void)		{	return( m_pPointClouds );	}
+	class CWKSP_Grid_Manager *		Get_Grids				(void)		{	return( m_pGrids       );	}
 
-	class CWKSP_Data_Menu_Files *	Get_Menu_Files		(void)		{	return( m_pMenu_Files );	}
+	class CWKSP_Data_Menu_Files *	Get_Menu_Files			(void)		{	return( m_pMenu_Files );	}
 
-	class CWKSP_Data_Item *			Open				(const wxString &File, int DataType);
-	bool							Open				(const wxString &File);
-	bool							Open				(int DataType);
-	bool							Open_CMD			(int Cmd_ID);
-	bool							Open_Browser		(void);
-	bool							Open_Browser		(wxArrayString &Projects, const wxString &Directory);
+	class CWKSP_Data_Item *			Open					(const wxString &File, int DataType);
+	bool							Open					(const wxString &File);
+	bool							Open					(int DataType);
+	bool							Open_CMD				(int Cmd_ID);
+	bool							Open_Browser			(void);
+	bool							Open_Browser			(wxArrayString &Projects, const wxString &Directory);
 
-	bool							Save_Modified		(class CWKSP_Base_Item *pItem = NULL, bool bSelections = false);
-	bool							Save_Modified_Sel	(void);
-	bool							Close				(bool bSilent);
+	bool							Save_Modified			(class CWKSP_Base_Item *pItem = NULL, bool bSelections = false);
+	bool							Save_Modified_Sel		(void);
+	bool							Close					(bool bSilent);
 
-	class CWKSP_Data_Item *			Add					(class CSG_Data_Object *pObject);
-	class CWKSP_Data_Item *			Get					(class CSG_Data_Object *pObject);
-	class CWKSP_Layer *				Get_Layer			(class CSG_Data_Object *pObject);
-	class CWKSP_Data_Item *			Get_byFile			(const wxString &File);
-	class CWKSP_Data_Item *			Get_byID			(const wxString &ID);
-	class CWKSP_Data_Item *			Get_byID_or_File	(const SG_Char *ID, const SG_Char *File, const SG_Char *Root = NULL);
-	bool							Del					(class CSG_Data_Object *pObject, bool bConfirm);
-	bool							Update				(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
-	bool							Update_Views		(class CSG_Data_Object *pObject);
-	bool							Show				(class CSG_Data_Object *pObject, int Flags = 0);
-	bool							asImage				(class CSG_Data_Object *pObject, class CSG_Grid *pImage);
+	class CWKSP_Data_Item *			Add						(class CSG_Data_Object *pObject);
+	class CWKSP_Data_Item *			Get						(class CSG_Data_Object *pObject);
+	class CWKSP_Layer *				Get_Layer				(class CSG_Data_Object *pObject);
+	class CWKSP_Data_Item *			Get_byFile				(const wxString &File);
+	class CWKSP_Data_Item *			Get_byID				(const wxString &ID);
+	class CWKSP_Data_Item *			Get_byID_or_File		(const SG_Char *ID, const SG_Char *File, const SG_Char *Root = NULL);
+	bool							Del						(class CSG_Data_Object *pObject, bool bConfirm);
 
-	bool							Get_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
-	bool							Set_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
-	bool							Get_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
-	bool							Set_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
-	bool							Show_Diagram		(class CSG_Table       *pTable , class CSG_Parameters *pParameters);
+	bool							Clipboard_Paste_Table	(void);
+	bool							Clipboard_Paste_Image	(void);
 
-	size_t							MultiSelect_Count	(void);
-	bool							MultiSelect_Check	(void);
-	bool							MultiSelect_Update	(void);
+	bool							Update					(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Update_Views			(class CSG_Data_Object *pObject);
+	bool							Show					(class CSG_Data_Object *pObject, int Flags = 0);
+	bool							asImage					(class CSG_Data_Object *pObject, class CSG_Grid *pImage);
 
-	static CSG_Parameters *			Get_Settings_Dialog	(void);
+	bool							Get_Colors				(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
+	bool							Set_Colors				(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
+	bool							Get_Parameters			(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Set_Parameters			(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Show_Diagram			(class CSG_Table       *pTable , class CSG_Parameters *pParameters);
+
+	size_t							MultiSelect_Count		(void);
+	bool							MultiSelect_Check		(void);
+	bool							MultiSelect_Update		(void);
+
+	static CSG_Parameters *			Get_Settings_Dialog		(void);
 
 
 private:

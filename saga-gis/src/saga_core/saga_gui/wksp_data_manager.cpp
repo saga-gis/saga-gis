@@ -565,10 +565,15 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	//-----------------------------------------------------
 	if( wxTheClipboard->Open() )
 	{
-		if( wxTheClipboard->IsSupported(wxDF_TEXT) || wxTheClipboard->IsSupported(wxDF_BITMAP) )
+		if( wxTheClipboard->IsSupported(wxDF_TEXT) )
 		{
 			pMenu->AppendSeparator();
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
+		}
+		else if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
+		{
+			pMenu->AppendSeparator();
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
 		}
 
 		wxTheClipboard->Close();
@@ -650,65 +655,8 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_GRIDS_OPEN           : Open(SG_DATAOBJECT_TYPE_Grids     ); break;
 
 	//-----------------------------------------------------
-	case ID_CMD_DATA_CLIPBOARD_PASTE : {
-		if( wxTheClipboard->Open() )
-		{
-			if( wxTheClipboard->IsSupported(wxDF_TEXT) )
-			{
-				wxTextDataObject Data;
-
-				if( wxTheClipboard->GetData(Data) )
-				{
-					wxString Text(Data.GetText()); CSG_Table *pTable = SG_Create_Table();
-
-					if( pTable->from_Text(&Text) )
-					{
-						Add(pTable)->Show();
-					}
-					else
-					{
-						delete(pTable);
-
-						DLG_Message_Show_Error(_TL("Failed to convert clipboard text to a new table!"), _TL("Paste from Clipboard"));
-					}
-				}
-			}
-
-			else if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
-			{
-				wxBitmapDataObject Data;
-
-				if( wxTheClipboard->GetData(Data) && Data.GetBitmap().IsOk() )
-				{
-					wxImage Image(Data.GetBitmap().ConvertToImage());
-
-					CSG_Grid *pGrid = SG_Create_Grid(SG_DATATYPE_DWord, Image.GetWidth(), Image.GetHeight());
-
-					if( pGrid )
-					{
-						pGrid->Set_Name(_TL("New Image"));
-						pGrid->Set_NoData_Value(-1.);
-
-						for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--) for(int x=0; x<pGrid->Get_NX(); x++)
-						{
-							pGrid->Set_Value(x, yy, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
-						}
-
-						CWKSP_Data_Item *pItem = Add(pGrid);
-						
-						if( pItem )
-						{
-							pItem->Get_Parameters()->Set_Parameter("COLORS_TYPE", 5); // RGB Coded Values
-							pItem->Parameters_Changed();
-							pItem->Show(SG_UI_DATAOBJECT_SHOW_MAP);
-						}
-					}
-				}
-			}
-
-			wxTheClipboard->Close();
-		}
-		break; }
+	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE: Clipboard_Paste_Table(); break;
+	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE: Clipboard_Paste_Image(); break;
 
 	//-----------------------------------------------------
 	case ID_CMD_DATA_MANAGER_LIST    : {
@@ -1574,6 +1522,97 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Get_byID_or_File(const SG_Char *ID, const 
 bool CWKSP_Data_Manager::Del(CSG_Data_Object *pObject, bool bConfirm)
 {
 	return( Get_Control()->Del_Item(Get(pObject), bConfirm == false) ); // bConfirm == true/false => bSilent == false/true
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Clipboard_Paste_Table(void)
+{
+	if( wxTheClipboard->Open() )
+	{
+		if( wxTheClipboard->IsSupported(wxDF_TEXT) )
+		{
+			wxTextDataObject Data;
+
+			if( wxTheClipboard->GetData(Data) )
+			{
+				wxString Text(Data.GetText()); CSG_Table *pTable = SG_Create_Table();
+
+				if( pTable->from_Text(&Text) )
+				{
+					CWKSP_Data_Item *pItem = Add(pTable);
+					
+					if( pItem )
+					{
+						pItem->Show();
+
+						return( true );
+					}
+				}
+
+				delete(pTable);
+			}
+		}
+
+		wxTheClipboard->Close();
+	}
+
+	DLG_Message_Show_Error(_TL("Failed to paste clipboard content as table!"), _TL("Paste from Clipboard"));
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Clipboard_Paste_Image(void)
+{
+	if( wxTheClipboard->Open() )
+	{
+		if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
+		{
+			wxBitmapDataObject Data;
+
+			if( wxTheClipboard->GetData(Data) && Data.GetBitmap().IsOk() )
+			{
+				wxImage Image(Data.GetBitmap().ConvertToImage());
+
+				CSG_Grid *pGrid = SG_Create_Grid(SG_DATATYPE_DWord, Image.GetWidth(), Image.GetHeight());
+
+				if( pGrid )
+				{
+					pGrid->Set_Name(_TL("New Image"));
+					pGrid->Set_NoData_Value(-1.);
+
+					for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY(); y++, yy--) for(int x=0; x<pGrid->Get_NX(); x++)
+					{
+						pGrid->Set_Value(x, yy, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
+					}
+
+					CWKSP_Data_Item *pItem = Add(pGrid);
+
+					if( pItem )
+					{
+						pItem->Get_Parameters()->Set_Parameter("COLORS_TYPE", 5); // RGB Coded Values
+						pItem->Parameters_Changed();
+						pItem->Show(SG_UI_DATAOBJECT_SHOW_MAP);
+
+						return( true );
+					}
+
+					delete(pGrid);
+				}
+			}
+		}
+
+		wxTheClipboard->Close();
+	}
+
+	DLG_Message_Show_Error(_TL("Failed to paste clipboard content as image!"), _TL("Paste from Clipboard"));
+
+	return( false );
 }
 
 

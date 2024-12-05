@@ -160,74 +160,75 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE:	return( _TL("Collapse Options") );
 	case ID_CMD_DATA_HISTORY_OPTIONS_EXPAND:	return( _TL("Expand Options") );
 
-	case ID_CMD_DATA_OPEN           : return( _TL("Open") );
-	case ID_CMD_DATA_SAVE           : return( _TL("Save") );
-	case ID_CMD_DATA_SAVEAS         : return( _TL("Save as...") );
-	case ID_CMD_DATA_SAVETODB       : return( _TL("Save to Database...") );
-	case ID_CMD_DATA_RELOAD         : return( _TL("Reload") );
-	case ID_CMD_DATA_DEL_FILES      : return( _TL("Delete Associated Files") );
-	case ID_CMD_DATA_CLIPBOARD_PASTE: return( _TL("Paste from Clipboard") );
-	case ID_CMD_DATA_PROJECTION     : return( _TL("Spatial Reference") );
-	case ID_CMD_DATA_METADATA       : return( _TL("View Metadata") );
-	case ID_CMD_DATA_FORCE_UPDATE   : return( _TL("Force Update") );
-	case ID_CMD_DATA_SETTINGS_LOAD  : return( _TL("Load Settings") );
-	case ID_CMD_DATA_SETTINGS_COPY  : return( _TL("Copy Settings") );
+	case ID_CMD_DATA_OPEN                 : return( _TL("Open") );
+	case ID_CMD_DATA_SAVE                 : return( _TL("Save") );
+	case ID_CMD_DATA_SAVEAS               : return( _TL("Save as...") );
+	case ID_CMD_DATA_SAVETODB             : return( _TL("Save to Database...") );
+	case ID_CMD_DATA_RELOAD               : return( _TL("Reload") );
+	case ID_CMD_DATA_DEL_FILES            : return( _TL("Delete Associated Files") );
+	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE: return( _TL("Paste Table from Clipboard") );
+	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE: return( _TL("Paste Image from Clipboard") );
+	case ID_CMD_DATA_PROJECTION           : return( _TL("Spatial Reference") );
+	case ID_CMD_DATA_METADATA             : return( _TL("View Metadata") );
+	case ID_CMD_DATA_FORCE_UPDATE         : return( _TL("Force Update") );
+	case ID_CMD_DATA_SETTINGS_LOAD        : return( _TL("Load Settings") );
+	case ID_CMD_DATA_SETTINGS_COPY        : return( _TL("Copy Settings") );
 
-	case ID_CMD_GRID_OPEN           :
-	case ID_CMD_GRIDS_OPEN          :
-	case ID_CMD_SHAPES_OPEN         :
-	case ID_CMD_TABLE_OPEN          :
-	case ID_CMD_TIN_OPEN            :
-	case ID_CMD_POINTCLOUD_OPEN     :	return( _TL("Load") );
+	case ID_CMD_GRID_OPEN                 :
+	case ID_CMD_GRIDS_OPEN                :
+	case ID_CMD_SHAPES_OPEN               :
+	case ID_CMD_TABLE_OPEN                :
+	case ID_CMD_TIN_OPEN                  :
+	case ID_CMD_POINTCLOUD_OPEN           :	return( _TL("Load") );
 
-	case ID_CMD_GRID_SHOW           :
-	case ID_CMD_GRIDS_SHOW          :
-	case ID_CMD_SHAPES_SHOW         :
-	case ID_CMD_TIN_SHOW            :
-	case ID_CMD_POINTCLOUD_SHOW     :	return( _TL("Add to Map") );
+	case ID_CMD_GRID_SHOW                 :
+	case ID_CMD_GRIDS_SHOW                :
+	case ID_CMD_SHAPES_SHOW               :
+	case ID_CMD_TIN_SHOW                  :
+	case ID_CMD_POINTCLOUD_SHOW           :	return( _TL("Add to Map") );
 
-	case ID_CMD_TABLE_SHOW          :	return( _TL("Show Table") );
+	case ID_CMD_TABLE_SHOW                :	return( _TL("Show Table") );
 
-	case ID_CMD_GRID_SET_LUT        :
-	case ID_CMD_SHAPES_SET_LUT      :	return( _TL("Classify") );
+	case ID_CMD_GRID_SET_LUT              :
+	case ID_CMD_SHAPES_SET_LUT            :	return( _TL("Classify") );
 
-	case ID_CMD_DATA_CLASSIFY_IMPORT:	return( _TL("Import Classification") );
+	case ID_CMD_DATA_CLASSIFY_IMPORT      :	return( _TL("Import Classification") );
 
-	case ID_CMD_GRID_HISTOGRAM      :
-	case ID_CMD_SHAPES_HISTOGRAM    :	return( _TL("Histogram") );
+	case ID_CMD_GRID_HISTOGRAM            :
+	case ID_CMD_SHAPES_HISTOGRAM          :	return( _TL("Histogram") );
 
-	case ID_CMD_GRID_SCATTERPLOT    :
-	case ID_CMD_GRIDS_SCATTERPLOT   :
-	case ID_CMD_TABLE_SCATTERPLOT   :	return( _TL("Scatterplot") );
+	case ID_CMD_GRID_SCATTERPLOT          :
+	case ID_CMD_GRIDS_SCATTERPLOT         :
+	case ID_CMD_TABLE_SCATTERPLOT         :	return( _TL("Scatterplot") );
 
-	case ID_CMD_TABLE_DIAGRAM       :	return( _TL("Diagram") );
-	case ID_CMD_TABLE_JOIN_DATA     :	return( _TL("Join Data") );
+	case ID_CMD_TABLE_DIAGRAM             :	return( _TL("Diagram") );
+	case ID_CMD_TABLE_JOIN_DATA           :	return( _TL("Join Data") );
 
-	case ID_CMD_GRID_SAVEAS_IMAGE   :	return( _TL("Save as Image...") );
-	case ID_CMD_GRID_CLIPBOARD_IMAGE:	return( _TL("Copy to Clipboard") );
-	case ID_CMD_GRID_EQUALINTERVALS :	return( _TL("Create Normalised Classification") );
-	case ID_CMD_GRID_SEL_CLEAR      :	return( _TL("Clear Selection") );
-	case ID_CMD_GRID_SEL_DELETE     :	return( _TL("Delete Selection") );
+	case ID_CMD_GRID_SAVEAS_IMAGE         :	return( _TL("Save as Image...") );
+	case ID_CMD_GRID_CLIPBOARD_IMAGE      :	return( _TL("Copy to Clipboard") );
+	case ID_CMD_GRID_EQUALINTERVALS       :	return( _TL("Create Normalised Classification") );
+	case ID_CMD_GRID_SEL_CLEAR            :	return( _TL("Clear Selection") );
+	case ID_CMD_GRID_SEL_DELETE           :	return( _TL("Delete Selection") );
 
-	case ID_CMD_GRIDS_SAVEAS_IMAGE  :	return( _TL("Save as Image...") );
-	case ID_CMD_GRIDS_FIT_MINMAX    :	return( _TL("Histogram Stretch to Minimum/Maximum") );
-	case ID_CMD_GRIDS_FIT_STDDEV    :	return( _TL("Histogram Stretch to Standard Deviation") );
-	case ID_CMD_GRIDS_FIT_PCTL      :	return( _TL("Histogram Stretch to Percentile") );
-	case ID_CMD_GRIDS_FIT_DIALOG    :	return( _TL("Histogram Stretch Dialog") );
+	case ID_CMD_GRIDS_SAVEAS_IMAGE        :	return( _TL("Save as Image...") );
+	case ID_CMD_GRIDS_FIT_MINMAX          :	return( _TL("Histogram Stretch to Minimum/Maximum") );
+	case ID_CMD_GRIDS_FIT_STDDEV          :	return( _TL("Histogram Stretch to Standard Deviation") );
+	case ID_CMD_GRIDS_FIT_PCTL            :	return( _TL("Histogram Stretch to Percentile") );
+	case ID_CMD_GRIDS_FIT_DIALOG          :	return( _TL("Histogram Stretch Dialog") );
 
-	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:             return( _TL("Save Attributes as...") );
-	case ID_CMD_SHAPES_EDIT_SHAPE:                  return( _TL("Edit Selection") );
-	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:              return( _TL("Clear Selection") );
-	case ID_CMD_SHAPES_EDIT_SEL_INVERT:             return( _TL("Invert Selection") );
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:              return( _TL("Add Shape") );
-	case ID_CMD_SHAPES_EDIT_ADD_PART:               return( _TL("Add Part") );
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:              return( _TL("Delete Selection") );
-	case ID_CMD_SHAPES_EDIT_DEL_PART:               return( _TL("Delete Selected Part") );
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:              return( _TL("Delete Selected Point") );
-	case ID_CMD_SHAPES_EDIT_SPLIT:                  return( _TL("Split with Line") );
-	case ID_CMD_SHAPES_EDIT_MERGE:                  return( _TL("Merge Selection") );
-	case ID_CMD_SHAPES_EDIT_MOVE:                   return( _TL("Move") );
-    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:  return( _TL("Copy Selection to new Layer") );
+	case ID_CMD_SHAPES_SAVE_ATTRIBUTES    : return( _TL("Save Attributes as...") );
+	case ID_CMD_SHAPES_EDIT_SHAPE         : return( _TL("Edit Selection") );
+	case ID_CMD_SHAPES_EDIT_SEL_CLEAR     : return( _TL("Clear Selection") );
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT    : return( _TL("Invert Selection") );
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE     : return( _TL("Add Shape") );
+	case ID_CMD_SHAPES_EDIT_ADD_PART      : return( _TL("Add Part") );
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE     : return( _TL("Delete Selection") );
+	case ID_CMD_SHAPES_EDIT_DEL_PART      : return( _TL("Delete Selected Part") );
+	case ID_CMD_SHAPES_EDIT_DEL_POINT     : return( _TL("Delete Selected Point") );
+	case ID_CMD_SHAPES_EDIT_SPLIT         : return( _TL("Split with Line") );
+	case ID_CMD_SHAPES_EDIT_MERGE         : return( _TL("Merge Selection") );
+	case ID_CMD_SHAPES_EDIT_MOVE          : return( _TL("Move") );
+    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER: return( _TL("Copy Selection to new Layer") );
 
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( _TL("Set Range to Minimum/Maximum") );
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( _TL("Set Range to Standard Deviation (1.5)") );
