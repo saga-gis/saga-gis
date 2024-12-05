@@ -567,7 +567,7 @@ bool CSG_Table::_Save_DBase(const CSG_String &FileName)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                      From Text                        //
+//                     From/To Text                      //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -647,6 +647,31 @@ bool CSG_Table::from_Text(const CSG_String &Text)
 	delete[](Types);
 
 	return( Get_Field_Count() > 1 || Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Table::to_Text(bool Selection) const
+{
+	CSG_String Text;
+
+	for(int Field=0; Field<Get_Field_Count(); Field++)
+	{
+		Text += Get_Field_Name(Field); Text += 1 + Field < Get_Field_Count() ? '\t' : '\n';
+	}
+
+	sLong n = Selection ? Get_Selection_Count() : Get_Count();
+
+	for(sLong i=0; i<n; i++)
+	{
+		CSG_Table_Record &Record = Selection ? *Get_Selection(i) : *Get_Record_byIndex(i);
+
+		for(int Field=0; Field<Get_Field_Count(); Field++)
+		{
+			Text += Record.asString(Field); Text += 1 + Field < Get_Field_Count() ? '\t' : '\n';
+		}
+	}
+
+	return( Text );
 }
 
 

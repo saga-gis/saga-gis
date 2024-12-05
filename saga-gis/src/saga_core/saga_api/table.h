@@ -338,6 +338,7 @@ public:
 	int								Get_File_Encoding	(void)	const			{	return( m_Encoding );	}
 
 	bool							from_Text			(const CSG_String &Text);
+	CSG_String						to_Text				(bool Selection = false)	const;
 
 	bool							Serialize			(CSG_File &Stream, bool bSave);
 
