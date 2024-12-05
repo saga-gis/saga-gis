@@ -602,15 +602,18 @@ bool CSG_Table::from_Text(const CSG_String &Text)
 
 		for(int Field=0; Field<Values.Get_Count() && Field<Get_Field_Count(); Field++)
 		{
-			CSG_String Value(Values[Field]); Record.Set_Value(Field, Value);
+			CSG_String Value(Values[Field]);
+
+			if( Value.Length() >= 2 && Value[0] == '\"' && Value[Value.Length() - 1] == '\"' ) // is string, remove quota
+			{
+				Types[Field] = SG_DATATYPE_String; Value = Value.Mid(1, Value.Length() - 2);
+			}
+
+			Record.Set_Value(Field, Value);
 
 			if( Types[Field] != SG_DATATYPE_String && !Value.is_Empty() )
 			{
-				if( Value.Length() >= 2 && Value[0] == '\"' && Value[Value.Length() - 1] == '\"' ) // in quota
-				{
-					Types[Field] = SG_DATATYPE_String;
-				}
-				else if( Value[0] == '0' && Value[1] != '.' ) // keep leading zero(s) => don't interpret as number !
+				if( Value[0] == '0' && Value[1] != '.' ) // keep leading zero(s) => don't interpret as number !
 				{
 					Types[Field] = SG_DATATYPE_String;
 				}
@@ -638,10 +641,7 @@ bool CSG_Table::from_Text(const CSG_String &Text)
 	//-----------------------------------------------------
 	for(int Field=0; Field<Get_Field_Count(); Field++)
 	{
-		if( Types[Field] != SG_DATATYPE_String )
-		{
-			Set_Field_Type(Field, Types[Field]);
-		}
+		Set_Field_Type(Field, Types[Field]);
 	}
 
 	delete[](Types);
