@@ -206,7 +206,7 @@ bool CWKSP_Project::Copy(void)
 {
 	wxString File;
 
-	if( !DLG_Save(File, ID_DLG_PROJECT_SAVE) )
+	if( !DLG_Save(File, _TL("Copy Project to..."), wxString::Format("%s|", _TL("SAGA Project"))) )
 	{
 		return( false );
 	}
