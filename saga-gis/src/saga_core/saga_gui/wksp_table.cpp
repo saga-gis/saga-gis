@@ -46,6 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/clipbrd.h>
+
 #include "res_commands.h"
 #include "res_dialogs.h"
 
@@ -142,7 +144,7 @@ wxString CWKSP_Table::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Table::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
@@ -166,6 +168,7 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_DIAGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SCATTERPLOT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 
 	return( pMenu );
 }
@@ -197,6 +200,19 @@ bool CWKSP_Table::On_Command(int Cmd_ID)
 
 	case ID_CMD_TABLE_SCATTERPLOT:
 		Add_ScatterPlot();
+		break;
+
+	case ID_CMD_TABLE_TO_CLIPBOARD:
+		if( wxTheClipboard->Open() )
+		{
+			CSG_String Text(m_pObject->asTable()->to_Text(m_pObject->asTable()->Get_Selection_Count()));
+
+			wxTheClipboard->SetData(new wxTextDataObject(Text.c_str()));
+
+			wxTheClipboard->Close();
+
+			return( true );
+		}
 		break;
 	}
 

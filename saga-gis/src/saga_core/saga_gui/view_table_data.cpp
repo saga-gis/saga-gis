@@ -323,30 +323,10 @@ bool CVIEW_Table_Data::To_Clipboard(void)
 {
 	if( wxTheClipboard->Open() )
 	{
-		wxString	Data;
+		CSG_String Text(m_pTable->to_Text(m_pTable->Get_Selection_Count()));
 
-		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
-		{
-			Data	+= m_pTable->Get_Field_Name(iField);
-			Data	+= 1 + iField < m_pTable->Get_Field_Count() ? '\t' : '\n';
-		}
+		wxTheClipboard->SetData(new wxTextDataObject(Text.c_str()));
 
-		int nRecords = m_pTable->Get_Selection_Count()
-			? (int)m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
-
-		for(int iRecord=0; iRecord<nRecords; iRecord++)
-		{
-			CSG_Table_Record	*pRecord	= m_pTable->Get_Selection_Count()
-				? m_pTable->Get_Selection(iRecord) : m_pTable->Get_Record_byIndex(iRecord);
-
-			for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
-			{
-				Data	+= pRecord->asString(iField);
-				Data	+= 1 + iField < m_pTable->Get_Field_Count() ? '\t' : '\n';
-			}
-		}
-
-		wxTheClipboard->SetData(new wxTextDataObject(Data));
 		wxTheClipboard->Close();
 
 		return( true );
