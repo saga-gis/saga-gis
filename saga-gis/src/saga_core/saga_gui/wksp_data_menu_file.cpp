@@ -70,8 +70,7 @@
 //---------------------------------------------------------
 CWKSP_Data_Menu_File::CWKSP_Data_Menu_File(void)
 {
-	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
-	m_pMenu		= NULL;
+	m_CmdID[0] = m_CmdID[1] = 0; m_pMenu = NULL;
 }
 
 //---------------------------------------------------------
@@ -98,8 +97,7 @@ void CWKSP_Data_Menu_File::Destroy(void)
 		}
 	}
 
-	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
-	m_pMenu		= NULL;
+	m_CmdID[0] = m_CmdID[1] = 0; m_pMenu = NULL;
 }
 
 
@@ -108,90 +106,45 @@ void CWKSP_Data_Menu_File::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
+wxMenu * CWKSP_Data_Menu_File::Create(int First_ID)
 {
 	Destroy();
 
-	m_DataType	= DataType;
-
-	m_pMenu	= new wxMenu;
+	m_pMenu = new wxMenu; m_CmdID[0] = First_ID; m_CmdID[1] = RECENT_COUNT;
 
 	//-----------------------------------------------------
-	switch( m_DataType )
+	switch( First_ID )
 	{
-	case SG_DATAOBJECT_TYPE_Undefined:
-		m_Group		= "Project";
-		m_CmdID[0]	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_DATA_PROJECT_RECENT_LAST - m_CmdID[0] + 1;
-
+	case ID_CMD_DATA_PROJECT_RECENT_FIRST:
+		m_Group = "Project";
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_OPEN   );
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_BROWSE );
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_NEW  );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_NEW    );
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_SAVE   );
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_SAVE_AS);
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_COPY   );
 		break;
 
-	case SG_DATAOBJECT_TYPE_Table:
-		m_Group		= "Table";
-		m_CmdID[0]	= ID_CMD_TABLE_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_TABLE_RECENT_LAST        - m_CmdID[0] + 1;
+	case ID_CMD_DATA_FILE_RECENT_FIRST   : m_Group = "Recent"     ; break;
 
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TABLE_OPEN);
-		break;
-
-	case SG_DATAOBJECT_TYPE_Shapes:
-		m_Group		= "Shapes";
-		m_CmdID[0]	= ID_CMD_SHAPES_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_SHAPES_RECENT_LAST       - m_CmdID[0] + 1;
-
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_SHAPES_OPEN);
-		break;
-
-	case SG_DATAOBJECT_TYPE_TIN:
-		m_Group		= "TIN";
-		m_CmdID[0]	= ID_CMD_TIN_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_TIN_RECENT_LAST          - m_CmdID[0] + 1;
-
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TIN_OPEN);
-		break;
-
-	case SG_DATAOBJECT_TYPE_PointCloud:
-		m_Group		= "Point Cloud";
-		m_CmdID[0]	= ID_CMD_POINTCLOUD_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_POINTCLOUD_RECENT_LAST   - m_CmdID[0] + 1;
-
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_POINTCLOUD_OPEN);
-		break;
-
-	case SG_DATAOBJECT_TYPE_Grid:
-		m_Group		= "Grid";
-		m_CmdID[0]	= ID_CMD_GRID_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_GRID_RECENT_LAST         - m_CmdID[0] + 1;
-
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRID_OPEN);
-		break;
-
-	case SG_DATAOBJECT_TYPE_Grids:
-		m_Group		= "Grids";
-		m_CmdID[0]	= ID_CMD_GRIDS_RECENT_FIRST;
-		m_CmdID[1]	= ID_CMD_GRIDS_RECENT_LAST        - m_CmdID[0] + 1;
-
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRIDS_OPEN);
-		break;
+	case ID_CMD_TABLE_RECENT_FIRST       : m_Group = "Table"      ; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TABLE_OPEN     ); break;
+	case ID_CMD_SHAPES_RECENT_FIRST      : m_Group = "Shapes"     ; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_SHAPES_OPEN    ); break;
+	case ID_CMD_TIN_RECENT_FIRST         : m_Group = "TIN"        ; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TIN_OPEN       ); break;
+	case ID_CMD_POINTCLOUD_RECENT_FIRST  : m_Group = "Point Cloud"; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_POINTCLOUD_OPEN); break;
+	case ID_CMD_GRID_RECENT_FIRST        : m_Group = "Grid"       ; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRID_OPEN      ); break;
+	case ID_CMD_GRIDS_RECENT_FIRST       : m_Group = "Grids"      ; CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_GRIDS_OPEN     ); break;
 
 	default:
-		m_CmdID[0]	= 0;
-		m_CmdID[1]	= 0;
+		m_CmdID[0] = m_CmdID[1] = 0;
 		break;
 	}
 
 	//-----------------------------------------------------
-	m_Offset	= m_pMenu->GetMenuItemCount();
+	m_Offset = m_pMenu->GetMenuItemCount();
 
 	if( m_CmdID[0] )
 	{
-		int	i = 0; wxString File;
+		int i = 0; wxString File;
 
 		while( CONFIG_Read("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", ++i), File) )
 		{
@@ -325,6 +278,12 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &Files, bool bAppend)
 	return( Files.Count() > 0 );
 }
 
+//---------------------------------------------------------
+int CWKSP_Data_Menu_File::Count(void)
+{
+	return( m_Files.GetCount() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -337,23 +296,18 @@ bool CWKSP_Data_Menu_File::Open(int CmdID)
 
 	if( i >= 0 && i < (int)m_Files.GetCount() )
 	{
-		switch( m_DataType )
+		switch( m_CmdID[0] )
 		{
-		case SG_DATAOBJECT_TYPE_Undefined:
-			bSuccess	= g_pData->Open(wxString(m_Files[i]));
-			break;
-
-		case SG_DATAOBJECT_TYPE_Table     :
-		case SG_DATAOBJECT_TYPE_Shapes    :
-		case SG_DATAOBJECT_TYPE_TIN       :
-		case SG_DATAOBJECT_TYPE_PointCloud:
-		case SG_DATAOBJECT_TYPE_Grid      :
-		case SG_DATAOBJECT_TYPE_Grids     :
-			bSuccess	= g_pData->Open(wxString(m_Files[i]), m_DataType) != NULL;
-			break;
-
 		default:
+			bSuccess = g_pData->Open(wxString(m_Files[i]));
 			break;
+
+		case ID_CMD_TABLE_RECENT_FIRST     : bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_Table     ) != NULL; break;
+		case ID_CMD_SHAPES_RECENT_FIRST    : bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_Shapes    ) != NULL; break;
+		case ID_CMD_POINTCLOUD_RECENT_FIRST: bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_PointCloud) != NULL; break;
+		case ID_CMD_TIN_RECENT_FIRST       : bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_TIN       ) != NULL; break;
+		case ID_CMD_GRID_RECENT_FIRST      : bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_Grid      ) != NULL; break;
+		case ID_CMD_GRIDS_RECENT_FIRST     : bSuccess = g_pData->Open(wxString(m_Files[i]), SG_DATAOBJECT_TYPE_Grids     ) != NULL; break;
 		}
 	}
 

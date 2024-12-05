@@ -67,21 +67,21 @@
 //---------------------------------------------------------
 CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 {
-	m_bUpdate	= true;
-	m_pMenu		= new wxMenu;
+	m_bUpdate = true;
+	m_pMenu   = new wxMenu;
 
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
-
-	m_pMenu->AppendSeparator();
-	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"        ), m_Project   .Create(SG_DATAOBJECT_TYPE_Undefined ));
-	m_pMenu->Append(ID_CMD_TABLE_FIRST     , _TL("Table"          ), m_Table     .Create(SG_DATAOBJECT_TYPE_Table     ));
-	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes"         ), m_Shapes    .Create(SG_DATAOBJECT_TYPE_Shapes    ));
-	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"    ), m_PointCloud.Create(SG_DATAOBJECT_TYPE_PointCloud));
-	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN"            ), m_TIN       .Create(SG_DATAOBJECT_TYPE_TIN       ));
-	m_pMenu->Append(ID_CMD_GRID_FIRST      , _TL("Grid"           ), m_Grid      .Create(SG_DATAOBJECT_TYPE_Grid      ));
-	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grid Collection"), m_Grids     .Create(SG_DATAOBJECT_TYPE_Grids     ));
 	m_pMenu->AppendSeparator();
 
+	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"     ), m_Project.Create(ID_CMD_DATA_PROJECT_RECENT_FIRST));
+	m_pMenu->Append(ID_CMD_DATA_FILE_RECENT, _TL("Recent Files"), m_Files  .Create(ID_CMD_DATA_FILE_RECENT_FIRST   ));
+
+	wxMenu *pMenu = new wxMenu;
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
+	m_pMenu->AppendSubMenu(pMenu, _TL("Clipboard"));
+
+	m_pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);
 }
 
@@ -97,49 +97,43 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 {
-	return(	m_Project   .Open(Cmd_ID)
-		||	m_Table     .Open(Cmd_ID)
-		||	m_Shapes    .Open(Cmd_ID)
-		||	m_TIN       .Open(Cmd_ID)
-		||	m_PointCloud.Open(Cmd_ID)
-		||	m_Grid      .Open(Cmd_ID)
-		||	m_Grids     .Open(Cmd_ID)
+	return(	m_Project.Open(Cmd_ID)
+		||  m_Files  .Open(Cmd_ID)
 	);
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxString &FileName)
+void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxString &File)
 {
-	CWKSP_Data_Menu_File	*pMenu	= m_bUpdate ? _Get_Menu(DataType) : NULL;
+	CWKSP_Data_Menu_File *pMenu = m_bUpdate ? _Get_Menu(DataType) : NULL;
 
 	if( pMenu )
 	{
-		pMenu->Add(FileName);
-		pMenu->Update();
+		pMenu->Add(File); pMenu->Update();
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &FileName)
+void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &File)
 {
-	CWKSP_Data_Menu_File	*pMenu	= m_bUpdate ? _Get_Menu(DataType) : NULL;
+	CWKSP_Data_Menu_File *pMenu = m_bUpdate ? _Get_Menu(DataType) : NULL;
 
 	if( pMenu )
 	{
-		pMenu->Del(FileName);
-		pMenu->Update();
+		pMenu->Del(File); pMenu->Update();
 	}
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Menu_Files::Recent_Get(int DataType, wxArrayString &FileNames, bool bAppend)
+bool CWKSP_Data_Menu_Files::Recent_Get(int DataType, wxArrayString &Files, bool bAppend)
 {
-	if( _Get_Menu(DataType) )
-	{
-		return( _Get_Menu(DataType)->Get(FileNames, bAppend) );
-	}
+	return( _Get_Menu(DataType) && _Get_Menu(DataType)->Get(Files, bAppend) );
+}
 
-	return( false );
+//---------------------------------------------------------
+int CWKSP_Data_Menu_Files::Recent_Count(int DataType)
+{
+	return( _Get_Menu(DataType) ? _Get_Menu(DataType)->Count() : 0 );
 }
 
 //---------------------------------------------------------
@@ -147,16 +141,9 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 {
 	switch( DataType )
 	{
-	case SG_DATAOBJECT_TYPE_Undefined : return( &m_Project    );
-	case SG_DATAOBJECT_TYPE_Table     : return( &m_Table      );
-	case SG_DATAOBJECT_TYPE_Shapes    : return( &m_Shapes     );
-	case SG_DATAOBJECT_TYPE_TIN       : return( &m_TIN        );
-	case SG_DATAOBJECT_TYPE_PointCloud: return( &m_PointCloud );
-	case SG_DATAOBJECT_TYPE_Grid      : return( &m_Grid       );
-	case SG_DATAOBJECT_TYPE_Grids     : return( &m_Grids      );
+	case SG_DATAOBJECT_TYPE_Undefined: return( &m_Project );
+	default                          : return( &m_Files   );
 	}
-
-	return( NULL );
 }
 
 

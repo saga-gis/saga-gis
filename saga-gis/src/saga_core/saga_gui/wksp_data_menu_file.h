@@ -74,7 +74,7 @@ public:
 	CWKSP_Data_Menu_File(void);
 	virtual ~CWKSP_Data_Menu_File(void);
 
-	wxMenu *					Create		(TSG_Data_Object_Type DataType);
+	wxMenu *					Create		(int First_ID);
 	void						Destroy		(void);
 
 	void						Update		(void);
@@ -82,23 +82,22 @@ public:
 	void						Add			(const wxString &File);
 	void						Del			(const wxString &File);
 	bool						Get			(wxArrayString &Files, bool bAppend);
+	int							Count		(void);
 
 	bool						Open		(int CmdID);
 
 
 private:
 
-	size_t						m_Offset;
+	size_t						m_Offset = 0;
 	
-	int							m_CmdID[2];
-
-	TSG_Data_Object_Type		m_DataType;
+	int							m_CmdID[2] = { 0, 0 };
 
 	wxString					m_Group;
 
 	wxArrayString				m_Files;
 
-	wxMenu						*m_pMenu;
+	wxMenu						*m_pMenu = NULL;
 
 };
 

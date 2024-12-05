@@ -75,12 +75,13 @@ public:
 
 	wxMenu *						Get_Menu		(void)			{	return( m_pMenu );		}
 
-	void							Set_Update		(bool bUpdate)	{	m_bUpdate	= bUpdate;	}
+	void							Set_Update		(bool bUpdate)	{	m_bUpdate = bUpdate;	}
 
 	bool							Recent_Open		(int Cmd_ID);
-	void							Recent_Add		(int DataType, const wxString &FileName);
-	void							Recent_Del		(int DataType, const wxString &FileName);
-	bool							Recent_Get		(int DataType, wxArrayString &FileNames, bool bAppend);
+	void							Recent_Add		(int DataType, const wxString &File);
+	void							Recent_Del		(int DataType, const wxString &File);
+	bool							Recent_Get		(int DataType, wxArrayString &Files, bool bAppend);
+	int								Recent_Count	(int DataType = SG_DATATYPE_Undefined);
 
 
 private:
@@ -89,7 +90,7 @@ private:
 
 	wxMenu							*m_pMenu;
 
-	CWKSP_Data_Menu_File			m_Project, m_Table, m_Shapes, m_TIN, m_PointCloud, m_Grid, m_Grids;
+	CWKSP_Data_Menu_File			m_Project, m_Files;
 
 
 	CWKSP_Data_Menu_File *			_Get_Menu		(int DataType);

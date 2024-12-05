@@ -713,16 +713,21 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
-	case ID_CMD_WKSP_ITEM_CLOSE:
-		event.Enable(Get_Count() > 0 && g_pTool == NULL);
+	case ID_CMD_WKSP_ITEM_CLOSE     : event.Enable(Get_Count() > 0 && g_pTool == NULL); break;
+
+	case ID_CMD_DATA_PROJECT_SAVE   : event.Enable(Get_Count() > 0 && m_pProject->Has_File_Name() ); break;
+	case ID_CMD_DATA_PROJECT_SAVE_AS: event.Enable(Get_Count() > 0); break;
+	case ID_CMD_DATA_PROJECT_COPY   : event.Enable(g_pData->Get_Count() > 0); break;
+	case ID_CMD_DATA_PROJECT_COPY_DB: event.Enable(g_pData->Get_Count() > 0); break;
+
+	case ID_CMD_DATA_FILE_RECENT    : event.Enable(m_pMenu_Files->Recent_Count() > 0); break;
+
+	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE:
+		if( wxTheClipboard->Open() ) { event.Enable(wxTheClipboard->IsSupported(wxDF_TEXT  )); wxTheClipboard->Close(); } else { event.Enable(false); }
 		break;
 
-	case ID_CMD_DATA_PROJECT_SAVE:
-		event.Enable(Get_Count() > 0 && m_pProject->Has_File_Name() );
-		break;
-
-	case ID_CMD_DATA_PROJECT_SAVE_AS:
-		event.Enable(Get_Count() > 0);
+	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE:
+		if( wxTheClipboard->Open() ) { event.Enable(wxTheClipboard->IsSupported(wxDF_BITMAP)); wxTheClipboard->Close(); } else { event.Enable(false); }
 		break;
 	}
 

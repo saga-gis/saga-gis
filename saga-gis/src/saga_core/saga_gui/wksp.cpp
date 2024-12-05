@@ -295,7 +295,8 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	if(	(event.GetId() >= ID_CMD_TABLE_RECENT_FIRST        && event.GetId() <= ID_CMD_TABLE_RECENT_LAST       )
+	if(	(event.GetId() >= ID_CMD_DATA_FILE_RECENT_FIRST    && event.GetId() <= ID_CMD_DATA_FILE_RECENT_LAST   )
+	||	(event.GetId() >= ID_CMD_TABLE_RECENT_FIRST        && event.GetId() <= ID_CMD_TABLE_RECENT_LAST       )
 	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST      )
 	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST  )
 	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST         )
@@ -333,29 +334,25 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		}
 		break;
 
-	case ID_CMD_TOOL_OPEN:
-		m_pTools->On_Command(event);
-		break;
+	case ID_CMD_TOOL_OPEN                 : m_pTools->On_Command(event); break;
+	case ID_CMD_TOOL_SEARCH               : m_pTools->On_Command(event); break;
 
-	case ID_CMD_TOOL_SEARCH:
-		m_pTools->On_Command(event);
-		break;
-
-	case ID_CMD_DATA_PROJECT_OPEN:
-	case ID_CMD_DATA_PROJECT_OPEN_ADD:
-	case ID_CMD_DATA_PROJECT_NEW:
-	case ID_CMD_DATA_PROJECT_SAVE:
-	case ID_CMD_DATA_PROJECT_SAVE_AS:
-	case ID_CMD_DATA_PROJECT_COPY:
-	case ID_CMD_DATA_PROJECT_COPY_DB:
-	case ID_CMD_DATA_PROJECT_BROWSE:
-	case ID_CMD_TABLE_OPEN:
-	case ID_CMD_SHAPES_OPEN:
-	case ID_CMD_TIN_OPEN:
-	case ID_CMD_POINTCLOUD_OPEN:
-	case ID_CMD_GRID_OPEN:
-		m_pData->On_Command(event);
-		break;
+	case ID_CMD_DATA_PROJECT_OPEN         :
+	case ID_CMD_DATA_PROJECT_OPEN_ADD     :
+	case ID_CMD_DATA_PROJECT_NEW          :
+	case ID_CMD_DATA_PROJECT_SAVE         :
+	case ID_CMD_DATA_PROJECT_SAVE_AS      :
+	case ID_CMD_DATA_PROJECT_COPY         :
+	case ID_CMD_DATA_PROJECT_COPY_DB      :
+	case ID_CMD_DATA_PROJECT_BROWSE       :
+	case ID_CMD_DATA_FILE_RECENT          :
+	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE:
+	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE:
+	case ID_CMD_TABLE_OPEN                :
+	case ID_CMD_SHAPES_OPEN               :
+	case ID_CMD_TIN_OPEN                  :
+	case ID_CMD_POINTCLOUD_OPEN           :
+	case ID_CMD_GRID_OPEN                 : m_pData->On_Command(event); break;
 
 	case ID_CMD_DATA_OPEN:
 		Open();
@@ -399,16 +396,14 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_DATA_OPEN:
 		break;
 
-	case ID_CMD_TOOL_SEARCH:
-		m_pTools->On_Command_UI(event);
-		break;
+	case ID_CMD_TOOL_SEARCH               : m_pTools->On_Command_UI(event); break;
 
-	case ID_CMD_DATA_PROJECT_SAVE:
-	case ID_CMD_DATA_PROJECT_SAVE_AS:
-	case ID_CMD_DATA_PROJECT_COPY:
-	case ID_CMD_DATA_PROJECT_COPY_DB:
-		event.Enable(g_pData->Get_Count() > 0);
-		break;
+	case ID_CMD_DATA_PROJECT_SAVE         :
+	case ID_CMD_DATA_PROJECT_SAVE_AS      :
+	case ID_CMD_DATA_PROJECT_COPY         :
+	case ID_CMD_DATA_PROJECT_COPY_DB      :
+	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE:
+	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE: g_pData->On_Command_UI(event); break;
 	}
 }
 
