@@ -325,15 +325,14 @@ void CData_Source_ODBC::Update_Item(const wxTreeItemId &Item)
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Update_Sources(void)
+bool CData_Source_ODBC::Update_Sources(void)
 {
 	Freeze();
 
 	DeleteChildren(GetRootItem());
 
 	//-----------------------------------------------------
-	bool		bResult;
-	CSG_Table	Servers;
+	bool bResult; CSG_Table Servers;
 
 	RUN_TOOL(9, bResult, SET_PARAMETER("SOURCES", &Servers));
 
@@ -354,13 +353,14 @@ void CData_Source_ODBC::Update_Sources(void)
 	Expand      (GetRootItem());
 
 	Thaw();
+
+	return( bResult );
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Update_Source(const wxString &Server)
+bool CData_Source_ODBC::Update_Source(const wxString &Server)
 {
-	wxTreeItemIdValue	Cookie;
-	wxTreeItemId		Item	= GetFirstChild(GetRootItem(), Cookie);
+	wxTreeItemIdValue Cookie; wxTreeItemId Item = GetFirstChild(GetRootItem(), Cookie);
 
 	while( Item.IsOk() )
 	{
@@ -369,19 +369,21 @@ void CData_Source_ODBC::Update_Source(const wxString &Server)
 			Update_Source(Item);
 		}
 
-		Item	= GetNextChild(GetRootItem(), Cookie);
+		Item = GetNextChild(GetRootItem(), Cookie);
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
+bool CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 {
-	CData_Source_ODBC_Data *pData = Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL ) return;
+	CData_Source_ODBC_Data *pData = Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL ) return( false );
 
 	if( pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_CLOSED
 	&&  pData->Get_Type() != ODBC_ITEM_TYPE_SOURCE_OPENED )
 	{
-		return;
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -389,10 +391,11 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 
 	DeleteChildren(Item);
 
+	bool bResult = true;
+
 	if( is_Connected(pData->Get_Value()) )
 	{
-		bool		bResult;
-		CSG_Table	Tables;
+		CSG_Table Tables;
 
 		RUN_TOOL(10, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
@@ -421,6 +424,8 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 	}
 
 	Thaw();
+
+	return( bResult );
 }
 
 

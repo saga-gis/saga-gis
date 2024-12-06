@@ -84,8 +84,8 @@ class CData_Source_ODBC : public wxTreeCtrl
 public:
 	CData_Source_ODBC(wxWindow *pParent);
 
-	void						Update_Source		(const wxString &Server);
-	void						Update_Sources		(void);
+	bool						Update_Source		(const wxString &Server);
+	bool						Update_Sources		(void);
 
 
 private:
@@ -110,7 +110,7 @@ private:
 	bool						is_Connected		(const CSG_String &Server);
 
 	void						Update_Item			(const wxTreeItemId &Item);
-	void						Update_Source		(const wxTreeItemId &Item);
+	bool						Update_Source		(const wxTreeItemId &Item);
 
 
 //---------------------------------------------------------
