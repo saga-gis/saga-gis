@@ -1121,14 +1121,14 @@ int CVIEW_Table_Control::_Parameter_Callback(CSG_Parameter *pParameter, int Flag
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
 {
-	CSG_String	Fields;
+	CSG_String Fields;
 
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String("|");
+		Fields += m_pTable->Get_Field_Name(i) + CSG_String("|");
 	}
 
-	Fields	+= _TL("<new>") + CSG_String("|");
+	Fields += _TL("<new>") + CSG_String("|");
 
 	//-----------------------------------------------------
 	if( m_Field_Calc.Get_Count() == 0 )
@@ -1150,15 +1150,20 @@ void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
 	//-----------------------------------------------------
 	if( DLG_Parameters(&m_Field_Calc) )
 	{
-		bool	bResult;
+		bool bResult;
 
 		SG_RUN_TOOL(bResult, "table_calculus", 1,	// table field calculator
-				SG_TOOL_PARAMETER_SET("TABLE"    , m_pTable)
-			&&	SG_TOOL_PARAMETER_SET("FIELD"    , m_Field_Calc("FIELD"    )->asInt   ())
-			&&	SG_TOOL_PARAMETER_SET("NAME"     , m_Field_Calc("NAME"     )->asString())
-			&&	SG_TOOL_PARAMETER_SET("SELECTION", m_Field_Calc("SELECTION")->asBool  ())
-			&&	SG_TOOL_PARAMETER_SET("FORMULA"  , m_Field_Calc("FORMULA"  )->asString())
+			    SG_TOOL_PARAMETER_SET("TABLE"    , m_pTable)
+			&&  SG_TOOL_PARAMETER_SET("FIELD"    , m_Field_Calc("FIELD"    )->asInt   ())
+			&&  SG_TOOL_PARAMETER_SET("NAME"     , m_Field_Calc("NAME"     )->asString())
+			&&  SG_TOOL_PARAMETER_SET("SELECTION", m_Field_Calc("SELECTION")->asBool  ())
+			&&  SG_TOOL_PARAMETER_SET("FORMULA"  , m_Field_Calc("FORMULA"  )->asString())
 		);
+
+		if( !bResult )
+		{
+			SG_UI_Msg_Add_Execution(_TL("field calculation failed"));
+		}
 	}
 }
 
