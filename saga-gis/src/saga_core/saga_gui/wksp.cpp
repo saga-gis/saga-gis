@@ -78,9 +78,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -93,9 +93,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -110,9 +110,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,9 +120,9 @@ CWKSP *g_pWKSP = NULL;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -133,9 +133,9 @@ END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -244,12 +244,12 @@ CWKSP::~CWKSP(void)
 		CONFIG_Write("/MAPS/BUTTONS", "TAB", (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
 	}
 
-	g_pWKSP	= NULL;
+	g_pWKSP = NULL;
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -265,19 +265,19 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 
 	if( event.GetSelection() >= 0 && g_pActive )
 	{
-		CWKSP_Base_Item	*pItem	= NULL;
+		CWKSP_Base_Item *pItem = NULL;
 
 		if( GetPage(event.GetSelection()) == m_pTools )
 		{
-			pItem	= m_pTools->Get_Item_Selected();
+			pItem = m_pTools->Get_Item_Selected();
 		}
 		else if( GetPage(event.GetSelection()) == m_pData->GetParent() )
 		{
-			pItem	= m_pData->Get_Item_Selected();
+			pItem = m_pData->Get_Item_Selected();
 		}
 		else if( GetPage(event.GetSelection()) == m_pMaps->GetParent() )
 		{
-			pItem	= m_pMaps->Get_Item_Selected();
+			pItem = m_pMaps->Get_Item_Selected();
 		}
 
 		if( pItem )
@@ -289,19 +289,14 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	if(	(event.GetId() >= ID_CMD_DATA_FILE_RECENT_FIRST    && event.GetId() <= ID_CMD_DATA_FILE_RECENT_LAST   )
-	||	(event.GetId() >= ID_CMD_TABLE_RECENT_FIRST        && event.GetId() <= ID_CMD_TABLE_RECENT_LAST       )
-	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST      )
-	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST  )
-	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST         )
-	||	(event.GetId() >= ID_CMD_GRID_RECENT_FIRST         && event.GetId() <= ID_CMD_GRID_RECENT_LAST        )
-	||	(event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
+	if( (event.GetId() >= ID_CMD_DATA_FILE_RECENT_FIRST    && event.GetId() <= ID_CMD_DATA_FILE_RECENT_LAST   )
+	||  (event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
 	{
 		m_pData->On_Command(event);
 	}
@@ -314,9 +309,9 @@ void CWKSP::On_Command(wxCommandEvent &event)
 			{
 				switch( GetCurrentPage()->GetId() )
 				{
-				case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event);	break;
-				case ID_WND_WKSP_DATA :	m_pData ->On_Command(event);	break;
-				case ID_WND_WKSP_MAPS :	m_pMaps ->On_Command(event);	break;
+				case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event); break;
+				case ID_WND_WKSP_DATA :	m_pData ->On_Command(event); break;
+				case ID_WND_WKSP_MAPS :	m_pMaps ->On_Command(event); break;
 				}
 			}
 		}
@@ -327,15 +322,16 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		{
 			switch( GetCurrentPage()->GetId() )
 			{
-			case ID_WND_WKSP_TOOLS: m_pTools->On_Command(event);	break;
-			case ID_WND_WKSP_DATA : m_pData ->On_Command(event);	break;
-			case ID_WND_WKSP_MAPS : m_pMaps ->On_Command(event);	break;
+			case ID_WND_WKSP_TOOLS: m_pTools->On_Command(event); break;
+			case ID_WND_WKSP_DATA : m_pData ->On_Command(event); break;
+			case ID_WND_WKSP_MAPS : m_pMaps ->On_Command(event); break;
 			}
 		}
 		break;
 
-	case ID_CMD_TOOL_OPEN                 : m_pTools->On_Command(event); break;
-	case ID_CMD_TOOL_SEARCH               : m_pTools->On_Command(event); break;
+	case ID_CMD_DATA_OPEN:
+		Open();
+		break;
 
 	case ID_CMD_DATA_PROJECT_OPEN         :
 	case ID_CMD_DATA_PROJECT_OPEN_ADD     :
@@ -353,10 +349,6 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	case ID_CMD_TIN_OPEN                  :
 	case ID_CMD_POINTCLOUD_OPEN           :
 	case ID_CMD_GRID_OPEN                 : m_pData->On_Command(event); break;
-
-	case ID_CMD_DATA_OPEN:
-		Open();
-		break;
 	}
 }
 
@@ -376,8 +368,8 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_DATA_PROJECT_NEW:
 		event.Enable(g_pTool == NULL && (
-			m_pData->Get_Manager()->Get_Count() > 0 ||
-			m_pMaps->Get_Manager()->Get_Count() > 0
+			((CWKSP_Data_Control *)m_pData)->Get_Manager()->Get_Count() > 0 ||
+			((CWKSP_Map_Control  *)m_pMaps)->Get_Manager()->Get_Count() > 0
 		));
 		break;
 
@@ -396,8 +388,6 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_DATA_OPEN:
 		break;
 
-	case ID_CMD_TOOL_SEARCH               : m_pTools->On_Command_UI(event); break;
-
 	case ID_CMD_DATA_PROJECT_SAVE         :
 	case ID_CMD_DATA_PROJECT_SAVE_AS      :
 	case ID_CMD_DATA_PROJECT_COPY         :
@@ -407,26 +397,15 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	}
 }
 
-//---------------------------------------------------------
-void CWKSP::On_Command_Tool(wxCommandEvent &event)
-{
-	m_pTools->On_Execute(event);
-}
-
-void CWKSP::On_Command_UI_Tool(wxUpdateUIEvent &event)
-{
-	m_pTools->On_Execute_UI(event);
-}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWKSP::Open(void)
 {
-	wxArrayString	Files;
+	wxArrayString Files;
 
 	if( DLG_Open(Files, ID_DLG_FILE_OPEN) )
 	{
@@ -446,16 +425,16 @@ bool CWKSP::Open(void)
 //---------------------------------------------------------
 bool CWKSP::Open(const wxString &File)
 {
-	return(	m_pData ->Get_Manager()->Open(File)
-		||  m_pTools->Get_Manager()->Open(File)
+	return(	((CWKSP_Data_Control *)m_pData )->Get_Manager()->Open(File)
+		||  ((CWKSP_Tool_Control *)m_pTools)->Get_Manager()->Open(File)
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -76,14 +76,14 @@
 #include "info.h"
 #include "data_source.h"
 #include "active.h"
-#include "wksp.h"
 
+#include "wksp.h"
+#include "wksp_base_control.h"
 #include "wksp_tool_manager.h"
 #include "wksp_tool.h"
-
+#include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
-
 #include "wksp_map_manager.h"
 
 #include "view_map.h"
@@ -234,8 +234,10 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 
 	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_TOOL_MENU_FIRST, ID_CMD_TOOL_MENU_LAST, CSAGA_Frame::On_Command_Tool)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_MENU_FIRST, ID_CMD_TOOL_MENU_LAST, CSAGA_Frame::On_Command_Tool_UI)
+	EVT_MENU_RANGE		(ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data_UI)
+	EVT_MENU_RANGE		(ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool_UI)
 
 	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST    , ID_CMD_CHILD_LAST    , CSAGA_Frame::On_Command_Child)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST      , ID_CMD_MAP_LAST      , CSAGA_Frame::On_Command_Child_UI)
@@ -834,14 +836,25 @@ void CSAGA_Frame::On_Command_Workspace_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
+void CSAGA_Frame::On_Command_Data(wxCommandEvent &event)
+{
+	m_pWKSP->Get_Data ()->On_Command(event);
+}
+
+void CSAGA_Frame::On_Command_Data_UI(wxUpdateUIEvent &event)
+{
+	m_pWKSP->Get_Data ()->On_Command_UI(event);
+}
+
+//---------------------------------------------------------
 void CSAGA_Frame::On_Command_Tool(wxCommandEvent &event)
 {
-	m_pWKSP->On_Command_Tool(event);
+	m_pWKSP->Get_Tools()->On_Command(event);
 }
 
 void CSAGA_Frame::On_Command_Tool_UI(wxUpdateUIEvent &event)
 {
-	m_pWKSP->On_Command_UI_Tool(event);
+	m_pWKSP->Get_Tools()->On_Command_UI(event);
 }
 
 //---------------------------------------------------------

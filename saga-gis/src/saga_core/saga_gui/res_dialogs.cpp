@@ -254,7 +254,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			"%s (*.sgrd, *.sg-grd-z)|*.sgrd;*.sg-grd;*.sg-grd-z;*.dgm;*.grd|"
 			"%s (*.sg-gds, *.sg-gds-z)|*.sg-gds;*.sg-gds-z|"
 			"%s (*.shp)|*.shp|"
-			"%s (*.spc, *.sg-pts, *.sg-pts-z)|*.spc;*.sg-pts;*.sg-pts-z|"
+			"%s (*.sg-pts, *.sg-pts-z)|*.sg-pts;*.sg-pts-z;*.spc|"
 			"%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|"
 			"%s|*.*",
 			_TL("Recognized Files"), Recognized.c_str(),
@@ -483,7 +483,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	//-----------------------------------------------------
 	case ID_DLG_POINTCLOUD_OPEN:
 		return( wxString::Format(
-			"%s (*.spc, *.sg-pts, *.sg-pts-z)|*.spc;*.sg-pts;*.sg-pts-z|"
+			"%s (*.sg-pts, *.sg-pts-z)|*.sg-pts;*.sg-pts-z;*.spc|"
 			"%s|*.*",
 			_TL("SAGA Point Clouds"),
 			_TL("All Files")
@@ -492,7 +492,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	case ID_DLG_POINTCLOUD_SAVE:
 		return( wxString::Format(
 			"%s (*.sg-pts-z)|*.sg-pts-z|"
-			"%s (*.sg-pts, *.spc)|*.sg-pts;*.spc|"
+			"%s (*.sg-pts)|*.sg-pts|"
 			"%s|*.*",
 			_TL("SAGA Compressed Point Clouds"),
 			_TL("SAGA Uncompressed Point Clouds"),

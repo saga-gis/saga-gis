@@ -83,23 +83,23 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 enum
 {
-	IMG_NO_ITEMS	= 0,
+	IMG_NO_ITEMS = 0,
 	IMG_ROOT
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -128,16 +128,16 @@ END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 	: wxTreeCtrl(pParent, id, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
-	m_pManager	= NULL;
+	m_pManager = NULL;
 
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
 
@@ -150,7 +150,7 @@ CWKSP_Base_Control::~CWKSP_Base_Control(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -158,7 +158,7 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 {
 	if( m_pManager == NULL )
 	{
-		m_pManager	= pManager;
+		m_pManager = pManager;
 
 		AddRoot   (m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
 		AppendItem(m_pManager->GetId(), _TL("<no items>"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
@@ -172,7 +172,7 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -180,11 +180,11 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_WKSP_ITEM_CLOSE:
+	case ID_CMD_WKSP_ITEM_CLOSE :
 		_Del_Active(false);
 		break;
 
-	case ID_CMD_WKSP_ITEM_SHOW:
+	case ID_CMD_WKSP_ITEM_SHOW  :
 		_Show_Active();
 		break;
 
@@ -196,7 +196,7 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	default:
 		if( !m_pManager->On_Command(event.GetId()) )
 		{
-			CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+			CWKSP_Base_Item *pItem = Get_Item_Selected();
 
 			if( pItem )
 			{
@@ -211,7 +211,7 @@ void CWKSP_Base_Control::On_Command_UI(wxUpdateUIEvent &event)
 {
 	if( !m_pManager->On_Command_UI(event) )
 	{
-		CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+		CWKSP_Base_Item *pItem = Get_Item_Selected();
 
 		if( pItem )
 		{
@@ -222,7 +222,7 @@ void CWKSP_Base_Control::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -258,7 +258,6 @@ bool CWKSP_Base_Control::Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 {
-	//-----------------------------------------------------
 	if( pItem == NULL || pItem->GetId().IsOk() == false || pItem->Get_Control() != this )
 	{
 		return( false );
@@ -334,7 +333,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 	//-----------------------------------------------------
 	else
 	{
-		CWKSP_Base_Manager	*pItem_Manager	= pItem->Get_Manager();
+		CWKSP_Base_Manager *pItem_Manager = pItem->Get_Manager();
 
 		Freeze();
 
@@ -404,7 +403,7 @@ bool CWKSP_Base_Control::_Del_Item_Confirm(CWKSP_Base_Item *pItem)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -416,7 +415,7 @@ int CWKSP_Base_Control::Get_Selection_Count(void)
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(bool bUpdate)
 {
-	wxTreeItemId	ID	= GetSelection();
+	wxTreeItemId ID = GetSelection();
 
 	return( ID.IsOk() ? (CWKSP_Base_Item *)GetItemData(ID) : NULL );
 }
@@ -436,20 +435,30 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxMenu * CWKSP_Base_Control::Get_Menu(void)
 {
-	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+	CWKSP_Base_Item *pItem = Get_Item_Selected();
 
-	return( pItem ? pItem->Get_Menu() : NULL );
+	if( pItem )
+	{
+		return( pItem->Get_Menu() );
+	}
+
+	if( Get_Selection_Count() > 1 )
+	{
+		return( m_pManager->Get_Menu() );
+	}
+
+	return( NULL );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -460,7 +469,7 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 		return( false );
 	}
 
-	wxTreeItemId	ID	= GetSelection();
+	wxTreeItemId ID = GetSelection();
 
 	if( ID.IsOk() )
 	{
@@ -473,11 +482,11 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Show_Active(void)
 {
-	wxArrayTreeItemIds	IDs;
+	wxArrayTreeItemIds IDs;
 
 	if( (GetWindowStyle() & wxTR_MULTIPLE) != 0 && GetSelections(IDs) > 0 && ((CWKSP_Base_Item *)GetItemData(IDs[0]))->Get_Control() == this )
 	{
-		int	iMap = 0;
+		int iMap = 0;
 
 		for(size_t iItem=0; iItem<IDs.GetCount(); iItem++)
 		{
@@ -540,7 +549,7 @@ bool CWKSP_Base_Control::_Show_Active(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -674,7 +683,7 @@ bool CWKSP_Base_Control::_Search_Item(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -688,7 +697,7 @@ void CWKSP_Base_Control::On_Item_LClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
 {
-	CWKSP_Base_Item	*pItem;
+	CWKSP_Base_Item *pItem;
 
 	if( (pItem = Get_Item_Selected()) != NULL )
 	{
@@ -709,7 +718,7 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 		g_pActive->Set_Active(Get_Item_Selected());
 	}
 
-	wxMenu	*pMenu	= Get_Menu();
+	wxMenu *pMenu = Get_Menu();
 
 	if( pMenu )
 	{
@@ -754,7 +763,7 @@ void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
 	if( g_pActive )
 	{
-		CWKSP_Base_Item	*pItem	= Get_Item_Selected(true);
+		CWKSP_Base_Item *pItem = Get_Item_Selected(true);
 
 		if( pItem )
 		{
@@ -773,9 +782,9 @@ void CWKSP_Base_Control::On_Item_Delete(wxTreeEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

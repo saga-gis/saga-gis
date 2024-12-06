@@ -59,9 +59,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -70,17 +70,24 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	m_bUpdate = true;
 	m_pMenu   = new wxMenu;
 
+	wxMenu *pOpen_File = new wxMenu;
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_TABLE_OPEN);
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_SHAPES_OPEN);
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_POINTCLOUD_OPEN);
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_TIN_OPEN);
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_GRID_OPEN);
+	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_GRIDS_OPEN);
+
+	wxMenu *pClipboard = new wxMenu;
+	CMD_Menu_Add_Item(pClipboard, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
+	CMD_Menu_Add_Item(pClipboard, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
+
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
 	m_pMenu->AppendSeparator();
-
 	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"     ), m_Project.Create(ID_CMD_DATA_PROJECT_RECENT_FIRST));
+	m_pMenu->AppendSubMenu(pOpen_File      , _TL("Open File"   ));
 	m_pMenu->Append(ID_CMD_DATA_FILE_RECENT, _TL("Recent Files"), m_Files  .Create(ID_CMD_DATA_FILE_RECENT_FIRST   ));
-
-	wxMenu *pMenu = new wxMenu;
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
-	m_pMenu->AppendSubMenu(pMenu, _TL("Clipboard"));
-
+	m_pMenu->AppendSubMenu(pClipboard      , _TL("Clipboard"   ));
 	m_pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);
 }
@@ -91,7 +98,7 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -148,9 +155,9 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

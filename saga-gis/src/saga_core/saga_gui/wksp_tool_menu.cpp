@@ -61,15 +61,15 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CWKSP_Tool_Menu::CWKSP_Tool_Menu(void)
 {
-	m_Recent = (CWKSP_Tool **)SG_Calloc(RECENT_COUNT, sizeof(CWKSP_Tool *));
+	m_Recent = (CWKSP_Tool **)SG_Calloc(MAX_COUNT_RECENT_TOOLS, sizeof(CWKSP_Tool *));
 
 	m_pMenu  = new wxMenu;
 }
@@ -82,7 +82,7 @@ CWKSP_Tool_Menu::~CWKSP_Tool_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -108,7 +108,7 @@ void CWKSP_Tool_Menu::Update(void)
 	//-----------------------------------------------------
 	if( g_pTools->Get_Count() > 0 )
 	{
-		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_MENU_START; iGroup<g_pTools->Get_Count(); iGroup++)
+		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_MENU_FIRST; iGroup<g_pTools->Get_Count(); iGroup++)
 		{
 			for(int iLibrary=0; iLibrary<g_pTools->Get_Group(iGroup)->Get_Count(); iLibrary++)
 			{
@@ -269,7 +269,7 @@ wxMenu * CWKSP_Tool_Menu::_Get_SubMenu(wxMenu *pMenu, const wxString &Name)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -277,7 +277,7 @@ void CWKSP_Tool_Menu::Set_Recent(CWKSP_Tool *pTool)
 {
 	CWKSP_Tool *pLast = pTool, *pNext = m_Recent[0];
 
-	for(int i=0; i<RECENT_COUNT && pNext!=pTool; i++)
+	for(int i=0; i<MAX_COUNT_RECENT_TOOLS && pNext!=pTool; i++)
 	{
 		pNext = m_Recent[i]; m_Recent[i] = pLast; pLast = pNext;
 	}
@@ -290,7 +290,7 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 {
 	bool bRecent = false;
 
-	for(int i=0, j=ID_CMD_TOOL_MENU_RECENT_FIRST; i<RECENT_COUNT; i++, j++)
+	for(int i=0, j=ID_CMD_TOOL_RECENT_FIRST; i<MAX_COUNT_RECENT_TOOLS; i++, j++)
 	{
 		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
 		{
@@ -312,7 +312,7 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 	//-----------------------------------------------------
 	int i = 0;
 
-	for(int j=0; j<RECENT_COUNT; j++)
+	for(int j=0; j<MAX_COUNT_RECENT_TOOLS; j++)
 	{
 		if( m_Recent[j] )
 		{
@@ -320,7 +320,7 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 		}
 	}
 
-	for(; i<RECENT_COUNT; i++)
+	for(; i<MAX_COUNT_RECENT_TOOLS; i++)
 	{
 		m_Recent[i] = NULL;
 	}
@@ -329,9 +329,9 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 //---------------------------------------------------------
 int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 {
-	int i = ID - ID_CMD_TOOL_MENU_RECENT_FIRST;
+	int i = ID - ID_CMD_TOOL_RECENT_FIRST;
 
-	if( i >= 0 && i < RECENT_COUNT && m_Recent[i] != NULL )
+	if( i >= 0 && i < MAX_COUNT_RECENT_TOOLS && m_Recent[i] != NULL )
 	{
 		return( m_Recent[i]->Get_Menu_ID() );
 	}
@@ -341,9 +341,9 @@ int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -174,12 +174,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_SETTINGS_LOAD        : return( _TL("Load Settings") );
 	case ID_CMD_DATA_SETTINGS_COPY        : return( _TL("Copy Settings") );
 
-	case ID_CMD_GRID_OPEN                 :
-	case ID_CMD_GRIDS_OPEN                :
-	case ID_CMD_SHAPES_OPEN               :
-	case ID_CMD_TABLE_OPEN                :
-	case ID_CMD_TIN_OPEN                  :
-	case ID_CMD_POINTCLOUD_OPEN           :	return( _TL("Load") );
+	case ID_CMD_GRID_OPEN                 :	return( _TL("Grid") );
+	case ID_CMD_GRIDS_OPEN                :	return( _TL("Grid Collection") );
+	case ID_CMD_SHAPES_OPEN               :	return( _TL("Shapes") );
+	case ID_CMD_TABLE_OPEN                :	return( _TL("Table") );
+	case ID_CMD_TIN_OPEN                  :	return( _TL("TIN") );
+	case ID_CMD_POINTCLOUD_OPEN           :	return( _TL("Point Cloud") );
 
 	case ID_CMD_GRID_SHOW                 :
 	case ID_CMD_GRIDS_SHOW                :
@@ -216,7 +216,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_FIT_PCTL            :	return( _TL("Histogram Stretch to Percentile") );
 	case ID_CMD_GRIDS_FIT_DIALOG          :	return( _TL("Histogram Stretch Dialog") );
 
-	case ID_CMD_SHAPES_SAVE_ATTRIBUTES    : return( _TL("Save Attributes as...") );
+	case ID_CMD_SHAPES_SAVE_ATTRIBUTES    : return( _TL("Save as...") );
 	case ID_CMD_SHAPES_EDIT_SHAPE         : return( _TL("Edit Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_CLEAR     : return( _TL("Clear Selection") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT    : return( _TL("Invert Selection") );
@@ -260,31 +260,32 @@ wxString CMD_Get_Name(int Cmd_ID)
 	//-----------------------------------------------------
 	// Views...
 
-	case ID_CMD_MAP_CLOSE:						return( _TL("Close") );
-	case ID_CMD_MAP_TOOLBAR:					return( _TL("Show Toolbar") );
-	case ID_CMD_MAP_3D_SHOW:					return( CMD_Get_Name(ID_CMD_MAPS_3D_SHOW) );
-	case ID_CMD_MAP_LAYOUT_SHOW:				return( CMD_Get_Name(ID_CMD_MAPS_LAYOUT_SHOW) );
-	case ID_CMD_MAP_SCALEBAR:					return( CMD_Get_Name(ID_CMD_MAPS_SCALEBAR) );
-	case ID_CMD_MAP_GRATICULE_ADD:				return( CMD_Get_Name(ID_CMD_MAPS_GRATICULE_ADD) );
-	case ID_CMD_MAP_BASEMAP_ADD:				return( CMD_Get_Name(ID_CMD_MAPS_BASEMAP_ADD) );
-	case ID_CMD_MAP_SAVE_IMAGE:					return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE) );
-	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:		return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE) );
-	case ID_CMD_MAP_SYNCHRONIZE:				return( CMD_Get_Name(ID_CMD_MAPS_SYNCHRONIZE) );
-	case ID_CMD_MAP_NORTH_ARROW:				return( _TL("North Arrow") );
-	case ID_CMD_MAP_LEGEND_VERTICAL:			return( _TL("Show Vertical Legend") );
-	case ID_CMD_MAP_LEGEND_HORIZONTAL:			return( _TL("Show Horizontal Legend") );
-	case ID_CMD_MAP_MODE_ZOOM:					return( _TL("Zoom") );
-	case ID_CMD_MAP_MODE_PAN:					return( _TL("Pan") );
-	case ID_CMD_MAP_MODE_SELECT:				return( _TL("Interact") );
-	case ID_CMD_MAP_MODE_DISTANCE:				return( _TL("Measure") );
-	case ID_CMD_MAP_ZOOM_FULL:					return( _TL("Zoom To Full Extent") );
-	case ID_CMD_MAP_ZOOM_BACK:					return( _TL("Zoom To Previous Extent") );
-	case ID_CMD_MAP_ZOOM_FORWARD:				return( _TL("Zoom To Next Extent") );
-	case ID_CMD_MAP_ZOOM_ACTIVE:				return( _TL("Zoom To Active Layer") );
-	case ID_CMD_MAP_PAN_ACTIVE:					return( _TL("Pan To Active Layer") );
-	case ID_CMD_MAP_ZOOM_SELECTION:				return( _TL("Zoom To Selection") );
-	case ID_CMD_MAP_ZOOM_EXTENT:				return( _TL("Zoom To Extent") );
-	case ID_CMD_MAP_CROSSHAIR:					return( _TL("Cross Hair") );
+	case ID_CMD_MAP_CLOSE               : return( _TL("Close") );
+	case ID_CMD_MAP_TOOLBAR             : return( _TL("Show Toolbar") );
+	case ID_CMD_MAP_3D_SHOW             : return( CMD_Get_Name(ID_CMD_MAPS_3D_SHOW) );
+	case ID_CMD_MAP_LAYOUT_SHOW         : return( CMD_Get_Name(ID_CMD_MAPS_LAYOUT_SHOW) );
+	case ID_CMD_MAP_SCALEBAR            : return( CMD_Get_Name(ID_CMD_MAPS_SCALEBAR) );
+	case ID_CMD_MAP_GRATICULE_ADD       : return( CMD_Get_Name(ID_CMD_MAPS_GRATICULE_ADD) );
+	case ID_CMD_MAP_BASEMAP_ADD         : return( CMD_Get_Name(ID_CMD_MAPS_BASEMAP_ADD) );
+	case ID_CMD_MAP_SAVE_IMAGE          : return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE) );
+	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE: return( CMD_Get_Name(ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE) );
+	case ID_CMD_MAP_SYNCHRONIZE         : return( CMD_Get_Name(ID_CMD_MAPS_SYNCHRONIZE) );
+	case ID_CMD_MAP_NORTH_ARROW         : return( _TL("North Arrow") );
+	case ID_CMD_MAP_LEGEND_VERTICAL     : return( _TL("Show Vertical Legend") );
+	case ID_CMD_MAP_LEGEND_HORIZONTAL   : return( _TL("Show Horizontal Legend") );
+	case ID_CMD_MAP_MODE_ZOOM           : return( _TL("Zoom") );
+	case ID_CMD_MAP_MODE_PAN            : return( _TL("Pan") );
+	case ID_CMD_MAP_MODE_SELECT         : return( _TL("Interact") );
+	case ID_CMD_MAP_MODE_DISTANCE       : return( _TL("Measure") );
+	case ID_CMD_MAP_ZOOM_FULL           : return( _TL("Zoom To Full Extent") );
+	case ID_CMD_MAP_ZOOM_BACK           : return( _TL("Zoom To Previous Extent") );
+	case ID_CMD_MAP_ZOOM_FORWARD        : return( _TL("Zoom To Next Extent") );
+	case ID_CMD_MAP_ZOOM_ACTIVE         : return( _TL("Zoom To Layer") );
+	case ID_CMD_MAP_ZOOM_SELECTION      : return( _TL("Zoom To Selection") );
+	case ID_CMD_MAP_ZOOM_EXTENT         : return( _TL("Zoom To Extent") );
+	case ID_CMD_MAP_PAN_ACTIVE          : return( _TL("Pan To Layer") );
+	case ID_CMD_MAP_PAN_SELECTION       : return( _TL("Pan To Selection") );
+	case ID_CMD_MAP_CROSSHAIR           : return( _TL("Cross Hair") );
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_MAP3D_USAGE:			return( _TL("Usage") );
@@ -351,32 +352,35 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_LAYOUT_IMAGE_SAVE:		return( _TL("Save") );
 	case ID_CMD_LAYOUT_IMAGE_RESTORE:	return( _TL("Restore") );
 
-	case ID_CMD_TABLE_FIELD_ADD:		return( _TL("Add Field") );
-	case ID_CMD_TABLE_FIELD_MOVE:		return( _TL("Move Field") );
-	case ID_CMD_TABLE_FIELD_DEL:		return( _TL("Delete Fields") );
-	case ID_CMD_TABLE_FIELD_HIDE:		return( _TL("Hide Fields") );
-	case ID_CMD_TABLE_FIELD_SORT:		return( _TL("Sort Fields") );
-	case ID_CMD_TABLE_FIELD_RENAME:		return( _TL("Rename Fields") );
-	case ID_CMD_TABLE_FIELD_TYPE:		return( _TL("Change Field Type") );
-	case ID_CMD_TABLE_FIELD_CALC:		return( _TL("Field Calculator") );
-	case ID_CMD_TABLE_FIELD_OPEN_APP:	return( _TL("Open with external application") );
-	case ID_CMD_TABLE_FIELD_OPEN_DATA:	return( _TL("Open as data set") );
-	case ID_CMD_TABLE_RECORD_ADD:		return( _TL("Add Record") );
-	case ID_CMD_TABLE_RECORD_INS:		return( _TL("Insert Record") );
-	case ID_CMD_TABLE_RECORD_DEL:		return( _TL("Delete Selection") );
-	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( _TL("Delete All Records") );
-	case ID_CMD_TABLE_SELECTION_CLEAR:	return( _TL("Clear Selection") );
-	case ID_CMD_TABLE_SELECTION_ONLY:	return( _TL("Show Selection") );
-	case ID_CMD_TABLE_AUTOSIZE_COLS:	return( _TL("Fit Column Sizes") );
-	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( _TL("Fit Row Sizes") );
-	case ID_CMD_TABLE_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
+	case ID_CMD_TABLE_FIELD_ADD       : return( _TL("Add Field") );
+	case ID_CMD_TABLE_FIELD_MOVE      : return( _TL("Move Field") );
+	case ID_CMD_TABLE_FIELD_DEL       : return( _TL("Delete Fields") );
+	case ID_CMD_TABLE_FIELD_HIDE      : return( _TL("Hide Fields") );
+	case ID_CMD_TABLE_FIELD_SORT      : return( _TL("Sort Fields") );
+	case ID_CMD_TABLE_FIELD_RENAME    : return( _TL("Rename Fields") );
+	case ID_CMD_TABLE_FIELD_TYPE      : return( _TL("Change Field Type") );
+	case ID_CMD_TABLE_FIELD_CALC      : return( _TL("Field Calculator") );
+	case ID_CMD_TABLE_FIELD_OPEN_APP  : return( _TL("Open with external application") );
+	case ID_CMD_TABLE_FIELD_OPEN_DATA : return( _TL("Open as data set") );
+	case ID_CMD_TABLE_RECORD_ADD      : return( _TL("Add Record") );
+	case ID_CMD_TABLE_RECORD_INS      : return( _TL("Insert Record") );
+	case ID_CMD_TABLE_RECORD_DEL      : return( _TL("Delete Selection") );
+	case ID_CMD_TABLE_RECORD_DEL_ALL  : return( _TL("Delete All Records") );
+	case ID_CMD_TABLE_SELECTION_ONLY  : return( _TL("Show Selection") );
+	case ID_CMD_TABLE_SELECTION_CLEAR : return( _TL("Clear Selection") );
+	case ID_CMD_TABLE_SELECTION_INVERT: return( _TL("Invert Selection") );
+	case ID_CMD_TABLE_SELECT_NUMERIC  : return( _TL("Select Attributes... (Numerical Expression)") );
+	case ID_CMD_TABLE_SELECT_STRING   : return( _TL("Select Attributes... (String Expression)") );
+	case ID_CMD_TABLE_AUTOSIZE_COLS   : return( _TL("Fit Column Sizes") );
+	case ID_CMD_TABLE_AUTOSIZE_ROWS   : return( _TL("Fit Row Sizes") );
+	case ID_CMD_TABLE_TO_CLIPBOARD    : return( _TL("Copy to Clipboard") );
 
-	case ID_CMD_DIAGRAM_PARAMETERS:		return( _TL("Properties") );
-	case ID_CMD_DIAGRAM_SIZE_FIT:		return( _TL("Fit Size") );
-	case ID_CMD_DIAGRAM_SIZE_INC:		return( _TL("Zoom In [PgDn]") );
-	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Zoom Out [PgUp]") );
-	case ID_CMD_DIAGRAM_LEGEND:			return( _TL("Legend") );
-	case ID_CMD_DIAGRAM_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
+	case ID_CMD_DIAGRAM_PARAMETERS    : return( _TL("Properties") );
+	case ID_CMD_DIAGRAM_SIZE_FIT      : return( _TL("Fit Size") );
+	case ID_CMD_DIAGRAM_SIZE_INC      : return( _TL("Zoom In [PgDn]") );
+	case ID_CMD_DIAGRAM_SIZE_DEC      : return( _TL("Zoom Out [PgUp]") );
+	case ID_CMD_DIAGRAM_LEGEND        : return( _TL("Legend") );
+	case ID_CMD_DIAGRAM_TO_CLIPBOARD  : return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_SCATTERPLOT_UPDATE:			return( _TL("Update Data") );

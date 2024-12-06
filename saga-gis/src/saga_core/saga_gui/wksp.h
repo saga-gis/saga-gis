@@ -85,12 +85,10 @@ public:
 
 	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
-	void							On_Command_Tool			(wxCommandEvent  &event);
-	void							On_Command_UI_Tool		(wxUpdateUIEvent &event);
 
-	class CWKSP_Tool_Control *		Get_Tools				(void) { return( m_pTools ); }
-	class CWKSP_Data_Control *		Get_Data				(void) { return( m_pData  ); }
-	class CWKSP_Map_Control *		Get_Maps				(void) { return( m_pMaps  ); }
+	class CWKSP_Base_Control *		Get_Tools				(void) { return( m_pTools ); }
+	class CWKSP_Base_Control *		Get_Data				(void) { return( m_pData  ); }
+	class CWKSP_Base_Control *		Get_Maps				(void) { return( m_pMaps  ); }
 
 	bool							Open					(void);
 	bool							Open					(const wxString &File_Name);
@@ -98,13 +96,9 @@ public:
 
 private:
 
-	class CWKSP_Tool_Control		*m_pTools;
-
-	class CWKSP_Data_Control		*m_pData;
+	class CWKSP_Base_Control		*m_pTools, *m_pData, *m_pMaps;
 
 	class CWKSP_Data_Buttons		*m_pData_Buttons;
-
-	class CWKSP_Map_Control			*m_pMaps;
 
 	class CWKSP_Map_Buttons			*m_pMaps_Buttons;
 

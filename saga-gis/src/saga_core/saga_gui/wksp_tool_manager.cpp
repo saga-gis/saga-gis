@@ -72,9 +72,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -82,7 +82,7 @@ CWKSP_Tool_Manager *g_pTools = NULL;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -209,7 +209,7 @@ CWKSP_Tool_Manager::~CWKSP_Tool_Manager(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -361,13 +361,12 @@ bool CWKSP_Tool_Manager::Finalise(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CWKSP_Tool_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
 		if( g_pSAGA_Frame && g_pData )
@@ -422,7 +421,7 @@ bool CWKSP_Tool_Manager::Do_Beep(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -440,7 +439,7 @@ wxString CWKSP_Tool_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Tool_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_OPEN);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
@@ -459,18 +458,30 @@ wxMenu * CWKSP_Tool_Manager::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 {
+	if( Cmd_ID >= ID_CMD_TOOL_RECENT_FIRST && Cmd_ID <= ID_CMD_TOOL_RECENT_LAST )
+	{
+		Cmd_ID = m_pMenu_Tools->Get_ID_Translated(Cmd_ID);
+	}
+
+	if( Cmd_ID >= ID_CMD_TOOL_MENU_FIRST && Cmd_ID <= ID_CMD_TOOL_MENU_LAST )
+	{
+		CWKSP_Tool *pTool = Get_Tool_byID(Cmd_ID);
+
+		return( pTool ? pTool->Execute(true) : false );
+	}
+
+	//-----------------------------------------------------
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+	default: return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
-	case ID_CMD_TOOL_OPEN:
+	case ID_CMD_TOOL_OPEN  :
 		Open();
 		break;
 
@@ -491,11 +502,11 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_TOOL_SAVE_DOCS:
 		{
-			wxString	Path;
+			wxString Path;
 
 			if( DLG_Directory(Path, _TL("Create Tool Description Files")) )
 			{
-				MSG_General_Add(wxString::Format(SG_T("%s..."), _TL("Create Tool Description Files")), true, true);
+				MSG_General_Add(wxString::Format("%s...", _TL("Create Tool Description Files")), true, true);
 
 				SG_Get_Tool_Library_Manager().Get_Summary(&Path);
 
@@ -511,58 +522,40 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 {
-	switch( event.GetId() )
+	if( event.GetId() >= ID_CMD_TOOL_MENU_FIRST && event.GetId() <= ID_CMD_TOOL_MENU_LAST )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command_UI(event) );
+		if( g_pTool == NULL )
+		{
+			event.Enable(true ); event.Check(false);
+		}
+		else if( g_pTool->Get_Menu_ID() == m_pMenu_Tools->Get_ID_Translated(event.GetId()) )
+		{
+			event.Enable(true ); event.Check(true );
+		}
+		else
+		{
+			event.Enable(false); event.Check(false);
+		}
+	}
 
+	//-----------------------------------------------------
+	else switch( event.GetId() )
+	{
 	case ID_CMD_WKSP_ITEM_CLOSE:
 	case ID_CMD_TOOL_SEARCH    :
 	case ID_CMD_TOOL_SAVE_DOCS :
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
+
+	default: return( CWKSP_Base_Manager::On_Command_UI(event) );
 	}
 
 	return( true );
 }
 
-//---------------------------------------------------------
-void CWKSP_Tool_Manager::On_Execute(wxCommandEvent &event)
-{
-	CWKSP_Tool *pTool = Get_Tool_byID(m_pMenu_Tools->Get_ID_Translated(event.GetId()));
-
-	if( pTool )
-	{
-		pTool->Execute(true);
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Tool_Manager::On_Execute_UI(wxUpdateUIEvent &event)
-{
-	if( g_pTool )
-	{
-		if( g_pTool->Get_Menu_ID() == m_pMenu_Tools->Get_ID_Translated(event.GetId()) )
-		{
-			event.Enable(true);
-			event.Check(true);
-		}
-		else
-		{
-			event.Enable(false);
-			event.Check(false);
-		}
-	}
-	else
-	{
-		event.Enable(true);
-		event.Check(false);
-	}
-}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -584,7 +577,7 @@ CWKSP_Tool_Library * CWKSP_Tool_Manager::Get_Library(CSG_Tool_Library *pLibrary)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CWKSP_Tool_Group	*pGroup	= Get_Group(i);
+		CWKSP_Tool_Group *pGroup = Get_Group(i);
 
 		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
@@ -641,12 +634,12 @@ bool CWKSP_Tool_Manager::_Update(bool bSyncToCtrl)
 
 		for(int i=SG_Get_Tool_Library_Manager().Get_Count()-1; i>=0; i--)
 		{
-			CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(i);
-			CWKSP_Tool_Library	*pItem	= Get_Library(pLibrary);
+			CSG_Tool_Library *pLibrary = SG_Get_Tool_Library_Manager().Get_Library(i);
+			CWKSP_Tool_Library  *pItem = Get_Library(pLibrary);
 
 			if( !pItem )
 			{
-				CWKSP_Tool_Group	*pGroup	= Get_Group(pLibrary->Get_Category().c_str());
+				CWKSP_Tool_Group *pGroup = Get_Group(pLibrary->Get_Category().c_str());
 
 				if( !pGroup )
 				{
@@ -677,7 +670,7 @@ bool CWKSP_Tool_Manager::Update(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -694,25 +687,25 @@ void CWKSP_Tool_Manager::Set_Recently_Used(CWKSP_Tool *pTool)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Tool_Manager::Open(void)
 {
-	wxArrayString	File_Paths;
+	wxArrayString File_Paths;
 
 	if( DLG_Open(File_Paths, ID_DLG_TOOL_OPEN) )
 	{
 		MSG_General_Add_Line();
 
-		bool	bUpdate	= false;
+		bool bUpdate = false;
 
 		for(size_t i=0; i<File_Paths.GetCount(); i++)
 		{
 			if( SG_Get_Tool_Library_Manager().Add_Library(&File_Paths[i]) )
 			{
-				bUpdate	= true;
+				bUpdate = true;
 			}
 		}
 
@@ -738,7 +731,7 @@ bool CWKSP_Tool_Manager::Open(const wxString &File_Name)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -746,7 +739,7 @@ bool CWKSP_Tool_Manager::Exists(CWKSP_Tool *pTool)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CWKSP_Tool_Group	*pGroup	= Get_Group(i);
+		CWKSP_Tool_Group *pGroup = Get_Group(i);
 
 		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
@@ -767,7 +760,7 @@ CWKSP_Tool * CWKSP_Tool_Manager::Get_Tool_byID(int CMD_ID)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CWKSP_Tool_Group	*pGroup	= Get_Group(i);
+		CWKSP_Tool_Group *pGroup = Get_Group(i);
 
 		for(int j=0; j<pGroup->Get_Count(); j++)
 		{
@@ -783,15 +776,15 @@ CWKSP_Tool * CWKSP_Tool_Manager::Get_Tool_byID(int CMD_ID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CWKSP_Tool_Group::CWKSP_Tool_Group(const wxString &Name)
 {
-	m_Name	= Name;
+	m_Name = Name;
 }
 
 //---------------------------------------------------------
@@ -800,7 +793,7 @@ CWKSP_Tool_Group::~CWKSP_Tool_Group(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -810,49 +803,49 @@ CWKSP_Tool_Group::~CWKSP_Tool_Group(void)
 //---------------------------------------------------------
 wxString CWKSP_Tool_Group::Get_Description(void)
 {
-	wxString	s;
+	wxString s;
 
-	s	+= wxString::Format("<h4>%s</h4>", _TL("Tool Libraries"));
+	s += wxString::Format("<h4>%s</h4>", _TL("Tool Libraries"));
 
-	s	+= "<table border=\"0\">";
+	s += "<table border=\"0\">";
 
-	s	+= SUMMARY_ADD_STR(_TL("Category" ), Get_Name().c_str());
-	s	+= SUMMARY_ADD_INT(_TL("Libraries"), Get_Count());
+	s += SUMMARY_ADD_STR(_TL("Category" ), Get_Name().c_str());
+	s += SUMMARY_ADD_INT(_TL("Libraries"), Get_Count());
 
-	s	+= "</table>";
+	s += "</table>";
 
 	//-----------------------------------------------------
-	s	+= wxString::Format("<hr><h4>%s</h4><table border=\"0\">", _TL("Tool Libraries"));
+	s += wxString::Format("<hr><h4>%s</h4><table border=\"0\">", _TL("Tool Libraries"));
 
-	s	+= wxString::Format("<tr align=\"left\"><th>%s</th><th>%s</th><th>%s</th></tr>",
-			_TL("Library"),
-			_TL("Name"   ),
-			_TL("Tools"  )
-		);
+	s += wxString::Format("<tr align=\"left\"><th>%s</th><th>%s</th><th>%s</th></tr>",
+		_TL("Library"),
+		_TL("Name"   ),
+		_TL("Tools"  )
+	);
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		s	+= wxString::Format("<tr><td valign=\"top\"><i>%s</i></td><td valign=\"top\">%s</td><td valign=\"top\" align=\"right\">%d</td></tr>",
-				Get_Library(i)->Get_Library()->Get_Library_Name().c_str(),
-				Get_Library(i)->Get_Name().c_str(),
-				Get_Library(i)->Get_Count()
-			);
+		s += wxString::Format("<tr><td valign=\"top\"><i>%s</i></td><td valign=\"top\">%s</td><td valign=\"top\" align=\"right\">%d</td></tr>",
+			Get_Library(i)->Get_Library()->Get_Library_Name().c_str(),
+			Get_Library(i)->Get_Name().c_str(),
+			Get_Library(i)->Get_Count()
+		);
 	}
 
-	s	+= "</table>";
+	s += "</table>";
 
 	return( s );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxMenu * CWKSP_Tool_Group::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(Get_Name());
+	wxMenu *pMenu = new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_OPEN);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
@@ -865,7 +858,7 @@ wxMenu * CWKSP_Tool_Group::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -890,7 +883,7 @@ bool CWKSP_Tool_Group::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -915,9 +908,9 @@ CWKSP_Tool_Library * CWKSP_Tool_Group::Get_Library(CSG_Tool_Library *pLibrary)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -520,7 +520,8 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 {
-	if( m_Sel_Items.Count() > 0 )
+//	if( m_Sel_Items.Count() > 1 )
+	if( Get_Control()->Get_Selection_Count() > 1 )
 	{
 		wxMenu *pMenu = new wxMenu;
 
@@ -565,14 +566,17 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 	//-----------------------------------------------------
 	if( wxTheClipboard->Open() )
 	{
+		bool bSeparator = false;
+
 		if( wxTheClipboard->IsSupported(wxDF_TEXT) )
 		{
-			pMenu->AppendSeparator();
+			if( !bSeparator ) { bSeparator = true; pMenu->AppendSeparator(); }
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
 		}
-		else if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
+
+		if( wxTheClipboard->IsSupported(wxDF_BITMAP) )
 		{
-			pMenu->AppendSeparator();
+			if( !bSeparator ) { bSeparator = true; pMenu->AppendSeparator(); }
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
 		}
 
@@ -596,41 +600,10 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( true );
 	}
 
-	if( m_pTables && Cmd_ID >= ID_CMD_TABLE_FIRST  && Cmd_ID <= ID_CMD_TABLE_LAST  && m_pTables->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
-	if( m_pShapes && Cmd_ID >= ID_CMD_SHAPES_FIRST && Cmd_ID <= ID_CMD_SHAPES_LAST && m_pShapes->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
-	if( m_pTINs   && Cmd_ID >= ID_CMD_TIN_FIRST    && Cmd_ID <= ID_CMD_TIN_LAST    && m_pTINs  ->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
-	if( m_pPointClouds && Cmd_ID >= ID_CMD_POINTCLOUD_FIRST && Cmd_ID <= ID_CMD_POINTCLOUD_LAST && m_pPointClouds->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
-	if( m_pGrids  && Cmd_ID >= ID_CMD_GRID_FIRST   && Cmd_ID <= ID_CMD_GRID_LAST   && m_pGrids ->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
-	if( m_pGrids  && Cmd_ID >= ID_CMD_GRIDS_FIRST  && Cmd_ID <= ID_CMD_GRIDS_LAST  && m_pGrids ->On_Command(Cmd_ID) )
-	{
-		return( true );
-	}
-
 	//-----------------------------------------------------
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+	default: return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
 	case ID_CMD_WKSP_ITEM_RETURN     :                                      break;
@@ -1555,6 +1528,8 @@ bool CWKSP_Data_Manager::Clipboard_Paste_Table(void)
 					{
 						pItem->Show();
 
+						wxTheClipboard->Close();
+
 						return( true );
 					}
 				}
@@ -1603,6 +1578,8 @@ bool CWKSP_Data_Manager::Clipboard_Paste_Image(void)
 						pItem->Get_Parameters()->Set_Parameter("COLORS_TYPE", 5); // RGB Coded Values
 						pItem->Parameters_Changed();
 						pItem->Show(SG_UI_DATAOBJECT_SHOW_MAP);
+
+						wxTheClipboard->Close();
 
 						return( true );
 					}

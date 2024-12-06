@@ -72,10 +72,10 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_MANAGER		= 1,
-	IMG_GROUP,
+	IMG_MANAGER = 1,
+	IMG_GROUP  ,
 	IMG_LIBRARY,
-	IMG_CHAIN,
+	IMG_CHAIN  ,
 	IMG_TOOL
 };
 
@@ -99,7 +99,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Tool_Control	*g_pTool_Ctrl	= NULL;
+CWKSP_Tool_Control *g_pTool_Ctrl = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ CWKSP_Tool_Control	*g_pTool_Ctrl	= NULL;
 CWKSP_Tool_Control::CWKSP_Tool_Control(wxWindow *pParent)
 	: CWKSP_Base_Control(pParent, ID_WND_WKSP_TOOLS)
 {
-	g_pTool_Ctrl	= this;
+	g_pTool_Ctrl = this;
 
 	//-----------------------------------------------------
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TOOL_MANAGER)
@@ -132,7 +132,7 @@ CWKSP_Tool_Control::~CWKSP_Tool_Control(void)
 {
 //	Get_Manager()->Finalise();
 
-	g_pTool_Ctrl	= NULL;
+	g_pTool_Ctrl = NULL;
 
 	_Del_Item(m_pManager, true);
 }
@@ -145,13 +145,13 @@ CWKSP_Tool_Control::~CWKSP_Tool_Control(void)
 //---------------------------------------------------------
 void CWKSP_Tool_Control::On_Execute(wxCommandEvent &event)
 {
-	Get_Manager()->On_Execute(event);
+	Get_Manager()->On_Command(event.GetId());
 }
 
 //---------------------------------------------------------
 void CWKSP_Tool_Control::On_Execute_UI(wxUpdateUIEvent &event)
 {
-	Get_Manager()->On_Execute_UI(event);
+	Get_Manager()->On_Command_UI(event);
 }
 
 
@@ -170,11 +170,11 @@ void CWKSP_Tool_Control::Add_Library(const wxTreeItemId &Group, CWKSP_Tool_Libra
 {
 	if( pLibrary != NULL )
 	{
-		wxString	Name	= pLibrary->Get_Name();
+		wxString Name = pLibrary->Get_Name();
 
 		if( Name.IsEmpty() )
 		{
-			Name	= pLibrary->Get_Name();
+			Name = pLibrary->Get_Name();
 		}
 		else
 		{
