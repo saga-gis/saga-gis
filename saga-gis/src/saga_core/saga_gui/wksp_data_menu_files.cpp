@@ -70,13 +70,13 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	m_bUpdate = true;
 	m_pMenu   = new wxMenu;
 
-	wxMenu *pOpen_File = new wxMenu;
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_TABLE_OPEN);
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_SHAPES_OPEN);
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_POINTCLOUD_OPEN);
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_TIN_OPEN);
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_GRID_OPEN);
-	CMD_Menu_Add_Item(pOpen_File, false, ID_CMD_GRIDS_OPEN);
+	wxMenu *pOpenFiles = new wxMenu;
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TABLE_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_SHAPES_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_POINTCLOUD_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TIN_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRID_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRIDS_OPEN);
 
 	wxMenu *pClipboard = new wxMenu;
 	CMD_Menu_Add_Item(pClipboard, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
@@ -85,7 +85,7 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
 	m_pMenu->AppendSeparator();
 	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"     ), m_Project.Create(ID_CMD_DATA_PROJECT_RECENT_FIRST));
-	m_pMenu->AppendSubMenu(pOpen_File      , _TL("Open File"   ));
+	m_pMenu->AppendSubMenu(pOpenFiles      , _TL("Open Files"  ));
 	m_pMenu->Append(ID_CMD_DATA_FILE_RECENT, _TL("Recent Files"), m_Files  .Create(ID_CMD_DATA_FILE_RECENT_FIRST   ));
 	m_pMenu->AppendSubMenu(pClipboard      , _TL("Clipboard"   ));
 	m_pMenu->AppendSeparator();

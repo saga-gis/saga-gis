@@ -124,7 +124,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_SOURCE_CLOSE_ALL:	return( _TL("Close All") );
 	case ID_CMD_DB_SOURCE_DELETE:		return( _TL("Remove Database") );
 	case ID_CMD_DB_SOURCE_SQL:			return( _TL("Execute SQL") );
-	case ID_CMD_DB_TABLE_OPEN:			return( _TL("Load") );
+	case ID_CMD_DB_TABLE_OPEN:			return( _TL("Open") );
 	case ID_CMD_DB_TABLE_DELETE:		return( _TL("Delete") );
 	case ID_CMD_DB_TABLE_RENAME:		return( _TL("Rename") );
 	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
@@ -139,7 +139,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TOOL_CHAIN_RELOAD:		return( _TL("Reload") );
 	case ID_CMD_TOOL_CHAIN_EDIT:		return( _TL("Edit") );
 
-	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
+	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Open Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
 	case ID_CMD_DATA_PROJECT_BROWSE:	return( _TL("Search for Projects") );		
 	case ID_CMD_DATA_PROJECT_NEW:		return( _TL("New Project") );
