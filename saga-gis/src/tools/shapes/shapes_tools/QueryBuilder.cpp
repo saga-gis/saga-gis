@@ -37,7 +37,6 @@
 //---------------------------------------------------------
 CSelect_Numeric::CSelect_Numeric(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Select by Attributes... (Numerical Expression)"));
 
 	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
@@ -49,11 +48,11 @@ CSelect_Numeric::CSelect_Numeric(void)
 		"this attribute, which can be addressed with the letter 'x' in the "
 		"expression formula. If no attribute is selected, attributes are addressed "
 		"by the character 'f' (for 'field') followed by the field number "
-		"(i.e.: f1, f2, ..., fn) or by the field in quota or square brackets "
-		"(e.g.: \"Field Name\").\n"
-		"Examples:\n"
-		"- f1 > f2\n"
-		"- eq(\"Population\" * 2, \"Area\")\n"
+		"(i.e.: f1, f2, ..., fn) or by the field in quota (e.g.: \"Field Name\").\n"
+		"Examples:<ul>"
+		"<li>f1 > f2</li>"
+		"<li>eq(\"Population\" * 0.001, \"Area\")</li>"
+		"</ul>"
 	));
 
 	//-----------------------------------------------------
@@ -72,7 +71,7 @@ CSelect_Numeric::CSelect_Numeric(void)
 	Parameters.Add_String("",
 		"EXPRESSION", _TL("Expression"),
 		_TL(""),
-		"x > 0"
+		"f1 > 0"
 	);
 
 	Parameters.Add_Bool("EXPRESSION",
@@ -150,7 +149,7 @@ bool CSelect_Numeric::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Formula Formula; CSG_Array_Int Fields; int Field = Parameters("FIELD")->asInt();
+	CSG_Formula Formula; CSG_Array_Int Fields;
 
 	if( !Formula.Set_Formula(Get_Formula(Parameters("EXPRESSION")->asString(), pShapes, Fields)) )
 	{
@@ -249,7 +248,6 @@ bool CSelect_Numeric::On_Execute(void)
 	return( true );
 }
 
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -257,21 +255,21 @@ bool CSelect_Numeric::On_Execute(void)
 //---------------------------------------------------------
 CSG_String CSelect_Numeric::Get_Formula(CSG_String Formula, CSG_Table *pShapes, CSG_Array_Int &Fields)
 {
-	const SG_Char vars[27] = SG_T("abcdefghijklmnopqrstuvwxyz");
-
 	Fields.Destroy();
 
-	int Field = Parameters("FIELD")->asInt();
-
-	if(	Field >= 0 )
+	if(	Parameters("FIELD")->asInt() >= 0 )
 	{
-		Fields += Field;
+		Fields += Parameters("FIELD")->asInt();
+
+		Formula.Replace_Single_Char('a', 'x');
 
 		return( Formula );
 	}
 
 	//---------------------------------------------------------
-	for(Field=pShapes->Get_Field_Count()-1; Field>=0 && Fields.Get_Size()<26; Field--)
+	const SG_Char vars[27] = SG_T("abcdefghijklmnopqrstuvwxyz");
+
+	for(int Field=pShapes->Get_Field_Count()-1; Field>=0 && Fields.Get_Size()<26; Field--)
 	{
 		bool bUse = false;
 
