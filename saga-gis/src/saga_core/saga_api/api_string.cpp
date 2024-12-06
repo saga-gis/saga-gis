@@ -566,6 +566,30 @@ size_t CSG_String::Replace(const CSG_String &sOld, const CSG_String &sNew, bool 
 }
 
 //---------------------------------------------------------
+size_t CSG_String::Replace_Single_Char(SG_Char Old, SG_Char New, bool bReplaceAll)
+{
+	size_t n = 0;
+
+	for(size_t i=0; i<Length(); i++)
+	{
+		if( Get_Char(i) == Old )
+		{
+			if( (i < 1 || !isalnum(Get_Char(i - 1))) && (i >= Length() - 1 || !isalnum(Get_Char(i + 1))) )
+			{
+				Set_Char(i, New); n++;
+
+				if( !bReplaceAll )
+				{
+					return( n );
+				}
+			}
+		}
+	}
+
+	return( n );
+}
+
+//---------------------------------------------------------
 CSG_String & CSG_String::Remove(size_t pos)
 {
 	m_pString->Remove(pos);
