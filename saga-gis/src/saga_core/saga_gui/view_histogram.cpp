@@ -430,15 +430,15 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc)
 	//-----------------------------------------------------
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
-		double	dx	= r.GetWidth() / (double)Histogram.Get_Class_Count(), n;
+		double dx = r.GetWidth() / (double)Histogram.Get_Class_Count(), n = 0.;
 
 		for(size_t iClass=0; iClass<Histogram.Get_Class_Count(); iClass++, n+=dx)
 		{
 			if( iClass == 0 || n > (FontSize + 5) )
 			{
-				n	= 0.;
+				n = 0.;
 
-				int	ix	= r.GetLeft() + (int)(dx * (0.5 + iClass));
+				int ix = r.GetLeft() + (int)(dx * (0.5 + iClass));
 				dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
 				Draw_Text(dc, TEXTALIGN_TOPRIGHT, ix, r.GetBottom() + 7, 45.,
 					m_pLayer->Get_Classifier()->Get_Class_Name(iClass)
