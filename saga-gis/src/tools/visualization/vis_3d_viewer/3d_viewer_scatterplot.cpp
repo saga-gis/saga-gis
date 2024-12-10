@@ -63,6 +63,8 @@ class C3D_Viewer_Scatterplot_Panel : public CSG_3DView_Panel
 public:
 	C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CSG_Grid *pX, CSG_Grid *pY, CSG_Grid *pZ, int MaxBins);
 
+	C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CSG_Table *pTable, int X, int Y, int Z, int MaxBins);
+
 	static CSG_String			Get_Usage				(void);
 
 	void						Set_Extent				(CSG_Rect Extent);
@@ -88,9 +90,9 @@ protected:
 
 private:
 
-	bool						m_Color_bGrad;
+	bool						m_Color_bGrad = true;
 
-	int							m_MaxBins;
+	int							m_MaxBins = 100, m_Field[3] = { 0, 0, 0 };
 
 	double						m_Color_Min, m_Color_Scale, m_Color_Dim_Min, m_Color_Dim_Max;
 
@@ -100,10 +102,14 @@ private:
 
 	CSG_Rect					m_Extent;
 
-	CSG_Grid					*m_pGrid[3];
+	CSG_Grid					*m_pGrid[3] = { NULL, NULL, NULL };
+
+	CSG_Table					*m_pTable = NULL;
 
 	CSG_PointCloud				m_Points;
 
+
+	bool						On_Construction			(int MaxBins);
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
@@ -133,6 +139,25 @@ C3D_Viewer_Scatterplot_Panel::C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CS
 	m_pGrid[1] = pY;
 	m_pGrid[2] = pZ;
 
+	On_Construction(MaxBins);
+}
+
+//---------------------------------------------------------
+C3D_Viewer_Scatterplot_Panel::C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CSG_Table *pTable, int X, int Y, int Z, int MaxBins)
+	: CSG_3DView_Panel(pParent)
+{
+	m_pTable = pTable;
+
+	m_Field[0] = X;
+	m_Field[1] = Y;
+	m_Field[2] = Z;
+
+	On_Construction(MaxBins);
+}
+
+//---------------------------------------------------------
+bool C3D_Viewer_Scatterplot_Panel::On_Construction(int MaxBins)
+{
 	m_MaxBins  = MaxBins;
 
 	m_Points.Add_Field(_TL("Count"), SG_DATATYPE_Int);
@@ -148,6 +173,8 @@ C3D_Viewer_Scatterplot_Panel::C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CS
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("GENERAL"    , "DETAIL"       , _TL("Level of Detail" ), _TL(""), 100., 0., true, 100., true);
 
+	m_Parameters.Add_Bool  ("GENERAL"    , "NORMALIZE"    , _TL("Normalize"       ), _TL(""), false);
+
 	m_Parameters.Add_Choice("GENERAL"    , "COLORS_ATTR"  , _TL("Color Attribute" ), _TL(""), Attributes, 3);
 	m_Parameters.Add_Colors("COLORS_ATTR", "COLORS"       , _TL("Colors"          ), _TL(""));
 	m_Parameters.Add_Bool  ("COLORS_ATTR", "COLORS_GRAD"  , _TL("Graduated"       ), _TL(""), true);
@@ -159,12 +186,16 @@ C3D_Viewer_Scatterplot_Panel::C3D_Viewer_Scatterplot_Panel(wxWindow *pParent, CS
 	m_Parameters.Add_Int   ("GENERAL"    , "SIZE"         , _TL("Size"            ), _TL(""), 1, 1, true);
 	m_Parameters.Add_Double("GENERAL"    , "SIZE_SCALE"   , _TL("Size Scaling"    ), _TL(""), 0., 0., true);
 
+	m_Parameters.Set_Parameter("NORTH", m_North = 0);
+
 	//-----------------------------------------------------
-	Set_Aggregated(m_MaxBins, false);
+	Set_Aggregated(m_MaxBins, m_Parameters["NORMALIZE"].asBool());
 
 	m_Selection.Create(sizeof(sLong), 0, TSG_Array_Growth::SG_ARRAY_GROWTH_2);
 
 	Update_Statistics();
+
+	return( true );
 }
 
 
@@ -193,13 +224,30 @@ bool C3D_Viewer_Scatterplot_Panel::Set_Points(void)
 {
 	m_Points.Del_Points();
 
-	for(sLong i=0; i<m_pGrid[0]->Get_NCells() && SG_UI_Process_Get_Okay(); i++)
+	if( m_pTable )
 	{
-		if( !m_pGrid[0]->is_NoData(i) && !m_pGrid[1]->is_NoData(i) && !m_pGrid[2]->is_NoData(i) )
+		for(sLong i=0; i<m_pTable->Get_Count() && SG_UI_Process_Get_Okay(); i++)
 		{
-			m_Points.Add_Point(m_pGrid[0]->asDouble(i), m_pGrid[1]->asDouble(i), m_pGrid[2]->asDouble(i));
+			CSG_Table_Record &Record = *m_pTable->Get_Record(i);
 
-			m_Points.Set_Attribute(0, 1.);
+			if( !Record.is_NoData(m_Field[0]) && !Record.is_NoData(m_Field[1]) && !Record.is_NoData(m_Field[2]) )
+			{
+				m_Points.Add_Point(Record.asDouble(m_Field[0]), Record.asDouble(m_Field[1]), Record.asDouble(m_Field[2]));
+
+				m_Points.Set_Attribute(0, 1.);
+			}
+		}
+	}
+	else
+	{
+		for(sLong i=0; i<m_pGrid[0]->Get_NCells() && SG_UI_Process_Get_Okay(); i++)
+		{
+			if( !m_pGrid[0]->is_NoData(i) && !m_pGrid[1]->is_NoData(i) && !m_pGrid[2]->is_NoData(i) )
+			{
+				m_Points.Add_Point(m_pGrid[0]->asDouble(i), m_pGrid[1]->asDouble(i), m_pGrid[2]->asDouble(i));
+
+				m_Points.Set_Attribute(0, 1.);
+			}
 		}
 	}
 
@@ -227,23 +275,46 @@ bool C3D_Viewer_Scatterplot_Panel::Set_Aggregated(int nBins, bool bNormalize)
 
 	m_Points.Del_Points();
 
-	double d[3];
-
-	d[0] = (nBins - 1.) / m_pGrid[0]->Get_Range();
-	d[1] = (nBins - 1.) / m_pGrid[1]->Get_Range();
-	d[2] = (nBins - 1.) / m_pGrid[2]->Get_Range();
+	double d[3], min[3];
 
 	CSG_Array_Int Histogram(nBins*nBins*nBins); Histogram.Assign(0);
 
-	for(sLong i=0; i<m_pGrid[0]->Get_NCells() && SG_UI_Process_Get_Okay(); i++)
+	if( m_pTable )
 	{
-		if( !m_pGrid[0]->is_NoData(i) && !m_pGrid[1]->is_NoData(i) && !m_pGrid[2]->is_NoData(i) )
-		{
-			int x = (int)(d[0] * (m_pGrid[0]->asDouble(i) - m_pGrid[0]->Get_Min())); if( x < 0 ) x = 0; else if( x >= nBins ) x = nBins - 1;
-			int y = (int)(d[1] * (m_pGrid[1]->asDouble(i) - m_pGrid[1]->Get_Min())); if( y < 0 ) y = 0; else if( y >= nBins ) y = nBins - 1;
-			int z = (int)(d[2] * (m_pGrid[2]->asDouble(i) - m_pGrid[2]->Get_Min())); if( z < 0 ) z = 0; else if( z >= nBins ) z = nBins - 1;
+		d[0] = m_pTable->Get_Range(m_Field[0]); if( !d[0] ) { return( false ); } d[0] = (nBins - 1.) / d[0]; min[0] = m_pTable->Get_Minimum(m_Field[0]);
+		d[1] = m_pTable->Get_Range(m_Field[1]); if( !d[1] ) { return( false ); } d[1] = (nBins - 1.) / d[1]; min[1] = m_pTable->Get_Minimum(m_Field[1]);
+		d[2] = m_pTable->Get_Range(m_Field[2]); if( !d[2] ) { return( false ); } d[2] = (nBins - 1.) / d[2]; min[2] = m_pTable->Get_Minimum(m_Field[2]);
 
-			Histogram[x + y * nBins + z * nBins*nBins]++;
+		for(sLong i=0; i<m_pTable->Get_Count() && SG_UI_Process_Get_Okay(); i++)
+		{
+			CSG_Table_Record &Record = *m_pTable->Get_Record(i);
+
+			if( !Record.is_NoData(m_Field[0]) && !Record.is_NoData(m_Field[1]) && !Record.is_NoData(m_Field[2]) )
+			{
+				int x = (int)(d[0] * (Record.asDouble(m_Field[0]) - min[0])); if( x < 0 ) x = 0; else if( x >= nBins ) x = nBins - 1;
+				int y = (int)(d[1] * (Record.asDouble(m_Field[1]) - min[1])); if( y < 0 ) y = 0; else if( y >= nBins ) y = nBins - 1;
+				int z = (int)(d[2] * (Record.asDouble(m_Field[2]) - min[2])); if( z < 0 ) z = 0; else if( z >= nBins ) z = nBins - 1;
+
+				Histogram[x + y * nBins + z * nBins*nBins]++;
+			}
+		}
+	}
+	else
+	{
+		d[0] = m_pGrid[0]->Get_Range(); if( !d[0] ) { return( false ); } d[0] = (nBins - 1.) / d[0]; min[0] = m_pGrid[0]->Get_Min();
+		d[1] = m_pGrid[1]->Get_Range(); if( !d[1] ) { return( false ); } d[1] = (nBins - 1.) / d[1]; min[1] = m_pGrid[1]->Get_Min();
+		d[2] = m_pGrid[2]->Get_Range(); if( !d[2] ) { return( false ); } d[2] = (nBins - 1.) / d[2]; min[2] = m_pGrid[2]->Get_Min();
+
+		for(sLong i=0; i<m_pGrid[0]->Get_NCells() && SG_UI_Process_Get_Okay(); i++)
+		{
+			if( !m_pGrid[0]->is_NoData(i) && !m_pGrid[1]->is_NoData(i) && !m_pGrid[2]->is_NoData(i) )
+			{
+				int x = (int)(d[0] * (m_pGrid[0]->asDouble(i) - min[0])); if( x < 0 ) x = 0; else if( x >= nBins ) x = nBins - 1;
+				int y = (int)(d[1] * (m_pGrid[1]->asDouble(i) - min[1])); if( y < 0 ) y = 0; else if( y >= nBins ) y = nBins - 1;
+				int z = (int)(d[2] * (m_pGrid[2]->asDouble(i) - min[2])); if( z < 0 ) z = 0; else if( z >= nBins ) z = nBins - 1;
+
+				Histogram[x + y * nBins + z * nBins*nBins]++;
+			}
 		}
 	}
 
@@ -255,19 +326,11 @@ bool C3D_Viewer_Scatterplot_Panel::Set_Aggregated(int nBins, bool bNormalize)
 		{
 			if( bNormalize )
 			{
-				m_Points.Add_Point(
-					x / (double)nBins,
-					y / (double)nBins,
-					z / (double)nBins
-				);
+				m_Points.Add_Point(x / (double)nBins, y / (double)nBins, z / (double)nBins);
 			}
 			else
 			{
-				m_Points.Add_Point(
-					m_pGrid[0]->Get_Min() + x / d[0],
-					m_pGrid[1]->Get_Min() + y / d[1],
-					m_pGrid[2]->Get_Min() + z / d[2]
-				);
+				m_Points.Add_Point(min[0] + x / d[0], min[1] + y / d[1], min[2] + z / d[2]);
 			}
 
 			m_Points.Set_Attribute(0, log((double)Count));
@@ -524,21 +587,15 @@ public:
 	{
 		Create(new C3D_Viewer_Scatterplot_Panel(this, pX, pY, pZ, MaxBins));
 
-		//-------------------------------------------------
-		Add_Spacer();
+		On_Construction(MaxBins);
+	}
 
-		wxArrayString Fields; Fields.Add("X"); Fields.Add("Y"); Fields.Add("Z"); Fields.Add("Count");
+	C3D_Viewer_Scatterplot_Dialog(CSG_Table *pTable, int X, int Y, int Z, int MaxBins)
+		: CSG_3DView_Dialog(_TL("3D Scatterplot Viewer"))
+	{
+		Create(new C3D_Viewer_Scatterplot_Panel(this, pTable, X, Y, Z, MaxBins));
 
-		m_pField_C = Add_Choice  (_TL("Color"), Fields, 3);
-
-		//-------------------------------------------------
-		Add_Spacer();
-
-		m_pDetail  = Add_Slider  (_TL("Level of Detail"), m_pPanel->m_Parameters("DETAIL")->asDouble(), 0., 100.);
-		m_pBins    = Add_Slider  (_TL("Number of Bins" ), MaxBins, 16, MaxBins);
-
-		//-------------------------------------------------
-		Add_Spacer();
+		On_Construction(MaxBins);
 	}
 
 	virtual void				Update_Controls			(void);
@@ -562,6 +619,27 @@ protected:
 		MENU_SIZE_SCALE_DEC,
 		MENU_SIZE_SCALE_INC
 	};
+
+	//-----------------------------------------------------
+	bool						On_Construction			(int MaxBins)
+	{
+		Add_Spacer();
+
+		wxArrayString Fields; Fields.Add("X"); Fields.Add("Y"); Fields.Add("Z"); Fields.Add("Count");
+
+		m_pField_C = Add_Choice  (_TL("Color"), Fields, 3);
+
+		//-------------------------------------------------
+		Add_Spacer();
+
+		m_pDetail  = Add_Slider  (_TL("Level of Detail"), m_pPanel->m_Parameters("DETAIL")->asDouble(), 0., 100.);
+		m_pBins    = Add_Slider  (_TL("Number of Bins" ), MaxBins, 16, MaxBins);
+
+		//-------------------------------------------------
+		Add_Spacer();
+
+		return( true );
+	}
 
 	//-----------------------------------------------------
 	virtual void				On_Update_Choices		(wxCommandEvent  &event);
@@ -605,7 +683,7 @@ void C3D_Viewer_Scatterplot_Dialog::On_Update_Control(wxCommandEvent &event)
 
 	if( event.GetEventObject() == m_pBins )
 	{
-		((C3D_Viewer_Scatterplot_Panel *)m_pPanel)->Set_Aggregated((int)m_pBins->Get_Value(), false);
+		((C3D_Viewer_Scatterplot_Panel *)m_pPanel)->Set_Aggregated((int)m_pBins->Get_Value(), m_pPanel->m_Parameters["NORMALIZE"].asBool());
 		m_pPanel->Update_View();
 	}
 
@@ -701,9 +779,26 @@ C3D_Viewer_Scatterplot::C3D_Viewer_Scatterplot(void)
 	Set_Description(Get_Description() + C3D_Viewer_Scatterplot_Panel::Get_Usage());
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "GRID_X", CSG_String::Format("%s (X)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "GRID_Y", CSG_String::Format("%s (Y)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "GRID_Z", CSG_String::Format("%s (Z)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Choice("",
+		"TYPE", _TL("Input Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("grids"),
+			_TL("table attributes")
+		), 0
+	);
+
+	Parameters.Add_Int("", "BINS", _TL("Maximum Number of Bins"), _TL(""), 64, 8, true, 1024, true);
+
+	Parameters.Add_Table("", "TABLE", _TL("Table"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table_Field("TABLE", "FIELD_X", CSG_String::Format("%s (X)", _TL("Attribute")), _TL(""));
+	Parameters.Add_Table_Field("TABLE", "FIELD_Y", CSG_String::Format("%s (Y)", _TL("Attribute")), _TL(""));
+	Parameters.Add_Table_Field("TABLE", "FIELD_Z", CSG_String::Format("%s (Z)", _TL("Attribute")), _TL(""));
+
+	Parameters.Add_Grid_System("", "GRIDS", _TL("Grid System"), _TL(""));
+	Parameters.Add_Grid("GRIDS", "GRID_X", CSG_String::Format("%s (X)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("GRIDS", "GRID_Y", CSG_String::Format("%s (Y)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("GRIDS", "GRID_Z", CSG_String::Format("%s (Z)", _TL("Grid")), _TL(""), PARAMETER_INPUT);
 }
 
 
@@ -714,12 +809,18 @@ C3D_Viewer_Scatterplot::C3D_Viewer_Scatterplot(void)
 //---------------------------------------------------------
 int C3D_Viewer_Scatterplot::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("TYPE") )
+	{
+		pParameters->Set_Enabled("GRIDS", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("TABLE", pParameter->asInt() == 1);
+	}
+
 	if( pParameter->Cmp_Identifier("AGGREGATE") )
 	{
 		pParameter->Set_Children_Enabled(pParameter->asBool());
 	}
 
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -730,13 +831,28 @@ int C3D_Viewer_Scatterplot::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 //---------------------------------------------------------
 bool C3D_Viewer_Scatterplot::On_Execute(void)
 {
-	CSG_Grid *pX = Parameters("GRID_X")->asGrid(); if( pX->Get_Range() <= 0. ) { Error_Fmt("%s (X)", _TL("no variation found for grid")); return( false ); }
-	CSG_Grid *pY = Parameters("GRID_Y")->asGrid(); if( pY->Get_Range() <= 0. ) { Error_Fmt("%s (Y)", _TL("no variation found for grid")); return( false ); }
-	CSG_Grid *pZ = Parameters("GRID_Z")->asGrid(); if( pZ->Get_Range() <= 0. ) { Error_Fmt("%s (Z)", _TL("no variation found for grid")); return( false ); }
+	if( Parameters("TYPE")->asInt() == 0 )
+	{
+		CSG_Grid *pX = Parameters("GRID_X")->asGrid(); if( pX->Get_Range() <= 0. ) { Error_Fmt("%s (X)", _TL("no variation found for grid")); return( false ); }
+		CSG_Grid *pY = Parameters("GRID_Y")->asGrid(); if( pY->Get_Range() <= 0. ) { Error_Fmt("%s (Y)", _TL("no variation found for grid")); return( false ); }
+		CSG_Grid *pZ = Parameters("GRID_Z")->asGrid(); if( pZ->Get_Range() <= 0. ) { Error_Fmt("%s (Z)", _TL("no variation found for grid")); return( false ); }
 
-	C3D_Viewer_Scatterplot_Dialog dlg(pX, pY, pZ, 256);
+		C3D_Viewer_Scatterplot_Dialog dlg(pX, pY, pZ, Parameters("BINS")->asInt());
 
-	dlg.ShowModal();
+		dlg.ShowModal();
+	}
+	else
+	{
+		CSG_Table *pTable = Parameters("TABLE")->asTable();
+
+		int X = Parameters("FIELD_X")->asInt(); if( pTable->Get_Range(X) <= 0. ) { Error_Fmt("%s (X)", _TL("no variation found for attribute")); return( false ); }
+		int Y = Parameters("FIELD_Y")->asInt(); if( pTable->Get_Range(Y) <= 0. ) { Error_Fmt("%s (Y)", _TL("no variation found for attribute")); return( false ); }
+		int Z = Parameters("FIELD_Z")->asInt(); if( pTable->Get_Range(Z) <= 0. ) { Error_Fmt("%s (Z)", _TL("no variation found for attribute")); return( false ); }
+
+		C3D_Viewer_Scatterplot_Dialog dlg(pTable, X, Y, Z, Parameters("BINS")->asInt());
+
+		dlg.ShowModal();
+	}
 
 	return( true );
 }

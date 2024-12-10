@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C3D_Viewer_Scatterplot : public CSG_Tool_Grid
+class C3D_Viewer_Scatterplot : public CSG_Tool
 {
 public:
 	C3D_Viewer_Scatterplot(void);
