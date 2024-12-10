@@ -60,6 +60,7 @@
 
 #include "helper.h"
 
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "saga.h"
@@ -351,13 +352,25 @@ wxColour	SYS_Get_Color_Foreground(int Mode)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxWindow *	MDI_Get_Frame(void)
+wxWindow *		MDI_Get_Frame(void)
 {
 	return( g_pSAGA_Frame );
 }
 
 //---------------------------------------------------------
-wxPoint		MDI_Get_Def_Position(void)
+CVIEW_Base *	MDI_Get_Active_View(int View_ID)
+{
+	return( g_pSAGA_Frame->Get_Active_Child(View_ID) );
+}
+
+//---------------------------------------------------------
+CVIEW_Base *	MDI_Get_Active_Map(void)
+{
+	return( g_pSAGA_Frame->Get_Active_Child(ID_VIEW_MAP) );
+}
+
+//---------------------------------------------------------
+wxPoint			MDI_Get_Def_Position(void)
 {
 	static int	n	= 0;
 
@@ -371,13 +384,13 @@ wxPoint		MDI_Get_Def_Position(void)
 }
 
 //---------------------------------------------------------
-wxSize		MDI_Get_Def_Size(void)
+wxSize			MDI_Get_Def_Size(void)
 {
 	return( wxSize(400, 300) );
 }
 
 //---------------------------------------------------------
-void		MDI_Top_Window_Push(wxWindow *pWindow)
+void			MDI_Top_Window_Push(wxWindow *pWindow)
 {
 	if( g_pSAGA_Frame )
 	{
@@ -386,7 +399,7 @@ void		MDI_Top_Window_Push(wxWindow *pWindow)
 }
 
 //---------------------------------------------------------
-void		MDI_Top_Window_Pop(wxWindow *pWindow)
+void			MDI_Top_Window_Pop(wxWindow *pWindow)
 {
 	if( g_pSAGA_Frame )
 	{
@@ -395,15 +408,37 @@ void		MDI_Top_Window_Pop(wxWindow *pWindow)
 }
 
 //---------------------------------------------------------
-wxWindow *	MDI_Get_Top_Window(void)
+wxWindow *		MDI_Get_Top_Window(void)
 {
 	return( g_pSAGA_Frame ? g_pSAGA_Frame->Top_Window_Get() : NULL );
 }
 
 //---------------------------------------------------------
-bool		MDI_Window_Arrange(int Arrange)
+bool			MDI_Window_Arrange(int Arrange)
 {
 	return( g_pSAGA_Frame ? g_pSAGA_Frame->Arrange_Children(Arrange) : false );
+}
+
+//---------------------------------------------------------
+bool			MDI_Freeze(void)
+{
+	if( g_pSAGA_Frame )
+	{
+		g_pSAGA_Frame->Freeze();
+	}
+
+	return( g_pSAGA_Frame != NULL );
+}
+
+//---------------------------------------------------------
+bool			MDI_Thaw(void)
+{
+	if( g_pSAGA_Frame )
+	{
+		g_pSAGA_Frame->Thaw();
+	}
+
+	return( g_pSAGA_Frame != NULL );
 }
 
 

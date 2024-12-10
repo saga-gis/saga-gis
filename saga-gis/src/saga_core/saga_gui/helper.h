@@ -101,6 +101,9 @@ wxColour			SYS_Get_Color_Foreground		(int Mode = 0);
 //---------------------------------------------------------
 wxWindow *			MDI_Get_Frame					(void);
 
+class CVIEW_Base *	MDI_Get_Active_View				(int View_ID = -1);
+class CVIEW_Base *	MDI_Get_Active_Map				(void);
+
 wxPoint				MDI_Get_Def_Position			(void);
 wxSize				MDI_Get_Def_Size				(void);
 
@@ -109,6 +112,9 @@ void				MDI_Top_Window_Pop				(wxWindow *pWindow);
 wxWindow *			MDI_Get_Top_Window				(void);
 
 bool				MDI_Window_Arrange				(int Arrange);
+
+bool				MDI_Freeze						(void);
+bool				MDI_Thaw						(void);
 
 //---------------------------------------------------------
 void				Set_Buisy_Cursor				(bool bOn);
