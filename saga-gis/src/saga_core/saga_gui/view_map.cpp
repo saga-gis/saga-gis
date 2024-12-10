@@ -100,6 +100,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU(ID_CMD_MAP_ZOOM_ACTIVE              , CVIEW_Map::On_Map_Zoom_Active)
 	EVT_MENU(ID_CMD_MAP_PAN_ACTIVE               , CVIEW_Map::On_Map_PanTo_Active)
 	EVT_MENU(ID_CMD_MAP_ZOOM_SELECTION           , CVIEW_Map::On_Map_Zoom_Selection)
+	EVT_MENU(ID_CMD_MAP_PAN_SELECTION            , CVIEW_Map::On_Map_PanTo_Selection)
 	EVT_MENU(ID_CMD_MAP_ZOOM_EXTENT              , CVIEW_Map::On_Map_Zoom_Extent)
 	EVT_MENU(ID_CMD_MAP_SYNCHRONIZE              , CVIEW_Map::On_Map_Zoom_Synchronize)
 	EVT_MENU(ID_CMD_MAP_CROSSHAIR                , CVIEW_Map::On_Map_CrossHair)
@@ -147,7 +148,7 @@ CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 //---------------------------------------------------------
 wxMenu * CVIEW_Map::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_TOOLBAR);
 //	pMenu->AppendSeparator();
@@ -190,7 +191,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_MAP);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_BACK);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_FORWARD);
@@ -554,6 +555,12 @@ void CVIEW_Map::On_Map_PanTo_Active(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Zoom_Selection(wxCommandEvent &event)
 {
 	m_pMap->Set_Extent_Selection(false);
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_PanTo_Selection(wxCommandEvent &event)
+{
+	m_pMap->Set_Extent_Selection(true);
 }
 
 //---------------------------------------------------------

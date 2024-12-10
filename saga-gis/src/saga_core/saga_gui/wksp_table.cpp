@@ -73,8 +73,7 @@
 CWKSP_Table::CWKSP_Table(CSG_Table *pTable)
 	: CWKSP_Data_Item(pTable)
 {
-	m_pView		= NULL;
-	m_pDiagram	= NULL;
+	m_pView = NULL; m_pDiagram = NULL;
 
 	//-----------------------------------------------------
 	On_Create_Parameters();
@@ -87,7 +86,7 @@ CWKSP_Table::~CWKSP_Table(void)
 {
 	if( m_pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table )
 	{
-		m_pObject	= NULL;
+		m_pObject = NULL;
 	}
 }
 
@@ -144,7 +143,9 @@ wxString CWKSP_Table::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Table::Get_Menu(void)
 {
-	wxMenu *pMenu = new wxMenu(m_pObject->Get_Name());
+	wxMenu *pSubMenu, *pMenu = new wxMenu(m_pObject->Get_Name());
+
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SHOW);
 
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
@@ -165,10 +166,15 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 	}
 
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SHOW);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_DIAGRAM);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SCATTERPLOT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLIPBOARD_COPY);
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_DIAGRAM);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
+	if( Get_Table()->Get_Field_Count() >= 3 )
+	{
+	//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT_3D);
+	}
 
 	return( pMenu );
 }
@@ -186,23 +192,21 @@ bool CWKSP_Table::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Data_Item::On_Command(Cmd_ID) );
 
-	case ID_CMD_WKSP_ITEM_RETURN:
-		Set_View(true);
-		break;
+	case ID_CMD_WKSP_ITEM_RETURN   : Set_View    (true); break;
 
-	case ID_CMD_TABLE_SHOW:
-		Toggle_View();
-		break;
+	case ID_CMD_TABLE_SHOW         : Toggle_View     (); break;
 
-	case ID_CMD_TABLE_DIAGRAM:
-		Toggle_Diagram();
-		break;
+	case ID_CMD_DATA_DIAGRAM       : Toggle_Diagram  (); break;
+	case ID_CMD_DATA_SCATTERPLOT   : Add_ScatterPlot (); break;
 
-	case ID_CMD_TABLE_SCATTERPLOT:
-		Add_ScatterPlot();
-		break;
+	case ID_CMD_DATA_SCATTERPLOT_3D: { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 6);
+		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TYPE", 1) && DLG_Parameters(pTool->Get_Parameters()) )
+		{
+			pTool->Execute();
+		}
+		break; }
 
-	case ID_CMD_TABLE_TO_CLIPBOARD:
+	case ID_CMD_DATA_CLIPBOARD_COPY:
 		if( wxTheClipboard->Open() )
 		{
 			CSG_String Text(m_pObject->asTable()->to_Text(m_pObject->asTable()->Get_Selection_Count()));
@@ -231,7 +235,7 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_pView != NULL);
 		break;
 
-	case ID_CMD_TABLE_DIAGRAM:
+	case ID_CMD_DATA_DIAGRAM:
 		event.Check(m_pDiagram != NULL);
 		break;
 	}

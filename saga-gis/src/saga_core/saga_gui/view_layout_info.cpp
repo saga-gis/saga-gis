@@ -1724,7 +1724,7 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 	if( wxTheClipboard->IsSupported(wxDF_TEXT  )
 	||  wxTheClipboard->IsSupported(wxDF_BITMAP) )
 	{
-		CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_LAYOUT_ITEM_PASTE);
+		CMD_Menu_Add_Item(pMenu_Add, false, ID_CMD_VIEW_CLIPBOARD_PASTE);
 	}
 
 	//-----------------------------------------------------
@@ -1779,7 +1779,7 @@ wxMenu * CVIEW_Layout_Info::Menu_Get_Active(void)
 	//-----------------------------------------------------
 	else // Layout Menu...
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_LAYOUT_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 		pMenu->AppendSeparator();
 
@@ -1798,8 +1798,8 @@ bool CVIEW_Layout_Info::Menu_On_Command(wxCommandEvent &event)
 {
 	switch( event.GetId() )
 	{
-	case ID_CMD_LAYOUT_TO_CLIPBOARD    : Clipboard_Copy                     (); break;
-	case ID_CMD_LAYOUT_ITEM_PASTE      : Clipboard_Paste                    (); break;
+	case ID_CMD_VIEW_CLIPBOARD_COPY    : Clipboard_Copy                     (); break;
+	case ID_CMD_VIEW_CLIPBOARD_PASTE   : Clipboard_Paste                    (); break;
 
 	case ID_CMD_LAYOUT_ITEM_MAP        : Toggle_Stock_Item(Item_Type_Map     ); break;
 	case ID_CMD_LAYOUT_ITEM_LEGEND     : Toggle_Stock_Item(Item_Type_Legend  ); break;
@@ -1840,7 +1840,7 @@ bool CVIEW_Layout_Info::Menu_On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_LAYOUT_ITEM_MOVE_UP    : event.Enable(!m_Items.Active_is_Top   ()); break;
 	case ID_CMD_LAYOUT_ITEM_MOVE_DOWN  : event.Enable(!m_Items.Active_is_Bottom()); break;
 
-	case ID_CMD_LAYOUT_ITEM_PASTE      : event.Enable(
+	case ID_CMD_VIEW_CLIPBOARD_PASTE   : event.Enable(
 		    wxTheClipboard->IsSupported(wxDF_TEXT  )
 		||  wxTheClipboard->IsSupported(wxDF_BITMAP) );
 		break;

@@ -47,10 +47,7 @@
 
 //---------------------------------------------------------
 #include "res_commands.h"
-#include "res_controls.h"
 #include "res_dialogs.h"
-
-#include "saga_frame.h"
 
 #include "helper.h"
 
@@ -136,14 +133,11 @@ CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Layer::~CWKSP_Layer(void)
 {
-	if( g_pSAGA_Frame ) { g_pSAGA_Frame->Freeze(); }
-
-	if( g_pMaps       ) { g_pMaps->Del(this);      }
-
-	if( m_pClassify   ) { delete(m_pClassify);     }
-	if( m_pLegend     ) { delete(m_pLegend  );     }
-
-	if( g_pSAGA_Frame ) { g_pSAGA_Frame->Thaw();   }
+	MDI_Freeze();
+	if( g_pMaps     ) { g_pMaps->Del(this);  }
+	if( m_pClassify ) { delete(m_pClassify); }
+	if( m_pLegend   ) { delete(m_pLegend  ); }
+	MDI_Thaw();
 }
 
 
@@ -156,14 +150,10 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Data_Item::On_Command(Cmd_ID) );
+	default: return( CWKSP_Data_Item::On_Command(Cmd_ID) );
 
 	case ID_CMD_WKSP_ITEM_RETURN:
-	case ID_CMD_SHAPES_SHOW     :
-	case ID_CMD_GRID_SHOW       :
-	case ID_CMD_TIN_SHOW        :
-	case ID_CMD_POINTCLOUD_SHOW :
+	case ID_CMD_DATA_SHOW_MAP   :
 		g_pMaps->Add(this);
 		break;
 
@@ -1096,9 +1086,8 @@ bool CWKSP_Layer::Show(int Flags)
 	case SG_UI_DATAOBJECT_SHOW_MAP_LAST:
 		return( Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
 
-	case SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE: {
-		CVIEW_Map *pView = (CVIEW_Map *)g_pSAGA_Frame->Get_Active_Child(ID_VIEW_MAP);
-		return( Show(pView ? pView->Get_Map() : NULL) ); }
+	case SG_UI_DATAOBJECT_SHOW_MAP_ACTIVE:
+		return( Show(MDI_Get_Active_Map() ? ((CVIEW_Map *)MDI_Get_Active_Map())->Get_Map() : NULL) );
 	}
 
 	return( false );

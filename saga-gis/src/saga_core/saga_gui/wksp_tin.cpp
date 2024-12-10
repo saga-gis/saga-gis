@@ -147,10 +147,15 @@ wxString CWKSP_TIN::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_TIN::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu *pSubMenu, *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_SHOW);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
+	if( MDI_Get_Active_Map() )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+	}
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
@@ -163,11 +168,15 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 	pMenu->AppendSeparator();
-	wxMenu	*pTable	= new wxMenu(_TL("Table"));
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
-	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_SCATTERPLOT);
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SHOW);
+//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
+//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_TABLE_JOIN_DATA);
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"    ), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_DIAGRAM);
 
 	return( pMenu );
 }
@@ -189,11 +198,11 @@ bool CWKSP_TIN::On_Command(int Cmd_ID)
 		m_pTable->Toggle_View();
 		break;
 
-	case ID_CMD_TABLE_DIAGRAM:
+	case ID_CMD_DATA_DIAGRAM:
 		m_pTable->Toggle_Diagram();
 		break;
 
-	case ID_CMD_TABLE_SCATTERPLOT:
+	case ID_CMD_DATA_SCATTERPLOT:
 		Add_ScatterPlot();
 		break;
 	}
@@ -213,7 +222,7 @@ bool CWKSP_TIN::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_pTable->Get_View() != NULL);
 		break;
 
-	case ID_CMD_TABLE_DIAGRAM:
+	case ID_CMD_DATA_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 	}

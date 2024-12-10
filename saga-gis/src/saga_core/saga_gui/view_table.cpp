@@ -76,6 +76,10 @@ IMPLEMENT_CLASS(CVIEW_Table, CVIEW_Base);
 BEGIN_EVENT_TABLE(CVIEW_Table, CVIEW_Base)
 	EVT_SIZE			(CVIEW_Table::On_Size)
 
+	EVT_MENU            (ID_CMD_VIEW_CLIPBOARD_COPY           , CVIEW_Table::On_Command)
+	EVT_UPDATE_UI       (ID_CMD_VIEW_CLIPBOARD_COPY           , CVIEW_Table::On_Command_UI)
+	EVT_MENU            (ID_CMD_DATA_SELECTION_CLEAR          , CVIEW_Table::On_Command)
+	EVT_UPDATE_UI       (ID_CMD_DATA_SELECTION_CLEAR          , CVIEW_Table::On_Command_UI)
 	EVT_MENU_RANGE		(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_TABLE_FIRST, ID_CMD_TABLE_LAST, CVIEW_Table::On_Command_UI)
 END_EVENT_TABLE()
@@ -103,7 +107,7 @@ CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
 //---------------------------------------------------------
 wxMenu * CVIEW_Table::_Create_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD      );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_MOVE     );
@@ -116,15 +120,15 @@ wxMenu * CVIEW_Table::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_DEL     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_DEL_ALL );
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SELECTION_CLEAR);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SELECTION_ONLY );
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SELECTION_SHOW );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SELECTION_CLEAR );
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS  );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_HIDE     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT     );
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_CALC     );
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_VIEW_CLIPBOARD_COPY  );
 
 	return( pMenu );
 }
@@ -132,7 +136,7 @@ wxMenu * CVIEW_Table::_Create_Menu(void)
 //---------------------------------------------------------
 wxToolBarBase * CVIEW_Table::_Create_ToolBar(void)
 {
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_TABLE);
+	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_TABLE);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_FIELD_ADD      );
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_FIELD_DEL      );
@@ -142,7 +146,9 @@ wxToolBarBase * CVIEW_Table::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_RECORD_DEL     );
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TABLE_RECORD_DEL_ALL );
 	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_TABLE_SELECTION_ONLY );
+	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_TABLE_SELECTION_SHOW );
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY  );
 
 	CMD_ToolBar_Add(pToolBar, _TL("Table"));
 
@@ -199,11 +205,11 @@ void CVIEW_Table::On_Command(wxCommandEvent &event)
 	case ID_CMD_TABLE_RECORD_INS     :
 	case ID_CMD_TABLE_RECORD_DEL     :
 	case ID_CMD_TABLE_RECORD_DEL_ALL :
-	case ID_CMD_TABLE_SELECTION_CLEAR:
-	case ID_CMD_TABLE_SELECTION_ONLY :
+	case ID_CMD_TABLE_AUTOSIZE_COLS  :
+	case ID_CMD_TABLE_SELECTION_SHOW :
 
-	case ID_CMD_TABLE_TO_CLIPBOARD  :
-	case ID_CMD_TABLE_AUTOSIZE_COLS :
+	case ID_CMD_DATA_SELECTION_CLEAR :
+	case ID_CMD_VIEW_CLIPBOARD_COPY  :
 		m_pControl->ProcessWindowEvent(event);
 		break;
 
@@ -229,8 +235,8 @@ void CVIEW_Table::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TABLE_RECORD_INS     :
 	case ID_CMD_TABLE_RECORD_DEL     :
 	case ID_CMD_TABLE_RECORD_DEL_ALL :
-	case ID_CMD_TABLE_SELECTION_CLEAR:
-	case ID_CMD_TABLE_SELECTION_ONLY :
+	case ID_CMD_TABLE_SELECTION_SHOW :
+	case ID_CMD_DATA_SELECTION_CLEAR :
 		m_pControl->ProcessWindowEvent(event);
 		break;
 

@@ -89,11 +89,13 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT_PREVIEW   , CVIEW_Layout::On_Print_Preview)
 	EVT_MENU     (ID_CMD_LAYOUT_PRINT           , CVIEW_Layout::On_Print        )
 	EVT_MENU     (ID_CMD_LAYOUT_EXPORT          , CVIEW_Layout::On_Export       )
-	EVT_MENU     (ID_CMD_LAYOUT_TO_CLIPBOARD    , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_IN         , CVIEW_Layout::On_Zoom         )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_OUT        , CVIEW_Layout::On_Zoom         )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_FULL       , CVIEW_Layout::On_Zoom         )
 	EVT_MENU     (ID_CMD_LAYOUT_ZOOM_ORIGINAL   , CVIEW_Layout::On_Zoom         )
+
+	EVT_MENU     (ID_CMD_VIEW_CLIPBOARD_COPY    , CVIEW_Layout::On_Command      )
+	EVT_MENU     (ID_CMD_VIEW_CLIPBOARD_PASTE   , CVIEW_Layout::On_Command      )
 
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_MAP        , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LEGEND     , CVIEW_Layout::On_Command      )
@@ -102,7 +104,6 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_LABEL      , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_TEXT       , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_IMAGE      , CVIEW_Layout::On_Command      )
-	EVT_MENU     (ID_CMD_LAYOUT_ITEM_PASTE      , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_PROPERTIES , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_ITEM_DELETE     , CVIEW_Layout::On_Command      )
@@ -113,11 +114,13 @@ BEGIN_EVENT_TABLE(CVIEW_Layout, CVIEW_Base)
 	EVT_MENU     (ID_CMD_LAYOUT_IMAGE_SAVE      , CVIEW_Layout::On_Command      )
 	EVT_MENU     (ID_CMD_LAYOUT_IMAGE_RESTORE   , CVIEW_Layout::On_Command      )
 
+	EVT_UPDATE_UI(ID_CMD_VIEW_CLIPBOARD_COPY    , CVIEW_Layout::On_Command_UI   )
+	EVT_UPDATE_UI(ID_CMD_VIEW_CLIPBOARD_PASTE   , CVIEW_Layout::On_Command_UI   )
+
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MAP        , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_LEGEND     , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALEBAR   , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_SCALE      , CVIEW_Layout::On_Command_UI   )
-	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_PASTE      , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_HIDE       , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_TOP   , CVIEW_Layout::On_Command_UI   )
 	EVT_UPDATE_UI(ID_CMD_LAYOUT_ITEM_MOVE_BOTTOM, CVIEW_Layout::On_Command_UI   )
@@ -171,7 +174,7 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_PRINT);
 	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_EXPORT);
-	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_LAYOUT_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu   , false, ID_CMD_VIEW_CLIPBOARD_COPY);
 	pMenu->AppendSeparator();
 
 	pSubMenu	= new wxMenu;
@@ -193,7 +196,7 @@ wxMenu * CVIEW_Layout::_Create_Menu(void)
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_TEXT);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_IMAGE);
 	pSubMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_LAYOUT_ITEM_PASTE);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_VIEW_CLIPBOARD_PASTE);
 	pMenu->AppendSubMenu(pSubMenu, _TL("Add"));
 
 	return( pMenu );

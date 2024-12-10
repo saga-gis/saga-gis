@@ -197,9 +197,12 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	wxMenu *pSubMenu, *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
+	if( MDI_Get_Active_Map() )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+	}
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
@@ -221,32 +224,33 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY_IMPORT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
 	pMenu->AppendSeparator();
-	pSubMenu = new wxMenu(_TL("Attributes"));
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pSubMenu = new wxMenu());
 	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SHOW);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_TABLE_JOIN_DATA);
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pSubMenu);
 
-	pSubMenu = new wxMenu(_TL("Charts"));
-	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_TABLE_SCATTERPLOT);
-	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_DIAGRAM);
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"), pSubMenu);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"    ), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_HISTOGRAM);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_DIAGRAM);
 
-	pSubMenu = new wxMenu(_TL("Selection"));
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
-//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
-	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SELECTION_CLEAR);
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_TABLE_SELECTION_INVERT);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection" ), pSubMenu = new wxMenu());
+	if( MDI_Get_Active_Map() && Get_Shapes()->Get_Selection_Count() > 0 )
+	{
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+	}
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SELECTION_INVERT);
 	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SELECT_NUMERIC);
 	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SELECT_STRING);
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection"), pSubMenu);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Edit"), Edit_Get_Menu());
 
@@ -267,9 +271,14 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
-	case ID_CMD_SHAPES_SET_LUT       :	_LUT_Create     ();	break;
-	case ID_CMD_DATA_CLASSIFY_IMPORT :  _LUT_Import     ();	break;
-	case ID_CMD_SHAPES_HISTOGRAM     :	Histogram_Toggle();	break;
+	case ID_CMD_TABLE_SHOW          : m_pTable->Toggle_View   (); break;
+
+	case ID_CMD_DATA_CLASSIFY       : _LUT_Create     (); break;
+	case ID_CMD_DATA_CLASSIFY_IMPORT: _LUT_Import     (); break;
+
+	case ID_CMD_DATA_HISTOGRAM      : Histogram_Toggle(); break;
+	case ID_CMD_DATA_SCATTERPLOT    : Add_ScatterPlot (); break;
+	case ID_CMD_DATA_DIAGRAM        : m_pTable->Toggle_Diagram(); break;
 
 	//-----------------------------------------------------
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:
@@ -286,36 +295,29 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLE_SHOW       : m_pTable->Toggle_View   (); break;
-	case ID_CMD_TABLE_DIAGRAM    : m_pTable->Toggle_Diagram(); break;
-	case ID_CMD_TABLE_SCATTERPLOT:          Add_ScatterPlot(); break;
+	case ID_CMD_SHAPES_EDIT_SHAPE    :	_Edit_Shape         (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	_Edit_Shape_Add     (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	_Edit_Shape_Del     (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART :	_Edit_Part_Add      (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART :	_Edit_Part_Del      (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT:	_Edit_Point_Del     (); break;
+	case ID_CMD_SHAPES_EDIT_MERGE    :	_Edit_Merge         (); break;
+	case ID_CMD_SHAPES_EDIT_SPLIT    :	_Edit_Split         (); break;
+	case ID_CMD_SHAPES_EDIT_MOVE     :	_Edit_Move          (); break;
+    case ID_CMD_SHAPES_EDIT_SEL_COPY : _Edit_Selection_Copy(); break;
 
 	//-----------------------------------------------------
-	case ID_CMD_SHAPES_EDIT_SHAPE                :	_Edit_Shape             (); break;
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE            :	_Edit_Shape_Add         (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE            :	_Edit_Shape_Del         (); break;
-	case ID_CMD_SHAPES_EDIT_ADD_PART             :	_Edit_Part_Add          (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_PART             :	_Edit_Part_Del          (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_POINT            :	_Edit_Point_Del         (); break;
-	case ID_CMD_SHAPES_EDIT_MERGE                :	_Edit_Merge             (); break;
-	case ID_CMD_SHAPES_EDIT_SPLIT                :	_Edit_Split             (); break;
-	case ID_CMD_SHAPES_EDIT_MOVE                 :	_Edit_Move              (); break;
-    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:  _Edit_Sel_Copy_New_Layer(); break;
+	case ID_CMD_DATA_SELECTION_CLEAR : Get_Shapes()->Select       (); Update_Views(); break;
+	case ID_CMD_DATA_SELECTION_INVERT: Get_Shapes()->Inv_Selection(); Update_Views(); break;
 
-	//-----------------------------------------------------
-	case ID_CMD_TABLE_SELECTION_CLEAR            :
-	case ID_CMD_SHAPES_EDIT_SEL_CLEAR            : Get_Shapes()->Select       (); Update_Views(); break;
-	case ID_CMD_TABLE_SELECTION_INVERT           :
-	case ID_CMD_SHAPES_EDIT_SEL_INVERT           : Get_Shapes()->Inv_Selection(); Update_Views(); break;
-
-	case ID_CMD_TABLE_SELECT_NUMERIC: { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 3);
+	case ID_CMD_TABLE_SELECT_NUMERIC : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 3);
 			if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", m_pObject) && DLG_Parameters(pTool->Get_Parameters()) )
 			{
 				pTool->Execute();
 			}
  		break; }
 
-	case ID_CMD_TABLE_SELECT_STRING : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 4);
+	case ID_CMD_TABLE_SELECT_STRING  : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 4);
 			if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", m_pObject) && DLG_Parameters(pTool->Get_Parameters()) )
 			{
 				pTool->Execute();
@@ -367,15 +369,15 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0);
 		break;
 
-	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+	case ID_CMD_DATA_SELECTION_CLEAR:
 		event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
 		break;
 
-	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+	case ID_CMD_DATA_SELECTION_INVERT:
 		event.Enable(m_Edit_pShape == NULL);
 		break;
 
-    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+    case ID_CMD_SHAPES_EDIT_SEL_COPY:
         event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
         break;
 
@@ -383,16 +385,16 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_pTable->Get_View() != NULL);
 		break;
 
-	case ID_CMD_TABLE_DIAGRAM:
+	case ID_CMD_SHAPES_EDIT_MOVE:
+		event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move);
+		break;
+
+	case ID_CMD_DATA_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 
-	case ID_CMD_SHAPES_HISTOGRAM:
+	case ID_CMD_DATA_HISTOGRAM:
 		event.Check(m_pHistogram != NULL);
-		break;
-
-	case ID_CMD_SHAPES_EDIT_MOVE:
-		event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move);
 		break;
 	}
 

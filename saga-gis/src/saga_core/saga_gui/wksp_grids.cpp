@@ -183,10 +183,15 @@ wxString CWKSP_Grids::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grids::Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu(m_pObject->Get_Name());
+	wxMenu *pSubMenu, *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SHOW);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
+	if( MDI_Get_Active_Map() )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+	}
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
@@ -195,7 +200,7 @@ wxMenu * CWKSP_Grids::Get_Menu(void)
 	if( PGSQL_has_Connections() )
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SAVEAS_IMAGE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS_IMAGE);
 
 	if( m_pObject->is_Modified() && SG_File_Exists(m_pObject->Get_File_Name(false)) )
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
@@ -210,13 +215,16 @@ wxMenu * CWKSP_Grids::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRID_HISTOGRAM);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SCATTERPLOT);
-
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
+
+	pMenu->AppendSeparator();
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu, true , ID_CMD_DATA_HISTOGRAM);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT_3D);
 
 	return( pMenu );
 }
@@ -234,21 +242,23 @@ bool CWKSP_Grids::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
-	case ID_CMD_GRID_SAVEAS_IMAGE:
-		_Save_Image();
-		break;
+	case ID_CMD_DATA_SAVEAS_IMAGE  : _Save_Image(); break;
 
-	case ID_CMD_GRID_HISTOGRAM:
-		Histogram_Toggle();
-		break;
+	case ID_CMD_DATA_CLASSIFY      : _LUT_Create(); break;
 
-	case ID_CMD_GRID_SCATTERPLOT:
-		Add_ScatterPlot();
-		break;
+	case ID_CMD_DATA_HISTOGRAM     : Histogram_Toggle(); break;
+	case ID_CMD_DATA_SCATTERPLOT   : Add_ScatterPlot (); break;
 
-	case ID_CMD_GRID_SET_LUT:
-		_LUT_Create();
-		break;
+	case ID_CMD_DATA_SCATTERPLOT_3D: { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 6);
+		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TYPE", 0)
+		&&  pTool->Set_Parameter("GRID_X", m_pObject->asGrids()->Get_Grid_Ptr(0))
+		&&  pTool->Set_Parameter("GRID_Y", m_pObject->asGrids()->Get_Grid_Ptr(1))
+		&&  pTool->Set_Parameter("GRID_Z", m_pObject->asGrids()->Get_Grid_Ptr(2))
+		&& DLG_Parameters(pTool->Get_Parameters()) )
+		{
+			pTool->Execute();
+		}
+		break; }
 	}
 
 	return( true );
@@ -259,12 +269,10 @@ bool CWKSP_Grids::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Layer::On_Command_UI(event) );
+	default: return( CWKSP_Layer::On_Command_UI(event) );
 
-	case ID_CMD_GRID_HISTOGRAM:
-		event.Check(m_pHistogram != NULL);
-		break;
+	case ID_CMD_DATA_HISTOGRAM     : event.Check(m_pHistogram != NULL); break;
+	case ID_CMD_DATA_SCATTERPLOT_3D: event.Check(m_pObject->asGrids()->Get_Grid_Count() >= 3); break;
 	}
 
 	return( true );

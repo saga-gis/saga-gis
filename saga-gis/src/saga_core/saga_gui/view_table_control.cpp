@@ -89,10 +89,10 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_GRID_LABEL_RIGHT_CLICK(CVIEW_Table_Control::On_RClick_Label )
 
 	//-----------------------------------------------------
-	EVT_MENU     (ID_CMD_TABLE_SELECTION_ONLY , CVIEW_Table_Control::On_Sel_Only       )
-	EVT_UPDATE_UI(ID_CMD_TABLE_SELECTION_ONLY , CVIEW_Table_Control::On_Sel_Only_UI    )
-	EVT_MENU     (ID_CMD_TABLE_SELECTION_CLEAR, CVIEW_Table_Control::On_Sel_Clear      )
-	EVT_UPDATE_UI(ID_CMD_TABLE_SELECTION_CLEAR, CVIEW_Table_Control::On_Sel_Clear_UI   )
+	EVT_MENU     (ID_CMD_TABLE_SELECTION_SHOW , CVIEW_Table_Control::On_Sel_Only       )
+	EVT_UPDATE_UI(ID_CMD_TABLE_SELECTION_SHOW , CVIEW_Table_Control::On_Sel_Only_UI    )
+	EVT_MENU     (ID_CMD_DATA_SELECTION_CLEAR , CVIEW_Table_Control::On_Sel_Clear      )
+	EVT_UPDATE_UI(ID_CMD_DATA_SELECTION_CLEAR , CVIEW_Table_Control::On_Sel_Clear_UI   )
 
 	EVT_MENU     (ID_CMD_TABLE_AUTOSIZE_COLS  , CVIEW_Table_Control::On_Autosize_Cols  )
 	EVT_MENU     (ID_CMD_TABLE_AUTOSIZE_ROWS  , CVIEW_Table_Control::On_Autosize_Rows  )
@@ -100,7 +100,7 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_MENU     (ID_CMD_TABLE_FIELD_OPEN_APP , CVIEW_Table_Control::On_Cell_Open      )
 	EVT_MENU     (ID_CMD_TABLE_FIELD_OPEN_DATA, CVIEW_Table_Control::On_Cell_Open      )
 
-	EVT_MENU     (ID_CMD_TABLE_TO_CLIPBOARD   , CVIEW_Table_Control::On_ToClipboard    )
+	EVT_MENU     (ID_CMD_VIEW_CLIPBOARD_COPY  , CVIEW_Table_Control::On_ToClipboard    )
 
 	EVT_MENU     (ID_CMD_TABLE_FIELD_ADD      , CVIEW_Table_Control::On_Field_Add      )
 	EVT_UPDATE_UI(ID_CMD_TABLE_FIELD_ADD      , CVIEW_Table_Control::On_Field_Add_UI   )
@@ -617,7 +617,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT   );
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC   );
 		Menu.AppendSeparator();
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD );
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 	}
@@ -629,9 +629,9 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 
 		if( m_pData->m_bSelection )
 		{
-			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY );
+			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_SHOW );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_VIEW_CLIPBOARD_COPY  );
 		}
 		else
 		{
@@ -642,10 +642,10 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		//	Menu.AppendSeparator();
 		//	CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS  );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY );
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_CLEAR);
+			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_SHOW );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_SELECTION_CLEAR );
 			Menu.AppendSeparator();
-			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD   );
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_VIEW_CLIPBOARD_COPY  );
 		}
 
 		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);

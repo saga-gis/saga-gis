@@ -178,10 +178,15 @@ wxString CWKSP_PointCloud::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud::Get_Menu(void)
 {
-	wxMenu *pMenu = new wxMenu(m_pObject->Get_Name());
+	wxMenu *pSubMenu, *pMenu = new wxMenu(m_pObject->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SHOW);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
+	if( MDI_Get_Active_Map() )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+	}
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
@@ -200,32 +205,37 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
-
-	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Color Stretch"), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_RANGE_MINMAX   );
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_RANGE_STDDEV150);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_RANGE_STDDEV200);
+
+	//-----------------------------------------------------
 	pMenu->AppendSeparator();
 
-	//-----------------------------------------------------
-	wxMenu *pSubMenu = new wxMenu(_TL("Classification"));
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SHOW);
+//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
 
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_MINMAX);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV150);
-	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV200);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Charts"    ), pSubMenu = new wxMenu());
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_HISTOGRAM);
+//	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
+//	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_DIAGRAM);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Classification"), pSubMenu);
-
-	//-----------------------------------------------------
-	wxMenu *pTable = new wxMenu(_TL("Table"));
-
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
-//	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
-//	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_SCATTERPLOT);
-
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
+	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection" ), pSubMenu = new wxMenu());
+	if( MDI_Get_Active_Map() && Get_PointCloud()->Get_Selection_Count() > 0 )
+	{
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+	}
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
+	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SELECTION_INVERT);
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SELECT_NUMERIC);
+	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_TABLE_SELECT_STRING);
 
 	return( pMenu );
 }
@@ -246,37 +256,37 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 	case ID_CMD_POINTCLOUD_LAST:
 		break;
 
-	case ID_CMD_SHAPES_SET_LUT:
+	case ID_CMD_DATA_CLASSIFY:
 		_LUT_Create();
 		break;
 
-	case ID_CMD_POINTCLOUD_RANGE_MINMAX:
+	case ID_CMD_DATA_RANGE_MINMAX:
 		Set_Color_Range(
 			Get_PointCloud()->Get_Minimum(m_fValue),
 			Get_PointCloud()->Get_Maximum(m_fValue)
 		);
 		break;
 
-	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:
+	case ID_CMD_DATA_RANGE_STDDEV150:
 		Set_Color_Range(
 			Get_PointCloud()->Get_Mean(m_fValue) - 1.5 * Get_PointCloud()->Get_StdDev(m_fValue),
 			Get_PointCloud()->Get_Mean(m_fValue) + 1.5 * Get_PointCloud()->Get_StdDev(m_fValue)
 		);
 		break;
 
-	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:
+	case ID_CMD_DATA_RANGE_STDDEV200:
 		Set_Color_Range(
 			Get_PointCloud()->Get_Mean(m_fValue) - 2. * Get_PointCloud()->Get_StdDev(m_fValue),
 			Get_PointCloud()->Get_Mean(m_fValue) + 2. * Get_PointCloud()->Get_StdDev(m_fValue)
 		);
 		break;
 
-	case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+	case ID_CMD_DATA_SELECTION_CLEAR:
 		Get_PointCloud()->Select();
 		Update_Views();
 		break;
 
-	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+	case ID_CMD_DATA_SELECTION_INVERT:
 		Get_PointCloud()->Inv_Selection();
 		Update_Views();
 		break;
@@ -290,7 +300,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		}
 		break;
 
-    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+    case ID_CMD_SHAPES_EDIT_SEL_COPY:
         if( Get_PointCloud()->Get_Selection_Count() > 0 )
         {
             CSG_PointCloud *pCopy = new CSG_PointCloud(Get_PointCloud());
@@ -308,17 +318,9 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
         }
         break;
 
-	case ID_CMD_TABLE_SHOW:
-		m_pTable->Toggle_View();
-		break;
-
-	case ID_CMD_TABLE_DIAGRAM:
-		m_pTable->Toggle_Diagram();
-		break;
-
-	case ID_CMD_SHAPES_HISTOGRAM:
-		Histogram_Toggle();
-		break;
+	case ID_CMD_TABLE_SHOW    : m_pTable->Toggle_View   (); break;
+	case ID_CMD_DATA_DIAGRAM  : m_pTable->Toggle_Diagram(); break;
+	case ID_CMD_DATA_HISTOGRAM: Histogram_Toggle        (); break;
 	}
 
 	return( true );
@@ -332,11 +334,11 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
 
-    case ID_CMD_SHAPES_EDIT_SEL_CLEAR:
+    case ID_CMD_DATA_SELECTION_CLEAR:
         event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
         break;
 
-    case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+    case ID_CMD_DATA_SELECTION_INVERT:
         event.Enable(true);
         break;
 
@@ -344,24 +346,16 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
         event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
         break;
 
-    case ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER:
+    case ID_CMD_SHAPES_EDIT_SEL_COPY:
         event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
         break;
 
 	case ID_CMD_POINTCLOUD_LAST:
 		break;
 
-	case ID_CMD_TABLE_SHOW:
-		event.Check(m_pTable->Get_View() != NULL);
-		break;
-
-	case ID_CMD_TABLE_DIAGRAM:
-		event.Check(m_pTable->Get_Diagram() != NULL);
-		break;
-
-	case ID_CMD_SHAPES_HISTOGRAM:
-		event.Check(m_pHistogram != NULL);
-		break;
+	case ID_CMD_TABLE_SHOW    : event.Check(m_pTable->Get_View   () != NULL); break;
+	case ID_CMD_DATA_DIAGRAM  : event.Check(m_pTable->Get_Diagram() != NULL); break;
+	case ID_CMD_DATA_HISTOGRAM: event.Check(m_pHistogram            != NULL); break;
 	}
 
 	return( true );
@@ -844,9 +838,9 @@ wxMenu * CWKSP_PointCloud::Edit_Get_Menu(void)
 	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
-    CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
+    CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SELECTION_CLEAR );
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SELECTION_INVERT);
 
 	return( pMenu );
 }

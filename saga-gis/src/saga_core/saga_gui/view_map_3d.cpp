@@ -95,6 +95,8 @@ IMPLEMENT_CLASS(CVIEW_Map_3D, CVIEW_Base);
 BEGIN_EVENT_TABLE(CVIEW_Map_3D, CVIEW_Base)
 	EVT_SIZE(CVIEW_Map_3D::On_Size)
 
+	EVT_MENU           (ID_CMD_VIEW_CLIPBOARD_COPY           , CVIEW_Map_3D::On_Command)
+	EVT_UPDATE_UI      (ID_CMD_VIEW_CLIPBOARD_COPY           , CVIEW_Map_3D::On_Command_UI)
 	EVT_MENU_RANGE     (ID_CMD_MAP3D_FIRST, ID_CMD_MAP3D_LAST, CVIEW_Map_3D::On_Command)
 	EVT_UPDATE_UI_RANGE(ID_CMD_MAP3D_FIRST, ID_CMD_MAP3D_LAST, CVIEW_Map_3D::On_Command_UI)
 END_EVENT_TABLE()
@@ -189,7 +191,6 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_USAGE);
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_SAVE);
-	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_TO_CLIPBOARD);
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_MAP3D_EXAGGERATE_LESS);
@@ -227,6 +228,9 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_ANAGLYPH);
 	CMD_Menu_Add_Item(pMenu    ,  true, ID_CMD_MAP3D_STEREO_VIEW);
 
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu    , false, ID_CMD_VIEW_CLIPBOARD_COPY);
+
 	return( pMenu );
 }
 
@@ -236,7 +240,7 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_TO_CLIPBOARD);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_ANAGLYPH);
 	CMD_ToolBar_Add_Separator(pToolBar);
@@ -320,7 +324,7 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 		return; }
 
 	//-----------------------------------------------------
-	case ID_CMD_MAP3D_TO_CLIPBOARD:
+	case ID_CMD_VIEW_CLIPBOARD_COPY:
 		m_pPanel->Save_toClipboard();
 		break;
 

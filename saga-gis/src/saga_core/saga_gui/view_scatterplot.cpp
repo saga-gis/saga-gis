@@ -187,10 +187,10 @@ BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
 	EVT_PAINT(CVIEW_ScatterPlot::On_Paint)
 	EVT_SIZE (CVIEW_ScatterPlot::On_Size)
 
-	EVT_MENU (ID_CMD_SCATTERPLOT_PARAMETERS  , CVIEW_ScatterPlot::On_Parameters)
-	EVT_MENU (ID_CMD_SCATTERPLOT_UPDATE      , CVIEW_ScatterPlot::On_Update)
-	EVT_MENU (ID_CMD_SCATTERPLOT_AS_TABLE    , CVIEW_ScatterPlot::On_AsTable)
-	EVT_MENU (ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
+	EVT_MENU (ID_CMD_SCATTERPLOT_PARAMETERS, CVIEW_ScatterPlot::On_Parameters)
+	EVT_MENU (ID_CMD_SCATTERPLOT_UPDATE    , CVIEW_ScatterPlot::On_Update)
+	EVT_MENU (ID_CMD_SCATTERPLOT_AS_TABLE  , CVIEW_ScatterPlot::On_AsTable)
+	EVT_MENU (ID_CMD_VIEW_CLIPBOARD_COPY   , CVIEW_ScatterPlot::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -263,7 +263,7 @@ wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_AS_TABLE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	return( pMenu );
 }
@@ -276,7 +276,7 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_AS_TABLE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_TO_CLIPBOARD);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Scatterplot"));
 

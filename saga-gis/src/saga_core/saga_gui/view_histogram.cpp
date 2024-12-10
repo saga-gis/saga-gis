@@ -102,7 +102,7 @@ BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
 	EVT_MENU      (ID_CMD_HISTOGRAM_GAUSSIAN    , CVIEW_Histogram::On_Gaussian)
 	EVT_MENU      (ID_CMD_HISTOGRAM_SET_MINMAX  , CVIEW_Histogram::On_Set_MinMax)
 	EVT_MENU      (ID_CMD_HISTOGRAM_AS_TABLE    , CVIEW_Histogram::On_AsTable)
-	EVT_MENU      (ID_CMD_HISTOGRAM_TO_CLIPBOARD, CVIEW_Histogram::On_ToClipboard)
+	EVT_MENU      (ID_CMD_VIEW_CLIPBOARD_COPY   , CVIEW_Histogram::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -148,7 +148,7 @@ wxMenu * CVIEW_Histogram::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_GAUSSIAN);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	return( pMenu );
 }
@@ -162,7 +162,7 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_GAUSSIAN);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
 
@@ -585,7 +585,7 @@ void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_AS_TABLE);
-	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_PARAMETERS);

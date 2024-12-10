@@ -347,7 +347,7 @@ void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
 	wxMenu Menu;
 
-	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(&Menu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_FIT);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DIAGRAM_SIZE_INC);
@@ -1206,12 +1206,12 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Diagram, CVIEW_Base)
 	EVT_SIZE    (CVIEW_Table_Diagram::On_Size)
 	EVT_KEY_DOWN(CVIEW_Table_Diagram::On_Key_Down)
 
-	EVT_MENU(ID_CMD_DIAGRAM_PARAMETERS  , CVIEW_Table_Diagram::On_Parameters)
-	EVT_MENU(ID_CMD_DIAGRAM_SIZE_FIT    , CVIEW_Table_Diagram::On_Size_Fit)
-	EVT_MENU(ID_CMD_DIAGRAM_SIZE_INC    , CVIEW_Table_Diagram::On_Size_Inc)
-	EVT_MENU(ID_CMD_DIAGRAM_SIZE_DEC    , CVIEW_Table_Diagram::On_Size_Dec)
-	EVT_MENU(ID_CMD_DIAGRAM_LEGEND      , CVIEW_Table_Diagram::On_Legend)
-	EVT_MENU(ID_CMD_DIAGRAM_TO_CLIPBOARD, CVIEW_Table_Diagram::On_SaveToClipboard)
+	EVT_MENU(ID_CMD_DIAGRAM_PARAMETERS , CVIEW_Table_Diagram::On_Parameters)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_FIT   , CVIEW_Table_Diagram::On_Size_Fit)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_INC   , CVIEW_Table_Diagram::On_Size_Inc)
+	EVT_MENU(ID_CMD_DIAGRAM_SIZE_DEC   , CVIEW_Table_Diagram::On_Size_Dec)
+	EVT_MENU(ID_CMD_DIAGRAM_LEGEND     , CVIEW_Table_Diagram::On_Legend)
+	EVT_MENU(ID_CMD_VIEW_CLIPBOARD_COPY, CVIEW_Table_Diagram::On_SaveToClipboard)
 END_EVENT_TABLE()
 
 
@@ -1257,7 +1257,7 @@ wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_DEC);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_DIAGRAM_LEGEND);
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	return( pMenu );
 }
@@ -1271,6 +1271,7 @@ wxToolBarBase * CVIEW_Table_Diagram::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DIAGRAM_SIZE_FIT);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DIAGRAM_SIZE_INC);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DIAGRAM_SIZE_DEC);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Diagram"));
 

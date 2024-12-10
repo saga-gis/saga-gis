@@ -98,12 +98,12 @@ BEGIN_EVENT_TABLE(CActive_Attributes_Control, wxGrid)
 	EVT_MENU(ID_CMD_TABLE_FIELD_OPEN_APP , CActive_Attributes_Control::On_Cell_Open    )
 	EVT_MENU(ID_CMD_TABLE_FIELD_OPEN_DATA, CActive_Attributes_Control::On_Cell_Open    )
 
-	EVT_MENU(ID_CMD_TABLE_TO_CLIPBOARD   , CActive_Attributes_Control::On_ToClipboard  )
-
 	EVT_MENU(ID_CMD_TABLE_FIELD_ADD      , CActive_Attributes_Control::On_Field_Add    )
 	EVT_MENU(ID_CMD_TABLE_FIELD_DEL      , CActive_Attributes_Control::On_Field_Del    )
 	EVT_MENU(ID_CMD_TABLE_FIELD_RENAME   , CActive_Attributes_Control::On_Field_Rename )
 	EVT_MENU(ID_CMD_TABLE_FIELD_TYPE     , CActive_Attributes_Control::On_Field_Type   )
+
+	EVT_MENU(ID_CMD_ACTIVE_CLIPBOARD_COPY, CActive_Attributes_Control::On_ToClipboard  )
 END_EVENT_TABLE()
 
 
@@ -379,14 +379,14 @@ void CActive_Attributes_Control::On_RClick(wxGridEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 {
-	wxMenu	Menu;
+	wxMenu Menu;
 
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
 		Menu.SetTitle(_TL("Columns"));
 
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_CLIPBOARD_COPY);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		if( g_pActive->Get_Active_Data_Item() && g_pActive->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )
@@ -403,14 +403,14 @@ void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 	{
 		Menu.SetTitle(_TL("Rows"));
 
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ACTIVE_CLIPBOARD_COPY);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
 	}
 	else
 	{
 		Menu.SetTitle(_TL("Attributes"));
 
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ACTIVE_CLIPBOARD_COPY);
 	}
 
 	//-----------------------------------------------------

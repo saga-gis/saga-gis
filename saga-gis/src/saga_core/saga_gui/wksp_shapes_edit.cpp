@@ -90,7 +90,7 @@
 //---------------------------------------------------------
 wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 {
-	wxMenu	*pMenu	= new wxMenu;
+	wxMenu *pMenu = new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_SHAPES_EDIT_SHAPE);
 
@@ -99,10 +99,11 @@ wxMenu * CWKSP_Shapes::Edit_Get_Menu(void)
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_ADD_SHAPE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_DEL_SHAPE);
-        CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY_TO_NEW_LAYER);
+        CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_COPY );
+
 		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_INVERT);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_EDIT_SEL_CLEAR);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SELECTION_INVERT);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SELECTION_CLEAR );
 
 		if( Get_Shapes()->Get_Selection_Count()  > 1
 		&&  Get_Shapes()->Get_Type() != SHAPE_TYPE_Point )
@@ -773,7 +774,7 @@ bool CWKSP_Shapes::_Edit_Move(bool bToggle)
 
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::_Edit_Sel_Copy_New_Layer(void)
+bool CWKSP_Shapes::_Edit_Selection_Copy(void)
 {
     if( Get_Shapes()->Get_Selection_Count() < 1 )
     {
