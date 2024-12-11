@@ -64,9 +64,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -77,9 +77,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -104,7 +104,7 @@ CSG_File::~CSG_File(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -173,7 +173,7 @@ bool CSG_File::Close(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -219,7 +219,7 @@ bool CSG_File::Set_Encoding(int Encoding)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -563,9 +563,9 @@ CSG_String CSG_File::Scan_String(SG_Char Separator) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -593,14 +593,16 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 {
 	Close();
 
-	CSG_String Path(SG_File_Get_Path(FileName));
+	m_ZipFile = FileName;
+
+	CSG_String Path(SG_File_Get_Path(m_ZipFile));
 
 	if( !Path.is_Empty() && !SG_Dir_Exists(Path) )
 	{
 		return( false );
 	}
 
-	if( Mode == SG_FILE_R && !SG_File_Exists(FileName) )
+	if( Mode == SG_FILE_R && !SG_File_Exists(m_ZipFile) )
 	{
 		return( false );
 	}
@@ -611,11 +613,11 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 
 	if( Mode == SG_FILE_W )
 	{
-		m_pStream = new wxZipOutputStream(new wxFileOutputStream(FileName.c_str()));
+		m_pStream = new wxZipOutputStream(new wxFileOutputStream(m_ZipFile.c_str()));
 	}
-	else if( Mode == SG_FILE_R && SG_File_Exists(FileName) )
+	else if( Mode == SG_FILE_R && SG_File_Exists(m_ZipFile) )
 	{
-		m_pStream = new wxZipInputStream (new wxFileInputStream (FileName.c_str()));
+		m_pStream = new wxZipInputStream (new wxFileInputStream (m_ZipFile.c_str()));
 	}
 
 	if( !m_pStream || !m_pStream_Base->IsOk() )
@@ -647,6 +649,8 @@ bool CSG_File_Zip::Close(void)
 	}
 
 	m_Files.Set_Array(0);
+
+	m_ZipFile.Clear();
 
 	return( CSG_File::Close() );
 }
@@ -740,9 +744,76 @@ CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Extract_All(const CSG_String &_Directory)
+{
+	CSG_String Directory(_Directory);
+
+	if( Directory.is_Empty() )
+	{
+		Directory = SG_File_Get_Path(m_ZipFile);
+	}
+
+	for(size_t i=0; i<Get_File_Count(); i++)
+	{
+		if( is_Directory(i) )
+		{
+			SG_Dir_Create(SG_File_Make_Path(Directory, Get_File_Name(i)));
+		}
+		else
+		{
+			Extract(Get_File_Name(i), SG_File_Make_Path(Directory, Get_File_Name(i)));
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Extract(const CSG_String &Name, const CSG_String &_File)
+{
+	if( !is_Reading() || !Get_File(Name) )
+	{
+		return( false );
+	}
+
+	CSG_String File(_File);
+
+	if( File.is_Empty() )
+	{
+		File = SG_File_Make_Path(SG_File_Get_Path(m_ZipFile), Name);
+	}
+
+	CSG_File Stream(File, SG_FILE_W, true, m_Encoding);
+
+	if( !Stream.is_Open() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	#define UNZIP_BUFFER 4096
+
+	char *Buffer[UNZIP_BUFFER];
+
+	while( !is_EOF() )
+	{
+		size_t nBytes = Read(Buffer, sizeof(char), UNZIP_BUFFER);
+
+		Stream.Write(Buffer, 1, nBytes); Stream.Flush();
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -847,9 +918,9 @@ bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, cons
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -989,9 +1060,9 @@ CSG_String		SG_File_Get_Extension(const CSG_String &FileName)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1022,9 +1093,9 @@ bool			SG_Set_Environment(const CSG_String &Variable, const CSG_String &Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
