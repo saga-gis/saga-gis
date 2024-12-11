@@ -352,18 +352,15 @@ void CActive_Attributes_Control::On_RClick(wxGridEvent &event)
 	switch( m_Table.Get_Field_Type(event.GetCol()) )
 	{
 	default:
-	{
 		// nop
-	}
-	break;
+		break;
 
-	case SG_DATATYPE_String:
-	{
-		wxMenu	Menu;
+	case SG_DATATYPE_String: {
+		wxMenu Menu;
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_OPEN_APP);
 
-		wxString	Value	= GetCellValue(event.GetRow(), event.GetCol());
+		wxString Value = GetCellValue(event.GetRow(), event.GetCol());
 
 		if( m_pData->is_DataSource(Value) )
 		{
@@ -371,8 +368,8 @@ void CActive_Attributes_Control::On_RClick(wxGridEvent &event)
 		}
 
 		PopupMenu(&Menu, event.GetPosition());
-	}
-	break;
+	
+		break; }
 	}
 }
 
@@ -386,7 +383,7 @@ void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 	{
 		Menu.SetTitle(_TL("Columns"));
 
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_CLIPBOARD_COPY);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_ACTIVE_CLIPBOARD_COPY);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		if( g_pActive->Get_Active_Data_Item() && g_pActive->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )
