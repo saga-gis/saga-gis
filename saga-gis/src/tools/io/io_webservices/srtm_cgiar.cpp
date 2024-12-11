@@ -73,10 +73,6 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 		"CGIAR CSI server. "
 	));
 
-	Add_Reference("https://srtm.csi.cgiar.org/",
-		SG_T("CGIAR CSI: SRTM 90m DEM Digital Elevation Database")
-	);
-
 	Add_Reference("Jarvis A., H.I. Reuter, A.  Nelson, E. Guevara", "2008",
 		"Hole-filled seamless SRTM data V4",
 		"International Centre for Tropical Agriculture (CIAT).",
@@ -87,6 +83,10 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 		"An evaluation of void filling interpolation methods for SRTM data",
 		"International Journal of Geographic Information Science, 21:9, 983-1008.",
 		SG_T("https://doi.org/10.1080/13658810601169899"), SG_T("doi:10.1080/13658810601169899")
+	);
+
+	Add_Reference("https://srtm.csi.cgiar.org/",
+		SG_T("SRTM 90m DEM Digital Elevation Database")
 	);
 
 	//-----------------------------------------------------
@@ -393,9 +393,9 @@ bool CSRTM_CGIAR::On_Execute(void)
 	if( !pTool || !pTool->Reset() || !pTool->Set_Manager(&Data)
 	||  !pTool->Set_Parameter("CRS_STRING"       , Projection.Get_WKT())
 	||  !pTool->Set_Parameter("SOURCE"           , pGrid)
-	||  !pTool->Set_Parameter("RESAMPLING"       ,  3) // B-Spline
-	||  !pTool->Set_Parameter("DATA_TYPE"        , 10) // Preserve
-	||  !pTool->Set_Parameter("TARGET_DEFINITION",  0)  // 'user defined'
+	||  !pTool->Set_Parameter("RESAMPLING"       , 3) // B-Spline
+	||  !pTool->Set_Parameter("DATA_TYPE"        , 8) // 4 byte floating point
+	||  !pTool->Set_Parameter("TARGET_DEFINITION", 0) // 'user defined'
 	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , Cellsize)
 	||  !pTool->Set_Parameter("TARGET_USER_XMAX" , Extent.xMax)
 	||  !pTool->Set_Parameter("TARGET_USER_XMIN" , Extent.xMin)
@@ -513,7 +513,7 @@ int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Nam
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text("%s.tif: %s...", _TL("extracting"), Name.c_str());
+	Process_Set_Text("%s.tif: %s...", Name.c_str(), _TL("extracting"));
 
 	CSG_File_Zip Zip(Zip_File);
 
