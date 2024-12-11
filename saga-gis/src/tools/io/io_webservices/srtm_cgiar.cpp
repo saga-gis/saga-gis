@@ -48,6 +48,9 @@
 //---------------------------------------------------------
 #include "srtm_cgiar.h"
 
+//---------------------------------------------------------
+#define VRT_NAME "srtm_tiles"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -58,16 +61,32 @@
 //---------------------------------------------------------
 CSRTM_CGIAR::CSRTM_CGIAR(void)
 {
-	Set_Name		(_TL("CGIAR SRTM"));
+	Set_Name		(_TL("CGIAR CSI SRTM"));
 
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"Prepare 3arcsec SRTM data for target area. "
+		"Prepare 3arcsec SRTM data for target areas of your choice. "
+		"Builds a local database in the chosen directory with the "
+		"original CGIAR CSI SRTM tiles. If not done yet all tiles "
+		"covering  the requested area are downloaded from the "
+		"CGIAR CSI server. "
 	));
 
-	Add_Reference("https://wiki.openstreetmap.org/wiki/Nominatim",
-		SG_T("Nominatim at OpenStreetMap Wiki")
+	Add_Reference("https://srtm.csi.cgiar.org/",
+		SG_T("CGIAR CSI: SRTM 90m DEM Digital Elevation Database")
+	);
+
+	Add_Reference("Jarvis A., H.I. Reuter, A.  Nelson, E. Guevara", "2008",
+		"Hole-filled seamless SRTM data V4",
+		"International Centre for Tropical Agriculture (CIAT).",
+		SG_T("https://srtm.csi.cgiar.org/"), SG_T("srtm.csi.cgiar.org")
+	);
+
+	Add_Reference("Reuter  H.I,  A.  Nelson,  A.  Jarvis", "2007",
+		"An evaluation of void filling interpolation methods for SRTM data",
+		"International Journal of Geographic Information Science, 21:9, 983-1008.",
+		SG_T("https://doi.org/10.1080/13658810601169899"), SG_T("doi:10.1080/13658810601169899")
 	);
 
 	//-----------------------------------------------------
@@ -77,19 +96,26 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 	);
 
 	Parameters.Add_FilePath("",
-		"TILES"      , _TL("Tiles"),
-		_TL(""),
+		"TILES"      , _TL("Local Tiles Directory"),
+		_TL("Download location for SRTM tiles. If requested tile is already present download will be skipped"),
 		NULL, NULL, true, true
+	);
+
+	Parameters.Add_Bool("TILES",
+		"DELZIP"     , _TL("Delete Zip Files"),
+		_TL("Do not keep zip files after download"),
+		true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"EXTENT"     , _TL("Extent"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("user defined"),
-			_TL("grid system"),
-			_TL("shapes extent")
+			_TL("shapes extent"),
+			_TL("grid system extent"),
+			_TL("grid system")
 		), 0
 	);
 
@@ -110,12 +136,12 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Double("EXTENT", "XMIN", _TL("Left"   ), _TL(""));
-	Parameters.Add_Double("EXTENT", "XMAX", _TL("Right"  ), _TL(""));
-	Parameters.Add_Double("EXTENT", "YMIN", _TL("Bottom" ), _TL(""));
-	Parameters.Add_Double("EXTENT", "YMAX", _TL("Top"    ), _TL(""));
-	Parameters.Add_Int   ("EXTENT", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
-	Parameters.Add_Int   ("EXTENT", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
+	Parameters.Add_Double("EXTENT", "XMIN", _TL("West"   ), _TL(""),  270360.);
+	Parameters.Add_Double("EXTENT", "XMAX", _TL("East"   ), _TL(""),  931320.);
+	Parameters.Add_Double("EXTENT", "YMIN", _TL("South"  ), _TL(""), 5225850.);
+	Parameters.Add_Double("EXTENT", "YMAX", _TL("North"  ), _TL(""), 6111540.);
+	Parameters.Add_Int   ("EXTENT", "NX"  , _TL("Columns"), _TL(""),    7345, 1, true);
+	Parameters.Add_Int   ("EXTENT", "NY"  , _TL("Rows"   ), _TL(""),    9842, 1, true);
 
 	Parameters.Add_Double("",
 		"BUFFER"     , _TL("Buffer"),
@@ -124,12 +150,12 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 	);
 
 	Parameters.Add_Double("",
-		"RESOLUTION" , _TL("Resolution"),
+		"CELLSIZE"   , _TL("Cellsize"),
 		_TL(""),
 		90., 0.0001, true
 	);
 
-	m_CRS.Create(Parameters);
+	m_CRS.Create(Parameters); Parameters.Set_Parameter("CRS_STRING", "epsg:25832"); m_CRS.On_Parameter_Changed(&Parameters, Parameters("CRS_STRING"));
 }
 
 
@@ -156,6 +182,30 @@ bool CSRTM_CGIAR::On_After_Execution(void)
 //---------------------------------------------------------
 int CSRTM_CGIAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("CELLSIZE") || (pParameter->Get_Parent() && pParameter->Get_Parent()->Cmp_Identifier("EXTENT")) )
+	{
+		double Cellsize = (*pParameters)("CELLSIZE")->asDouble();
+		double xMin     = (*pParameters)("XMIN"    )->asDouble();
+		double yMin     = (*pParameters)("YMIN"    )->asDouble();
+		int    NX       = (*pParameters)("NX"      )->asInt   ();
+		int    NY       = (*pParameters)("NY"      )->asInt   ();
+
+		if( pParameter->Cmp_Identifier("XMAX") ) { xMin = pParameter->asDouble() - Cellsize * NX; }
+		if( pParameter->Cmp_Identifier("YMAX") ) { yMin = pParameter->asDouble() - Cellsize * NY; }
+
+		CSG_Grid_System System(Cellsize, xMin, yMin, NX, NY);
+
+		if( System.is_Valid() )
+		{
+			(*pParameters)("XMIN")->Set_Value(System.Get_XMin());
+			(*pParameters)("XMAX")->Set_Value(System.Get_XMax());
+			(*pParameters)("YMIN")->Set_Value(System.Get_YMin());
+			(*pParameters)("YMAX")->Set_Value(System.Get_YMax());
+			(*pParameters)("NX"  )->Set_Value(System.Get_NX  ());
+			(*pParameters)("NY"  )->Set_Value(System.Get_NY  ());
+		}
+	}
+
 	m_CRS.On_Parameter_Changed(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -172,18 +222,19 @@ int CSRTM_CGIAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Set_Enabled("YMAX"       , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("NX"         , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("NY"         , pParameter->asInt() == 0);
-		pParameters->Set_Enabled("GRID_SYSTEM", pParameter->asInt() == 1);
-		pParameters->Set_Enabled("GRID"       , pParameter->asInt() == 1);
-		pParameters->Set_Enabled("SHAPES"     , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("SHAPES"     , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("GRID_SYSTEM", pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("CELLSIZE"   , pParameter->asInt() != 3);
+		pParameters->Set_Enabled("BUFFER"     , pParameter->asInt() == 1 || pParameter->asInt() == 2);
 	}
 
 	if( pParameters->Get_Name().Cmp(Get_Name()) == 0 )
 	{
 		CSG_Data_Object *pObject =
-			(*pParameters)["EXTENT"].asInt() == 1 ? (*pParameters)["GRID"  ].asDataObject() :
-			(*pParameters)["EXTENT"].asInt() == 2 ? (*pParameters)["SHAPES"].asDataObject() : NULL;
+			(*pParameters)["EXTENT"].asInt() == 1 ? (*pParameters)["SHAPES"].asDataObject() :
+			(*pParameters)["EXTENT"].asInt() >= 2 ? (*pParameters)["GRID"  ].asDataObject() : NULL;
 
-		pParameters->Set_Enabled("CRS_PICKER", !pObject || !pObject->Get_Projection().is_Okay());
+		pParameters->Set_Enabled("CRS_PICKER", !SG_Get_Data_Manager().Exists(pObject) || !pObject->Get_Projection().is_Okay());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -201,11 +252,15 @@ bool CSRTM_CGIAR::On_Execute(void)
 
 	if( !SG_Dir_Exists(Directory) )
 	{
+		Error_Set("no or invalid directory specified for local tiles database");
+
 		return( false );
 	}
 
 	//--------------------------------------------------------
 	CSG_Rect Extent, Extent_GCS; CSG_Projection Projection;
+
+	double Cellsize = Parameters("CELLSIZE")->asDouble();
 
 	switch( Parameters("EXTENT")->asInt() )
 	{
@@ -216,20 +271,31 @@ bool CSRTM_CGIAR::On_Execute(void)
 		);
 		break;
 
-	case  1: // grid system
+	case  1: // shapes extent
+		Extent.Create(Parameters("SHAPES")->asShapes()->Get_Extent());
+		Projection  = Parameters("SHAPES")->asShapes()->Get_Projection();
+
+		if( Parameters("BUFFER")->asDouble() > 0. )
+		{
+			Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
+		}
+		break;
+
+	case  2: // grid system extent
+		Extent.Create(Parameters("GRID")->asGrid()->Get_Extent());
+		Projection  = Parameters("GRID")->asGrid()->Get_Projection();
+
+		if( Parameters("BUFFER")->asDouble() > 0. )
+		{
+			Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
+		}
+		break;
+
+	case  3: // grid system
+		Cellsize    = Parameters("GRID")->asGrid()->Get_System().Get_Cellsize();
 		Extent.Create(Parameters("GRID")->asGrid()->Get_Extent());
 		Projection  = Parameters("GRID")->asGrid()->Get_Projection();
 		break;
-
-	case  2: // shapes extent
-		Extent.Create(Parameters("SHAPES")->asShapes()->Get_Extent());
-		Projection  = Parameters("SHAPES")->asShapes()->Get_Projection();
-		break;
-	}
-
-	if( Parameters("BUFFER")->asDouble() > 0. )
-	{
-		Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
 	}
 
 	if( !Projection.is_Okay() )
@@ -242,15 +308,16 @@ bool CSRTM_CGIAR::On_Execute(void)
 		}
 	}
 
-	double Resolution = Parameters("RESOLUTION")->asDouble();
-
 	//--------------------------------------------------------
 	if( !Projection.is_Geographic() )
 	{
-		Extent.xMin = Resolution * floor(Extent.xMin / Resolution);
-		Extent.xMax = Resolution * ceil (Extent.xMax / Resolution);
-		Extent.yMin = Resolution * floor(Extent.yMin / Resolution);
-		Extent.yMax = Resolution * ceil (Extent.yMax / Resolution);
+		if( Parameters("EXTENT")->asInt() != 3 ) // grid system
+		{
+			Extent.xMin = Cellsize * floor(Extent.xMin / Cellsize);
+			Extent.xMax = Cellsize * ceil (Extent.xMax / Cellsize);
+			Extent.yMin = Cellsize * floor(Extent.yMin / Cellsize);
+			Extent.yMax = Cellsize * ceil (Extent.yMax / Cellsize);
+		}
 
 		CSG_Shapes AoI(SHAPE_TYPE_Point); AoI.Get_Projection() = Projection;
 
@@ -278,7 +345,7 @@ bool CSRTM_CGIAR::On_Execute(void)
 	}
 
 	//--------------------------------------------------------
-	if( !Provide_Tiles(Directory, Extent_GCS) )
+	if( !Provide_Tiles(Directory, Extent_GCS, Parameters["DELZIP"].asBool()) )
 	{
 		return( false );
 	}
@@ -289,7 +356,7 @@ bool CSRTM_CGIAR::On_Execute(void)
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);
 
 	if( !pTool || !pTool->Reset() || !pTool->Set_Manager(&Data)
-	||  !pTool->Set_Parameter("FILES"      , SG_File_Make_Path(Directory, "srtm_global", "vrt"))
+	||  !pTool->Set_Parameter("FILES"      , SG_File_Make_Path(Directory, VRT_NAME, "vrt"))
 	||  !pTool->Set_Parameter("EXTENT"     , 1) // "user defined"
 	||  !pTool->Set_Parameter("EXTENT_XMIN", Extent_GCS.xMin)
 	||  !pTool->Set_Parameter("EXTENT_XMAX", Extent_GCS.xMax)
@@ -312,10 +379,14 @@ bool CSRTM_CGIAR::On_Execute(void)
 	//--------------------------------------------------------
 	if( Projection.is_Geographic() )
 	{
+		pGrid->Set_Name("CGIAR CSI SRTM");
+
 		Parameters.Set_Parameter("SRTM", pGrid);
 
 		return( true );
 	}
+
+	Process_Set_Text("%s...", _TL("projection"));
 
 	pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);
 
@@ -325,7 +396,7 @@ bool CSRTM_CGIAR::On_Execute(void)
 	||  !pTool->Set_Parameter("RESAMPLING"       ,  3) // B-Spline
 	||  !pTool->Set_Parameter("DATA_TYPE"        , 10) // Preserve
 	||  !pTool->Set_Parameter("TARGET_DEFINITION",  0)  // 'user defined'
-	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , Resolution)
+	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , Cellsize)
 	||  !pTool->Set_Parameter("TARGET_USER_XMAX" , Extent.xMax)
 	||  !pTool->Set_Parameter("TARGET_USER_XMIN" , Extent.xMin)
 	||  !pTool->Set_Parameter("TARGET_USER_YMAX" , Extent.yMax)
@@ -344,6 +415,8 @@ bool CSRTM_CGIAR::On_Execute(void)
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	//--------------------------------------------------------
+	pGrid->Set_Name("CGIAR CSI SRTM");
+
 	Parameters.Set_Parameter("SRTM", pGrid);
 
 	return( true );
@@ -400,9 +473,9 @@ bool CSRTM_CGIAR::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent, bo
 		Message_Fmt("\n%d download(s) of %d failed", nFailed, nFailed + nAdded);
 	}
 
-	if( nAdded > 0 || !SG_File_Exists(SG_File_Make_Path(Directory, "srtm_global", "vrt")) )
+	if( (nAdded + nFound > 0) || !SG_File_Exists(SG_File_Make_Path(Directory, VRT_NAME, "vrt")) )
 	{
-		Update_VRT(Directory, "srtm_global");
+		Update_VRT(Directory, VRT_NAME);
 	}
 
 	return( nAdded + nFound > 0 );
@@ -419,6 +492,8 @@ int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Nam
 	}
 
 	//-----------------------------------------------------
+	Process_Set_Text("%s.zip: %s...", Name.c_str(), _TL("downloading"));
+
 	CSG_CURL Connection("https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/");
 
 	if( !Connection.is_Connected() )
@@ -438,41 +513,25 @@ int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Nam
 	}
 
 	//-----------------------------------------------------
-	CSG_File_Zip Zip_Stream(Zip_File);
+	Process_Set_Text("%s.tif: %s...", _TL("extracting"), Name.c_str());
 
-	if( !Zip_Stream.is_Open() || !Zip_Stream.Get_File(Name + ".tif") )
+	CSG_File_Zip Zip(Zip_File);
+
+	if( !Zip.is_Open() || !Zip.Extract(Name + ".tif") )
 	{
-		Error_Set(_TL("failed to open zip file."));
+		Error_Set(_TL("failed to extract zip file."));
 
 		return( -1 );
 	}
 
-	CSG_File Tif_Stream(Local_File, SG_FILE_W, true);
+	Zip.Close();
 
-	if( !Tif_Stream.is_Open() )
-	{
-		Error_Set(_TL("failed to create tif file."));
-
-		return( -1 );
-	}
-
-	char *Buffer[1024];
-
-	while( !Zip_Stream.is_EOF() )
-	{
-		size_t nBytes = Zip_Stream.Read(Buffer, sizeof(char), 1024);
-
-		Tif_Stream.Write(Buffer, 1, nBytes);
-	}
-
-	Zip_Stream.Close();
-
-	//-----------------------------------------------------
 	if( DeleteZip )
 	{
 		SG_File_Delete(SG_File_Make_Path(Directory, Name, "zip"));
 	}
 
+	//-----------------------------------------------------
 	return( 1 );
 }
 
@@ -481,7 +540,7 @@ bool CSRTM_CGIAR::Update_VRT(const CSG_String &Directory, const CSG_String &VRT_
 {
 	CSG_Strings Files;
 
-	if( !SG_Dir_List_Files(Files, Directory) || Files.Get_Count() < 1 )
+	if( !SG_Dir_List_Files(Files, Directory, "tif") || Files.Get_Count() < 1 )
 	{
 		Error_Set(_TL("no files found in directory"));
 
