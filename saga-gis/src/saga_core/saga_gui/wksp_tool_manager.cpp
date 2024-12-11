@@ -473,7 +473,12 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 	{
 		CWKSP_Tool *pTool = Get_Tool_byID(Cmd_ID);
 
-		return( pTool ? pTool->Execute(true) : false );
+		if( pTool )
+		{
+			pTool->Execute(true);
+		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
