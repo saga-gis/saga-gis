@@ -129,7 +129,7 @@ bool CSG_CURL::Create(const CSG_String &Server, const SG_Char *Username, const S
 
 	if( m_Server.Find("://") < 0 )
 	{
-		m_Server.Prepend("http://");
+		m_Server.Prepend("https://");
 	}
 
 	if( Username && *Username )	{ CSG_String s(Username); curl_easy_setopt(m_pCURL, CURLOPT_USERNAME, s.b_str()); }
