@@ -240,7 +240,6 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_VIEW_MAP_3D);
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_PARAMETERS);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar,  true, ID_CMD_MAP3D_ANAGLYPH);
 	CMD_ToolBar_Add_Separator(pToolBar);
@@ -261,6 +260,8 @@ wxToolBarBase * CVIEW_Map_3D::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_LESS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP3D_CENTRAL_MORE);
+	CMD_ToolBar_Add_Separator(pToolBar);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_VIEW_CLIPBOARD_COPY);
 
 	CMD_ToolBar_Add(pToolBar, _TL("3D-View"));
 

@@ -76,7 +76,7 @@ CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 {
 	m_pMap      = pMap;
 
-	m_DEM_Res   =  100;
+	m_DEM_Res   =  500;
 	m_Map_Res   = 1000;
 
 	m_BoxBuffer = 0.;
@@ -129,6 +129,9 @@ bool CVIEW_Map_3DPanel::Update_Parameters(bool bSave)
 	}
 	else
 	{
+		m_DEM_Res = m_Parameters["DEM_RES"].asInt();
+		m_Map_Res = m_Parameters["MAP_RES"].asInt();
+
 		Update_Statistics();
 	}
 
