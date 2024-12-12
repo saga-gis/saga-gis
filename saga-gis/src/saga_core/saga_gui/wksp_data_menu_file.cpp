@@ -60,6 +60,9 @@
 #include "wksp_tin_manager.h"
 #include "wksp_grid_manager.h"
 
+//---------------------------------------------------------
+#define FILE_EXISTS(File) (m_Type == Recent_Type::Folder ? wxDirExists(File) : wxFileExists(File))
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -106,18 +109,19 @@ void CWKSP_Data_Menu_File::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Data_Menu_File::Create(int First_ID)
+wxMenu * CWKSP_Data_Menu_File::Create(Recent_Type Type)
 {
 	Destroy();
 
-	m_pMenu = new wxMenu; m_CmdID[0] = First_ID;
+	m_Type = Type; m_pMenu = new wxMenu;
 
 	//-----------------------------------------------------
-	switch( First_ID )
+	switch( m_Type )
 	{
-	case ID_CMD_DATA_PROJECT_RECENT_FIRST:
+	case Recent_Type::Project:
 		m_Group = "Project";
-		m_CmdID[1] = MAX_COUNT_RECENT_PROJECTS;
+		m_CmdID[0] = ID_CMD_DATA_PROJECT_RECENT_FIRST;
+		m_CmdID[1] = ID_CMD_DATA_PROJECT_RECENT_LAST - m_CmdID[0];
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_OPEN   );
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_BROWSE );
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_NEW    );
@@ -126,13 +130,20 @@ wxMenu * CWKSP_Data_Menu_File::Create(int First_ID)
 		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_PROJECT_COPY   );
 		break;
 
-	case ID_CMD_DATA_FILE_RECENT_FIRST   :
-		m_Group = "Files";
-		m_CmdID[1] = MAX_COUNT_RECENT_FILES;
+	case Recent_Type::Folder :
+		m_Group = "Folder";
+		m_CmdID[0] = ID_CMD_DATA_FOLDER_RECENT_FIRST;
+		m_CmdID[1] = ID_CMD_DATA_FOLDER_RECENT_LAST - m_CmdID[0];
+		break;
+
+	case Recent_Type::Data   :
+		m_Group = "Data";
+		m_CmdID[0] = ID_CMD_DATA_FILE_RECENT_FIRST;
+		m_CmdID[1] = ID_CMD_DATA_FILE_RECENT_LAST - m_CmdID[0];
 		break;
 
 	default:
-		m_CmdID[0] = m_CmdID[1] = 0;
+		m_CmdID[1] = m_CmdID[0] = 0;
 		break;
 	}
 
@@ -145,7 +156,7 @@ wxMenu * CWKSP_Data_Menu_File::Create(int First_ID)
 
 		while( CONFIG_Read("RECENT_FILES/" + m_Group, wxString::Format("FILE_%02d", ++i), File) )
 		{
-			bool bAdd = wxFileExists(File);
+			bool bAdd = FILE_EXISTS(File);
 
 			for(size_t j=0; bAdd && j<m_Files.Count(); j++)
 			{
@@ -181,7 +192,7 @@ void CWKSP_Data_Menu_File::Update(void)
 	//-----------------------------------------------------
 	for(int i=m_Files.GetCount(); i>0; i--)
 	{
-		if( !wxFileExists(m_Files[i - 1]) )
+		if( !FILE_EXISTS(m_Files[i - 1]) )
 		{
 			m_Files.RemoveAt(i - 1);
 		}
@@ -229,11 +240,11 @@ void CWKSP_Data_Menu_File::Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Add(const wxString &File)
+void CWKSP_Data_Menu_File::Add(const wxString &File, bool bUpdate)
 {
-	Del(File);
+	Del(File, false);
 
-	if( wxFileExists(File) )
+	if( FILE_EXISTS(File) )
 	{
 		m_Files.Insert(File, 0);
 
@@ -242,10 +253,15 @@ void CWKSP_Data_Menu_File::Add(const wxString &File)
 			m_Files.RemoveAt(m_CmdID[1]);
 		}
 	}
+
+	if( bUpdate )
+	{
+		Update();
+	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Del(const wxString &File)
+void CWKSP_Data_Menu_File::Del(const wxString &File, bool bUpdate)
 {
 	for(size_t i=m_Files.GetCount(); i>0; i--)
 	{
@@ -253,6 +269,11 @@ void CWKSP_Data_Menu_File::Del(const wxString &File)
 		{
 			m_Files.RemoveAt(i - 1);
 		}
+	}
+
+	if( bUpdate )
+	{
+		Update();
 	}
 }
 
@@ -266,7 +287,7 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &Files, bool bAppend)
 
 	for(size_t i=0; i<m_Files.GetCount(); i++)
 	{
-		if( wxFileExists(m_Files[i]) )
+		if( FILE_EXISTS(m_Files[i]) )
 		{
 			Files.Add(m_Files[i]);
 		}
@@ -293,6 +314,11 @@ bool CWKSP_Data_Menu_File::Open(int CmdID)
 
 	if( i >= 0 && i < (int)m_Files.GetCount() )
 	{
+		if( m_Type == Recent_Type::Folder )
+		{
+			return( g_pData->Open_Directory(m_Files[i]) );
+		}
+
 		return( g_pData->Open(wxString(m_Files[i])) );
 	}
 

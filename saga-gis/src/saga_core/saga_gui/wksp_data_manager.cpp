@@ -424,7 +424,7 @@ bool CWKSP_Data_Manager::Initialise(void)
 				Projects.Add(wxString::Format("[%s]", _TL("last state")));
 			}
 
-			m_pMenu_Files->Recent_Get(SG_DATAOBJECT_TYPE_Undefined, Projects, true);
+			m_pMenu_Files->Recent_Get(CWKSP_Data_Menu_File::Recent_Type::Project, Projects, true);
 
 			if( Projects.Count() > 1 )
 			{
@@ -683,8 +683,7 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command_UI(event) );
+	default: return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_WKSP_ITEM_CLOSE     : event.Enable(Get_Count() > 0 && g_pTool == NULL); break;
 
@@ -693,7 +692,8 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_DATA_PROJECT_COPY   : event.Enable(g_pData->Get_Count() > 0); break;
 	case ID_CMD_DATA_PROJECT_COPY_DB: event.Enable(g_pData->Get_Count() > 0); break;
 
-	case ID_CMD_DATA_FILE_RECENT    : event.Enable(m_pMenu_Files->Recent_Count() > 0); break;
+	case ID_CMD_DATA_FILE_RECENT    : event.Enable(m_pMenu_Files->Recent_Count(CWKSP_Data_Menu_File::Recent_Type::Data  ) > 0); break;
+	case ID_CMD_DATA_FOLDER_RECENT  : event.Enable(m_pMenu_Files->Recent_Count(CWKSP_Data_Menu_File::Recent_Type::Folder) > 0); break;
 
 	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE:
 		if( wxTheClipboard->Open() ) { event.Enable(wxTheClipboard->IsSupported(wxDF_TEXT  )); wxTheClipboard->Close(); } else { event.Enable(false); }
@@ -856,7 +856,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 
 		if( pItem )
 		{
-			m_pMenu_Files->Recent_Add(pObject->Get_ObjectType(), File);
+			m_pMenu_Files->Recent_Add(CWKSP_Data_Menu_File::Recent_Type::Data, File);
 
 			SG_Get_Data_Manager().Add(pObject);
 
@@ -866,7 +866,7 @@ CWKSP_Data_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 		delete(pObject);
 	}
 
-	m_pMenu_Files->Recent_Del(DataType, File);
+	m_pMenu_Files->Recent_Del(CWKSP_Data_Menu_File::Recent_Type::Data, File);
 
 	return( NULL );
 }
@@ -978,6 +978,26 @@ bool CWKSP_Data_Manager::Open(int DataType)
 bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
 {
 	return( m_pMenu_Files->Recent_Open(Cmd_ID) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Open_Directory(const wxString &Directory)
+{
+	wxArrayString Files;
+
+	if( DLG_Open(Files, ID_DLG_FILE_OPEN, Directory) )
+	{
+		MSG_General_Add_Line();
+
+		for(size_t i=0; i<Files.GetCount(); i++)
+		{
+			Open(Files[i]);
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

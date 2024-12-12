@@ -296,6 +296,7 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 void CWKSP::On_Command(wxCommandEvent &event)
 {
 	if( (event.GetId() >= ID_CMD_DATA_FILE_RECENT_FIRST    && event.GetId() <= ID_CMD_DATA_FILE_RECENT_LAST   )
+	||  (event.GetId() >= ID_CMD_DATA_FOLDER_RECENT_FIRST  && event.GetId() <= ID_CMD_DATA_FOLDER_RECENT_LAST )
 	||  (event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
 	{
 		m_pData->On_Command(event);
@@ -341,6 +342,7 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	case ID_CMD_DATA_PROJECT_COPY         :
 	case ID_CMD_DATA_PROJECT_COPY_DB      :
 	case ID_CMD_DATA_PROJECT_BROWSE       :
+	case ID_CMD_DATA_FOLDER_RECENT        :
 	case ID_CMD_DATA_FILE_RECENT          :
 	case ID_CMD_DATA_CLIPBOARD_PASTE_TABLE:
 	case ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE:

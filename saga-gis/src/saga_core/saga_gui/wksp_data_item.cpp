@@ -354,7 +354,7 @@ bool CWKSP_Data_Item::Save(const wxString &File_Name)
 
 		if( bResult )
 		{
-			g_pData->Get_Menu_Files()->Recent_Add(m_pObject->Get_ObjectType(), m_pObject->Get_File_Name());
+			g_pData->Get_Menu_Files()->Recent_Add(CWKSP_Data_Menu_File::Recent_Type::Data, m_pObject->Get_File_Name());
 		}
 
 		PROCESS_Set_Okay();

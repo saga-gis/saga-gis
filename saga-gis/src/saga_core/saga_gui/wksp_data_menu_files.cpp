@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include <wx/menu.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
@@ -71,23 +72,24 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	m_pMenu   = new wxMenu;
 
 	wxMenu *pOpenFiles = new wxMenu;
-	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TABLE_OPEN);
-	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_SHAPES_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TABLE_OPEN     );
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_SHAPES_OPEN    );
 	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_POINTCLOUD_OPEN);
-	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TIN_OPEN);
-	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRID_OPEN);
-	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRIDS_OPEN);
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_TIN_OPEN       );
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRID_OPEN      );
+	CMD_Menu_Add_Item(pOpenFiles, false, ID_CMD_GRIDS_OPEN     );
 
 	wxMenu *pClipboard = new wxMenu;
 	CMD_Menu_Add_Item(pClipboard, false, ID_CMD_DATA_CLIPBOARD_PASTE_TABLE);
 	CMD_Menu_Add_Item(pClipboard, false, ID_CMD_DATA_CLIPBOARD_PASTE_IMAGE);
 
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
+	m_pMenu->Append(ID_CMD_DATA_FOLDER_RECENT, _TL("Recent Folders"), m_Folder .Create(CWKSP_Data_Menu_File::Recent_Type::Folder ));
+	m_pMenu->Append(ID_CMD_DATA_FILE_RECENT  , _TL("Recent Data"   ), m_Data   .Create(CWKSP_Data_Menu_File::Recent_Type::Data   ));
 	m_pMenu->AppendSeparator();
-	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"     ), m_Project.Create(ID_CMD_DATA_PROJECT_RECENT_FIRST));
-	m_pMenu->AppendSubMenu(pOpenFiles      , _TL("Open Files"  ));
-	m_pMenu->Append(ID_CMD_DATA_FILE_RECENT, _TL("Recent Files"), m_Files  .Create(ID_CMD_DATA_FILE_RECENT_FIRST   ));
-	m_pMenu->AppendSubMenu(pClipboard      , _TL("Clipboard"   ));
+	m_pMenu->Append(ID_CMD_DATA_PROJECT      , _TL("Project"       ), m_Project.Create(CWKSP_Data_Menu_File::Recent_Type::Project));
+	m_pMenu->AppendSubMenu(pOpenFiles        , _TL("Data"          ));
+	m_pMenu->AppendSubMenu(pClipboard        , _TL("Clipboard"     ));
 	m_pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);
 }
@@ -105,51 +107,62 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 {
 	return(	m_Project.Open(Cmd_ID)
-		||  m_Files  .Open(Cmd_ID)
+		||  m_Folder .Open(Cmd_ID)
+		||  m_Data   .Open(Cmd_ID)
 	);
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxString &File)
+void CWKSP_Data_Menu_Files::Recent_Add(CWKSP_Data_Menu_File::Recent_Type Type, const wxString &File)
 {
-	CWKSP_Data_Menu_File *pMenu = m_bUpdate ? _Get_Menu(DataType) : NULL;
-
-	if( pMenu )
+	if( m_bUpdate )
 	{
-		pMenu->Add(File); pMenu->Update();
+		switch( Type )
+		{
+		case CWKSP_Data_Menu_File::Recent_Type::Project: m_Project.Add(File, true); break;
+		case CWKSP_Data_Menu_File::Recent_Type::Data   : m_Data   .Add(File, true); break; default: return;
+		}
+
+		m_Folder.Add(wxFileName(File).GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR), true);
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxString &File)
+void CWKSP_Data_Menu_Files::Recent_Del(CWKSP_Data_Menu_File::Recent_Type Type, const wxString &File)
 {
-	CWKSP_Data_Menu_File *pMenu = m_bUpdate ? _Get_Menu(DataType) : NULL;
-
-	if( pMenu )
+	if( m_bUpdate )
 	{
-		pMenu->Del(File); pMenu->Update();
+		switch( Type )
+		{
+		case CWKSP_Data_Menu_File::Recent_Type::Project: m_Project.Del(File, true); break;
+		case CWKSP_Data_Menu_File::Recent_Type::Data   : m_Data   .Del(File, true); break; default: return;
+		}
+
+		m_Folder.Del(wxFileName(File).GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR), true);
 	}
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Menu_Files::Recent_Get(int DataType, wxArrayString &Files, bool bAppend)
+bool CWKSP_Data_Menu_Files::Recent_Get(CWKSP_Data_Menu_File::Recent_Type Type, wxArrayString &Files, bool bAppend)
 {
-	return( _Get_Menu(DataType) && _Get_Menu(DataType)->Get(Files, bAppend) );
+	return( _Get_Menu(Type) && _Get_Menu(Type)->Get(Files, bAppend) );
 }
 
 //---------------------------------------------------------
-int CWKSP_Data_Menu_Files::Recent_Count(int DataType)
+int CWKSP_Data_Menu_Files::Recent_Count(CWKSP_Data_Menu_File::Recent_Type Type)
 {
-	return( _Get_Menu(DataType) ? _Get_Menu(DataType)->Count() : 0 );
+	return( _Get_Menu(Type) ? _Get_Menu(Type)->Count() : 0 );
 }
 
 //---------------------------------------------------------
-inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
+inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(CWKSP_Data_Menu_File::Recent_Type Type)
 {
-	switch( DataType )
+	switch( Type )
 	{
-	case SG_DATAOBJECT_TYPE_Undefined: return( &m_Project );
-	default                          : return( &m_Files   );
+	case CWKSP_Data_Menu_File::Recent_Type::Project: return( &m_Project );
+	case CWKSP_Data_Menu_File::Recent_Type::Folder : return( &m_Folder  );
+	case CWKSP_Data_Menu_File::Recent_Type::Data   : return( &m_Data    );
+	default: return( NULL );
 	}
 }
 

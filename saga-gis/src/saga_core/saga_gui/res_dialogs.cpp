@@ -132,7 +132,7 @@ wxString DLG_Get_FILE_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_FILE_OPEN      :	return( _TL("Load") );
+	case ID_DLG_FILE_OPEN      :	return( _TL("Open") );
 
 	case ID_DLG_TOOL_OPEN      :	return( _TL("Load Tool Library") );
 
@@ -1107,11 +1107,18 @@ bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxStrin
 	return( false );
 }
 
-bool		DLG_Open(wxArrayString &File_Paths, int ID_DLG)
+bool		DLG_Open(wxArrayString &File_Paths, int ID_DLG, const wxString &Directory)
 {
-	wxString	def_Dir;
+	wxString def_Dir;
 
-	CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
+	if( Directory.IsEmpty() || !wxDirExists(Directory) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
+	}
+	else
+	{
+		def_Dir = Directory;
+	}
 
 	if( DLG_Open(File_Paths, DLG_Get_FILE_Caption(ID_DLG), def_Dir, DLG_Get_FILE_Filter(ID_DLG)) )
 	{

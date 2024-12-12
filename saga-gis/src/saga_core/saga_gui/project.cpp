@@ -437,7 +437,7 @@ bool CWKSP_Project::_Load(const wxString &File, bool bAdd, bool bUpdateMenu)
 	{
 		if( bUpdateMenu )
 		{
-			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, File);
+			g_pData->Get_Menu_Files()->Recent_Add(CWKSP_Data_Menu_File::Recent_Type::Project, File);
 		}
 
 		m_File_Name	= File;
@@ -460,7 +460,7 @@ bool CWKSP_Project::_Load(const wxString &File, bool bAdd, bool bUpdateMenu)
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File);
+		g_pData->Get_Menu_Files()->Recent_Del(CWKSP_Data_Menu_File::Recent_Type::Project, File);
 	}
 
 	CSG_String Name(SG_File_Get_Name(&File, true));
@@ -567,7 +567,7 @@ bool CWKSP_Project::_Save(const wxString &_File, bool bSaveModified, bool bUpdat
 
 		if( bUpdateMenu )
 		{
-			g_pData->Get_Menu_Files()->Recent_Add(SG_DATAOBJECT_TYPE_Undefined, m_File_Name);
+			g_pData->Get_Menu_Files()->Recent_Add(CWKSP_Data_Menu_File::Recent_Type::Project, m_File_Name);
 		}
 
 		MSG_General_Add(_TL("Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
@@ -583,7 +583,7 @@ bool CWKSP_Project::_Save(const wxString &_File, bool bSaveModified, bool bUpdat
 
 	if( bUpdateMenu )
 	{
-		g_pData->Get_Menu_Files()->Recent_Del(SG_DATAOBJECT_TYPE_Undefined, File);
+		g_pData->Get_Menu_Files()->Recent_Del(CWKSP_Data_Menu_File::Recent_Type::Project, File);
 	}
 
 	MSG_General_Add(_TL("Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);

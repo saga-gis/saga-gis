@@ -168,7 +168,7 @@ bool				DLG_Save				(wxString &File_Path, int ID_DLG);
 bool				DLG_Save				(wxString &File_Path, const wxString &Caption, const wxString &Filter);
 bool				DLG_Open				(wxString &File_Path, int ID_DLG);
 bool				DLG_Open				(wxString &File_Path, const wxString &Caption, const wxString &Filter);
-bool				DLG_Open				(wxArrayString &File_Paths, int ID_DLG);
+bool				DLG_Open				(wxArrayString &File_Paths, int ID_DLG, const wxString &Directory = wxEmptyString);
 bool				DLG_Open				(wxArrayString &File_Paths, const wxString &Caption, const wxString &Filter);
 
 bool				DLG_Image_Save			(wxString &File_Path, int &Type, const wxString &def_Dir = "", const wxString &def_File = "");

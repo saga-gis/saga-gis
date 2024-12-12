@@ -74,13 +74,18 @@ public:
 	CWKSP_Data_Menu_File(void);
 	virtual ~CWKSP_Data_Menu_File(void);
 
-	wxMenu *					Create		(int First_ID);
+	enum class Recent_Type
+	{
+		Folder, Project, Data, Undefined
+	};
+
+	wxMenu *					Create		(Recent_Type Type);
 	void						Destroy		(void);
 
 	void						Update		(void);
 
-	void						Add			(const wxString &File);
-	void						Del			(const wxString &File);
+	void						Add			(const wxString &File, bool bUpdate = false);
+	void						Del			(const wxString &File, bool bUpdate = false);
 	bool						Get			(wxArrayString &Files, bool bAppend);
 	int							Count		(void);
 
@@ -88,6 +93,8 @@ public:
 
 
 private:
+
+	Recent_Type					m_Type = Recent_Type::Undefined;
 
 	size_t						m_Offset = 0;
 	

@@ -78,10 +78,10 @@ public:
 	void							Set_Update		(bool bUpdate)	{	m_bUpdate = bUpdate;	}
 
 	bool							Recent_Open		(int Cmd_ID);
-	void							Recent_Add		(int DataType, const wxString &File);
-	void							Recent_Del		(int DataType, const wxString &File);
-	bool							Recent_Get		(int DataType, wxArrayString &Files, bool bAppend);
-	int								Recent_Count	(int DataType = SG_DATATYPE_Undefined);
+	void							Recent_Add		(CWKSP_Data_Menu_File::Recent_Type Type, const wxString &File);
+	void							Recent_Del		(CWKSP_Data_Menu_File::Recent_Type Type, const wxString &File);
+	bool							Recent_Get		(CWKSP_Data_Menu_File::Recent_Type Type, wxArrayString &Files, bool bAppend);
+	int								Recent_Count	(CWKSP_Data_Menu_File::Recent_Type Type);
 
 
 private:
@@ -90,10 +90,10 @@ private:
 
 	wxMenu							*m_pMenu;
 
-	CWKSP_Data_Menu_File			m_Project, m_Files;
+	CWKSP_Data_Menu_File			m_Folder, m_Project, m_Data;
 
 
-	CWKSP_Data_Menu_File *			_Get_Menu		(int DataType);
+	CWKSP_Data_Menu_File *			_Get_Menu		(CWKSP_Data_Menu_File::Recent_Type Type);
 
 };
 

@@ -110,6 +110,7 @@ public:
 	bool							Open					(const wxString &File);
 	bool							Open					(int DataType);
 	bool							Open_CMD				(int Cmd_ID);
+	bool							Open_Directory			(const wxString &Directory);
 	bool							Open_Browser			(void);
 	bool							Open_Browser			(wxArrayString &Projects, const wxString &Directory);
 
