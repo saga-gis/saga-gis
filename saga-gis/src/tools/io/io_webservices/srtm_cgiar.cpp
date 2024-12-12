@@ -190,6 +190,12 @@ int CSRTM_CGIAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		int    NX       = (*pParameters)("NX"      )->asInt   ();
 		int    NY       = (*pParameters)("NY"      )->asInt   ();
 
+		if( pParameter->Cmp_Identifier("CELLSIZE") )
+		{
+			NX = 1 + (int)(((*pParameters)("XMAX")->asDouble() - xMin) / Cellsize);
+			NY = 1 + (int)(((*pParameters)("YMAX")->asDouble() - yMin) / Cellsize);
+		}
+
 		if( pParameter->Cmp_Identifier("XMAX") ) { xMin = pParameter->asDouble() - Cellsize * NX; }
 		if( pParameter->Cmp_Identifier("YMAX") ) { yMin = pParameter->asDouble() - Cellsize * NY; }
 
