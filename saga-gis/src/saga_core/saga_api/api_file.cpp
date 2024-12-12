@@ -750,22 +750,40 @@ CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
 //---------------------------------------------------------
 bool CSG_File_Zip::Extract_All(const CSG_String &_Directory)
 {
+	if( !is_Reading() )
+	{
+		return( false );
+	}
+
+	#ifdef _SAGA_MSW
+		const char Separator = '\\';
+	#else
+		const char Separator = '/';
+	#endif
+
 	CSG_String Directory(_Directory);
 
 	if( Directory.is_Empty() )
 	{
 		Directory = SG_File_Get_Path(m_ZipFile);
 	}
+	else if( !SG_Dir_Exists(Directory) )
+	{
+		SG_Dir_Create(Directory, true);
+	}
 
-	for(size_t i=0; i<Get_File_Count(); i++)
+	Directory += Separator;
+
+	//-----------------------------------------------------
+	for(size_t i=0; i<Get_File_Count() && SG_UI_Process_Set_Progress((int)i, (int)Get_File_Count()); i++)
 	{
 		if( is_Directory(i) )
 		{
-			SG_Dir_Create(SG_File_Make_Path(Directory, Get_File_Name(i)));
+			SG_Dir_Create(Directory + Get_File_Name(i));
 		}
 		else
 		{
-			Extract(Get_File_Name(i), SG_File_Make_Path(Directory, Get_File_Name(i)));
+			Extract(Get_File_Name(i), Directory + Get_File_Name(i));
 		}
 	}
 
