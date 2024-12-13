@@ -125,15 +125,17 @@ bool CSG_CURL::Create(const CSG_String &Server, const SG_Char *Username, const S
 		return( false );
 	}
 
-	m_Server	= Server;
+	m_Server = Server;
 
 	if( m_Server.Find("://") < 0 )
 	{
 		m_Server.Prepend("https://");
 	}
 
-	if( Username && *Username )	{ CSG_String s(Username); curl_easy_setopt(m_pCURL, CURLOPT_USERNAME, s.b_str()); }
-	if( Password && *Password )	{ CSG_String s(Password); curl_easy_setopt(m_pCURL, CURLOPT_PASSWORD, s.b_str()); }
+	if( Username && *Username )	{ CSG_String s(Username); CURL_SET_OPT(0, CURLOPT_USERNAME, s.b_str()); }
+	if( Password && *Password )	{ CSG_String s(Password); CURL_SET_OPT(0, CURLOPT_PASSWORD, s.b_str()); }
+
+	CURL_SET_OPT(0, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
 
 	CURL_SET_OPT(2, CURLOPT_URL           , m_Server.b_str());
 	CURL_SET_OPT(0, CURLOPT_SSL_VERIFYPEER, 0L);

@@ -67,12 +67,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSRTM_CGIAR : public CSG_Tool
+class CTiles_Provider : public CSG_Tool
 {
 public:
-	CSRTM_CGIAR(void);
+	CTiles_Provider(bool bLogin = false);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Global Elevation Data") );	}
 
 //	virtual bool				do_Sync_Projections		(void)	const	{	return( false  );	}
 
@@ -82,10 +82,18 @@ public:
 
 protected:
 
+	CSG_String					m_ServerPath, m_VRT_Name, m_Grid_Name, m_Grid_Extension;
+
+
 	virtual int                 On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
+
+	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const = 0;
+	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const = 0;
+	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const = 0;
+	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const = 0;
 
 
 private:
@@ -93,10 +101,73 @@ private:
 	CSG_Parameters_CRSPicker	m_CRS;
 
 
-	bool						Provide_Tiles			(const CSG_String &Directory, CSG_Rect Extent       , bool DeleteZip = true);
-	int							Provide_Tile			(const CSG_String &Directory, const CSG_String &Name, bool DeleteZip = true);
+	bool						Provide_Tiles			(const CSG_String &Directory, CSG_Rect Extent , bool DeleteArchive = true);
+	int							Provide_Tile			(const CSG_String &Directory, int Col, int Row, bool DeleteArchive = true);
 
-	bool						Update_VRT				(const CSG_String &Directory, const CSG_String &VRT_Name);
+	bool						Update_VRT				(const CSG_String &Directory);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSRTM_CGIAR : public CTiles_Provider
+{
+public:
+	CSRTM_CGIAR(void);
+
+
+protected:
+
+	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
+	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSRTM_USGS : public CTiles_Provider
+{
+public:
+	CSRTM_USGS(void);
+
+
+protected:
+
+	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
+	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCopernicus_DEM : public CTiles_Provider
+{
+public:
+	CCopernicus_DEM(void);
+
+
+protected:
+
+	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
+	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
 
 };
 

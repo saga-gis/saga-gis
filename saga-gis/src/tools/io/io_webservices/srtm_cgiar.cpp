@@ -48,9 +48,6 @@
 //---------------------------------------------------------
 #include "srtm_cgiar.h"
 
-//---------------------------------------------------------
-#define VRT_NAME "srtm_tiles"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -59,51 +56,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSRTM_CGIAR::CSRTM_CGIAR(void)
+CTiles_Provider::CTiles_Provider(bool bLogin)
 {
-	Set_Name		(_TL("CGIAR CSI SRTM"));
-
-	Set_Author		("O.Conrad (c) 2024");
-
-	Set_Description	(_TW(
-		"Prepare 3arcsec SRTM data for target areas of your choice. "
-		"Builds a local database in the chosen directory with the "
-		"original CGIAR CSI SRTM tiles. If not done yet all tiles "
-		"covering  the requested area are downloaded from the "
-		"CGIAR CSI server. "
-	));
-
-	Add_Reference("Jarvis A., H.I. Reuter, A.  Nelson, E. Guevara", "2008",
-		"Hole-filled seamless SRTM data V4",
-		"International Centre for Tropical Agriculture (CIAT).",
-		SG_T("https://srtm.csi.cgiar.org/"), SG_T("srtm.csi.cgiar.org")
-	);
-
-	Add_Reference("Reuter  H.I,  A.  Nelson,  A.  Jarvis", "2007",
-		"An evaluation of void filling interpolation methods for SRTM data",
-		"International Journal of Geographic Information Science, 21:9, 983-1008.",
-		SG_T("https://doi.org/10.1080/13658810601169899"), SG_T("doi:10.1080/13658810601169899")
-	);
-
-	Add_Reference("https://srtm.csi.cgiar.org/",
-		SG_T("SRTM 90m DEM Digital Elevation Database")
-	);
+	m_VRT_Name = "tiles"; m_Grid_Name = "grid"; m_Grid_Extension = "tif";
 
 	//-----------------------------------------------------
+	if( bLogin )
+	{
+		Parameters.Add_Node("", "LOGIN", _TL("Login"), _TL("Login needed for server downloads."));
+		Parameters.Add_String("LOGIN", "USERNAME", _TL("User"    ), _TL(""), "user");
+		Parameters.Add_String("LOGIN", "PASSWORD", _TL("Password"), _TL(""), "", false, true);
+	}
+
 	Parameters.Add_Grid_Output("",
-		"SRTM"       , _TL("SRTM"),
+		"RESULT"     , _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath("",
 		"TILES"      , _TL("Local Tiles Directory"),
-		_TL("Download location for SRTM tiles. If requested tile is already present download will be skipped"),
+		_TL("Download location for tiles. If requested tile is already present download will be skipped."),
 		NULL, NULL, true, true
 	);
 
 	Parameters.Add_Bool("TILES",
-		"DELZIP"     , _TL("Delete Zip Files"),
-		_TL("Do not keep zip files after download"),
+		"DELARCHIVE"  , _TL("Delete Archive Files"),
+		_TL("Do not keep archive files after download"),
 		true
 	);
 
@@ -164,7 +142,7 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM_CGIAR::On_Before_Execution(void)
+bool CTiles_Provider::On_Before_Execution(void)
 {
 	m_CRS.Activate_GUI();
 
@@ -172,7 +150,7 @@ bool CSRTM_CGIAR::On_Before_Execution(void)
 }
 
 //---------------------------------------------------------
-bool CSRTM_CGIAR::On_After_Execution(void)
+bool CTiles_Provider::On_After_Execution(void)
 {
 	m_CRS.Deactivate_GUI();
 
@@ -180,7 +158,7 @@ bool CSRTM_CGIAR::On_After_Execution(void)
 }
 
 //---------------------------------------------------------
-int CSRTM_CGIAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTiles_Provider::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("CELLSIZE") || (pParameter->Get_Parent() && pParameter->Get_Parent()->Cmp_Identifier("EXTENT")) )
 	{
@@ -218,7 +196,7 @@ int CSRTM_CGIAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 }
 
 //---------------------------------------------------------
-int CSRTM_CGIAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CTiles_Provider::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("EXTENT") )
 	{
@@ -252,7 +230,7 @@ int CSRTM_CGIAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM_CGIAR::On_Execute(void)
+bool CTiles_Provider::On_Execute(void)
 {
 	CSG_String Directory = Parameters("TILES")->asString();
 
@@ -351,7 +329,7 @@ bool CSRTM_CGIAR::On_Execute(void)
 	}
 
 	//--------------------------------------------------------
-	if( !Provide_Tiles(Directory, Extent_GCS, Parameters["DELZIP"].asBool()) )
+	if( !Provide_Tiles(Directory, Extent_GCS, Parameters["DELARCHIVE"].asBool()) )
 	{
 		return( false );
 	}
@@ -362,7 +340,7 @@ bool CSRTM_CGIAR::On_Execute(void)
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);
 
 	if( !pTool || !pTool->Reset() || !pTool->Set_Manager(&Data)
-	||  !pTool->Set_Parameter("FILES"      , SG_File_Make_Path(Directory, VRT_NAME, "vrt"))
+	||  !pTool->Set_Parameter("FILES"      , SG_File_Make_Path(Directory, m_VRT_Name, "vrt"))
 	||  !pTool->Set_Parameter("EXTENT"     , 1) // "user defined"
 	||  !pTool->Set_Parameter("EXTENT_XMIN", Extent_GCS.xMin)
 	||  !pTool->Set_Parameter("EXTENT_XMAX", Extent_GCS.xMax)
@@ -385,9 +363,9 @@ bool CSRTM_CGIAR::On_Execute(void)
 	//--------------------------------------------------------
 	if( Projection.is_Geographic() )
 	{
-		pGrid->Set_Name("CGIAR CSI SRTM");
+		pGrid->Set_Name(m_Grid_Name);
 
-		Parameters.Set_Parameter("SRTM", pGrid);
+		Parameters.Set_Parameter("RESULT", pGrid);
 
 		return( true );
 	}
@@ -421,9 +399,9 @@ bool CSRTM_CGIAR::On_Execute(void)
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	//--------------------------------------------------------
-	pGrid->Set_Name("CGIAR CSI SRTM");
+	pGrid->Set_Name(m_Grid_Name);
 
-	Parameters.Set_Parameter("SRTM", pGrid);
+	Parameters.Set_Parameter("RESULT", pGrid);
 
 	return( true );
 }
@@ -434,42 +412,29 @@ bool CSRTM_CGIAR::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM_CGIAR::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent, bool DeleteZip)
+bool CTiles_Provider::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent, bool DeleteArchive)
 {
-	const double Cellsize = 3. / 3600.;
-
-	Extent.Inflate(Cellsize);
-
-	int Cols[2] = { 1 + int((Extent.xMin + 180.) / 5.), 1 + int((Extent.xMax + 180.) / 5.) };
-	if( Cols[1] < Cols[0] ) { int Col = Cols[0]; Cols[0] = Cols[1]; Cols[1] = Col; }
-	if( Cols[0] < 1 ) { Cols[0] = 1; } else if( Cols[1] > 72 ) { Cols[1] = 72; }
-
-	int Rows[2] = { 1 + int(( 60. - Extent.yMax) / 5.), 1 + int(( 60. - Extent.yMin) / 5.) };
-	if( Rows[1] < Rows[0] ) { int Row = Rows[0]; Rows[0] = Rows[1]; Cols[1] = Row; }
-	if( Rows[0] < 1 ) { Rows[0] = 1; } else if( Rows[1] > 24 ) { Rows[1] = 24; }
+	CSG_Rect_Int Tiles(Get_Tiles(Extent));
 
 	int nAdded = 0, nFailed = 0, nFound = 0;
 
-	for(int Col=Cols[0]; Col<=Cols[1]; Col++)
+	for(int Row=Tiles.yMin; Row<=Tiles.yMax; Row++)
 	{
-		for(int Row=Rows[0]; Row<=Rows[1]; Row++)
+		for(int Col=Tiles.xMin; Col<=Tiles.xMax; Col++)
 		{
-			if( Col >= 1 && Col <= 72 && Row >= 1 && Row <= 24 )
-			{
-				int Result = Provide_Tile(Directory, CSG_String::Format("srtm_%02d_%02d", Col, Row), DeleteZip);
+			int Result = Provide_Tile(Directory, Col, Row, DeleteArchive);
 
-				if( Result > 0 )
-				{
-					nAdded  += 1;
-				}
-				else if( Result < 0 )
-				{
-					nFailed += 1;
-				}
-				else
-				{
-					nFound  += 1;
-				}
+			if( Result > 0 )
+			{
+				nAdded  += 1;
+			}
+			else if( Result < 0 )
+			{
+				nFailed += 1;
+			}
+			else
+			{
+				nFound  += 1;
 			}
 		}
 	}
@@ -479,18 +444,20 @@ bool CSRTM_CGIAR::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent, bo
 		Message_Fmt("\n%d download(s) of %d failed", nFailed, nFailed + nAdded);
 	}
 
-	if( (nAdded + nFound > 0) || !SG_File_Exists(SG_File_Make_Path(Directory, VRT_NAME, "vrt")) )
+	if( (nAdded + nFound > 0) || !SG_File_Exists(SG_File_Make_Path(Directory, m_VRT_Name, "vrt")) )
 	{
-		Update_VRT(Directory, VRT_NAME);
+		Update_VRT(Directory);
 	}
 
 	return( nAdded + nFound > 0 );
 }
 
 //---------------------------------------------------------
-int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Name, bool DeleteZip)
+int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row, bool DeleteArchive)
 {
-	CSG_String Local_File = SG_File_Make_Path(Directory, Name, "tif");
+	CSG_String File = Get_Tile_Name(Col, Row) + "." + m_Grid_Extension;
+
+	CSG_String Local_File = SG_File_Make_Path(Directory, File);
 
 	if( SG_File_Exists(Local_File) )
 	{
@@ -498,43 +465,52 @@ int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Nam
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text("%s.zip: %s...", Name.c_str(), _TL("downloading"));
+	CSG_String Archive_Name = Get_Tile_Archive(Col, Row);
+	CSG_String Archive_File = SG_File_Make_Path(Directory, Archive_Name);
 
-	CSG_CURL Connection("https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/");
-
-	if( !Connection.is_Connected() )
+	if( !SG_File_Exists(Archive_File) )
 	{
-		Error_Set(_TL("failed to connect to server."));
+		Process_Set_Text("%s: %s...", File.c_str(), _TL("downloading"));
 
-		return( -1 );
-	}
+		const SG_Char *Username = Parameters("USERNAME") ? Parameters("USERNAME")->asString() : NULL;
+		const SG_Char *Password = Parameters("PASSWORD") ? Parameters("PASSWORD")->asString() : NULL;
 
-	CSG_String Zip_File = SG_File_Make_Path(Directory, Name, "zip");
+		CSG_CURL Connection(m_ServerPath, Username, Password);
 
-	if( !Connection.Request(Name + ".zip", Zip_File.c_str()) )
-	{
-		Error_Set(_TL("failed to request file."));
+		if( !Connection.is_Connected() )
+		{
+			Error_Fmt("%s: %s", _TL("failed to connect to server"), m_ServerPath.c_str());
 
-		return( -1 );
+			return( -1 );
+		}
+
+		Message_Fmt("\n%s: %s%s", _TL("requesting file"), m_ServerPath.c_str(), Archive_Name.c_str());
+
+		if( !Connection.Request(Archive_Name, Archive_File.c_str()) )
+		{
+			Error_Fmt("%s:\n\n%s%s", _TL("failed to request file from server"), m_ServerPath.c_str(), Archive_Name.c_str());
+
+			return( -1 );
+		}
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text("%s.tif: %s...", Name.c_str(), _TL("extracting"));
+	Process_Set_Text("%s: %s...", File.c_str(), _TL("extracting"));
 
-	CSG_File_Zip Zip(Zip_File);
+	CSG_Archive Archive(Archive_File);
 
-	if( !Zip.is_Open() || !Zip.Extract(Name + ".tif") )
+	if( !Archive.is_Open() || !Archive.Extract(Get_Tile_Archive_File(Col, Row)) )
 	{
-		Error_Set(_TL("failed to extract zip file."));
+		Error_Fmt("%s: %s", _TL("failed to extract file"), Get_Tile_Archive_File(Col, Row).c_str());
 
 		return( -1 );
 	}
 
-	Zip.Close();
+	Archive.Close();
 
-	if( DeleteZip )
+	if( DeleteArchive )
 	{
-		SG_File_Delete(SG_File_Make_Path(Directory, Name, "zip"));
+		SG_File_Delete(Archive_File);
 	}
 
 	//-----------------------------------------------------
@@ -542,11 +518,11 @@ int CSRTM_CGIAR::Provide_Tile(const CSG_String &Directory, const CSG_String &Nam
 }
 
 //---------------------------------------------------------
-bool CSRTM_CGIAR::Update_VRT(const CSG_String &Directory, const CSG_String &VRT_Name)
+bool CTiles_Provider::Update_VRT(const CSG_String &Directory)
 {
 	CSG_Strings Files;
 
-	if( !SG_Dir_List_Files(Files, Directory, "tif") || Files.Get_Count() < 1 )
+	if( !SG_Dir_List_Files(Files, Directory, m_Grid_Extension) || Files.Get_Count() < 1 )
 	{
 		Error_Set(_TL("no files found in directory"));
 
@@ -565,7 +541,7 @@ bool CSRTM_CGIAR::Update_VRT(const CSG_String &Directory, const CSG_String &VRT_
 
 	if( !pTool
 	||  !pTool->Set_Parameter("FILES"   , Tiles)
-	||  !pTool->Set_Parameter("VRT_NAME", SG_File_Make_Path(Directory, VRT_Name, "vrt"))
+	||  !pTool->Set_Parameter("VRT_NAME", SG_File_Make_Path(Directory, m_VRT_Name, "vrt"))
 	||  !pTool->Execute() )
 	{
 		Error_Set(_TL("failed to update Virtual Raster Tiles file"));
@@ -574,6 +550,260 @@ bool CSRTM_CGIAR::Update_VRT(const CSG_String &Directory, const CSG_String &VRT_
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSRTM_CGIAR::CSRTM_CGIAR(void)
+{
+	Set_Name		(_TL("SRTM (CGIAR CSI)"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"Prepare 3arcsec SRTM data for target areas of your choice. "
+		"Builds a local database in the chosen directory with the "
+		"original CGIAR CSI SRTM tiles. If not done yet all tiles "
+		"covering the requested area become downloaded from the "
+		"CGIAR CSI server. "
+	));
+
+	Add_Reference("Jarvis A., H.I. Reuter, A.  Nelson, E. Guevara", "2008",
+		"Hole-filled seamless SRTM data V4",
+		"International Centre for Tropical Agriculture (CIAT).",
+		SG_T("https://srtm.csi.cgiar.org/"), SG_T("srtm.csi.cgiar.org")
+	);
+
+	Add_Reference("Reuter  H.I,  A.  Nelson,  A.  Jarvis", "2007",
+		"An evaluation of void filling interpolation methods for SRTM data",
+		"International Journal of Geographic Information Science, 21:9, 983-1008.",
+		SG_T("https://doi.org/10.1080/13658810601169899"), SG_T("doi:10.1080/13658810601169899")
+	);
+
+	Add_Reference("https://srtm.csi.cgiar.org/",
+		SG_T("SRTM 90m DEM Digital Elevation Database")
+	);
+
+	//-----------------------------------------------------
+	m_ServerPath     = "https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/";
+
+	m_VRT_Name       = "srtm_tiles";
+
+	m_Grid_Name      = "CGIAR CSI SRTM";
+	m_Grid_Extension = "tif";
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int CSRTM_CGIAR::Get_Tiles(const CSG_Rect &_Extent) const
+{
+	const int nCols = 72, nRows = 24; const double Cellsize = 3. / 3600.;
+
+	CSG_Rect Extent(_Extent); Extent.Inflate(Cellsize); // inflate by one cell
+
+	CSG_Rect_Int Tiles(
+		(int)((Extent.xMin + 180.) / 5.),
+		(int)(( 60. - Extent.yMax) / 5.),
+		(int)((Extent.xMax + 180.) / 5.),
+		(int)(( 60. - Extent.yMin) / 5.)
+	);
+
+	if( Tiles.xMin < 0 ) { Tiles.xMin = 0; } else if( Tiles.xMax >= nCols ) { Tiles.xMax = nCols - 1; }
+	if( Tiles.yMin < 0 ) { Tiles.yMin = 0; } else if( Tiles.yMax >= nRows ) { Tiles.yMax = nRows - 1; }
+
+	return( Tiles );
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_CGIAR::Get_Tile_Name(int Col, int Row) const
+{
+	return( CSG_String::Format("srtm_%02d_%02d", 1 + Col, 1 + Row) );
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_CGIAR::Get_Tile_Archive(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + ".zip" );
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_CGIAR::Get_Tile_Archive_File(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + ".tif" );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSRTM_USGS::CSRTM_USGS(void) : CTiles_Provider(true)
+{
+	Set_Name		(_TL("SRTM (USGS)"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"Prepare 1arcsec SRTM data for target areas of your choice. "
+		"Builds a local database in the chosen directory with the "
+		"original NASA SRTM tiles. If not done yet all tiles "
+		"covering the requested area become downloaded from the "
+		"USGS server.\n"
+		"NASA Shuttle Radar Topography Mission Global 1 arc second"
+	));
+
+	Add_Reference("Reuter  H.I,  A.  Nelson,  A.  Jarvis", "2007",
+		"An evaluation of void filling interpolation methods for SRTM data",
+		"International Journal of Geographic Information Science, 21:9, 983-1008.",
+		SG_T("https://doi.org/10.1080/13658810601169899"), SG_T("doi:10.1080/13658810601169899")
+	);
+
+	Add_Reference("https://lpdaac.usgs.gov/products/srtmgl1v003/",
+		SG_T("USGS EarthData SRTMGL1 v003")
+	);
+
+	//-----------------------------------------------------
+	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
+
+	m_ServerPath     = "https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/";
+	m_VRT_Name       = "srtm_tiles";
+
+	m_Grid_Name      = "USGS SRTM";
+	m_Grid_Extension = "hgt";
+
+	Parameters.Set_Parameter("CELLSIZE", 30.); // default cellsize
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int CSRTM_USGS::Get_Tiles(const CSG_Rect &_Extent) const
+{
+	const double Cellsize = 1. / 3600.;
+
+	CSG_Rect Extent(_Extent); Extent.Inflate(Cellsize); // inflate by one cell
+
+	CSG_Rect_Int Tiles(
+		(int)Extent.xMin, (int)Extent.yMin,
+		(int)Extent.xMax, (int)Extent.yMax
+	);
+
+	if( Tiles.xMin < -180 ) { Tiles.xMin = -180; } else if( Tiles.xMax > 179 ) { Tiles.xMax = 179; }
+	if( Tiles.yMin <  -56 ) { Tiles.yMin =  -56; } else if( Tiles.yMax >  59 ) { Tiles.yMax =  59; }
+
+	return( Tiles );
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_USGS::Get_Tile_Name(int Col, int Row) const
+{
+	return( CSG_String::Format("%c%02d%c%03d.SRTMGL1",
+		Row < 0 ? 'S' : 'N',
+		Row < 0 ? abs(Row) : Row,
+		Col < 0 ? 'W' : 'E',
+		Col < 0 ? abs(Col) : Col
+	));
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_USGS::Get_Tile_Archive(int Col, int Row) const
+{
+	// http://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/S56W180.SRTMGL1.hgt.zip
+
+	return( Get_Tile_Name(Col, Row) + ".hgt.zip" );
+}
+
+//---------------------------------------------------------
+CSG_String CSRTM_USGS::Get_Tile_Archive_File(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + ".tif" );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CCopernicus_DEM::CCopernicus_DEM(void)
+{
+	Set_Name		(_TL("Copernicus DEM"));
+
+	Set_Author		("O.Conrad (c) 2024");
+
+	Set_Description	(_TW(
+		"This tool provides easy-to-use access to the "
+		"\'Copernicus DEM\' global elevation data with "
+		"1 arcsec resolution (about 30 meter). "
+		"It builds a local database in the chosen directory with the "
+		"original tiles. If not done yet all tiles "
+		"covering the requested area become downloaded from the "
+		"Copernicus server. "
+	));
+
+	Add_Reference("https://sentinels.copernicus.eu/web/sentinel/-/copernicus-dem-new-direct-data-download-access/",
+		SG_T("Copernicus DEM: new direct data download access")
+	);
+
+	//-----------------------------------------------------
+	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
+
+	m_ServerPath     = "https://prism-dem-open.copernicus.eu/pd-desk-open-access/prismDownload/COP-DEM_GLO-30-DGED__2022_1/";
+	m_VRT_Name       = "copernicus_tiles";
+
+	m_Grid_Name      = "Copernicus DEM";
+	m_Grid_Extension = "tif";
+
+	Parameters.Set_Parameter("CELLSIZE", 30.); // default cellsize
+}
+
+//---------------------------------------------------------
+CSG_Rect_Int CCopernicus_DEM::Get_Tiles(const CSG_Rect &_Extent) const
+{
+	const double Cellsize = 1. / 3600.;
+
+	CSG_Rect Extent(_Extent); Extent.Inflate(Cellsize); // inflate by one cell
+
+	CSG_Rect_Int Tiles(
+		(int)Extent.xMin, (int)Extent.yMin,
+		(int)Extent.xMax, (int)Extent.yMax
+	);
+
+	if( Tiles.xMin < -180 ) { Tiles.xMin = -180; } else if( Tiles.xMax > 179 ) { Tiles.xMax = 179; }
+	if( Tiles.yMin <  -56 ) { Tiles.yMin =  -56; } else if( Tiles.yMax >  59 ) { Tiles.yMax =  59; }
+
+	return( Tiles );
+}
+
+//---------------------------------------------------------
+CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
+{
+	return( CSG_String::Format("Copernicus_DSM_10_%c%02d_00_%c%03d_00",
+		Row < 0 ? 'S' : 'N',
+		Row < 0 ? abs(Row) + 1 : Row,
+		Col < 0 ? 'W' : 'E',
+		Col < 0 ? abs(Col) + 1 : Col
+	));
+}
+
+//---------------------------------------------------------
+CSG_String CCopernicus_DEM::Get_Tile_Archive(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + ".tar" );
+}
+
+//---------------------------------------------------------
+CSG_String CCopernicus_DEM::Get_Tile_Archive_File(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + "/DEM/" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
 }
 
 

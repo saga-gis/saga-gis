@@ -94,7 +94,10 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0: return( new CGeoCoding );
+
 	case  1: return( new CSRTM_CGIAR );
+//	case  2: return( new CSRTM_USGS );
+	case  3: return( new CCopernicus_DEM );
 
 	case 11: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
