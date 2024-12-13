@@ -936,7 +936,14 @@ bool CWKSP_Data_Manager::Open(const wxString &File)
 		return( Open(File, SG_DATAOBJECT_TYPE_Grids     ) != NULL );
 	}
 
-	return( SG_Get_Data_Manager().Add(&File) != NULL );
+	if( SG_Get_Data_Manager().Add(&File) != NULL )
+	{
+		m_pMenu_Files->Recent_Add(CWKSP_Data_Menu_File::Recent_Type::Data, File);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
