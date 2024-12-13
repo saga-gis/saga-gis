@@ -92,6 +92,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_FRAME_SPLIT_ALL_VERT         : return( _TL("Vertically") );
 	case ID_CMD_FRAME_NEXT                   : return( _TL("Next") );
 	case ID_CMD_FRAME_PREVIOUS               : return( _TL("Previous") );
+	case ID_CMD_FRAME_FIND                   : return( _TL("Find") );
 	case ID_CMD_FRAME_CLOSE                  : return( _TL("Close") );
 	case ID_CMD_FRAME_CLOSE_ALL              : return( _TL("Close All") );
 	case ID_CMD_FRAME_CLOSE_ALL_OTHERS       : return( _TL("Close All But This") );

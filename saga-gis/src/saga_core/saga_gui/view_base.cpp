@@ -121,7 +121,7 @@ CVIEW_Base::CVIEW_Base(class CWKSP_Base_Item *pOwner, int View_ID, wxString Capt
 	}
 #endif
 
-	g_pSAGA_Frame->On_Child_Created();
+	g_pSAGA_Frame->On_Child_Created(this);
 
 	if( bShow )
 	{
@@ -148,7 +148,7 @@ CVIEW_Base::~CVIEW_Base(void)
 
 	if( g_pSAGA_Frame ) // might already be NULL on app's closing!
 	{
-		g_pSAGA_Frame->On_Child_Deleted();
+		g_pSAGA_Frame->On_Child_Deleted(this);
 		g_pSAGA_Frame->On_Child_Activates(-1);
 	}
 }

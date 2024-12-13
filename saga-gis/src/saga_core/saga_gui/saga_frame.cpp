@@ -214,6 +214,8 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_ALL_HORZ  , CSAGA_Frame::On_Frame_Split_UI)
 	EVT_MENU     (ID_CMD_FRAME_SPLIT_ALL_VERT  , CSAGA_Frame::On_Frame_Split)
 	EVT_UPDATE_UI(ID_CMD_FRAME_SPLIT_ALL_VERT  , CSAGA_Frame::On_Frame_Split_UI)
+	EVT_MENU     (ID_CMD_FRAME_FIND            , CSAGA_Frame::On_Frame_Find)
+	EVT_UPDATE_UI(ID_CMD_FRAME_FIND            , CSAGA_Frame::On_Frame_Find_UI)
 	EVT_MENU     (ID_CMD_FRAME_NEXT            , CSAGA_Frame::On_Frame_Next)
 	EVT_UPDATE_UI(ID_CMD_FRAME_NEXT            , CSAGA_Frame::On_Frame_Next_UI)
 	EVT_MENU     (ID_CMD_FRAME_PREVIOUS        , CSAGA_Frame::On_Frame_Previous)
@@ -264,8 +266,6 @@ CSAGA_Frame::CSAGA_Frame(void)
 	: MDI_ParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, MDI_PARENT_FRAME_STYLE)
 {
 	g_pSAGA_Frame  = this;
-
-	m_nChildren    = 0;
 
 	m_nTopWindows  = 0;
 	m_pTopWindows  = NULL;
@@ -697,6 +697,29 @@ void CSAGA_Frame::On_Frame_ArrangeIcons_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
+void CSAGA_Frame::On_Frame_Find(wxCommandEvent &WXUNUSED(event))
+{
+	wxArrayString Children;
+
+	for(sLong i=0; i<m_Children.Get_Size(); i++)
+	{
+		Children.Add(((CVIEW_Base *)m_Children[i])->GetTitle());
+	}
+
+	wxSingleChoiceDialog dlg(this, _TL("Goto Window"), _TL("Find"), Children);
+
+	if( dlg.ShowModal() == wxID_OK )
+	{
+		((CVIEW_Base *)m_Children[dlg.GetSelection()])->Activate();
+	}
+}
+
+void CSAGA_Frame::On_Frame_Find_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_Children.Get_Size() > 1);
+}
+
+//---------------------------------------------------------
 void CSAGA_Frame::On_Frame_Next(wxCommandEvent &WXUNUSED(event))
 {
 	ActivateNext();
@@ -1083,11 +1106,22 @@ void CSAGA_Frame::Close_Children(void)
 		delete(GetActiveChild());
 	}
 }
+//---------------------------------------------------------
+bool CSAGA_Frame::On_Child_Created(CVIEW_Base *pChild)
+{
+	return( m_Children.Add(pChild) );
+}
+
+//---------------------------------------------------------
+bool CSAGA_Frame::On_Child_Deleted(CVIEW_Base *pChild)
+{
+	return( m_Children.Del(pChild) == 1 );
+}
 
 //---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
-	if( View_ID < 0 && m_nChildren > 0 ) // child view closes, but it's not the last one
+	if( View_ID < 0 && m_Children.Get_Size() > 0 ) // child view closes, but it's not the last one
 	{
 		return; // nothing to do, another child will be activated next!
 	}
@@ -1201,6 +1235,7 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	pMenu_Window->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_NEXT);
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_PREVIOUS);
+	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_FIND);
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_CLOSE);
 	CMD_Menu_Add_Item(pMenu_Window, false, ID_CMD_FRAME_CLOSE_ALL);
 

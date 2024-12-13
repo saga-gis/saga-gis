@@ -111,9 +111,9 @@ public:
 	bool						Arrange_Children			(int Arrange);
 	void						Close_Children				(void);
 
+	bool						On_Child_Created			(class CVIEW_Base *pChild);
+	bool						On_Child_Deleted			(class CVIEW_Base *pChild);
 	void						On_Child_Activates			(int View_ID);
-	void						On_Child_Created			(void) { m_nChildren++; }
-	void						On_Child_Deleted			(void) { m_nChildren--; }
 
 	class CVIEW_Base *			Get_Active_Child			(int View_ID = -1);
 
@@ -124,7 +124,9 @@ public:
 
 private: //------------------------------------------------
 
-	int							m_nTopWindows, m_nChildren;
+	int							m_nTopWindows;
+
+	CSG_Array_Pointer			m_Children;
 
 	wxWindow					**m_pTopWindows;
 
@@ -174,6 +176,8 @@ private: //------------------------------------------------
 	void						On_Frame_Unsplit_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_Split				(wxCommandEvent  &event);
 	void						On_Frame_Split_UI			(wxUpdateUIEvent &event);
+	void						On_Frame_Find				(wxCommandEvent  &event);
+	void						On_Frame_Find_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_Next				(wxCommandEvent  &event);
 	void						On_Frame_Next_UI			(wxUpdateUIEvent &event);
 	void						On_Frame_Previous			(wxCommandEvent  &event);
