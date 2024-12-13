@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 //                Austria                                //
 //                www.laserdata.at                       //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -602,9 +590,9 @@ CSG_Projection CPointCloud_Create_SPCVF::_Get_Projection(const CSG_String &FileN
 
 	if( SG_File_Cmp_Extension(FileName, "sg-pts-z") ) // POINTCLOUD_FILE_FORMAT_Compressed
 	{
-		CSG_File_Zip	Stream(FileName, SG_FILE_R);
+		CSG_Archive Stream(FileName, SG_FILE_R);
 
-		CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
+		CSG_String _FileName(SG_File_Get_Name(FileName, false) + ".");
 
 		if( Stream.Get_File(_FileName + "sg-prj") )
 		{

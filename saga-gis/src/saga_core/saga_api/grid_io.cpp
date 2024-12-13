@@ -475,7 +475,7 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 {
 	Set_File_Name(_FileName, true);
 
-	CSG_File_Zip	Stream(_FileName, SG_FILE_R);
+	CSG_Archive	Stream(_FileName, SG_FILE_R);
 
 	if( !Stream.is_Reading() )
 	{
@@ -559,18 +559,18 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 bool CSG_Grid::_Save_Compressed(const CSG_String &_FileName)
 {
 #ifdef WORDS_BIGENDIAN
-	bool	bBigEndian	= true;
+	bool bBigEndian = true;
 #else
-	bool	bBigEndian	= false;
+	bool bBigEndian = false;
 #endif
 
-	CSG_File_Zip	Stream(_FileName, SG_FILE_W);
+	CSG_Archive Stream(_FileName, SG_FILE_W);
 
 	if( Stream.is_Writing() )
 	{
-		CSG_String	FileName(SG_File_Get_Name(_FileName, false) + ".");
+		CSG_String FileName(SG_File_Get_Name(_FileName, false) + ".");
 
-		CSG_Grid_File_Info	Info(*this);
+		CSG_Grid_File_Info Info(*this);
 
 		if( Stream.Add_File(FileName + "sgrd") && Info.Save(Stream, true)
 		&&  Stream.Add_File(FileName + "sdat") && _Save_Binary(Stream, m_Type, false, bBigEndian) )
@@ -1091,7 +1091,7 @@ bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
 	}
 
 	//-----------------------------------------------------
-	CSG_File_Zip	Stream(FileName, SG_FILE_R);
+	CSG_Archive	Stream(FileName, SG_FILE_R);
 
 	if( Stream.is_Reading() )
 	{

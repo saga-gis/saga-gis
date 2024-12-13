@@ -1900,13 +1900,15 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 				}
 
 				pGrids->Del_Grids(true);
+
+				bResult = Get_NZ() > 0;
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
 
-	return( Get_NZ() > 0 );
+	return( bResult );
 }
 
 
@@ -2015,9 +2017,9 @@ bool CSG_Grids::_Load_Compressed(const CSG_String &_FileName)
 		return( false );
 	}
 
-	CSG_File_Zip	Stream(_FileName, SG_FILE_R);
+	CSG_Archive Stream(_FileName, SG_FILE_R);
 
-	CSG_String	FileName(SG_File_Get_Name(_FileName, false) + ".");
+	CSG_String FileName(SG_File_Get_Name(_FileName, false) + ".");
 
 	//-----------------------------------------------------
 	if( !Stream.Get_File(FileName + "sg-gds") || !_Load_Header(Stream) )
@@ -2059,7 +2061,7 @@ bool CSG_Grids::_Load_Compressed(const CSG_String &_FileName)
 //---------------------------------------------------------
 bool CSG_Grids::_Save_Compressed(const CSG_String &_FileName)
 {
-	CSG_File_Zip	Stream(_FileName, SG_FILE_W);
+	CSG_Archive	Stream(_FileName, SG_FILE_W);
 
 	CSG_String	FileName(SG_File_Get_Name(_FileName, false) + ".");
 

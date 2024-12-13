@@ -56,6 +56,7 @@
 #include <wx/wxcrtvararg.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
+#include <wx/tarstrm.h>
 #include <wx/txtstrm.h>
 #include <wx/log.h>
 #include <wx/version.h>
@@ -569,13 +570,13 @@ CSG_String CSG_File::Scan_String(SG_Char Separator) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_File_Zip::CSG_File_Zip(void)
+CSG_Archive::CSG_Archive(void)
 {
 	On_Construction();
 }
 
 //---------------------------------------------------------
-CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode, int Encoding)
+CSG_Archive::CSG_Archive(const CSG_String &FileName, int Mode, int Encoding)
 {
 	On_Construction();
 
@@ -583,26 +584,35 @@ CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode, int Encoding)
 }
 
 //---------------------------------------------------------
-CSG_File_Zip::~CSG_File_Zip(void)
+CSG_Archive::~CSG_Archive(void)
 {
 	Close();
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
+bool CSG_Archive::Open(const CSG_String &FileName, int Mode, int Encoding)
 {
 	Close();
 
-	m_ZipFile = FileName;
+	if( SG_File_Cmp_Extension(FileName, "tar") )
+	{
+		m_Type = SG_FILE_TYPE_TAR;
+	}
+	else // if( SG_File_Cmp_Extension(FileName, "zip") )
+	{
+		m_Type = SG_FILE_TYPE_ZIP;
+	}
 
-	CSG_String Path(SG_File_Get_Path(m_ZipFile));
+	m_Archive = FileName;
+
+	CSG_String Path(SG_File_Get_Path(m_Archive));
 
 	if( !Path.is_Empty() && !SG_Dir_Exists(Path) )
 	{
 		return( false );
 	}
 
-	if( Mode == SG_FILE_R && !SG_File_Exists(m_ZipFile) )
+	if( Mode == SG_FILE_R && !SG_File_Exists(m_Archive) )
 	{
 		return( false );
 	}
@@ -613,11 +623,25 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 
 	if( Mode == SG_FILE_W )
 	{
-		m_pStream = new wxZipOutputStream(new wxFileOutputStream(m_ZipFile.c_str()));
+		if( is_Zip() )
+		{
+			m_pStream = new wxZipOutputStream(new wxFileOutputStream(m_Archive.c_str()));
+		}
+		else
+		{
+			m_pStream = new wxTarOutputStream(new wxFileOutputStream(m_Archive.c_str()));
+		}
 	}
-	else if( Mode == SG_FILE_R && SG_File_Exists(m_ZipFile) )
+	else if( Mode == SG_FILE_R && SG_File_Exists(m_Archive) )
 	{
-		m_pStream = new wxZipInputStream (new wxFileInputStream (m_ZipFile.c_str()));
+		if( is_Zip() )
+		{
+			m_pStream = new wxZipInputStream (new wxFileInputStream (m_Archive.c_str()));
+		}
+		else
+		{
+			m_pStream = new wxTarInputStream (new wxFileInputStream (m_Archive.c_str()));
+		}
 	}
 
 	if( !m_pStream || !m_pStream_Base->IsOk() )
@@ -629,9 +653,9 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 
 	if( is_Reading() )
 	{
-		wxZipEntry *pEntry;
+		wxArchiveEntry *pEntry;
 
-		while( (pEntry = ((wxZipInputStream *)m_pStream)->GetNextEntry()) != NULL )
+		while( (pEntry = ((wxArchiveInputStream *)m_pStream)->GetNextEntry()) != NULL )
 		{
 			m_Files += pEntry;
 		}
@@ -641,42 +665,58 @@ bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Close(void)
+bool CSG_Archive::Close(void)
 {
 	for(sLong i=0; i<m_Files.Get_Size(); i++)
 	{
-		delete((wxZipEntry *)m_Files[i]);
+		if( is_Zip() )
+		{
+			delete((wxZipEntry *)m_Files[i]);
+		}
+		else
+		{
+			delete((wxTarEntry *)m_Files[i]);
+		}
 	}
 
 	m_Files.Set_Array(0);
 
-	m_ZipFile.Clear();
+	m_Archive.Clear();
 
 	return( CSG_File::Close() );
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Add_Directory(const CSG_String &Name)
+bool CSG_Archive::Add_Directory(const CSG_String &Name)
 {
-	return( is_Writing() && ((wxZipOutputStream *)m_pStream)->PutNextDirEntry(Name.c_str()) );
+	return( is_Writing() && ((wxArchiveOutputStream *)m_pStream)->PutNextDirEntry(Name.c_str()) );
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Add_File(const CSG_String &Name, bool bBinary)
+bool CSG_Archive::Add_File(const CSG_String &Name, bool bBinary)
 {
 	if( is_Writing() )
 	{
-		wxZipEntry	*pEntry	= new wxZipEntry(Name.c_str());
+		wxArchiveEntry *pEntry = NULL;
 
-		pEntry->SetIsText(bBinary == false);
-
-		#if wxCHECK_VERSION(3, 1, 1)
-		((wxZipOutputStream *)m_pStream)->SetFormat(wxZIP_FORMAT_ZIP64);
-		#endif
-
-		if( ((wxZipOutputStream *)m_pStream)->PutNextEntry(pEntry) )
+		if( is_Zip() )
 		{
-			m_FileName	= Name;
+			pEntry = new wxZipEntry(Name.c_str());
+
+			((wxZipEntry *)pEntry)->SetIsText(bBinary == false);
+
+			#if wxCHECK_VERSION(3, 1, 1)
+			((wxZipOutputStream *)m_pStream)->SetFormat(wxZIP_FORMAT_ZIP64);
+			#endif
+		}
+		else
+		{
+			pEntry = new wxTarEntry(Name.c_str());
+		}
+
+		if( ((wxArchiveOutputStream *)m_pStream)->PutNextEntry(pEntry) )
+		{
+			m_FileName = Name;
 
 			return( true );
 		}
@@ -686,24 +726,24 @@ bool CSG_File_Zip::Add_File(const CSG_String &Name, bool bBinary)
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::is_Directory(size_t Index)
+bool CSG_Archive::is_Directory(size_t Index)
 {
 	if( is_Reading() && m_Files[Index] )
 	{
-		return( ((wxZipEntry *)m_Files[Index])->IsDir() );
+		return( ((wxArchiveEntry *)m_Files[Index])->IsDir() );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Get_File(size_t Index)
+bool CSG_Archive::Get_File(size_t Index)
 {
 	if( is_Reading() && m_Files[Index] )
 	{
-		if( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[Index]) )
+		if( ((wxArchiveInputStream *)m_pStream)->OpenEntry(*(wxArchiveEntry *)m_Files[Index]) )
 		{
-			m_FileName	= Get_File_Name(Index);
+			m_FileName = Get_File_Name(Index);
 
 			return( true );
 		}
@@ -713,13 +753,13 @@ bool CSG_File_Zip::Get_File(size_t Index)
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Get_File(const CSG_String &Name)
+bool CSG_Archive::Get_File(const CSG_String &Name)
 {
 	if( is_Reading() )
 	{
 		for(sLong i=0; i<m_Files.Get_Size(); i++)
 		{
-			if( !((wxZipEntry *)m_Files[i])->GetName().Cmp(Name.c_str()) )
+			if( !((wxArchiveEntry *)m_Files[i])->GetName().Cmp(Name.c_str()) )
 			{
 				return( Get_File(i) );
 			}
@@ -730,13 +770,13 @@ bool CSG_File_Zip::Get_File(const CSG_String &Name)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
+CSG_String CSG_Archive::Get_File_Name(size_t Index)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( is_Reading() && m_Files[Index] )
 	{
-		wxString Name(((wxZipEntry *)m_Files[Index])->GetName()); s	= &Name;
+		wxString Name(((wxArchiveEntry *)m_Files[Index])->GetName()); s = &Name;
 	}
 
 	return( s );
@@ -748,7 +788,7 @@ CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Extract_All(const CSG_String &_Directory)
+bool CSG_Archive::Extract_All(const CSG_String &_Directory)
 {
 	if( !is_Reading() )
 	{
@@ -765,7 +805,7 @@ bool CSG_File_Zip::Extract_All(const CSG_String &_Directory)
 
 	if( Directory.is_Empty() )
 	{
-		Directory = SG_File_Get_Path(m_ZipFile);
+		Directory = SG_File_Get_Path(m_Archive);
 	}
 	else if( !SG_Dir_Exists(Directory) )
 	{
@@ -791,7 +831,7 @@ bool CSG_File_Zip::Extract_All(const CSG_String &_Directory)
 }
 
 //---------------------------------------------------------
-bool CSG_File_Zip::Extract(const CSG_String &Name, const CSG_String &_File)
+bool CSG_Archive::Extract(const CSG_String &Name, const CSG_String &_File)
 {
 	if( !is_Reading() || !Get_File(Name) )
 	{
@@ -802,7 +842,7 @@ bool CSG_File_Zip::Extract(const CSG_String &Name, const CSG_String &_File)
 
 	if( File.is_Empty() )
 	{
-		File = SG_File_Make_Path(SG_File_Get_Path(m_ZipFile), Name);
+		File = SG_File_Make_Path(SG_File_Get_Path(m_Archive), Name);
 	}
 
 	CSG_File Stream(File, SG_FILE_W, true, m_Encoding);

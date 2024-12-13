@@ -1100,7 +1100,8 @@ SAGA_API_DLL_EXPORT bool			SG_Data_Type_Range_Check	(TSG_Data_Type Type, double 
 typedef enum
 {
 	SG_FILE_TYPE_NORMAL,
-	SG_FILE_TYPE_ZIP
+	SG_FILE_TYPE_ZIP,
+	SG_FILE_TYPE_TAR
 }
 TSG_File_Type;
 
@@ -1195,21 +1196,23 @@ protected:
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_File_Zip : public CSG_File
+class SAGA_API_DLL_EXPORT CSG_Archive : public CSG_File
 {
 public:
 
-	CSG_File_Zip(void);
-	virtual ~CSG_File_Zip(void);
+	CSG_Archive(void);
+	virtual ~CSG_Archive(void);
 
-									CSG_File_Zip		(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
+									CSG_Archive			(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
 	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
 	virtual bool					Open				(const CSG_String &FileName, int Mode, bool bBinary, int Encoding) { return( Open(FileName, Mode, Encoding) ); }
 
 	virtual bool					Close				(void);
 
-	virtual const CSG_String &		Get_File_Zip		(void)	const	{	return( m_ZipFile );	}
-	virtual TSG_File_Type			Get_File_Type		(void)	const	{	return( SG_FILE_TYPE_ZIP );	}
+	virtual const CSG_String &		Get_Archive			(void)	const	{	return( m_Archive );	}
+	virtual TSG_File_Type			Get_File_Type		(void)	const	{	return( m_Type    );	}
+	bool							is_Zip				(void)	const	{	return( m_Type == SG_FILE_TYPE_ZIP ); }
+	bool							is_Tar				(void)	const	{	return( m_Type == SG_FILE_TYPE_TAR ); }
 
 	bool							Add_Directory		(const CSG_String &Name);
 	bool							Add_File			(const CSG_String &Name, bool bBinary = true);
@@ -1226,11 +1229,16 @@ public:
 
 protected:
 
-	CSG_String						m_ZipFile;
+	TSG_File_Type					m_Type = SG_FILE_TYPE_NORMAL;
+
+	CSG_String						m_Archive;
 
 	CSG_Array_Pointer				m_Files;
 
 };
+
+//---------------------------------------------------------
+#define CSG_File_Zip CSG_Archive // for backward compatibility
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool			SG_Dir_Exists				(const CSG_String &Directory);

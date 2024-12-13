@@ -262,7 +262,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File)
 
 	if( SG_File_Cmp_Extension(File, "sg-pts-z") ) // POINTCLOUD_FILE_FORMAT_Compressed
 	{
-		CSG_File_Zip Stream(File, SG_FILE_R);
+		CSG_Archive Stream(File, SG_FILE_R);
 
 		CSG_String _File(SG_File_Get_Name(File, false) + ".");
 
@@ -348,7 +348,7 @@ bool CSG_PointCloud::Save(const CSG_String &_File, int Format)
 
 			SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("point cloud"), File.c_str()), true);
 
-			CSG_File_Zip Stream(File, SG_FILE_W);
+			CSG_Archive Stream(File, SG_FILE_W);
 
 			CSG_String Name(SG_File_Get_Name(File, false) + ".");
 
@@ -426,7 +426,7 @@ bool CSG_PointCloud::Get_Header_Content(const CSG_String &File, CSG_MetaData &He
 
 	if( SG_File_Cmp_Extension(File, "sg-pts-z") ) // POINTCLOUD_FILE_FORMAT_Compressed
 	{
-		CSG_File_Zip Stream(File, SG_FILE_R);
+		CSG_Archive Stream(File, SG_FILE_R);
 
 		CSG_String _File(SG_File_Get_Name(File, false) + ".");
 
