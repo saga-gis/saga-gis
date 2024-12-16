@@ -90,7 +90,7 @@ CSG_File::CSG_File(void)
 }
 
 //---------------------------------------------------------
-CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
+CSG_File::CSG_File(const SG_Char *FileName, int Mode, bool bBinary, int Encoding)
 {
 	On_Construction();
 
@@ -109,9 +109,11 @@ CSG_File::~CSG_File(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
+bool CSG_File::Open(const SG_Char *_FileName, int Mode, bool bBinary, int Encoding)
 {
 	Close();
+
+	if( !_FileName ) { return( false ); } CSG_String FileName(_FileName);
 
 	CSG_String Path(SG_File_Get_Path(FileName));
 
@@ -576,7 +578,7 @@ CSG_Archive::CSG_Archive(void)
 }
 
 //---------------------------------------------------------
-CSG_Archive::CSG_Archive(const CSG_String &FileName, int Mode, int Encoding)
+CSG_Archive::CSG_Archive(const SG_Char *FileName, int Mode, int Encoding)
 {
 	On_Construction();
 
@@ -590,9 +592,11 @@ CSG_Archive::~CSG_Archive(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Archive::Open(const CSG_String &FileName, int Mode, int Encoding)
+bool CSG_Archive::Open(const SG_Char *_FileName, int Mode, int Encoding)
 {
 	Close();
+
+	if( !_FileName ) { return( false ); } CSG_String FileName(_FileName);
 
 	if( SG_File_Cmp_Extension(FileName, "tar") )
 	{
@@ -687,21 +691,21 @@ bool CSG_Archive::Close(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Archive::Add_Directory(const CSG_String &Name)
+bool CSG_Archive::Add_Directory(const SG_Char *Name)
 {
-	return( is_Writing() && ((wxArchiveOutputStream *)m_pStream)->PutNextDirEntry(Name.c_str()) );
+	return( is_Writing() && Name && ((wxArchiveOutputStream *)m_pStream)->PutNextDirEntry(Name) );
 }
 
 //---------------------------------------------------------
-bool CSG_Archive::Add_File(const CSG_String &Name, bool bBinary)
+bool CSG_Archive::Add_File(const SG_Char *Name, bool bBinary)
 {
-	if( is_Writing() )
+	if( is_Writing() && Name )
 	{
 		wxArchiveEntry *pEntry = NULL;
 
 		if( is_Zip() )
 		{
-			pEntry = new wxZipEntry(Name.c_str());
+			pEntry = new wxZipEntry(Name);
 
 			((wxZipEntry *)pEntry)->SetIsText(bBinary == false);
 
@@ -711,7 +715,7 @@ bool CSG_Archive::Add_File(const CSG_String &Name, bool bBinary)
 		}
 		else
 		{
-			pEntry = new wxTarEntry(Name.c_str());
+			pEntry = new wxTarEntry(Name);
 		}
 
 		if( ((wxArchiveOutputStream *)m_pStream)->PutNextEntry(pEntry) )
@@ -753,13 +757,13 @@ bool CSG_Archive::Get_File(size_t Index)
 }
 
 //---------------------------------------------------------
-bool CSG_Archive::Get_File(const CSG_String &Name)
+bool CSG_Archive::Get_File(const SG_Char *Name)
 {
-	if( is_Reading() )
+	if( is_Reading() && Name )
 	{
 		for(sLong i=0; i<m_Files.Get_Size(); i++)
 		{
-			if( !((wxArchiveEntry *)m_Files[i])->GetName().Cmp(Name.c_str()) )
+			if( !((wxArchiveEntry *)m_Files[i])->GetName().Cmp(Name) )
 			{
 				return( Get_File(i) );
 			}
@@ -788,7 +792,7 @@ CSG_String CSG_Archive::Get_File_Name(size_t Index)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Archive::Extract_All(const CSG_String &_Directory)
+bool CSG_Archive::Extract_All(const SG_Char *_Directory)
 {
 	if( !is_Reading() )
 	{
@@ -801,7 +805,7 @@ bool CSG_Archive::Extract_All(const CSG_String &_Directory)
 		const char Separator = '/';
 	#endif
 
-	CSG_String Directory(_Directory);
+	CSG_String Directory(_Directory ? _Directory : SG_T(""));
 
 	if( Directory.is_Empty() )
 	{
@@ -831,21 +835,21 @@ bool CSG_Archive::Extract_All(const CSG_String &_Directory)
 }
 
 //---------------------------------------------------------
-bool CSG_Archive::Extract(const CSG_String &Name, const CSG_String &_File)
+bool CSG_Archive::Extract(const SG_Char *File, const SG_Char *_toFile)
 {
-	if( !is_Reading() || !Get_File(Name) )
+	if( !is_Reading() || !Get_File(File) )
 	{
 		return( false );
 	}
 
-	CSG_String File(_File);
+	CSG_String toFile(_toFile ? _toFile : SG_T(""));
 
-	if( File.is_Empty() )
+	if( toFile.is_Empty() )
 	{
-		File = SG_File_Make_Path(SG_File_Get_Path(m_Archive), Name);
+		toFile = SG_File_Make_Path(SG_File_Get_Path(m_Archive), File);
 	}
 
-	CSG_File Stream(File, SG_FILE_W, true, m_Encoding);
+	CSG_File Stream(toFile, SG_FILE_W, true, m_Encoding);
 
 	if( !Stream.is_Open() )
 	{

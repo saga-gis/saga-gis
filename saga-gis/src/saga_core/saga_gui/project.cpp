@@ -920,7 +920,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &File)
 	CSG_String	sLine;
 	CSG_File	Stream;
 
-	if( !Stream.Open(&File, SG_FILE_R, true) )
+	if( !Stream.Open(File, SG_FILE_R, true) )
 	{
 		return( false );
 	}

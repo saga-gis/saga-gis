@@ -527,7 +527,8 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 {
-	if( event.GetId() >= ID_CMD_TOOL_MENU_FIRST && event.GetId() <= ID_CMD_TOOL_MENU_LAST )
+	if( (event.GetId() >= ID_CMD_TOOL_MENU_FIRST   && event.GetId() <= ID_CMD_TOOL_MENU_LAST  )
+	||  (event.GetId() >= ID_CMD_TOOL_RECENT_FIRST && event.GetId() <= ID_CMD_TOOL_RECENT_LAST) )
 	{
 		if( g_pTool == NULL )
 		{

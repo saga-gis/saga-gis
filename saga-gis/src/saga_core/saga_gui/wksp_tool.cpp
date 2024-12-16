@@ -476,7 +476,7 @@ void CWKSP_Tool::Save_to_Script(void)
 		//-------------------------------------------------
 		CSG_File File;
 
-		if( !Script.is_Empty() && File.Open(&FileName, SG_FILE_W, false) )
+		if( !Script.is_Empty() && File.Open(FileName, SG_FILE_W, false) )
 		{
 			File.Write(Script);
 		}

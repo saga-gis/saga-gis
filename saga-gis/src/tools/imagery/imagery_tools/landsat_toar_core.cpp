@@ -163,7 +163,7 @@ bool lsat_metdata(const char metdata[], lsat_data *lsat)
  *****************************************************************************/
 
 //---------------------------------------------------------
-bool Load_MetaData(const char *filename, CSG_MetaData &MetaData)
+bool Load_MetaData(const CSG_String &filename, CSG_MetaData &MetaData)
 {
 	CSG_String	sLine, sKey, sVal;
 	CSG_File	f;

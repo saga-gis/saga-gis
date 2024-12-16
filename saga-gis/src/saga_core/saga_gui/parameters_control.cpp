@@ -306,7 +306,7 @@ bool CParameters_Control::Load(void)
 
 	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) )
 	{
-		CSG_File	File(&File_Path);
+		CSG_File	File(File_Path);
 
 		m_pParameters->Set_Callback(false);
 

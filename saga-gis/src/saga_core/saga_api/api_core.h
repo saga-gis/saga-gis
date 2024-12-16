@@ -1129,8 +1129,8 @@ public:
 	CSG_File(void);
 	virtual ~CSG_File(void);
 
-									CSG_File			(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_ANSI);
-	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_ANSI);
+									CSG_File			(const SG_Char *FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_ANSI);
+	virtual bool					Open				(const SG_Char *FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_ANSI);
 
 	virtual bool					Close				(void);
 
@@ -1165,7 +1165,7 @@ public:
 	size_t							Read				(      CSG_String &Buffer, size_t Size)	const;
 	size_t							Write				(const CSG_String &Buffer)				const;
 
-	bool							Read_Line			(CSG_String &sLine)	const;
+	bool							Read_Line			(CSG_String &Line)	const;
 
 	int								Read_Char			(void)	const;
 	int								Read_Int			(				bool bBigEndian = false)	const;
@@ -1203,9 +1203,9 @@ public:
 	CSG_Archive(void);
 	virtual ~CSG_Archive(void);
 
-									CSG_Archive			(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
-	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
-	virtual bool					Open				(const CSG_String &FileName, int Mode, bool bBinary, int Encoding) { return( Open(FileName, Mode, Encoding) ); }
+									CSG_Archive			(const SG_Char *FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
+	virtual bool					Open				(const SG_Char *FileName, int Mode = SG_FILE_R, int Encoding = SG_FILE_ENCODING_ANSI);
+	virtual bool					Open				(const SG_Char *FileName, int Mode, bool bBinary, int Encoding) { return( Open(FileName, Mode, Encoding) ); }
 
 	virtual bool					Close				(void);
 
@@ -1214,17 +1214,17 @@ public:
 	bool							is_Zip				(void)	const	{	return( m_Type == SG_FILE_TYPE_ZIP ); }
 	bool							is_Tar				(void)	const	{	return( m_Type == SG_FILE_TYPE_TAR ); }
 
-	bool							Add_Directory		(const CSG_String &Name);
-	bool							Add_File			(const CSG_String &Name, bool bBinary = true);
+	bool							Add_Directory		(const SG_Char *Name);
+	bool							Add_File			(const SG_Char *Name, bool bBinary = true);
 
 	size_t							Get_File_Count		(void)	{	return( m_Files.Get_Size() );	}
-	bool							Get_File			(const CSG_String &Name);
+	bool							Get_File			(const SG_Char *Name);
 	bool							Get_File			(size_t Index);
 	virtual CSG_String				Get_File_Name		(size_t Index);
 	bool							is_Directory		(size_t Index);
 
-	bool							Extract_All			(const CSG_String &Directory = "");
-	bool							Extract				(const CSG_String &ZipFile, const CSG_String &File = "");
+	bool							Extract_All			(const SG_Char *toDirectory = NULL);
+	bool							Extract				(const SG_Char *File, const SG_Char *toFile = NULL);
 
 
 protected:
