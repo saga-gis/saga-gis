@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     srtm_cgiar.h                      //
+//                    global_tiles.h                     //
 //                                                       //
 //                 Copyrights (C) 2024                   //
 //                     Olaf Conrad                       //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__srtm_cgiar_H
-#define HEADER_INCLUDED__srtm_cgiar_H
+#ifndef HEADER_INCLUDED__global_tiles_H
+#define HEADER_INCLUDED__global_tiles_H
 
 
 ///////////////////////////////////////////////////////////
@@ -179,4 +179,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__srtm_cgiar_H
+#endif // #ifndef HEADER_INCLUDED__global_tiles_H

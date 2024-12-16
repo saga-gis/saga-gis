@@ -83,7 +83,7 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your tools here...
 
 #include "geocoding.h"
-#include "srtm_cgiar.h"
+#include "global_tiles.h"
 
 
 //---------------------------------------------------------

@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    srtm_cgiar.cpp                     //
+//                   global_tiles.cpp                    //
 //                                                       //
 //                 Copyrights (C) 2024                   //
 //                     Olaf Conrad                       //
@@ -46,7 +46,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "srtm_cgiar.h"
+#include "global_tiles.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@
 //---------------------------------------------------------
 CTiles_Provider::CTiles_Provider(bool bLogin)
 {
-	m_VRT_Name = "tiles"; m_Grid_Name = "grid"; m_Grid_Extension = "tif";
+	m_VRT_Name = "global_tiles"; m_Grid_Name = "grid"; m_Grid_Extension = "tif";
 
 	//-----------------------------------------------------
 	if( bLogin )
@@ -418,9 +418,9 @@ bool CTiles_Provider::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent
 
 	int nAdded = 0, nFailed = 0, nFound = 0;
 
-	for(int Row=Tiles.yMin; Row<=Tiles.yMax; Row++)
+	for(int Row=Tiles.yMin; Process_Get_Okay() && Row<=Tiles.yMax; Row++)
 	{
-		for(int Col=Tiles.xMin; Col<=Tiles.xMax; Col++)
+		for(int Col=Tiles.xMin; Process_Get_Okay() && Col<=Tiles.xMax; Col++)
 		{
 			int Result = Provide_Tile(Directory, Col, Row, DeleteArchive);
 
@@ -477,21 +477,20 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 
 		CSG_CURL Connection(m_ServerPath, Username, Password);
 
-		if( !Connection.is_Connected() )
-		{
-			Error_Fmt("%s: %s", _TL("failed to connect to server"), m_ServerPath.c_str());
-
-			return( -1 );
-		}
-
 		Message_Fmt("\n%s: %s%s", _TL("requesting file"), m_ServerPath.c_str(), Archive_Name.c_str());
+
+		SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s%s...", _TL("Downloading"), m_ServerPath.c_str(), Archive_Name.c_str()));
 
 		if( !Connection.Request(Archive_Name, Archive_File.c_str()) )
 		{
+			SG_UI_Process_Set_Busy(false);
+
 			Error_Fmt("%s:\n\n%s%s", _TL("failed to request file from server"), m_ServerPath.c_str(), Archive_Name.c_str());
 
 			return( -1 );
 		}
+
+		SG_UI_Process_Set_Busy(false);
 	}
 
 	//-----------------------------------------------------
@@ -503,14 +502,17 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 	{
 		Error_Fmt("%s: %s", _TL("failed to extract file"), Get_Tile_Archive_File(Col, Row).c_str());
 
+		if( DeleteArchive )
+		{
+			Archive.Close(); SG_File_Delete(Archive_File);
+		}
+
 		return( -1 );
 	}
 
-	Archive.Close();
-
 	if( DeleteArchive )
 	{
-		SG_File_Delete(Archive_File);
+		Archive.Close(); SG_File_Delete(Archive_File);
 	}
 
 	//-----------------------------------------------------
@@ -567,11 +569,14 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"Prepare 3arcsec SRTM data for target areas of your choice. "
-		"Builds a local database in the chosen directory with the "
-		"original CGIAR CSI SRTM tiles. If not done yet all tiles "
-		"covering the requested area become downloaded from the "
-		"CGIAR CSI server. "
+		"This tool provides easy-to-use access to the "
+		"\'NASA Shuttle Radar Topography Mission Global 3 arc second\' "
+		"elevation data (about 90 meter resolution) as provided by "
+		"the CGIAR CSI server. "
+		"It uses a local database in the chosen directory which provides "
+		"the original tiles. If the tiles covering the requested area are "
+		"not found in this directory the tool tries to download these "
+		"from the CGIAR CSI server. "
 	));
 
 	Add_Reference("Jarvis A., H.I. Reuter, A.  Nelson, E. Guevara", "2008",
@@ -593,10 +598,10 @@ CSRTM_CGIAR::CSRTM_CGIAR(void)
 	//-----------------------------------------------------
 	m_ServerPath     = "https://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_5x5/TIFF/";
 
-	m_VRT_Name       = "srtm_tiles";
-
 	m_Grid_Name      = "CGIAR CSI SRTM";
 	m_Grid_Extension = "tif";
+
+	Parameters.Set_Parameter("CELLSIZE", 90.); // default cellsize
 }
 
 //---------------------------------------------------------
@@ -652,12 +657,13 @@ CSRTM_USGS::CSRTM_USGS(void) : CTiles_Provider(true)
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"Prepare 1arcsec SRTM data for target areas of your choice. "
-		"Builds a local database in the chosen directory with the "
-		"original NASA SRTM tiles. If not done yet all tiles "
-		"covering the requested area become downloaded from the "
-		"USGS server.\n"
-		"NASA Shuttle Radar Topography Mission Global 1 arc second"
+		"This tool provides easy-to-use access to the "
+		"\'NASA Shuttle Radar Topography Mission Global 1 arc second\' "
+		"elevation data (about 30 meter resolution). "
+		"It uses a local database in the chosen directory which provides "
+		"the original tiles. If the tiles covering the requested area are "
+		"not found in this directory the tool tries to download these "
+		"from the USGS server. "
 	));
 
 	Add_Reference("Reuter  H.I,  A.  Nelson,  A.  Jarvis", "2007",
@@ -674,7 +680,6 @@ CSRTM_USGS::CSRTM_USGS(void) : CTiles_Provider(true)
 	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
 
 	m_ServerPath     = "https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/";
-	m_VRT_Name       = "srtm_tiles";
 
 	m_Grid_Name      = "USGS SRTM";
 	m_Grid_Extension = "hgt";
@@ -705,9 +710,9 @@ CSG_String CSRTM_USGS::Get_Tile_Name(int Col, int Row) const
 {
 	return( CSG_String::Format("%c%02d%c%03d.SRTMGL1",
 		Row < 0 ? 'S' : 'N',
-		Row < 0 ? abs(Row) : Row,
+		Row < 0 ? abs(Row) + 1 : Row,
 		Col < 0 ? 'W' : 'E',
-		Col < 0 ? abs(Col) : Col
+		Col < 0 ? abs(Col) + 1 : Col
 	));
 }
 
@@ -740,13 +745,12 @@ CCopernicus_DEM::CCopernicus_DEM(void)
 	Set_Author		("O.Conrad (c) 2024");
 
 	Set_Description	(_TW(
-		"This tool provides easy-to-use access to the "
-		"\'Copernicus DEM\' global elevation data with "
-		"1 arcsec resolution (about 30 meter). "
-		"It builds a local database in the chosen directory with the "
-		"original tiles. If not done yet all tiles "
-		"covering the requested area become downloaded from the "
-		"Copernicus server. "
+		"This tool provides easy-to-use access to the \'Copernicus DEM\' "
+		"global elevation data with 1 arcsec resolution (about 30 meter). "
+		"It uses a local database in the chosen directory which provides "
+		"the original tiles. If the tiles covering the requested area are "
+		"not found in the directory the tool tries to download these "
+		"from the Copernicus server. "
 	));
 
 	Add_Reference("https://sentinels.copernicus.eu/web/sentinel/-/copernicus-dem-new-direct-data-download-access/",
@@ -757,7 +761,6 @@ CCopernicus_DEM::CCopernicus_DEM(void)
 	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
 
 	m_ServerPath     = "https://prism-dem-open.copernicus.eu/pd-desk-open-access/prismDownload/COP-DEM_GLO-30-DGED__2022_1/";
-	m_VRT_Name       = "copernicus_tiles";
 
 	m_Grid_Name      = "Copernicus DEM";
 	m_Grid_Extension = "tif";
@@ -803,8 +806,22 @@ CSG_String CCopernicus_DEM::Get_Tile_Archive(int Col, int Row) const
 //---------------------------------------------------------
 CSG_String CCopernicus_DEM::Get_Tile_Archive_File(int Col, int Row) const
 {
-	return( Get_Tile_Name(Col, Row) + "/DEM/" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
+	#ifdef _SAGA_MSW
+		return( Get_Tile_Name(Col, Row) + "\\DEM\\" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
+	#else
+		return( Get_Tile_Name(Col, Row) + "/DEM/" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
+	#endif
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+// https://www.eorc.jaxa.jp/ALOS/aw3d30/data/release_v2404/N050E010/N051E011.zip
 
 
 ///////////////////////////////////////////////////////////
