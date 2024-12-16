@@ -639,7 +639,7 @@ void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
 void CSAGA_Frame::Tile(wxOrientation orient)
 {
 #ifndef MDI_TABBED
-	if( m_nChildren == 1 && GetActiveChild() )
+	if( m_Children.Get_Size() == 1 && GetActiveChild() )
 	{
 		GetActiveChild()->Maximize();
 	}
