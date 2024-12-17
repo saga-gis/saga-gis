@@ -455,7 +455,7 @@ bool CTiles_Provider::Provide_Tiles(const CSG_String &Directory, CSG_Rect Extent
 //---------------------------------------------------------
 int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row, bool DeleteArchive)
 {
-	CSG_String File = Get_Tile_Name(Col, Row) + "." + m_Grid_Extension;
+	CSG_String File = Get_Tile_File(Col, Row);
 
 	CSG_String Local_File = SG_File_Make_Path(Directory, File);
 
@@ -627,21 +627,21 @@ CSG_Rect_Int CSRTM_CGIAR::Get_Tiles(const CSG_Rect &_Extent) const
 }
 
 //---------------------------------------------------------
-CSG_String CSRTM_CGIAR::Get_Tile_Name(int Col, int Row) const
+CSG_String CSRTM_CGIAR::Get_Tile_File(int Col, int Row) const
 {
-	return( CSG_String::Format("srtm_%02d_%02d", 1 + Col, 1 + Row) );
+	return( CSG_String::Format("srtm_%02d_%02d.tif", 1 + Col, 1 + Row) );
 }
 
 //---------------------------------------------------------
 CSG_String CSRTM_CGIAR::Get_Tile_Archive(int Col, int Row) const
 {
-	return( Get_Tile_Name(Col, Row) + ".zip" );
+	return( CSG_String::Format("srtm_%02d_%02d.tif", 1 + Col, 1 + Row) );
 }
 
 //---------------------------------------------------------
 CSG_String CSRTM_CGIAR::Get_Tile_Archive_File(int Col, int Row) const
 {
-	return( Get_Tile_Name(Col, Row) + ".tif" );
+	return( CSG_String::Format("srtm_%02d_%02d.tif", 1 + Col, 1 + Row) );
 }
 
 
@@ -719,6 +719,12 @@ CSG_String CSRTM_USGS::Get_Tile_Name(int Col, int Row) const
 }
 
 //---------------------------------------------------------
+CSG_String CSRTM_USGS::Get_Tile_File(int Col, int Row) const
+{
+	return( Get_Tile_Name(Col, Row) + ".tif" );
+}
+
+//---------------------------------------------------------
 CSG_String CSRTM_USGS::Get_Tile_Archive(int Col, int Row) const
 {
 	// http://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/S56W180.SRTMGL1.hgt.zip
@@ -760,7 +766,7 @@ CCopernicus_DEM::CCopernicus_DEM(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Bool("", "MASK", _TL("Water Mask"), _TL("Applies ocean water mask."), true);
+	Parameters.Add_Bool("TILES", "MASK", _TL("Water Mask"), _TL("Applies ocean water mask."), true);
 
 	//-----------------------------------------------------
 	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
@@ -792,7 +798,7 @@ CSG_Rect_Int CCopernicus_DEM::Get_Tiles(const CSG_Rect &_Extent) const
 }
 
 //---------------------------------------------------------
-CSG_String CCopernicus_DEM::_Get_Tile_Name(int Col, int Row) const
+CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
 {
 	return( CSG_String::Format("Copernicus_DSM_10_%c%02d_00_%c%03d_00",
 		Row < 0 ? 'S' : 'N',
@@ -802,9 +808,10 @@ CSG_String CCopernicus_DEM::_Get_Tile_Name(int Col, int Row) const
 	));
 }
 
-CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
+//---------------------------------------------------------
+CSG_String CCopernicus_DEM::Get_Tile_File(int Col, int Row) const
 {
-	return( _Get_Tile_Name(Col, Row) + "_DEM" );
+	return( Get_Tile_Name(Col, Row) + "_DEM.tif" );
 }
 
 //---------------------------------------------------------
@@ -817,9 +824,9 @@ CSG_String CCopernicus_DEM::Get_Tile_Archive(int Col, int Row) const
 CSG_String CCopernicus_DEM::Get_Tile_Archive_File(int Col, int Row) const
 {
 #ifdef _SAGA_MSW
-	return( _Get_Tile_Name(Col, Row) + "\\DEM\\" + Get_Tile_Name(Col, Row) + ".tif" );
+	return( Get_Tile_Name(Col, Row) + "\\DEM\\" + Get_Tile_File(Col, Row) );
 #else
-	return( _Get_Tile_Name(Col, Row) +  "/DEM/"  + Get_Tile_Name(Col, Row) + ".tif" );
+	return( Get_Tile_Name(Col, Row) +  "/DEM/"  + Get_Tile_File(Col, Row) );
 #endif
 }
 
@@ -831,7 +838,9 @@ bool CCopernicus_DEM::On_Provide_Tile(int Col, int Row, CSG_Archive &Archive)
 		return( true );
 	}
 
-	CSG_Grid DEM, Mask; CSG_String Name(_Get_Tile_Name(Col, Row)), Directory(SG_File_Get_Path(Archive.Get_Archive()));
+	CSG_Grid DEM, Mask; CSG_String Name(Get_Tile_Name(Col, Row)), Directory(SG_File_Get_Path(Archive.Get_Archive()));
+
+	SG_UI_ProgressAndMsg_Lock(true);
 
 	if( DEM.Create(SG_File_Make_Path(Directory, Name + "_DEM.tif")) )
 	{
@@ -859,12 +868,16 @@ bool CCopernicus_DEM::On_Provide_Tile(int Col, int Row, CSG_Archive &Archive)
 
 				SG_File_Delete(File);
 
+				SG_UI_ProgressAndMsg_Lock(false);
+
 				return( true );
 			}
 
 			SG_File_Delete(File);
 		}
 	}
+
+	SG_UI_ProgressAndMsg_Lock(false);
 
 	return( false );
 }

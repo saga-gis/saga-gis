@@ -91,7 +91,7 @@ protected:
 	virtual bool				On_Execute				(void);
 
 	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const = 0;
-	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const = 0;
+	virtual CSG_String			Get_Tile_File			(int Col, int Row)       const = 0;
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const = 0;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const = 0;
 
@@ -125,7 +125,7 @@ public:
 protected:
 
 	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
-	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_File			(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
 
@@ -146,9 +146,14 @@ public:
 protected:
 
 	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
-	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_File			(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
+
+
+private:
+
+	CSG_String					Get_Tile_Name			(int Col, int Row)       const;
 
 };
 
@@ -167,7 +172,7 @@ public:
 protected:
 
 	virtual CSG_Rect_Int		Get_Tiles				(const CSG_Rect &Extent) const;
-	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
+	virtual CSG_String			Get_Tile_File			(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
 
@@ -176,7 +181,7 @@ protected:
 
 private:
 
-	CSG_String					_Get_Tile_Name			(int Col, int Row)       const;
+	CSG_String					Get_Tile_Name			(int Col, int Row)       const;
 
 };
 
