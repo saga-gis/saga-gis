@@ -328,6 +328,11 @@ bool CSG_PointCloud::_Load(const CSG_String &File)
 //---------------------------------------------------------
 bool CSG_PointCloud::Save(const CSG_String &_File, int Format)
 {
+	if( _File.is_Empty() )
+	{
+		return( *Get_File_Name(false) ? Save(Get_File_Name(false), Format) : false );
+	}
+
 	if( Format == POINTCLOUD_FILE_FORMAT_Undefined )
 	{
 		Format	= SG_File_Cmp_Extension(_File, "sg-pts-z")

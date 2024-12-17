@@ -316,10 +316,14 @@ bool CWKSP_Data_Menu_File::Open(int CmdID)
 	{
 		if( m_Type == Recent_Type::Folder )
 		{
-			return( g_pData->Open_Directory(m_Files[i]) );
+			g_pData->Open_Directory(m_Files[i]);
+		}
+		else
+		{
+			g_pData->Open(wxString(m_Files[i]));
 		}
 
-		return( g_pData->Open(wxString(m_Files[i])) );
+		return( true );
 	}
 
 	return( false );

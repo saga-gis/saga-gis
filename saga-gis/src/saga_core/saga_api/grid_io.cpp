@@ -79,15 +79,15 @@ bool CSG_Grid::On_Reload(void)
 //---------------------------------------------------------
 bool CSG_Grid::On_Delete(void)
 {
-	CSG_String	FileName	= Get_File_Name(true);
+	CSG_String File = Get_File_Name(true);
 
-	SG_File_Set_Extension(FileName, "sg-grd-z"); SG_File_Delete(FileName);
-	SG_File_Set_Extension(FileName, "sg-grd"  ); SG_File_Delete(FileName);
-	SG_File_Set_Extension(FileName, "sgrd"    ); SG_File_Delete(FileName);
-	SG_File_Set_Extension(FileName, "sdat"    ); SG_File_Delete(FileName); SG_File_Delete(FileName + ".aux.xml");
-	SG_File_Set_Extension(FileName, "mgrd"    ); SG_File_Delete(FileName);
-	SG_File_Set_Extension(FileName, "dgm"     ); SG_File_Delete(FileName);
-	SG_File_Set_Extension(FileName, "dat"     ); SG_File_Delete(FileName);
+	SG_File_Set_Extension(File, "sg-grd-z"); SG_File_Delete(File);
+	SG_File_Set_Extension(File, "sg-grd"  ); SG_File_Delete(File);
+	SG_File_Set_Extension(File, "sgrd"    ); SG_File_Delete(File);
+	SG_File_Set_Extension(File, "sdat"    ); SG_File_Delete(File); SG_File_Delete(File + ".aux.xml");
+	SG_File_Set_Extension(File, "mgrd"    ); SG_File_Delete(File);
+	SG_File_Set_Extension(File, "dgm"     ); SG_File_Delete(File);
+	SG_File_Set_Extension(File, "dat"     ); SG_File_Delete(File);
 
 	return( true );
 }
@@ -144,39 +144,44 @@ CSG_String				SG_Grid_Get_File_Extension_Default	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::Save(const CSG_String &FileName, int Format)
+bool CSG_Grid::Save(const CSG_String &File, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("grid"), FileName.c_str()), true);
+	if( File.is_Empty() )
+	{
+		return( *Get_File_Name(false) ? Save(Get_File_Name(false), Format) : false );
+	}
+
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("grid"), File.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == GRID_FILE_FORMAT_Undefined )
 	{
-		Format	= gSG_Grid_File_Format_Default;
+		Format = gSG_Grid_File_Format_Default;
 
-		if( SG_File_Cmp_Extension(FileName, "sg-grd-z") )	Format	= GRID_FILE_FORMAT_Compressed;
-		if( SG_File_Cmp_Extension(FileName, "sg-grd"  ) )	Format	= GRID_FILE_FORMAT_Binary    ;
-		if( SG_File_Cmp_Extension(FileName, "sgrd"    ) )	Format	= GRID_FILE_FORMAT_Binary_old;
-		if( SG_File_Cmp_Extension(FileName, "tif"     ) )	Format	= GRID_FILE_FORMAT_GeoTIFF   ;
+		if( SG_File_Cmp_Extension(File, "sg-grd-z") )	Format	= GRID_FILE_FORMAT_Compressed;
+		if( SG_File_Cmp_Extension(File, "sg-grd"  ) )	Format	= GRID_FILE_FORMAT_Binary    ;
+		if( SG_File_Cmp_Extension(File, "sgrd"    ) )	Format	= GRID_FILE_FORMAT_Binary_old;
+		if( SG_File_Cmp_Extension(File, "tif"     ) )	Format	= GRID_FILE_FORMAT_GeoTIFF   ;
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= false;
+	bool bResult = false;
 
 	switch( Format )
 	{
 	default:
-		bResult = _Save_Native(FileName, (TSG_Grid_File_Format)Format);
+		bResult = _Save_Native(File, (TSG_Grid_File_Format)Format);
 		break;
 
 	case GRID_FILE_FORMAT_Compressed:
-		bResult = _Save_Compressed(FileName);
+		bResult = _Save_Compressed(File);
 		break;
 
 	case GRID_FILE_FORMAT_GeoTIFF:
 		SG_UI_Msg_Lock(true);
 		SG_RUN_TOOL(bResult, "io_gdal", 2,	// Export GeoTIFF
 			    SG_TOOL_PARAMLIST_ADD("GRIDS"   , this)
-			&&	SG_TOOL_PARAMETER_SET("FILE"    , FileName)
+			&&	SG_TOOL_PARAMETER_SET("FILE"    , File)
             &&	SG_TOOL_PARAMETER_SET("OPTIONS" , SG_T("COMPRESS=LZW BIGTIFF=YES"))		// enable bigtiff as the 'if needed' default setting is not available for compressed files
 		);
 		SG_UI_Msg_Lock(false);
@@ -190,7 +195,7 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(FileName, true);
+		Set_File_Name(File, true);
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -210,7 +215,7 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLoadData)
+bool CSG_Grid::_Load_External(const CSG_String &File, bool bCached, bool bLoadData)
 {
 	bool bResult = false; CSG_Data_Manager Manager; CSG_Tool *pTool = NULL;
 
@@ -219,16 +224,16 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 	//-----------------------------------------------------
 	// Image Import
 
-	if( (SG_File_Cmp_Extension(FileName, "bmp")
-	  || SG_File_Cmp_Extension(FileName, "gif")
-	  || SG_File_Cmp_Extension(FileName, "jpg")
-	  || SG_File_Cmp_Extension(FileName, "png")
-	  || SG_File_Cmp_Extension(FileName, "pcx") )
+	if( (SG_File_Cmp_Extension(File, "bmp")
+	  || SG_File_Cmp_Extension(File, "gif")
+	  || SG_File_Cmp_Extension(File, "jpg")
+	  || SG_File_Cmp_Extension(File, "png")
+	  || SG_File_Cmp_Extension(File, "pcx") )
 	&& !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL )
 	{
 		pTool->Settings_Push(&Manager);
 
-		bResult = pTool->Set_Parameter("FILE", FileName) && pTool->Execute();
+		bResult = pTool->Set_Parameter("FILE", File) && pTool->Execute();
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
@@ -240,8 +245,8 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 	{
 		pTool->Settings_Push(&Manager);
 
-		bResult = pTool->Set_Parameter("FILES"   , FileName)
-		       && pTool->Set_Parameter("MULTIPLE", 0       )	// output as single grid(s)
+		bResult = pTool->Set_Parameter("FILES"   , File)
+		       && pTool->Set_Parameter("MULTIPLE", 0   ) // output as single grid(s)
 		       && pTool->Execute();
 
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
@@ -259,7 +264,7 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 			return( Create(*pGrid) );
 		}
 
-		Set_File_Name(FileName, false);
+		Set_File_Name(File, false);
 
 		Set_Name          (pGrid->Get_Name());
 		Set_Description   (pGrid->Get_Description());
@@ -287,13 +292,13 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadData)
+bool CSG_Grid::_Load_PGSQL(const CSG_String &File, bool bCached, bool bLoadData)
 {
 	bool bResult = false;
 
-	if( FileName.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	if( File.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
-		CSG_String s(FileName);
+		CSG_String s(File);
 
 		s = s.AfterFirst(':'); CSG_String Host (s.BeforeFirst(':'));
 		s = s.AfterFirst(':'); CSG_String Port (s.BeforeFirst(':'));
@@ -333,16 +338,16 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoadData)
+bool CSG_Grid::_Load_Native(const CSG_String &File, bool bCached, bool bLoadData)
 {
 	CSG_Grid_File_Info	Info;
 
-	if( !Info.Create(FileName) )
+	if( !Info.Create(File) )
 	{
 		return( false );
 	}
 
-	Set_File_Name(FileName, true);
+	Set_File_Name(File, true);
 
 	Set_Name        (Info.m_Name);
 	Set_Description (Info.m_Description);
@@ -350,31 +355,31 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 
 	Set_NoData_Value_Range(Info.m_NoData[0], Info.m_NoData[1]);
 
-	m_System		= Info.m_System;
-	m_Type			= Info.m_Type;
-	m_zScale		= Info.m_zScale;
-	m_zOffset		= Info.m_zOffset;
+	m_System       = Info.m_System;
+	m_Type         = Info.m_Type;
+	m_zScale       = Info.m_zScale;
+	m_zOffset      = Info.m_zOffset;
 
-	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
-	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+	m_nBytes_Value = SG_Data_Type_Get_Size(m_Type);
+	m_nBytes_Line  = m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
 
-	Get_Projection().Load(SG_File_Make_Path("", FileName, "prj"));
+	Get_Projection().Load(SG_File_Make_Path("", File, "prj"));
 
 	if( !bLoadData )
 	{
 		return( _Memory_Create(bCached) );
 	}
 
-	Load_MetaData(FileName);
+	Load_MetaData(File);
 
 	//-----------------------------------------------------
-	CSG_File	Stream;
+	CSG_File Stream;
 
 	if( !SG_Data_Type_is_Numeric(m_Type) )	// ASCII...
 	{
-		if(	Stream.Open(Info.m_Data_File                       , SG_FILE_R, false)
-		||	Stream.Open(SG_File_Make_Path("", FileName,  "dat"), SG_FILE_R, false)
-		||	Stream.Open(SG_File_Make_Path("", FileName, "sdat"), SG_FILE_R, false) )
+		if(	Stream.Open(Info.m_Data_File                   , SG_FILE_R, false)
+		||	Stream.Open(SG_File_Make_Path("", File,  "dat"), SG_FILE_R, false)
+		||	Stream.Open(SG_File_Make_Path("", File, "sdat"), SG_FILE_R, false) )
 		{
 			Stream.Seek(Info.m_Offset);
 
@@ -387,24 +392,24 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 	{
 		if(	bCached || _Cache_Check() )
 		{
-			if( _Cache_Create(Info.m_Data_File                       , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
-			||	_Cache_Create(SG_File_Make_Path("", FileName,  "dat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
-			||	_Cache_Create(SG_File_Make_Path("", FileName, "sdat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
+			if( _Cache_Create(Info.m_Data_File                   , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path("", File,  "dat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path("", File, "sdat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
 			{
 				return( true );
 			}
 		}
 
-		m_Cache_File	= Info.m_Data_File;
-		m_Cache_Offset	= Info.m_Offset;
-		m_Cache_bSwap	= Info.m_bSwapBytes;
-		m_Cache_bFlip	= Info.m_bFlip;
+		m_Cache_File   = Info.m_Data_File ;
+		m_Cache_Offset = Info.m_Offset    ;
+		m_Cache_bSwap  = Info.m_bSwapBytes;
+		m_Cache_bFlip  = Info.m_bFlip     ;
 
 		if( _Memory_Create(bCached) )
 		{
-			if(	Stream.Open(Info.m_Data_File                       , SG_FILE_R, true)
-			||	Stream.Open(SG_File_Make_Path("", FileName,  "dat"), SG_FILE_R, true)
-			||	Stream.Open(SG_File_Make_Path("", FileName, "sdat"), SG_FILE_R, true) )
+			if(	Stream.Open(Info.m_Data_File                   , SG_FILE_R, true)
+			||	Stream.Open(SG_File_Make_Path("", File,  "dat"), SG_FILE_R, true)
+			||	Stream.Open(SG_File_Make_Path("", File, "sdat"), SG_FILE_R, true) )
 			{
 				Stream.Seek(Info.m_Offset);
 
@@ -417,44 +422,44 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Native(const CSG_String &_FileName, TSG_Grid_File_Format Format)
+bool CSG_Grid::_Save_Native(const CSG_String &_File, TSG_Grid_File_Format Format)
 {
 #ifdef WORDS_BIGENDIAN
-	bool	bBigEndian	= true;
+	bool bBigEndian = true;
 #else
-	bool	bBigEndian	= false;
+	bool bBigEndian = false;
 #endif
 
-	CSG_String	FileName(_FileName);
+	CSG_String	File(_File);
 
-	bool	bBinary;
+	bool bBinary;
 
 	if( Format == GRID_FILE_FORMAT_ASCII )
 	{
-		bBinary	= false;
+		bBinary = false;
 	}
 	else if( Format == GRID_FILE_FORMAT_Binary_old )
 	{
-		bBinary	= true;	SG_File_Set_Extension(FileName, "sgrd");
+		bBinary = true;	SG_File_Set_Extension(File, "sgrd");
 	}
 	else
 	{
-		bBinary	= true;	SG_File_Set_Extension(FileName, "sg-grd");
+		bBinary = true;	SG_File_Set_Extension(File, "sg-grd");
 	}
 
-	CSG_Grid_File_Info	Info(*this);
+	CSG_Grid_File_Info Info(*this);
 
-	if(	Info.Save(FileName, bBinary) )
+	if(	Info.Save(File, bBinary) )
 	{
-		CSG_File	Stream(SG_File_Make_Path("", FileName, "sdat"), SG_FILE_W, true);
+		CSG_File Stream(SG_File_Make_Path("", File, "sdat"), SG_FILE_W, true);
 
 		if( bBinary ? _Save_Binary(Stream, m_Type, false, bBigEndian) : _Save_ASCII (Stream) )
 		{
-			Save_MetaData(FileName);
+			Save_MetaData(File);
 
-			Get_Projection().Save(SG_File_Make_Path("", FileName, "prj"));
+			Get_Projection().Save(SG_File_Make_Path("", File, "prj"));
 
-			Info.Save_AUX_XML(SG_File_Make_Path("", FileName, "sdat"));
+			Info.Save_AUX_XML(SG_File_Make_Path("", File, "sdat"));
 
 			return( true );
 		}
@@ -471,11 +476,11 @@ bool CSG_Grid::_Save_Native(const CSG_String &_FileName, TSG_Grid_File_Format Fo
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool bLoadData)
+bool CSG_Grid::_Load_Compressed(const CSG_String &_File, bool bCached, bool bLoadData)
 {
-	Set_File_Name(_FileName, true);
+	Set_File_Name(_File, true);
 
-	CSG_Archive	Stream(_FileName, SG_FILE_R);
+	CSG_Archive	Stream(_File, SG_FILE_R);
 
 	if( !Stream.is_Reading() )
 	{
@@ -483,25 +488,25 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 	}
 
 	//-----------------------------------------------------
-	CSG_String	FileName(SG_File_Get_Name(_FileName, false) + ".");
+	CSG_String File(SG_File_Get_Name(_File, false) + ".");
 
-	if( !Stream.Get_File(FileName + "sgrd"  )
-	&&  !Stream.Get_File(FileName + "sg-grd") )
+	if( !Stream.Get_File(File + "sgrd"  )
+	&&  !Stream.Get_File(File + "sg-grd") )
 	{
-		FileName.Clear();
+		File.Clear();
 
 		for(size_t i=0; i<Stream.Get_File_Count(); i++)
 		{
 			if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sgrd"  )
 			||  SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sg-grd") )
 			{
-				FileName	= SG_File_Get_Name(Stream.Get_File_Name(i), false) + ".";
+				File = SG_File_Get_Name(Stream.Get_File_Name(i), false) + ".";
 				Stream.Get_File(Stream.Get_File_Name(i));
 				break;
 			}
 		}
 
-		if( FileName.is_Empty() )
+		if( File.is_Empty() )
 		{
 			return( false );
 		}
@@ -521,15 +526,15 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 
 	Set_NoData_Value_Range(Info.m_NoData[0], Info.m_NoData[1]);
 
-	m_System		= Info.m_System;
-	m_Type			= Info.m_Type;
-	m_zScale		= Info.m_zScale;
-	m_zOffset		= Info.m_zOffset;
+	m_System       = Info.m_System;
+	m_Type         = Info.m_Type;
+	m_zScale       = Info.m_zScale;
+	m_zOffset      = Info.m_zOffset;
 
-	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
-	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+	m_nBytes_Value = SG_Data_Type_Get_Size(m_Type);
+	m_nBytes_Line  = m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
 
-	if( Stream.Get_File(FileName + "prj") )
+	if( Stream.Get_File(File + "prj") )
 	{
 		Get_Projection().Load(Stream);
 	}
@@ -539,7 +544,7 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 		return( _Memory_Create(bCached) );
 	}
 
-	if( Stream.Get_File(FileName + "mgrd") )
+	if( Stream.Get_File(File + "mgrd") )
 	{
 		Load_MetaData(Stream);
 	}
@@ -550,13 +555,13 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 		bCached	= true;
 	}
 
-	return( Stream.Get_File(FileName + "sdat") && _Memory_Create(bCached)
+	return( Stream.Get_File(File + "sdat") && _Memory_Create(bCached)
 		&& _Load_Binary(Stream, m_Type, Info.m_bFlip, Info.m_bSwapBytes)
 	);
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Compressed(const CSG_String &_FileName)
+bool CSG_Grid::_Save_Compressed(const CSG_String &_File)
 {
 #ifdef WORDS_BIGENDIAN
 	bool bBigEndian = true;
@@ -564,20 +569,20 @@ bool CSG_Grid::_Save_Compressed(const CSG_String &_FileName)
 	bool bBigEndian = false;
 #endif
 
-	CSG_Archive Stream(_FileName, SG_FILE_W);
+	CSG_Archive Stream(_File, SG_FILE_W);
 
 	if( Stream.is_Writing() )
 	{
-		CSG_String FileName(SG_File_Get_Name(_FileName, false) + ".");
+		CSG_String File(SG_File_Get_Name(_File, false) + ".");
 
 		CSG_Grid_File_Info Info(*this);
 
-		if( Stream.Add_File(FileName + "sgrd") && Info.Save(Stream, true)
-		&&  Stream.Add_File(FileName + "sdat") && _Save_Binary(Stream, m_Type, false, bBigEndian) )
+		if( Stream.Add_File(File + "sgrd") && Info.Save(Stream, true)
+		&&  Stream.Add_File(File + "sdat") && _Save_Binary(Stream, m_Type, false, bBigEndian) )
 		{
-			Stream.Add_File(FileName + "mgrd"        ); Save_MetaData(Stream);
-			Stream.Add_File(FileName + "prj"         ); Get_Projection().Save(Stream);
-			Stream.Add_File(FileName + "sdat.aux.xml"); Info.Save_AUX_XML(Stream);
+			Stream.Add_File(File + "mgrd"        ); Save_MetaData(Stream);
+			Stream.Add_File(File + "prj"         ); Get_Projection().Save(Stream);
+			Stream.Add_File(File + "sdat.aux.xml"); Info.Save_AUX_XML(Stream);
 
 			return( true );
 		}
@@ -858,21 +863,21 @@ bool CSG_Grid::_Save_ASCII(CSG_File &Stream, bool bFlip)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoadData)
+bool CSG_Grid::_Load_Surfer(const CSG_String &File, bool bCached, bool bLoadData)
 {
-	const float	NoData	= 1.70141e38f;
+	const float NoData = 1.70141e38f;
 
-	if( !SG_File_Cmp_Extension(FileName, "grd") )
+	if( !SG_File_Cmp_Extension(File, "grd") )
 	{
 		return( false );
 	}
 
-	Set_File_Name(FileName, true);
+	Set_File_Name(File, true);
 
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if( !Stream.Open(FileName, SG_FILE_R, true) )
+	if( !Stream.Open(File, SG_FILE_R, true) )
 	{
 		return( false );
 	}
@@ -935,17 +940,17 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoad
 	//-----------------------------------------------------
 	else if( !strncmp(Identifier, "DSAA", 4) )	// ASCII...
 	{
-		int		nx		= Stream.Scan_Int   ();
-		int		ny		= Stream.Scan_Int   ();
-		double	xMin	= Stream.Scan_Double();
-		double	xMax	= Stream.Scan_Double();
-		double	yMin	= Stream.Scan_Double(); Stream.Scan_Double();
-	//	double	yMax	= Stream.Scan_Double();
-		double	dx		= Stream.Scan_Double(); Stream.Scan_Double();
-	//	double	dy		= Stream.Scan_Double();
+		int    nx   = Stream.Scan_Int   ();
+		int    ny   = Stream.Scan_Int   ();
+		double xMin = Stream.Scan_Double();
+		double xMax = Stream.Scan_Double();
+		double yMin = Stream.Scan_Double(); Stream.Scan_Double();
+	//	double yMax = Stream.Scan_Double();
+		double dx   = Stream.Scan_Double(); Stream.Scan_Double();
+	//	double dy   = Stream.Scan_Double();
 
-		dx	= (xMax - xMin) / (nx - 1.0);
-	//	dy	= (yMax - yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
+		dx = (xMax - xMin) / (nx - 1.);
+	//	dy = (yMax - yMin) / (ny - 1.); // we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
 		if( !Create(SG_DATATYPE_Float, nx, ny, dx, xMin, yMin, bCached) || Stream.is_EOF() )
@@ -960,7 +965,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoad
 			{
 				for(int x=0; x<Get_NX(); x++)
 				{
-					double	Value;
+					double Value;
 
 					if( Stream.Scan(Value) && Value != NoData )
 					{
@@ -980,8 +985,8 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoad
 	//-------------------------------------------------
 	SG_UI_Process_Set_Ready();
 
-	Set_File_Name(FileName);
-	Load_MetaData(FileName);
+	Set_File_Name(File);
+	Load_MetaData(File);
 
 	return( true );
 }
@@ -1051,38 +1056,38 @@ CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_Grid &Grid)
 
 bool CSG_Grid_File_Info::Create(const CSG_Grid &Grid)
 {
-	m_Name			= Grid.Get_Name();
-	m_Description	= Grid.Get_Description();
-	m_Unit			= Grid.Get_Unit();
-	m_System		= Grid.Get_System();
-	m_Type			= Grid.Get_Type();
-	m_zScale		= Grid.Get_Scaling();
-	m_zOffset		= Grid.Get_Offset();
-	m_NoData[0]		= Grid.Get_NoData_Value();
-	m_NoData[1]		= Grid.Get_NoData_Value(true);
-	m_Data_File		.Clear();
-	m_bFlip			= false;
-	m_bSwapBytes	= false;
-	m_Offset		= 0;
-	m_Projection	= Grid.Get_Projection();
+	m_Name        = Grid.Get_Name();
+	m_Description = Grid.Get_Description();
+	m_Unit        = Grid.Get_Unit();
+	m_System      = Grid.Get_System();
+	m_Type        = Grid.Get_Type();
+	m_zScale      = Grid.Get_Scaling();
+	m_zOffset     = Grid.Get_Offset();
+	m_NoData[0]   = Grid.Get_NoData_Value();
+	m_NoData[1]   = Grid.Get_NoData_Value(true);
+	m_Data_File   .Clear();
+	m_bFlip       = false;
+	m_bSwapBytes  = false;
+	m_Offset      = 0;
+	m_Projection  = Grid.Get_Projection();
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_String &FileName)
+CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_String &File)
 {
-	Create(FileName);
+	Create(File);
 }
 
-bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
+bool CSG_Grid_File_Info::Create(const CSG_String &File)
 {
-	if( !SG_File_Cmp_Extension(FileName, "sg-grd-z") )
+	if( !SG_File_Cmp_Extension(File, "sg-grd-z") )
 	{
-		if( SG_File_Cmp_Extension(FileName, "sgrd")
-		||  SG_File_Cmp_Extension(FileName, "sg-grd") )
+		if( SG_File_Cmp_Extension(File, "sgrd")
+		||  SG_File_Cmp_Extension(File, "sg-grd") )
 		{
-			CSG_File	Stream(FileName, SG_FILE_R, false);
+			CSG_File Stream(File, SG_FILE_R, false);
 
 			return( Create(Stream) );
 		}
@@ -1091,14 +1096,14 @@ bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
 	}
 
 	//-----------------------------------------------------
-	CSG_Archive	Stream(FileName, SG_FILE_R);
+	CSG_Archive	Stream(File, SG_FILE_R);
 
 	if( Stream.is_Reading() )
 	{
-		CSG_String	File(SG_File_Get_Name(FileName, false) + ".");
+		CSG_String Archive_File(SG_File_Get_Name(File, false) + ".");
 
-		if( !Stream.Get_File(File + "sgrd"  )
-		&&  !Stream.Get_File(File + "sg-grd") )
+		if( !Stream.Get_File(Archive_File + "sgrd"  )
+		&&  !Stream.Get_File(Archive_File + "sg-grd") )
 		{
 			for(size_t i=0; i<Stream.Get_File_Count(); i++)
 			{
@@ -1228,9 +1233,9 @@ int CSG_Grid_File_Info::_Get_Key(CSG_File &Stream, CSG_String &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_File_Info::Save(const CSG_String &FileName, bool bBinary)
+bool CSG_Grid_File_Info::Save(const CSG_String &File, bool bBinary)
 {
-	return( Save(CSG_File(FileName, SG_FILE_W, false), bBinary) );
+	return( Save(CSG_File(File, SG_FILE_W, false), bBinary) );
 }
 
 //---------------------------------------------------------
@@ -1267,17 +1272,17 @@ bool CSG_Grid_File_Info::Save(const CSG_File &Stream, bool bBinary)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_File_Info::Save(const CSG_String &FileName, const CSG_Grid &Grid, bool bBinary)
+bool CSG_Grid_File_Info::Save(const CSG_String &File, const CSG_Grid &Grid, bool bBinary)
 {
-	CSG_Grid_File_Info	Info(Grid);
+	CSG_Grid_File_Info Info(Grid);
 
-	return( Info.Save(FileName, bBinary) );
+	return( Info.Save(File, bBinary) );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_File_Info::Save(const CSG_File &Stream, const CSG_Grid &Grid, bool bBinary)
 {
-	CSG_Grid_File_Info	Info(Grid);
+	CSG_Grid_File_Info Info(Grid);
 
 	return( Info.Save(Stream, bBinary) );
 }
@@ -1288,11 +1293,11 @@ bool CSG_Grid_File_Info::Save(const CSG_File &Stream, const CSG_Grid &Grid, bool
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_File_Info::Save_AUX_XML(const CSG_String &FileName)
+bool CSG_Grid_File_Info::Save_AUX_XML(const CSG_String &File)
 {
-	CSG_File	Stream;
+	CSG_File Stream;
 	
-	return( m_Projection.is_Okay() && Stream.Open(FileName + ".aux.xml", SG_FILE_W, false) && Save_AUX_XML(Stream) );
+	return( m_Projection.is_Okay() && Stream.Open(File + ".aux.xml", SG_FILE_W, false) && Save_AUX_XML(Stream) );
 }
 
 //---------------------------------------------------------

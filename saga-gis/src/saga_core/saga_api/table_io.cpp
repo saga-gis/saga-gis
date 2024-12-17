@@ -96,11 +96,11 @@ bool CSG_Table::Set_File_Encoding(int Encoding)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, int Encoding)
+bool CSG_Table::Load(const CSG_String &File, int Format, SG_Char Separator, int Encoding)
 {
 	Set_File_Encoding(Encoding);
 
-	if( !SG_File_Exists(FileName) )
+	if( !SG_File_Exists(File) )
 	{
 		return( false );
 	}
@@ -108,7 +108,7 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 	//-----------------------------------------------------
 	if( Format == TABLE_FILETYPE_Undefined )
 	{
-		Format = SG_File_Cmp_Extension(FileName, "dbf") ? TABLE_FILETYPE_DBase : TABLE_FILETYPE_Text;
+		Format = SG_File_Cmp_Extension(File, "dbf") ? TABLE_FILETYPE_DBase : TABLE_FILETYPE_Text;
 	}
 
 	//-----------------------------------------------------
@@ -116,15 +116,15 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 	switch( Format )
 	{
-	case TABLE_FILETYPE_Text:   default: if( !_Load_Text (FileName, true , Separator) ) return( false ); break;
-	case TABLE_FILETYPE_Text_NoHeadLine: if( !_Load_Text (FileName, false, Separator) ) return( false ); break;
-	case TABLE_FILETYPE_DBase          : if( !_Load_DBase(FileName                  ) ) return( false ); break;
+	case TABLE_FILETYPE_Text:   default: if( !_Load_Text (File, true , Separator) ) return( false ); break;
+	case TABLE_FILETYPE_Text_NoHeadLine: if( !_Load_Text (File, false, Separator) ) return( false ); break;
+	case TABLE_FILETYPE_DBase          : if( !_Load_DBase(File                  ) ) return( false ); break;
 	}
 
 	//-----------------------------------------------------
-	Set_Name(SG_File_Get_Name(FileName, false));
+	Set_Name(SG_File_Get_Name(File, false));
 
-	Load_MetaData(FileName);
+	Load_MetaData(File);
 
 	CSG_MetaData *pFields = Get_MetaData_DB().Get_Child("FIELDS");
 
@@ -141,22 +141,27 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator, 
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const CSG_String &FileName, int Format)
+bool CSG_Table::Save(const CSG_String &File, int Format)
 {
-	return( Save(FileName, Format, '\0', m_Encoding) );
+	return( Save(File, Format, '\0', m_Encoding) );
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, int Encoding)
+bool CSG_Table::Save(const CSG_String &File, int Format, SG_Char Separator, int Encoding)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("table"), FileName.c_str()), true);
+	if( File.is_Empty() )
+	{
+		return( *Get_File_Name(false) ? Save(Get_File_Name(false), Format) : false );
+	}
+
+	SG_UI_Msg_Add(CSG_String::Format("%s %s: %s...", _TL("Saving"), _TL("table"), File.c_str()), true);
 
 	Set_File_Encoding(Encoding);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
 	{
-		if( SG_File_Cmp_Extension(FileName, "dbf") )
+		if( SG_File_Cmp_Extension(File, "dbf") )
 		{
 			Format = TABLE_FILETYPE_DBase;
 		}
@@ -166,7 +171,7 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 			if( Separator == '\0' )
 			{
-				Separator = SG_File_Cmp_Extension(FileName, "csv") ? ',' : '\t'; // comma separated values or tab spaced text
+				Separator = SG_File_Cmp_Extension(File, "csv") ? ',' : '\t'; // comma separated values or tab spaced text
 			}
 		}
 	}
@@ -176,9 +181,9 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 	switch( Format )
 	{
-	case TABLE_FILETYPE_Text:   default: bResult = _Save_Text (FileName, true , Separator); break;
-	case TABLE_FILETYPE_Text_NoHeadLine: bResult = _Save_Text (FileName, false, Separator); break;
-	case TABLE_FILETYPE_DBase          : bResult = _Save_DBase(FileName                  ); break;
+	case TABLE_FILETYPE_Text:   default: bResult = _Save_Text (File, true , Separator); break;
+	case TABLE_FILETYPE_Text_NoHeadLine: bResult = _Save_Text (File, false, Separator); break;
+	case TABLE_FILETYPE_DBase          : bResult = _Save_DBase(File                  ); break;
 	}
 
 	//-----------------------------------------------------
@@ -205,9 +210,9 @@ bool CSG_Table::Save(const CSG_String &FileName, int Format, SG_Char Separator, 
 
 		Set_File_Type(Format);
 
-		Set_File_Name(FileName, true);
+		Set_File_Name(File, true);
 
-		Save_MetaData(FileName);
+		Save_MetaData(File);
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -283,11 +288,11 @@ size_t	CSG_Table::_Load_Text_EndQuote(const CSG_String &s, const SG_Char Separat
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_Char _Separator)
+bool CSG_Table::_Load_Text(const CSG_String &File, bool bHeadline, const SG_Char _Separator)
 {
 	CSG_File Stream;
 
-	if( Stream.Open(FileName, SG_FILE_R, false, m_Encoding) == false )
+	if( Stream.Open(File, SG_FILE_R, false, m_Encoding) == false )
 	{
 		return( false );
 	}
@@ -312,7 +317,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		Line.Remove(0, 1);
 	}
 
-	bool bCSV = SG_File_Cmp_Extension(FileName, "csv");
+	bool bCSV = SG_File_Cmp_Extension(File, "csv");
 
 	while( Line.is_Empty() || (bCSV && Line[0] == '#') ) // empty or comment
 	{
@@ -487,11 +492,11 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_Char Separator)
+bool CSG_Table::_Save_Text(const CSG_String &File, bool bHeadline, const SG_Char Separator)
 {
 	CSG_File Stream;
 
-	if( Get_Field_Count() <= 0 || Stream.Open(FileName, SG_FILE_W, false, m_Encoding) == false )
+	if( Get_Field_Count() <= 0 || Stream.Open(File, SG_FILE_W, false, m_Encoding) == false )
 	{
 		return( false );
 	}
@@ -549,19 +554,19 @@ bool CSG_Table::_Save_Text(const CSG_String &FileName, bool bHeadline, const SG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_DBase(const CSG_String &FileName)
+bool CSG_Table::_Load_DBase(const CSG_String &File)
 {
 	CSG_Table_DBase dbf(m_Encoding);
 
-	return( dbf.Open_Read(FileName, this) );
+	return( dbf.Open_Read(File, this) );
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_DBase(const CSG_String &FileName)
+bool CSG_Table::_Save_DBase(const CSG_String &File)
 {
 	CSG_Table_DBase dbf(m_Encoding);
 
-	return( dbf.Open_Write(FileName, this) );
+	return( dbf.Open_Write(File, this) );
 }
 
 

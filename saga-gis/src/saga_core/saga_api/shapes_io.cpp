@@ -140,6 +140,11 @@ CSG_String				SG_Shapes_Get_File_Extension_Default	(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Save(const CSG_String &File, int Format)
 {
+	if( File.is_Empty() )
+	{
+		return( *Get_File_Name(false) ? Save(Get_File_Name(false), Format) : false );
+	}
+
 	if( Format == SHAPE_FILE_FORMAT_Undefined )
 	{
 		Format = gSG_Shape_File_Format_Default;

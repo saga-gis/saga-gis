@@ -498,7 +498,7 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 
 	CSG_Archive Archive(Archive_File);
 
-	if( !Archive.is_Open() || !Archive.Extract(Get_Tile_Archive_File(Col, Row)) )
+	if( !Archive.Extract(Get_Tile_Archive_File(Col, Row)) )
 	{
 		Error_Fmt("%s: %s", _TL("failed to extract file"), Get_Tile_Archive_File(Col, Row).c_str());
 
@@ -509,6 +509,8 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 
 		return( -1 );
 	}
+
+	On_Provide_Tile(Col, Row, Archive);
 
 	if( DeleteArchive )
 	{
@@ -758,6 +760,9 @@ CCopernicus_DEM::CCopernicus_DEM(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Bool("", "MASK", _TL("Water Mask"), _TL("Applies ocean water mask."), true);
+
+	//-----------------------------------------------------
 	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
 
 	m_ServerPath     = "https://prism-dem-open.copernicus.eu/pd-desk-open-access/prismDownload/COP-DEM_GLO-30-DGED__2022_1/";
@@ -787,7 +792,7 @@ CSG_Rect_Int CCopernicus_DEM::Get_Tiles(const CSG_Rect &_Extent) const
 }
 
 //---------------------------------------------------------
-CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
+CSG_String CCopernicus_DEM::_Get_Tile_Name(int Col, int Row) const
 {
 	return( CSG_String::Format("Copernicus_DSM_10_%c%02d_00_%c%03d_00",
 		Row < 0 ? 'S' : 'N',
@@ -795,6 +800,11 @@ CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
 		Col < 0 ? 'W' : 'E',
 		Col < 0 ? abs(Col) + 1 : Col
 	));
+}
+
+CSG_String CCopernicus_DEM::Get_Tile_Name(int Col, int Row) const
+{
+	return( _Get_Tile_Name(Col, Row) + "_DEM" );
 }
 
 //---------------------------------------------------------
@@ -806,12 +816,59 @@ CSG_String CCopernicus_DEM::Get_Tile_Archive(int Col, int Row) const
 //---------------------------------------------------------
 CSG_String CCopernicus_DEM::Get_Tile_Archive_File(int Col, int Row) const
 {
-	#ifdef _SAGA_MSW
-		return( Get_Tile_Name(Col, Row) + "\\DEM\\" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
-	#else
-		return( Get_Tile_Name(Col, Row) + "/DEM/" + Get_Tile_Name(Col, Row) + "_DEM.tif" );
-	#endif
+#ifdef _SAGA_MSW
+	return( _Get_Tile_Name(Col, Row) + "\\DEM\\" + Get_Tile_Name(Col, Row) + ".tif" );
+#else
+	return( _Get_Tile_Name(Col, Row) +  "/DEM/"  + Get_Tile_Name(Col, Row) + ".tif" );
+#endif
 }
+
+//---------------------------------------------------------
+bool CCopernicus_DEM::On_Provide_Tile(int Col, int Row, CSG_Archive &Archive)
+{
+	if( !Parameters["MASK"].asBool() )
+	{
+		return( true );
+	}
+
+	CSG_Grid DEM, Mask; CSG_String Name(_Get_Tile_Name(Col, Row)), Directory(SG_File_Get_Path(Archive.Get_Archive()));
+
+	if( DEM.Create(SG_File_Make_Path(Directory, Name + "_DEM.tif")) )
+	{
+		#ifdef _SAGA_MSW
+		CSG_String File(Name + "\\AUXFILES\\" + Name + "_WBM.tif" );
+		#else
+		CSG_String File(Name +  "/AUXFILES/"  + Name + "_WBM.tif" );
+		#endif
+
+		if( Archive.Extract(File) )
+		{
+			File = SG_File_Make_Path(Directory, Name + "_WBM.tif");
+
+			if( Mask.Create(File) && Mask.Get_System() == DEM.Get_System() )
+			{
+				for(sLong i=0; i<DEM.Get_NCells(); i++)
+				{
+					if( Mask.asInt(i) == 1 )
+					{
+						DEM.Set_NoData(i);
+					}
+				}
+
+				DEM.Save("");
+
+				SG_File_Delete(File);
+
+				return( true );
+			}
+
+			SG_File_Delete(File);
+		}
+	}
+
+	return( false );
+}
+
 
 
 ///////////////////////////////////////////////////////////

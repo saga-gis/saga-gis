@@ -95,6 +95,8 @@ protected:
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const = 0;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const = 0;
 
+	virtual bool				On_Provide_Tile			(int Col, int Row, CSG_Archive &Archive) { return( true ); }
+
 
 private:
 
@@ -168,6 +170,13 @@ protected:
 	virtual CSG_String			Get_Tile_Name			(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive		(int Col, int Row)       const;
 	virtual CSG_String			Get_Tile_Archive_File	(int Col, int Row)       const;
+
+	virtual bool				On_Provide_Tile			(int Col, int Row, CSG_Archive &Archive);
+
+
+private:
+
+	CSG_String					_Get_Tile_Name			(int Col, int Row)       const;
 
 };
 

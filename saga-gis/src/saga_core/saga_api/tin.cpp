@@ -365,28 +365,28 @@ bool CSG_TIN::Triangulate(bool bOn, bool bUpdate)
 //---------------------------------------------------------
 bool CSG_TIN::Save(const CSG_String &File, int Format)
 {
-	bool	bResult	= false;
+	if( File.is_Empty() )
+	{
+		return( *Get_File_Name(false) ? Save(Get_File_Name(false), Format) : false );
+	}
+
+	bool bResult = false;
 
 	if( Get_Triangle_Count() > 0 )
 	{
 		switch( Format )
 		{
-		case 0:	default:
+		case 0:	default: {
+			CSG_Shapes Points(SHAPE_TYPE_Point, Get_Name(), this);
+
+			for(sLong i=0; i<Get_Node_Count(); i++)
 			{
-				CSG_Shapes	Points;
-
-				Points.Create(SHAPE_TYPE_Point, Get_Name(), this);
-
-				for(sLong i=0; i<Get_Node_Count(); i++)
-				{
-					CSG_TIN_Node	*pNode	= Get_Node(i);
-
-					Points.Add_Shape(pNode)->Add_Point(pNode->Get_Point());
-				}
-
-				bResult	= Points.Save(File);
+				Points.Add_Shape(Get_Node(i))->Add_Point(Get_Node(i)->Get_Point());
 			}
-			break;
+
+			bResult = Points.Save(File);
+
+			break; }
 		}
 	}
 
