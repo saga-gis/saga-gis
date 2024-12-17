@@ -64,7 +64,7 @@ CVertexInspector::CVertexInspector(void)
 
 	Set_Author 	("J. Spitzm\u00FCller \u00A9 scilands GmbH 2024");
 
-	Set_Version ("1.2");
+	Set_Version ("1.3");
 
 	Set_Description(_TW(
 		"This interactive tool is designed to inspect and manipulate individual vertices of geometries. "
@@ -89,17 +89,28 @@ CVertexInspector::CVertexInspector(void)
 	pParameters->Add_Choice( "SHAPE", 	"PART", 	_TL("Parts"), 	_TL(""), ""); 
 	pParameters->Add_Choice( "PART", 	"POINTS", 	_TL("Points"), 	_TL(""), ""); 
 
-	pParameters->Add_Node("", "POINT_RO", _TL("Point (Read Only)"), _TL("") ); 
+	pParameters->Add_Node("", "POINT_RO", _TL("Vertex (Read Only)"), _TL("") ); 
 	pParameters->Add_Info_String("POINT_RO", "XI", _TL("X"), _TL(""), "");
 	pParameters->Add_Info_String("POINT_RO", "YI", _TL("Y"), _TL(""), "");
 	pParameters->Add_Info_String("POINT_RO", "ZI", _TL("Z"), _TL(""), "");
 	pParameters->Add_Info_String("POINT_RO", "MI", _TL("M"), _TL(""), "");
 
-	pParameters->Add_Node("", "POINT_W", _TL("Point (Mutable)"), _TL("") ); 
+	pParameters->Add_Node("", "POINT_W", _TL("Vertex (Mutable)"), _TL("") ); 
 	pParameters->Add_Double("POINT_W", "XD", _TL("X"), _TL(""), 0.0);
 	pParameters->Add_Double("POINT_W", "YD", _TL("Y"), _TL(""), 0.0);
 	pParameters->Add_Double("POINT_W", "ZD", _TL("Z"), _TL(""), 0.0);
 	pParameters->Add_Double("POINT_W", "MD", _TL("M"), _TL(""), 0.0);
+
+	pParameters->Add_Node("", "TABLE_NODE", _TL("All Selected Vertices as Table"), "" );
+	m_pTable = pParameters->Add_FixedTable("TABLE_NODE", "TABLE", _TL("Table"), "")->asTable();
+	m_pTable->Add_Field("Dataset",	SG_DATATYPE_Int);
+	m_pTable->Add_Field("Shape", 	SG_DATATYPE_Int);
+	m_pTable->Add_Field("Part", 	SG_DATATYPE_Int);
+	m_pTable->Add_Field("Point", 	SG_DATATYPE_Int);
+	m_pTable->Add_Field("X", 		SG_DATATYPE_String);
+	m_pTable->Add_Field("Y", 		SG_DATATYPE_String);
+	m_pTable->Add_Field("Z", 		SG_DATATYPE_String);
+	m_pTable->Add_Field("M", 		SG_DATATYPE_String);
 }
 
 
@@ -195,6 +206,11 @@ int CVertexInspector::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	if( pParameters->Get_Parameter("CONFIRM") && pParameters->Get_Parameter("READ_ONLY") )
 	{
 		pParameters->Set_Enabled("CONFIRM", pParameters->Get_Parameter("READ_ONLY")->asInt() == 1 );
+	}
+	
+	if( pParameters->Get_Parameter("TABLE") && pParameters->Get_Parameter("READ_ONLY") )
+	{
+		pParameters->Set_Enabled("TABLE", pParameters->Get_Parameter("READ_ONLY")->asInt() == 0 );
 	}
 
 	if( pParameters->Cmp_Identifier("RESULT") )
@@ -405,6 +421,8 @@ bool CVertexInspector::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 {
 	switch( Mode )
 	{
+		default: break;
+
 		case TOOL_INTERACTIVE_LDOWN:
 			if( !m_bDown )
 			{
@@ -488,6 +506,51 @@ bool CVertexInspector::Select_from_Drag_Box( CSG_Rect Drag_Box )
 		Count++;
 	}
 
+	m_pTable->Del_Records();
+	for( auto& dataset : m_Map )
+	{
+		std::map<sLong, std::map<sLong, std::vector<Index>>> shapes = dataset.second;
+		for( auto& shape : shapes )
+		{
+			std::map<sLong, std::vector<Index>> parts = shape.second;
+			for( auto& part : parts )
+			{
+				std::vector<Index> points = part.second;
+				for( Index point : points )
+				{
+					TSG_Point Point = point.shape->Get_Point(point.point, point.part);
+					TSG_Vertex_Type Dims = point.shape->Get_Vertex_Type();
+
+					CSG_Table_Record *pRecord = m_pTable->Add_Record();
+					pRecord->Set_Value( 0, dataset.first );
+					pRecord->Set_Value( 1, shape.first );
+					pRecord->Set_Value( 2, part.first );
+					pRecord->Set_Value( 3, point.point );
+					pRecord->Set_Value( 4, CSG_String::Format( "%.16f", Point.x ));
+					pRecord->Set_Value( 5, CSG_String::Format( "%.16f", Point.y ));
+				
+					if( Dims == SG_VERTEX_TYPE_XYZ || Dims == SG_VERTEX_TYPE_XYZM )
+					{
+						pRecord->Set_Value( 6 , CSG_String::Format( "%.16f", point.shape->Get_Point_Z(point.point, point.part).z));
+					}
+					else
+					{
+						pRecord->Set_Value( 6 , "-" );
+					}
+
+					if( Dims == SG_VERTEX_TYPE_XYZM )
+					{
+						pRecord->Set_Value( 7 , CSG_String::Format( "%.16f", point.shape->Get_Point_ZM(point.point, point.part).m));
+					}
+					else
+					{
+						pRecord->Set_Value( 7 , "-" );
+					}
+				}
+			}
+		}
+	}
+	
 	// The Set_Value will not always trigger a callback to the On_Parameter_Changed 
 	// if the content is not changed. This happens in a reselection on the same datasets
 	// So triggering the callback manually

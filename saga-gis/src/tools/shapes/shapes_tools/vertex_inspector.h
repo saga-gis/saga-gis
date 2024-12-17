@@ -99,6 +99,8 @@ private:
 
 	CSG_Shapes 			*m_pIndicator = NULL;
 
+	CSG_Table 			*m_pTable = NULL;
+
 	CSG_Parameter_Shapes_List *m_pList;
 
 	std::map<sLong, std::map<sLong, std::map<sLong, std::vector<Index>>>> m_Map;
