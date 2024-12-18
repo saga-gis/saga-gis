@@ -468,6 +468,8 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 	CSG_String Archive_Name = Get_Tile_Archive(Col, Row);
 	CSG_String Archive_File = SG_File_Make_Path(Directory, Archive_Name);
 
+	Message_Fmt("\n%s: %s%s...", _TL("requesting file"), m_ServerPath.c_str(), Archive_Name.c_str());
+
 	if( !SG_File_Exists(Archive_File) )
 	{
 		Process_Set_Text("%s: %s...", File.c_str(), _TL("downloading"));
@@ -477,13 +479,13 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 
 		CSG_CURL Connection(m_ServerPath, Username, Password);
 
-		Message_Fmt("\n%s: %s%s", _TL("requesting file"), m_ServerPath.c_str(), Archive_Name.c_str());
-
-		SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s%s...", _TL("Downloading"), m_ServerPath.c_str(), Archive_Name.c_str()));
+		SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s%s...", _TL("downloading"), m_ServerPath.c_str(), Archive_Name.c_str()));
 
 		if( !Connection.Request(Archive_Name, Archive_File.c_str()) )
 		{
 			SG_UI_Process_Set_Busy(false);
+
+			Message_Fmt(_TL("failed"));
 
 			Error_Fmt("%s:\n\n%s%s", _TL("failed to request file from server"), m_ServerPath.c_str(), Archive_Name.c_str());
 
@@ -500,7 +502,7 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 
 	if( !Archive.Extract(Get_Tile_Archive_File(Col, Row)) )
 	{
-		Error_Fmt("%s: %s", _TL("failed to extract file"), Get_Tile_Archive_File(Col, Row).c_str());
+		Message_Fmt("\n%s: %s", _TL("failed to extract file"), Get_Tile_Archive_File(Col, Row).c_str());
 
 		if( DeleteArchive )
 		{
@@ -518,6 +520,8 @@ int CTiles_Provider::Provide_Tile(const CSG_String &Directory, int Col, int Row,
 	}
 
 	//-----------------------------------------------------
+	Message_Fmt(_TL("okay"));
+
 	return( 1 );
 }
 
@@ -635,7 +639,7 @@ CSG_String CSRTM_CGIAR::Get_Tile_File(int Col, int Row) const
 //---------------------------------------------------------
 CSG_String CSRTM_CGIAR::Get_Tile_Archive(int Col, int Row) const
 {
-	return( CSG_String::Format("srtm_%02d_%02d.tif", 1 + Col, 1 + Row) );
+	return( CSG_String::Format("srtm_%02d_%02d.zip", 1 + Col, 1 + Row) );
 }
 
 //---------------------------------------------------------
@@ -727,8 +731,6 @@ CSG_String CSRTM_USGS::Get_Tile_File(int Col, int Row) const
 //---------------------------------------------------------
 CSG_String CSRTM_USGS::Get_Tile_Archive(int Col, int Row) const
 {
-	// http://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/S56W180.SRTMGL1.hgt.zip
-
 	return( Get_Tile_Name(Col, Row) + ".hgt.zip" );
 }
 
@@ -769,8 +771,6 @@ CCopernicus_DEM::CCopernicus_DEM(void)
 	Parameters.Add_Bool("TILES", "MASK", _TL("Water Mask"), _TL("Applies ocean water mask."), true);
 
 	//-----------------------------------------------------
-	// https://e4ftl01.cr.usgs.gov/MEASURES/SRTMGL1.003/2000.02.11/N51E009.SRTMGL1.hgt.zip
-
 	m_ServerPath     = "https://prism-dem-open.copernicus.eu/pd-desk-open-access/prismDownload/COP-DEM_GLO-30-DGED__2022_1/";
 
 	m_Grid_Name      = "Copernicus DEM";
@@ -839,6 +839,8 @@ bool CCopernicus_DEM::On_Provide_Tile(int Col, int Row, CSG_Archive &Archive)
 	}
 
 	CSG_Grid DEM, Mask; CSG_String Name(Get_Tile_Name(Col, Row)), Directory(SG_File_Get_Path(Archive.Get_Archive()));
+
+	Process_Set_Text("%s: %s...", Name.c_str(), _TL("masking"));
 
 	SG_UI_ProgressAndMsg_Lock(true);
 
