@@ -242,14 +242,13 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SCATTERPLOT_3D);
 
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection"), pSubMenu = new wxMenu());
 	if( MDI_Get_Active_Map() && m_Edit_Attributes.Get_Count() > 0 )
 	{
+		pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection"), pSubMenu = new wxMenu());
 		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
 		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
 	}
-	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SELECTION_INVERT);
 
 	return( pMenu );
 }
