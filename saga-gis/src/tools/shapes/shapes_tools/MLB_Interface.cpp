@@ -119,6 +119,7 @@ CSG_String Get_Info(int i)
 #include "visualize_gradients.h"
 
 #include "vertex_inspector.h"
+#include "vertex_difference.h"
 
 
 //---------------------------------------------------------
@@ -169,8 +170,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 30:	return( new CVisualize_Gradients );
 
 	case 31:	return( new CVertexInspector );
+	case 32:	return( new CVertexDifference );
 
-	case 32:	return( NULL );
+	case 33:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
