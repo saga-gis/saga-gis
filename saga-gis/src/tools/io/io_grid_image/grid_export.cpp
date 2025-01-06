@@ -279,7 +279,10 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( pParameter->Cmp_Identifier("GRID") )
 	{
-		pParameters->Set_Enabled("FILE_KML"     , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == ESG_CRS_Type::Geographic);
+		pParameters->Set_Enabled("FILE_KML"     , pParameter->asPointer() &&
+			(  pParameter->asGrid()->Get_Projection().is_Geographic()
+			|| pParameter->asGrid()->Get_Projection().is_Geodetic  ())
+		);
 	}
 
 	if( pParameter->Cmp_Identifier("FILE") )
@@ -414,7 +417,7 @@ bool CGrid_Export::On_Execute(void)
 		if( SG_File_Cmp_Extension(File, "pcx") ) { wxImage::AddHandler(pHandler = new wxPCXHandler ); } else
 		if( SG_File_Cmp_Extension(File, "tif") ) { wxImage::AddHandler(pHandler = new wxTIFFHandler); } else
 		if( SG_File_Cmp_Extension(File, "gif") ) { wxImage::AddHandler(pHandler = new wxGIFHandler ); } else
-												{ wxImage::AddHandler(pHandler = new wxPNGHandler ); }
+		                                         { wxImage::AddHandler(pHandler = new wxPNGHandler ); }
 	}
 
 	bool bOkay = Image.SaveFile(File.c_str());
@@ -461,7 +464,7 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("FILE_KML")->asBool() && Parameters("GRID")->asGrid()->Get_Projection().is_Geographic() )
+	if( Parameters("FILE_KML")->asBool() && (Parameters("GRID")->asGrid()->Get_Projection().is_Geographic() || Parameters("GRID")->asGrid()->Get_Projection().is_Geodetic()) )
 	{
 		CSG_MetaData KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
 
@@ -626,7 +629,7 @@ bool CGrid_Export::Set_RGB(CSG_Grid &Grid, CSG_Grid &RGB)
 		}
 		else
 		{
-			RGB.Set_Value(x, y, Grid.asDouble(x, yy));
+			RGB.Set_Value(x, y, Grid.asInt(x, yy));
 		}
 	}
 

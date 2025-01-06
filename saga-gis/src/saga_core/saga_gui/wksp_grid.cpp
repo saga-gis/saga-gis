@@ -1184,13 +1184,13 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 		#pragma omp parallel for
 		for(int y=0; y<pImage->Get_NY(); y++) for(int x=0; x<pImage->Get_NX(); x++)
 		{
-			if( Image.HasAlpha() )
+			if( Image.HasAlpha() && !Image.GetAlpha(x, y) )
 			{
-				pImage->Set_Value(x, y, SG_GET_RGBA(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y), Image.GetAlpha(x, y)));
+				pImage->Set_NoData(x, y);
 			}
 			else
 			{
-				pImage->Set_Value(x, y, SG_GET_RGB (Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
+				pImage->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, y), Image.GetGreen(x, y), Image.GetBlue(x, y)));
 			}
 		}
 

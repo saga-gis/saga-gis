@@ -72,20 +72,11 @@ CGrid_to_KML::CGrid_to_KML(void)
 		"coordinate system, if its projection is known and not geographic. "
 	));
 
-	Parameters.Add_Grid("",
-		"GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid("",
-		"SHADE"		, _TL("Shade"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+	Parameters.Add_Grid("", "GRID" , _TL("Grid" ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "SHADE", _TL("Shade"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_FilePath("",
-		"FILE"		, _TL("File"),
+		"FILE"     , _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.kmz)|*.kmz|%s (*.kml)|*.kml",
 			_TL("Compressed Keyhole Markup Language Files"),
@@ -94,7 +85,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 	);
 
 	Parameters.Add_Choice("",
-		"FORMAT"	, _TL("Image Format"),
+		"FORMAT"   , _TL("Image Format"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Portable Network Graphics"),
@@ -108,7 +99,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 	if( has_GUI() )
 	{
 		Parameters.Add_Choice("",
-			"COLOURING"		, _TL("Colouring"),
+			"COLOURING"  , _TL("Colors"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s|%s",
 				_TL("stretch to grid's standard deviation"),
@@ -121,14 +112,14 @@ CGrid_to_KML::CGrid_to_KML(void)
 		);
 
 		Parameters.Add_Colors("",
-			"COL_PALETTE"	, _TL("Colours Palette"),
+			"COL_PALETTE", _TL("Color Ramp"),
 			_TL("")
 		);
 	}
 	else
 	{
 		Parameters.Add_Choice("",
-			"COLOURING"		, _TL("Colouring"),
+			"COLOURING"		, _TL("Colors"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s",
 				_TL("stretch to grid's standard deviation"),
@@ -140,48 +131,35 @@ CGrid_to_KML::CGrid_to_KML(void)
 		);
 
 		Parameters.Add_Choice("",
-			"COL_PALETTE"	, _TL("Color Palette"),
+			"COL_PALETTE"	, _TL("Color Ramp"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-				_TL("DEFAULT"       ),	_TL("DEFAULT_BRIGHT" ),	_TL("BLACK_WHITE"   ),	_TL("BLACK_RED"     ),
-				_TL("BLACK_GREEN"   ),	_TL("BLACK_BLUE"     ),	_TL("WHITE_RED"     ),	_TL("WHITE_GREEN"   ),
-				_TL("WHITE_BLUE"    ),	_TL("YELLOW_RED"     ),	_TL("YELLOW_GREEN"  ),	_TL("YELLOW_BLUE"   ),
-				_TL("RED_GREEN"     ),	_TL("RED_BLUE"       ),	_TL("GREEN_BLUE"    ),	_TL("RED_GREY_BLUE" ),
-				_TL("RED_GREY_GREEN"),	_TL("GREEN_GREY_BLUE"),	_TL("RED_GREEN_BLUE"),	_TL("RED_BLUE_GREEN"),
-				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"        ),	_TL("NEON"          ),	_TL("TOPOGRAPHY"    ),
-				_TL("ASPECT_1"      ),	_TL("ASPECT_2"       ),	_TL("ASPECT_3"      )
-			), 0
+			"DEFAULT"        "|DEFAULT_BRIGHT"  "|BLACK_WHITE"    "|BLACK_RED"     "|"
+			"BLACK_GREEN"    "|BLACK_BLUE"      "|WHITE_RED"      "|WHITE_GREEN"   "|"
+			"WHITE_BLUE"     "|YELLOW_RED"      "|YELLOW_GREEN"   "|YELLOW_BLUE"   "|"
+			"RED_GREEN"      "|RED_BLUE"        "|GREEN_BLUE"     "|RED_GREY_BLUE" "|"
+			"RED_GREY_GREEN" "|GREEN_GREY_BLUE" "|RED_GREEN_BLUE" "|RED_BLUE_GREEN""|"
+			"GREEN_RED_BLUE" "|RAINBOW"         "|NEON"           "|TOPOGRAPHY"    "|"
+			"ASPECT_1"       "|ASPECT_2"        "|ASPECT_3"       "|"
 		);
 
-		Parameters.Add_Int("",
-			"COL_COUNT"		, _TL("Number of Colors"),
-			_TL(""),
-			100
-		);
-
-		Parameters.Add_Bool("",
-			"COL_REVERT"	, _TL("Revert Palette"),
-			_TL(""),
-			false
-		);
+		Parameters.Add_Int ("", "COL_COUNT" , _TL("Number of Colors"), _TL(""), 100);
+		Parameters.Add_Bool("", "COL_REVERT", _TL("Invert Ramp"     ), _TL(""), false);
 	}
 
 	Parameters.Add_Double("",
-		"STDDEV"	, _TL("Standard Deviation"),
+		"STDDEV"   , _TL("Standard Deviation"),
 		_TL(""),
 		2., 0., true
 	);
 
 	Parameters.Add_Range("",
-		"STRETCH"	, _TL("Stretch to Value Range"),
+		"STRETCH"  , _TL("Stretch to Value Range"),
         _TL(""),
         0., 100.
     );
 
 	//-----------------------------------------------------
-	CSG_Table	*pLUT	= Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
-
-	pLUT->Set_Name(_TL("Table"));
+	CSG_Table *pLUT = Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
 
 	pLUT->Add_Field("Color"      , SG_DATATYPE_Color );
 	pLUT->Add_Field("Name"       , SG_DATATYPE_String);
@@ -231,7 +209,7 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 	if(	pParameter->Cmp_Identifier("GRID") || pParameter->Cmp_Identifier("COLOURING") )
 	{
-		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
+		CSG_Grid *pGrid = pParameters->Get_Parameter("GRID")->asGrid();
 
 		pParameters->Set_Enabled("RESAMPLING",
 			pGrid && pGrid->Get_Projection().Get_Type() == ESG_CRS_Type::Projection && pParameters->Get_Parameter("COLOURING")->asInt() < 4
@@ -257,7 +235,7 @@ bool CGrid_to_KML::On_Execute(void)
 	//-----------------------------------------------------
 	int Method = Parameters("COLOURING")->asInt();
 
-	if( Method == 5 )	// same as in graphical user interface
+	if( Method == 5 ) // same as in graphical user interface
 	{
 		if( !SG_UI_DataObject_asImage(pGrid, &Image) )
 		{
@@ -270,7 +248,7 @@ bool CGrid_to_KML::On_Execute(void)
 		Image.Set_Description(pGrid->Get_Description());
 		Image.Flip();
 		pGrid  = &Image;
-		Method = 4;	// rgb coded values
+		Method = 4; // rgb coded values
 	}
 
 	//-----------------------------------------------------
@@ -278,7 +256,7 @@ bool CGrid_to_KML::On_Execute(void)
 	{
 		Message_Add(_TL("layer uses undefined coordinate system, assuming geographic coordinates"));
 	}
-	else if( pGrid->Get_Projection().Get_Type() != ESG_CRS_Type::Geographic )
+	else if( !(pGrid->Get_Projection().is_Geographic() || pGrid->Get_Projection().is_Geodetic()) )
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
@@ -291,9 +269,9 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pTool->Set_Manager(NULL);
 
-		if( pTool->Set_Parameter("CRS_WKT"   , CSG_Projection::Get_GCS_WGS84().Get_WKT2())
-		&&  pTool->Set_Parameter("CRS_PROJ"  , CSG_Projection::Get_GCS_WGS84().Get_PROJ())
-		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
+		if( pTool->Set_Parameter("CRS_STRING", CSG_Projection::Get_GCS_WGS84().Get_WKT())
+		&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING")->asBool() ? 3 : 0)
+		&&  pTool->Set_Parameter("BYTEWISE"  , Method == 4)
 		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 		&&  pTool->Execute() )
 		{
