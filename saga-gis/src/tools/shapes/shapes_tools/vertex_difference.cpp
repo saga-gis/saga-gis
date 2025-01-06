@@ -52,6 +52,8 @@
 #include <algorithm>
 #include <set>
 #include <functional>
+#include <iterator>
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -68,13 +70,12 @@ CVertexDifference::CVertexDifference(void)
 
 	Set_Description(_TW(
 		"This tool identifies differences between two vector datasets and outputs the vertices that are "
-		"present in either of the datasets but not in both." ));
+		"present in either of the datasets but not in both."
+	));
 
-	Parameters.Add_Shapes(NULL, "IN_A", _TL("Layer A"), _TL(""), PARAMETER_INPUT );
-
-	Parameters.Add_Shapes(NULL, "IN_B", _TL("Layer B"), _TL(""), PARAMETER_INPUT );
-	
-	Parameters.Add_Shapes(NULL, "OUT", _TL("Difference"), 	_TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point );
+	Parameters.Add_Shapes("", "IN_A", _TL("Layer A"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Shapes("", "IN_B", _TL("Layer B"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Shapes("", "OUT" , _TL("Difference"), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Point);
 }
 
 
