@@ -916,7 +916,7 @@ void CWKSP_Layer::_Set_Projection(void)
 	{
 		CSG_Projection new_CRS(pTool->Get_Parameter("CRS_WKT")->asString(), pTool->Get_Parameter("CRS_PROJ")->asString());
 
-		if( new_CRS.is_Okay() && (new_CRS != CRS || new_CRS.Get_Code() != CRS.Get_Code() || new_CRS.Get_Authority().CmpNoCase(CRS.Get_Authority())) )
+		if( new_CRS.is_Okay() && CRS.Get_WKT2().CmpNoCase(new_CRS.Get_WKT2()) )
 		{
 			CRS.Create(new_CRS); Get_Object()->Set_Modified();
 
