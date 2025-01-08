@@ -87,47 +87,47 @@ CExercise_11::CExercise_11(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "DEM"			, _TL("Elevation"),
+		"", "DEM"      , _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "NSTORE"		, _TL("Soil Nitrogen"),
+		"", "NSTORE"   , _TL("Soil Nitrogen"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double(
-		"", "TIME_SPAN"	, _TL("Time Span [a]"),
+		"", "TIME_SPAN", _TL("Time Span [a]"),
 		_TL(""),
-		100.0, 0.0, true
+		100., 0., true
 	);
 
 	Parameters.Add_Double(
-		"", "TIME_STEP"	, _TL("Time Interval [a]"),
+		"", "TIME_STEP", _TL("Time Interval [a]"),
 		_TL(""),
-		0.1, 0.0, true
+		0.1, 0., true
 	);
 
 	Parameters.Add_Bool(
-		"", "UPDATE"		, _TL("Update View"),
+		"", "UPDATE"   , _TL("Update View"),
 		_TL(""),
 		true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double(
-		"", "NINIT"		, _TL("Initial Nitrogen Content [kg/ha]"),
+		"", "NINIT"    , _TL("Initial Nitrogen Content [kg/ha]"),
 		_TL(""),
-		5000.0, 0.0, true
+		5000., 0., true
 	);
 
 	Parameters.Add_Double(
-		"", "NRAIN"		, _TL("Nitrogen in Rainfall [kg/ha/a]"),
+		"", "NRAIN"    , _TL("Nitrogen in Rainfall [kg/ha/a]"),
 		_TL(""),
-		16.0, 0.0, true
+		16., 0., true
 	);
 }
 
@@ -139,40 +139,26 @@ CExercise_11::CExercise_11(void)
 //---------------------------------------------------------
 bool CExercise_11::On_Execute(void)
 {
-	bool		bUpdate;
-	int			iStep, nSteps;
-	double		sTime, dTime, N_Init, N_Rain;
-	CSG_Grid	*pDEM;
+	Initialize();
+
+	double Years = Parameters("TIME_SPAN")->asDouble();
+	double dTime = Parameters("TIME_STEP")->asDouble();
+
+	double NRain = Parameters("NRAIN")->asDouble();
+
+	bool bUpdate = Parameters("UPDATE")->asBool();
 
 	//-----------------------------------------------------
-	sTime	= Parameters("TIME_SPAN")->asDouble();
-	dTime	= Parameters("TIME_STEP")->asDouble();
-	nSteps	= (int)(sTime / dTime);
-
-	bUpdate	= Parameters("UPDATE"   )->asBool();
-
-	N_Init	= Parameters("NINIT"    )->asDouble();
-	N_Rain	= Parameters("NRAIN"    )->asDouble();
-
-	pDEM	= Parameters("DEM"      )->asGrid();
-
-	m_pN	= Parameters("NSTORE"   )->asGrid();
-	m_pN->Assign(N_Init);
-	DataObject_Set_Colors(m_pN, 100, SG_COLORS_YELLOW_GREEN);
-
-	Initialize(pDEM);
-
-	//-----------------------------------------------------
-	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
+	for(int i=0, n=(int)(Years/dTime); i<=n && Set_Progress(i, n); i++)
 	{
-		Process_Set_Text("Time [a]: %f (%f)", dTime * iStep, sTime);
+		Process_Set_Text("Time [a]: %f (%f)", dTime * i, Years);
 
 		if( bUpdate )
 		{
-			DataObject_Update(m_pN, m_pN->Get_Min(), m_pN->Get_Max(), true);
+			DataObject_Update(m_pN, 1);
 		}
 
-		Next_Step(N_Rain, dTime);
+		Next_Step(NRain, dTime);
 	}
 
 	//-----------------------------------------------------
@@ -187,58 +173,52 @@ bool CExercise_11::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CExercise_11::Initialize(CSG_Grid *pDEM)
+bool CExercise_11::Initialize(void)
 {
-	int		x, y, i, ix, iy;
-	double	z, dz, dzSum;
+	m_pN = Parameters("NSTORE")->asGrid();
+	m_pN->Assign(Parameters("NINIT")->asDouble());
+	DataObject_Set_Colors(m_pN, 11, SG_COLORS_YELLOW_GREEN);
 
-	//-----------------------------------------------------
-	m_Next	.Create(pDEM, SG_DATATYPE_Float);
-	m_dzSum	.Create(pDEM, SG_DATATYPE_Float);
+	CSG_Grid *pDEM = Parameters("DEM")->asGrid();
 
-	for(i=0; i<8; i++)
+	m_N.Create(pDEM, SG_DATATYPE_Float); // temporary
+
+	for(int i=0; i<=8; i++)
 	{
 		m_dz[i].Create(pDEM, SG_DATATYPE_Float);
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		if( pDEM->is_NoData(x, y) )
 		{
-			dzSum	= 0.0;
+			m_dz[8].Set_NoData(x, y);
+		}
+		else
+		{
+			double dz[8], dzSum = 0., z = pDEM->asDouble(x, y);
 
-			if( !pDEM->is_NoData(x, y) )
+			for(int i=0; i<8; i++)
 			{
-				z		= pDEM->asDouble(x, y);
+				int ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-				for(i=0; i<8; i++)
+				if( pDEM->is_InGrid(ix, iy) && (dz[i] = (z - pDEM->asDouble(ix, iy)) / Get_Length(i)) > 0. )
 				{
-					ix		= Get_xTo(i, x);
-					iy		= Get_yTo(i, y);
-
-					if( pDEM->is_InGrid(ix, iy) && (dz = (z - pDEM->asDouble(ix, iy)) / Get_Length(i)) > 0.0 )
-					{
-						m_dz[i].Set_Value(x, y, dz);
-
-						dzSum	+= dz;
-					}
-					else
-					{
-						m_dz[i].Set_Value(x, y, 0.0);
-					}
+					dzSum += dz[i];
 				}
-
-				if( dzSum > 0.0 )
+				else
 				{
-					for(i=0; i<8; i++)
-					{
-						m_dz[i].Mul_Value(x, y, 1.0 / dzSum);
-					}
+					dz[i] = 0.;
 				}
 			}
 
-			m_dzSum.Set_Value(x, y, dzSum);
+			for(int i=0; i<8; i++)
+			{
+				m_dz[i].Set_Value(x, y, dzSum > 0. ? dz[i] / dzSum : 0.);
+			}
+
+			m_dz[8].Set_Value(x, y, dzSum);
 		}
 	}
 
@@ -249,12 +229,9 @@ bool CExercise_11::Initialize(CSG_Grid *pDEM)
 //---------------------------------------------------------
 bool CExercise_11::Finalize(void)
 {
-	int		i;
+	m_N.Destroy();
 
-	m_Next	.Destroy();
-	m_dzSum	.Destroy();
-
-	for(i=0; i<8; i++)
+	for(int i=0; i<=8; i++)
 	{
 		m_dz[i].Destroy();
 	}
@@ -268,54 +245,48 @@ bool CExercise_11::Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CExercise_11::Next_Step(double N_Rain, double dTime)
+bool CExercise_11::Next_Step(double NRain, double dTime)
 {
-	int		x, y, i;
-	double	dz, dzSum, N, dN;
+	m_N.Assign(NRain * dTime);
 
-	m_Next.Assign(0.0);
-
-	N_Rain	*= dTime;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		if( m_dz[8].is_NoData(x, y) )
 		{
-			N		= m_pN->asDouble(x, y);
+			m_N.Set_NoData(x, y);
 
-			if( (dzSum = m_dzSum.asDouble(x, y)) > 0.0 )
+			continue;
+		}
+
+		double dzSum = m_dz[8].asDouble(x, y);
+
+		if( dzSum > 0. )
+		{
+			double N = m_pN->asDouble(x, y);
+
+			double dN = N * dzSum * dTime;
+
+			if( dN > N )
 			{
-				dN		= N * dzSum * dTime;
-
-				if( dN > N )
-				{
-					dN		= N;
-				}
-
-				for(i=0; i<8; i++)
-				{
-					if( (dz = m_dz[i].asDouble(x, y)) > 0.0 )
-					{
-						m_Next.Add_Value(Get_xTo(i, x), Get_yTo(i, y), dz * dN);
-					}
-				}
-			}
-			else
-			{
-				dN		= 0.0;
+				dN = N;
 			}
 
-			m_Next.Add_Value(x, y, N - dN + N_Rain);
+			for(int i=0; i<8; i++)
+			{
+				double dz = m_dz[i].asDouble(x, y);
+
+				if( dz > 0. )
+				{
+					m_N.Add_Value(Get_xTo(i, x), Get_yTo(i, y), dz * dN);
+				}
+			}
+
+			m_N.Add_Value(x, y, N - dN);
 		}
 	}
 
-	if( is_Progress() )
-	{
-		m_pN->Assign(&m_Next);
-	}
+	m_pN->Assign(&m_N);
 
-	//-----------------------------------------------------
 	return( true );
 }
 

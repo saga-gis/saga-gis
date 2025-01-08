@@ -65,22 +65,22 @@ class CExercise_10 : public CSG_Tool_Grid
 public:
 	CExercise_10(void);
 
-	virtual bool			needs_GUI		(void)	{	return( true );	}
+	virtual bool	needs_GUI	(void)	{	return( true );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool	On_Execute	(void);
 
 
 private:
 
-	int						m_nColors;
+	int				m_nColors = 64;
 
-	CSG_Grid				*m_pLife, *m_pTemp;
+	CSG_Grid		*m_pLife = NULL, m_Life;
 
 
-	bool					Next_Step(void);
+	bool			Next_Step	(void);
 
 };
 

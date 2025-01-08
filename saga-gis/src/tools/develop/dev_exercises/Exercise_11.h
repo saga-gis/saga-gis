@@ -68,17 +68,18 @@ public:
 
 protected:
 
-	virtual bool				On_Execute(void);
+	virtual bool	On_Execute	(void);
 
 
 private:
 
-	CSG_Grid					*m_pN, m_Next, m_dz[8], m_dzSum;
+	CSG_Grid		*m_pN = NULL, m_N, m_dz[9];
 
-	bool						Initialize(CSG_Grid *pDEM);
-	bool						Finalize(void);
 
-	bool						Next_Step(double N_Rain, double dTime);
+	bool			Initialize	(void);
+	bool			Finalize	(void);
+
+	bool			Next_Step	(double NRain, double dTime);
 
 };
 
