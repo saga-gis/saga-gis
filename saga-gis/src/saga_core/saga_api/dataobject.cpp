@@ -794,7 +794,7 @@ bool CSG_Data_Object::Update(bool bForce)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Data_Object::Assign(CSG_Data_Object *pObject)
+bool CSG_Data_Object::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
 	if( pObject )// && pObject->is_Valid() )
 	{

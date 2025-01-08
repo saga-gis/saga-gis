@@ -318,7 +318,7 @@ public:
 	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const			{	return( SG_DATAOBJECT_TYPE_Table );	}
 
 	CSG_Table &						operator =			(const CSG_Table  &Table);
-	virtual bool					Assign				(CSG_Data_Object *pTable);
+	virtual bool					Assign				(CSG_Data_Object *pTable, bool bProgress = false);
 
 	bool							Assign_Values		(const CSG_Table  &Table);
 	bool							Assign_Values		(      CSG_Table *pTable);

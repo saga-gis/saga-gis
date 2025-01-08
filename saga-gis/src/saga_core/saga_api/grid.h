@@ -349,7 +349,7 @@ public:
 	bool						is_InGrid			(int x, int y, int Rand)	const	{	return(	x >= Rand && x < m_NX - Rand && y >= Rand && y < m_NY - Rand );	}
 
 	double						Get_Length			(int Direction)				const	{	return( Direction % 2 ? m_Diagonal : m_Cellsize );	}
-	static double				Get_UnitLength		(int Direction)						{	return( Direction % 2 ? sqrt(2.0)  : 1.0 );			}
+	static double				Get_UnitLength		(int Direction)						{	return( Direction % 2 ? sqrt(2.)  : 1. );			}
 
 	static int					Set_Precision		(int Decimals);
 	static int					Get_Precision		(void);
@@ -495,8 +495,8 @@ public:		///////////////////////////////////////////////
 									CSG_Grid		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 	bool							Create			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 
-									CSG_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
-	bool							Create			(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
+									CSG_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1., double xMin = 0., double yMin = 0., bool bCached = false);
+	bool							Create			(TSG_Data_Type Type, int NX, int NY, double Cellsize = 1., double xMin = 0., double yMin = 0., bool bCached = false);
 
 
 	//-----------------------------------------------------
@@ -555,10 +555,10 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Values...
 
-	void							Set_Scaling			(double Scale = 1.0, double Offset = 0.0);
+	void							Set_Scaling			(double Scale = 1., double Offset = 0.);
 	double							Get_Scaling			(void)	const;
 	double							Get_Offset			(void)	const;
-	bool							is_Scaled			(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
+	bool							is_Scaled			(void)	const	{	return( m_zScale != 1. || m_zOffset != 0. );	}
 
 	double							Get_Mean			(void);
 	double							Get_Min				(void);
@@ -610,11 +610,11 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Operations...
 
-	void							Assign_NoData				(void);
+	bool							Assign_NoData				(void);
 
-	virtual bool					Assign						(double Value = 0.0);
-	virtual bool					Assign						(CSG_Data_Object *pObject);
-	virtual bool					Assign						(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation);
+	virtual bool					Assign						(double Value = 0.);
+	virtual bool					Assign						(CSG_Data_Object *pObject                          , bool bProgress = false);
+	virtual bool					Assign						(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation, bool bProgress = false);
 
 	void							Flip						(void);
 	void							Mirror						(void);
@@ -789,10 +789,10 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_Int   : Value = (double)((int    **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Long  : Value = (double)((sLong  **)m_Values)[y][x]; break;
             case SG_DATATYPE_ULong : Value = (double)((uLong  **)m_Values)[y][x]; break;
-			case SG_DATATYPE_Bit   : Value = (double)(((BYTE  **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
+			case SG_DATATYPE_Bit   : Value = (double)(((BYTE  **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0. : 1.; break;
 
 			default:
-				return( 0.0 );
+				return( 0. );
 		}
 
 		if( bScaled && is_Scaled() )
@@ -842,7 +842,7 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_Int   : ((int    **)m_Values)[y][x] = SG_ROUND_TO_INT  (Value); break;
 			case SG_DATATYPE_Long  : ((sLong  **)m_Values)[y][x] = SG_ROUND_TO_SLONG(Value); break;
 			case SG_DATATYPE_ULong : ((uLong  **)m_Values)[y][x] = SG_ROUND_TO_ULONG(Value); break;
-			case SG_DATATYPE_Bit   : ((BYTE   **)m_Values)[y][x / 8] = Value != 0.0
+			case SG_DATATYPE_Bit   : ((BYTE   **)m_Values)[y][x / 8] = Value != 0.
 					? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
 					: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
 				break;
@@ -955,10 +955,10 @@ private:	///////////////////////////////////////////////
 	CSG_Grid &					_Operation_Arithmetic	(const CSG_Grid &Grid, TSG_Grid_Operation Operation);
 	CSG_Grid &					_Operation_Arithmetic	(double Value        , TSG_Grid_Operation Operation);
 
-	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Resampling Interpolation);
-	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional);
-	bool						_Assign_ExtremeValue	(CSG_Grid *pSource, bool bMaximum);
-	bool						_Assign_Majority		(CSG_Grid *pSource);
+	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Resampling Interpolation, bool bProgress);
+	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional           , bool bProgress);
+	bool						_Assign_ExtremeValue	(CSG_Grid *pSource, bool bMaximum                    , bool bProgress);
+	bool						_Assign_Majority		(CSG_Grid *pSource                                   , bool bProgress);
 
 
 	//-----------------------------------------------------
@@ -1009,7 +1009,7 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid              , 
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCached = false);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0., double xMin = 0., double yMin = 0., bool bCached = false);
 
 //---------------------------------------------------------
 /** Get default directory for grid caching */

@@ -247,7 +247,7 @@ public:
 	virtual bool					Save					(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 	virtual bool					Save					(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 
-	virtual bool					Assign					(CSG_Data_Object *pObject);
+	virtual bool					Assign					(CSG_Data_Object *pObject, bool bProgress = false);
 
 	virtual bool					is_Valid				(void)	const			{	return( Get_Count() >= 3 );	}
 

@@ -62,7 +62,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::Assign_NoData(void)
+bool CSG_Grid::Assign_NoData(void)
 {
 	double Value = Get_NoData_Value();
 
@@ -71,6 +71,8 @@ void CSG_Grid::Assign_NoData(void)
 	{
 		Set_Value(x, y, Value, false);
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -92,12 +94,9 @@ bool CSG_Grid::Assign(double Value)
 	else
 	{
 		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				Set_Value(x, y, Value);
-			}
+			Set_Value(x, y, Value);
 		}
 	}
 
@@ -119,84 +118,66 @@ bool CSG_Grid::Assign(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::Assign(CSG_Data_Object *pObject)
+bool CSG_Grid::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
-	return( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType()
-		&&  Assign((CSG_Grid *)pObject, GRID_RESAMPLING_Undefined) );
+	return( pObject && Assign(pObject->asGrid(), GRID_RESAMPLING_Undefined) );
 }
 
-bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
+bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation, bool bProgress)
 {
-	//-----------------------------------------------------
 	if(	!is_Valid() || !pGrid || !pGrid->is_Valid() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
 	{
 		return( false );
 	}
 
-	bool	bResult	= false;
+	bool bResult = false;
 
 	//---------------------------------------------------------
 	if( m_System == pGrid->m_System )
 	{
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
+			if( pGrid->is_NoData(x, y) )
 			{
-				if( pGrid->is_NoData(x, y) )
-				{
-					Set_NoData(x, y);
-				}
-				else
-				{
-					Set_Value(x, y, pGrid->asDouble(x, y));
-				}
+				Set_NoData(x, y);
+			}
+			else
+			{
+				Set_Value(x, y, pGrid->asDouble(x, y));
 			}
 		}
 
-		bResult	= true;
+		bResult = true; bProgress = false;
 	}
 
-	else if(  Get_Cellsize() == pGrid->Get_Cellsize()	// No-Scaling...
-	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.
-	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.	)
+	//---------------------------------------------------------
+	else if(  Get_Cellsize() == pGrid->Get_Cellsize() // No-Scaling...
+	&& fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.
+	&& fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.	)
 	{
-		bResult	= _Assign_Interpolated(pGrid, GRID_RESAMPLING_NearestNeighbour);
+		bResult = _Assign_Interpolated(pGrid, GRID_RESAMPLING_NearestNeighbour, bProgress);
 	}
 
 	//---------------------------------------------------------
 	else switch( Interpolation )
 	{
 	case GRID_RESAMPLING_NearestNeighbour:
-	case GRID_RESAMPLING_Bilinear:
-	case GRID_RESAMPLING_BicubicSpline:
-	case GRID_RESAMPLING_BSpline:
-		bResult	= _Assign_Interpolated(pGrid, Interpolation);
-		break;
+	case GRID_RESAMPLING_Bilinear        :
+	case GRID_RESAMPLING_BicubicSpline   :
+	case GRID_RESAMPLING_BSpline         : bResult = _Assign_Interpolated(pGrid, Interpolation                              , bProgress); break;
 
-	case GRID_RESAMPLING_Mean_Nodes:
-	case GRID_RESAMPLING_Mean_Cells:
-		bResult	= _Assign_MeanValue   (pGrid, Interpolation != GRID_RESAMPLING_Mean_Nodes);
-		break;
+	case GRID_RESAMPLING_Mean_Nodes      :
+	case GRID_RESAMPLING_Mean_Cells      : bResult = _Assign_MeanValue   (pGrid, Interpolation != GRID_RESAMPLING_Mean_Nodes, bProgress); break;
 
-	case GRID_RESAMPLING_Minimum:
-	case GRID_RESAMPLING_Maximum:
-		bResult	= _Assign_ExtremeValue(pGrid, Interpolation == GRID_RESAMPLING_Maximum);
-		break;
+	case GRID_RESAMPLING_Minimum         :
+	case GRID_RESAMPLING_Maximum         : bResult = _Assign_ExtremeValue(pGrid, Interpolation == GRID_RESAMPLING_Maximum   , bProgress); break;
 
-	case GRID_RESAMPLING_Majority:
-		bResult	= _Assign_Majority    (pGrid);
-		break;
+	case GRID_RESAMPLING_Majority        : bResult = _Assign_Majority    (pGrid                                             , bProgress); break;
 
-	default:
-		if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
-		{
-			bResult	= _Assign_Interpolated(pGrid, GRID_RESAMPLING_BSpline);
-		}
-		else											// Up-Scaling...
-		{
-			bResult	= _Assign_MeanValue(pGrid, Interpolation != GRID_RESAMPLING_Mean_Nodes);
-		}
+	default                              : bResult = Get_Cellsize() < pGrid->Get_Cellsize()
+			? _Assign_Interpolated(pGrid, GRID_RESAMPLING_BSpline, bProgress)  // Down-Scaling...
+			: _Assign_MeanValue   (pGrid, true                   , bProgress); // Up-Scaling...
 		break;
 	}
 
@@ -207,31 +188,34 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
 
 		if( pGrid->Get_Projection().is_Okay() )
 		{
-			Get_Projection()	= pGrid->Get_Projection();
+			Get_Projection() = pGrid->Get_Projection();
 		}
 
-		Get_History()	= pGrid->Get_History();
+		Get_History() = pGrid->Get_History();
 	}
 
 	//---------------------------------------------------------
-	SG_UI_Process_Set_Ready();
+	if( bProgress )
+	{
+		SG_UI_Process_Set_Ready();
+	}
 
 	return( bResult );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
+bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation, bool bProgress)
 {
-	double	py	= Get_YMin();
-
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, py+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && (!bProgress || SG_UI_Process_Set_Progress(y, Get_NY())); y++)
 	{
+		double py = Get_YMin() + y * Get_Cellsize();
+
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	z;
+			double px = Get_XMin() + x * Get_Cellsize(), z;
 
-			if( pGrid->Get_Value(Get_XMin() + x * Get_Cellsize(), py, z, Interpolation) )
+			if( pGrid->Get_Value(px, py, z, Interpolation) )
 			{
 				Set_Value(x, y, z);
 			}
@@ -246,7 +230,7 @@ bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Resampling Interpo
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
+bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum, bool bProgress)
 {
 	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
@@ -256,14 +240,14 @@ bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
 	//-----------------------------------------------------
 	Assign_NoData();
 
-	double	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
-	double	py	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
+	double d = pGrid->Get_Cellsize() / Get_Cellsize();
 
-	double	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+	double ax = 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
+	double py = 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
 
-	for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+	for(int y=0; y<pGrid->Get_NY() && (!bProgress || SG_UI_Process_Set_Progress(y, pGrid->Get_NY())); y++, py+=d)
 	{
-		int	iy	= (int)floor(py);
+		int iy = (int)floor(py);
 
 		if( iy >= 0 && iy < Get_NY() )
 		{
@@ -272,15 +256,15 @@ bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
 			{
 				if( !pGrid->is_NoData(x, y) )
 				{
-					int	ix	= (int)floor(ax + x * d);
+					int ix = (int)floor(ax + x * d);
 					
 					if( ix >= 0 && ix < Get_NX() )
 					{
-						double	z	= pGrid->asDouble(x, y);
+						double z = pGrid->asDouble(x, y);
 
 						if( is_NoData(ix, iy)
-						||	(bMaximum ==  true && z > asDouble(ix, iy))
-						||	(bMaximum == false && z < asDouble(ix, iy)) )
+						|| (bMaximum ==  true && z > asDouble(ix, iy))
+						|| (bMaximum == false && z < asDouble(ix, iy)) )
 						{
 							Set_Value(ix, iy, z);
 						}
@@ -295,7 +279,7 @@ bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
+bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional, bool bProgress)
 {
 	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
@@ -303,28 +287,26 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	}
 
 	//-----------------------------------------------------
-	double	d	= Get_Cellsize() / pGrid->Get_Cellsize();
+	double d = Get_Cellsize() / pGrid->Get_Cellsize();
 
-	double	ox	= (Get_XMin(true) - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
-	double	py	= (Get_YMin(true) - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
+	double ox = (Get_XMin(true) - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
+	double py = (Get_YMin(true) - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
 
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, py+=d)
+	for(int y=0; y<Get_NY() && (!bProgress || SG_UI_Process_Set_Progress(y, Get_NY())); y++, py+=d)
 	{
-		int		ay	= (int)(bAreaProportional ? floor(py    ) : ceil (py    ));
-		int		by	= (int)(bAreaProportional ? ceil (py + d) : floor(py + d));
+		int ay = (int)(bAreaProportional ? floor(py    ) : ceil (py    ));
+		int by = (int)(bAreaProportional ? ceil (py + d) : floor(py + d));
 
 		//-------------------------------------------------
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			double	px	= ox + x * d;
+			double px = ox + x * d;
 
-			int		ax	= (int)(bAreaProportional ? floor(px    ) : ceil (px    ));
-			int		bx	= (int)(bAreaProportional ? ceil (px + d) : floor(px + d));
+			int ax = (int)(bAreaProportional ? floor(px    ) : ceil (px    ));
+			int bx = (int)(bAreaProportional ? ceil (px + d) : floor(px + d));
 
-			CSG_Rect	rMean(px, py, px + d, py + d);
-
-			CSG_Simple_Statistics	s;
+			CSG_Rect rMean(px, py, px + d, py + d); CSG_Simple_Statistics s;
 
 			for(int iy=ay; iy<=by; iy++)
 			{
@@ -336,7 +318,7 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 						{
 							if( bAreaProportional )
 							{
-								CSG_Rect	r(ix - 0.5, iy - 0.5, ix + 0.5, iy + 0.5);
+								CSG_Rect r(ix - 0.5, iy - 0.5, ix + 0.5, iy + 0.5);
 
 								if( r.Intersect(rMean) )
 								{
@@ -374,7 +356,7 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
+bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid, bool bProgress)
 {
 	if( Get_Cellsize() < pGrid->Get_Cellsize() )
 	{
@@ -387,58 +369,37 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	Assign_NoData();
 
 	//-----------------------------------------------------
-	int	ay, by	= (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+	int ay, by = (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
 
-	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	for(int y=0; y<Get_NY() && (!bProgress || SG_UI_Process_Set_Progress(y, Get_NY())); y++)
 	{
-		ay	= by;
-		by	= (int)(1. + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+		ay = by; by = (int)(1. + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
 
 		if( ay < pGrid->Get_NY() && by > 0 )
 		{
-			if( ay < 0 )
-			{
-				ay	= 0;
-			}
+			if( ay < 0 ) { ay = 0; } if( by > pGrid->Get_NY() ) { by = pGrid->Get_NY(); }
 
-			if( by > pGrid->Get_NY() )
-			{
-				by	= pGrid->Get_NY();
-			}
-
-			int	ax, bx	= (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+			int ax, bx = (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
 			for(int x=0; x<Get_NX(); x++)
 			{
-				ax	= bx;
-				bx	= (int)(1. + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+				ax = bx; bx = (int)(1. + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
 				if( ax < pGrid->Get_NX() && bx > 0 )
 				{
-					CSG_Unique_Number_Statistics	s;
+					CSG_Unique_Number_Statistics s;
 
-					if( ax < 0 )
-					{
-						ax	= 0;
-					}
+					if( ax < 0 ) { ax = 0; } if( bx > pGrid->Get_NX() ) { bx = pGrid->Get_NX(); }
 
-					if( bx > pGrid->Get_NX() )
+					for(int iy=ay; iy<by; iy++) for(int ix=ax; ix<bx; ix++)
 					{
-						bx	= pGrid->Get_NX();
-					}
-
-					for(int iy=ay; iy<by; iy++)
-					{
-						for(int ix=ax; ix<bx; ix++)
+						if( !pGrid->is_NoData(ix, iy) )
 						{
-							if( !pGrid->is_NoData(ix, iy) )
-							{
-								s	+= pGrid->asDouble(ix, iy);
-							}
+							s += pGrid->asDouble(ix, iy);
 						}
 					}
 
-					int	n; double	z;
+					int n; double z;
 
 					if( s.Get_Majority(z, n) )//&& n > 1 )
 					{
@@ -463,7 +424,7 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CSG_Grid & CSG_Grid::operator = (const CSG_Grid &Grid)
 {
-	Assign((CSG_Grid *)&Grid, GRID_RESAMPLING_Undefined);
+	Assign(Grid.asGrid(), GRID_RESAMPLING_Undefined, false);
 
 	return( *this );
 }
@@ -478,14 +439,14 @@ CSG_Grid & CSG_Grid::operator =	(double Value)
 //---------------------------------------------------------
 CSG_Grid CSG_Grid::operator +		(const CSG_Grid &Grid) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Addition) );
 }
 
 CSG_Grid CSG_Grid::operator +		(double Value) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Addition) );
 }
@@ -548,14 +509,14 @@ CSG_Grid & CSG_Grid::Subtract		(double Value)
 //---------------------------------------------------------
 CSG_Grid CSG_Grid::operator *		(const CSG_Grid &Grid) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Multiplication) );
 }
 
 CSG_Grid CSG_Grid::operator *		(double Value) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Multiplication) );
 }
@@ -583,14 +544,14 @@ CSG_Grid & CSG_Grid::Multiply		(double Value)
 //---------------------------------------------------------
 CSG_Grid CSG_Grid::operator /		(const CSG_Grid &Grid) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Division) );
 }
 
 CSG_Grid CSG_Grid::operator /		(double Value) const
 {
-	CSG_Grid	g(*this);
+	CSG_Grid g(*this);
 
 	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Division) );
 }

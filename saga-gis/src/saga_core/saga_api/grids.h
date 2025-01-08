@@ -335,8 +335,8 @@ public:		///////////////////////////////////////////////
 	void							Assign_NoData				(void);
 
 	virtual bool					Assign						(double Value = 0.);
-	virtual bool					Assign						(CSG_Data_Object *pObject);
-	virtual bool					Assign						(CSG_Grids *pGrids, TSG_Grid_Resampling Interpolation);
+	virtual bool					Assign						(CSG_Data_Object *pObject                            , bool bProgress = false);
+	virtual bool					Assign						(CSG_Grids *pGrids, TSG_Grid_Resampling Interpolation, bool bProgress = false);
 
 
 	//-----------------------------------------------------

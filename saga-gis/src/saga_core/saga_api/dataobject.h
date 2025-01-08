@@ -212,7 +212,7 @@ public:
 
 	bool							is_File_Native	(void)	const			{	return( m_File_bNative );	}
 
-	virtual bool					Assign			(CSG_Data_Object *pObject);
+	virtual bool					Assign			(CSG_Data_Object *pObject, bool bProgress = false);
 
 	void							Set_Name		(const CSG_String &Name);
 	void							Set_Name		(const char       *Name);

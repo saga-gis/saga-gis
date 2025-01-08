@@ -367,13 +367,13 @@ CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Assign(CSG_Data_Object *pObject)
+bool CSG_Table::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
 	if( CSG_Data_Object::Assign(pObject) && pObject->asTable(true) && Create(pObject->asTable(true)) )
 	{
 		CSG_Table *pTable = pObject->asTable(true);
 
-		for(sLong i=0; i<pTable->Get_Count(); i++)
+		for(sLong i=0; i<pTable->Get_Count() && !(!bProgress || SG_UI_Process_Set_Progress(i, pTable->Get_Count())); i++)
 		{
 			Add_Record(pTable->Get_Record(i));
 		}

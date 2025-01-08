@@ -932,29 +932,25 @@ bool CSG_Grids::Assign(double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Assign(CSG_Data_Object *pObject)
+bool CSG_Grids::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
-		case SG_DATAOBJECT_TYPE_Grid:
+		case SG_DATAOBJECT_TYPE_Grid :
+			for(int i=0; i<Get_Grid_Count() && (!bProgress || SG_UI_Process_Get_Okay()); i++)
 			{
-				bool	bResult	= true;
-
-				for(int i=0; i<Get_Grid_Count(); i++)
+				if( !m_pGrids[i]->Assign(pObject->asGrid(), bProgress) )
 				{
-					if( !m_pGrids[i]->Assign((CSG_Grid *)pObject) )
-					{
-						bResult	= false;
-					}
+					return( false );
 				}
-
-				return( bResult );
 			}
 
+			return( true );
+
 		case SG_DATAOBJECT_TYPE_Grids:
-			return( Assign((CSG_Grids *)pObject) );
+			return( Assign(pObject->asGrids(), GRID_RESAMPLING_Undefined, bProgress) );
 
 		default:
 			break;
@@ -965,15 +961,15 @@ bool CSG_Grids::Assign(CSG_Data_Object *pObject)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Assign(CSG_Grids *pGrids, TSG_Grid_Resampling Interpolation)
+bool CSG_Grids::Assign(CSG_Grids *pGrids, TSG_Grid_Resampling Interpolation, bool bProgress)
 {
 	if( pGrids && Get_Grid_Count() == pGrids->Get_Grid_Count() )
 	{
-		bool	bResult	= true;
+		bool bResult = true;
 
-		for(int i=0; i<Get_Grid_Count(); i++)
+		for(int i=0; i<Get_Grid_Count() && (!bProgress || SG_UI_Process_Get_Okay()); i++)
 		{
-			if( !m_pGrids[i]->Assign(pGrids->m_pGrids[i], Interpolation) )
+			if( !m_pGrids[i]->Assign(pGrids->m_pGrids[i], Interpolation, bProgress) )
 			{
 				bResult	= false;
 			}

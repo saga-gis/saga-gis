@@ -292,11 +292,11 @@ bool CSG_TIN::_Destroy_Triangles(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_TIN::Assign(CSG_Data_Object *pObject)
+bool CSG_TIN::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
-	if(	pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
+	if(	pObject && pObject->asTIN() && pObject->is_Valid() )
 	{
-		CSG_TIN *pTIN = (CSG_TIN *)pObject;
+		CSG_TIN *pTIN = pObject->asTIN();
 
 		Destroy();
 
