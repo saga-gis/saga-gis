@@ -551,7 +551,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG
 
 					if( bFill )
 					{
-						Index.Set_Value(x, y, iShape);
+						Index.Set_Value(x, y, (double)iShape);
 					}
 				}
 			}
