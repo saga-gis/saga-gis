@@ -295,15 +295,15 @@ bool CShapes2Grid::On_Execute(void)
 	m_pGrid->Assign_NoData();
 
 	//-------------------------------------------------
-	CSG_Grid	Count;
+	CSG_Grid Count;
 
-	m_pCount	= m_Grid_Target.Get_Grid("COUNT", pShapes->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word);
+	m_pCount = m_Grid_Target.Get_Grid("COUNT", pShapes->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word);
 
 	if( m_pCount == NULL )
 	{
 		Count.Create(m_pGrid->Get_System(), SG_DATATYPE_Word);
 
-		m_pCount	= &Count;
+		m_pCount = &Count;
 	}
 
 	m_pCount->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("Count"));
@@ -321,23 +321,16 @@ bool CShapes2Grid::On_Execute(void)
 		{
 			if( Field < 0 || !pShape->is_NoData(Field) )
 			{
-				if( pShape->Intersects(m_pGrid->Get_Extent()) )
+				if( pShape->Intersects(m_pGrid->Get_Extent(true)) )
 				{
-					double	Value	= Field >= 0 ? pShape->asDouble(Field) : Field == OUTPUT_INDEX ? i + 1 : 1;
+					double Value 	= Field >= 0 ? pShape->asDouble(Field) : Field == OUTPUT_INDEX ? i + 1 : 1;
 
 					switch( pShapes->Get_Type() )
 					{
-					case SHAPE_TYPE_Point:	case SHAPE_TYPE_Points:
-						Set_Points	(pShape, Value);
-						break;
-
-					case SHAPE_TYPE_Line:
-						Set_Line	(pShape, bFat, Value);
-						break;
-
-					case SHAPE_TYPE_Polygon:
-						Set_Polygon	(pShape, bFat, Value);
-						break;
+					case SHAPE_TYPE_Point  :
+					case SHAPE_TYPE_Points : Set_Points (pShape      , Value); break;
+					case SHAPE_TYPE_Line   : Set_Line   (pShape, bFat, Value); break;
+					case SHAPE_TYPE_Polygon: Set_Polygon(pShape, bFat, Value); break;
 					}
 				}
 			}
@@ -371,46 +364,46 @@ bool CShapes2Grid::On_Execute(void)
 //---------------------------------------------------------
 inline void CShapes2Grid::Set_Value(int x, int y, double Value, bool bCheckDuplicates)
 {
-	if( bCheckDuplicates )
-	{
-		sLong n = y * m_pGrid->Get_NX() + x;
-
-		if( !m_Cells_On_Shape.insert(n).second )
-		{
-			return;		// this cell has already been rendered for this shape
-		}
-	}
-
 	if( m_pGrid->is_InGrid(x, y, false) )
 	{
+		if( bCheckDuplicates )
+		{
+			sLong n = y * m_pGrid->Get_NX() + x;
+
+			if( !m_Cells_On_Shape.insert(n).second )
+			{
+				return; // this cell has already been rendered for this shape
+			}
+		}
+
 		if( m_pCount->asInt(x, y) == 0 )
 		{
 			m_pGrid->Set_Value(x, y, Value);
 		}
 		else switch( m_Multiple )
 		{
-		default:	// first
+		default : // first
 			break;
 
-		case  1:	// last
+		case  1: // last
 			m_pGrid->Set_Value(x, y, Value);
 			break;
 
-		case  2:	// minimum
+		case  2: // minimum
 			if( m_pGrid->asDouble(x, y) > Value )
 			{
 				m_pGrid->Set_Value(x, y, Value);
 			}
 			break;
 
-		case  3:	// maximum
+		case  3: // maximum
 			if( m_pGrid->asDouble(x, y) < Value )
 			{
 				m_pGrid->Set_Value(x, y, Value);
 			}
 			break;
 
-		case  4:	// mean
+		case  4: // mean
 			m_pGrid->Add_Value(x, y, Value);
 			break;
 		}
@@ -431,12 +424,11 @@ void CShapes2Grid::Set_Points(CSG_Shape *pShape, double Value)
 	{
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+			TSG_Point p = pShape->Get_Point(iPoint, iPart);
 
 			Set_Value(
-				(int)(0.5 + X_WORLD_TO_GRID(p.x)),
-				(int)(0.5 + Y_WORLD_TO_GRID(p.y)), Value,
-				false
+				m_pGrid->Get_System().Get_xWorld_to_Grid(p.x),
+				m_pGrid->Get_System().Get_yWorld_to_Grid(p.y), Value, false
 			);
 		}
 	}
