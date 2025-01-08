@@ -1717,7 +1717,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 
 	double Size = sqrt(r.Get_Area() / pPoints->Get_Count()) / (Scale > 1 ? Scale : 1);	// edge length of a square given as average area per point (cell size)
 
-	if( Rounding > 0 )
+	if( Size >= 1. && Rounding > 0 )
 	{
 		Size   = SG_Get_Rounded_To_SignificantFigures(Size, Rounding);
 
