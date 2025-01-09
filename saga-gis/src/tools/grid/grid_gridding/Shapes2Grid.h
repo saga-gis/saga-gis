@@ -83,11 +83,11 @@ protected:
 
 private:
 
-	int							m_Multiple;
+	int							m_Multiple = 1;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Grid					*m_pGrid, *m_pCount;
+	CSG_Grid					*m_pGrid = NULL, *m_pCount = NULL;
 
 	std::set<sLong>				m_Cells_On_Shape;
 
@@ -131,11 +131,11 @@ protected:
 
 private:
 
-	int							m_Multiple;
+	int							m_Multiple = 1;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Grid					*m_pGrid, *m_pCoverage;
+	CSG_Grid					*m_pGrid = NULL, *m_pCoverage = NULL;
 
 
 	TSG_Data_Type				Get_Data_Type			(int Field);
