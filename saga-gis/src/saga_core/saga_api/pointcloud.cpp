@@ -609,7 +609,7 @@ CSG_MetaData CSG_PointCloud::_Create_Header(void) const
 //---------------------------------------------------------
 bool CSG_PointCloud::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
-	if( pObject->asPointCloud() && CSG_Data_Object::Assign(pObject) )
+	if( pObject->asPointCloud() && CSG_Data_Object::Assign(pObject, bProgress) )
 	{
 		CSG_PointCloud *pPoints = pObject->asPointCloud();
 
@@ -620,7 +620,7 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject, bool bProgress)
 			_Add_Field(pPoints->m_Field_Name[iField]->c_str(), pPoints->m_Field_Type[iField]);
 		}
 
-		for(sLong i=0; i<pPoints->m_nRecords; i++)
+		for(sLong i=0; i<pPoints->m_nRecords && (!bProgress || SG_UI_Process_Set_Progress(i, pPoints->m_nRecords)); i++)
 		{
 			if( _Inc_Array() )
 			{
