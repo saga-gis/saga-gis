@@ -232,6 +232,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY_IMPORT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_FORCE_UPDATE);
 
@@ -266,33 +267,17 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
-	case ID_CMD_DATA_SAVEAS_IMAGE:
-		_Save_Image();
-		break;
+	case ID_CMD_DATA_SAVEAS_IMAGE    : _Save_Image          (); break;
+	case ID_CMD_DATA_CLIPBOARD_COPY  : _Save_Image_Clipboard(); break;
 
-	case ID_CMD_DATA_CLIPBOARD_COPY:
-		_Save_Image_Clipboard();
-		break;
+	case ID_CMD_DATA_HISTOGRAM       : Histogram_Toggle     (); break;
+	case ID_CMD_DATA_SCATTERPLOT     : Add_ScatterPlot      (); break;
 
-	case ID_CMD_DATA_HISTOGRAM:
-		Histogram_Toggle();
-		break;
+	case ID_CMD_DATA_CLASSIFY        : _LUT_Create          (); break;
+	case ID_CMD_DATA_CLASSIFY_IMPORT : _LUT_Import          (); break;
 
-	case ID_CMD_DATA_SCATTERPLOT:
-		Add_ScatterPlot();
-		break;
-
-	case ID_CMD_DATA_CLASSIFY:
-		_LUT_Create();
-		break;
-
-	case ID_CMD_DATA_SELECTION_CLEAR:
-		_Edit_Clr_Selection();
-		break;
-
-	case ID_CMD_DATA_SELECTION_DELETE:
-		_Edit_Del_Selection();
-		break;
+	case ID_CMD_DATA_SELECTION_CLEAR : _Edit_Clr_Selection  (); break;
+	case ID_CMD_DATA_SELECTION_DELETE: _Edit_Del_Selection  (); break;
 
 	case ID_CMD_DATA_SCATTERPLOT_3D: { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 6);
 		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TYPE", 0) && pTool->Set_Parameter("GRID_X", m_pObject->asGrid()) && DLG_Parameters(pTool->Get_Parameters()) )
@@ -717,8 +702,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 void CWKSP_Grid::_LUT_Create(void)
 {
-	//-----------------------------------------------------
-	static CSG_Parameters	PStatic;
+	static CSG_Parameters PStatic;
 
 	if( PStatic.Get_Count() == 0 )
 	{
@@ -736,7 +720,7 @@ void CWKSP_Grid::_LUT_Create(void)
 		);
 	}
 
-	CSG_Parameters	Parameters(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+	CSG_Parameters Parameters(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
 	Parameters.Assign_Parameters(&PStatic);
 
@@ -891,6 +875,29 @@ void CWKSP_Grid::_LUT_Create(void)
 		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 
 		Parameters_Changed();
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Grid::_LUT_Import(void)
+{
+	wxString File, Filter;
+
+	Filter.Printf("%s (*.qml)|*.qml|%s|*.*", _TL("QGIS Layer Style File"), _TL("All Files"));
+
+	if( DLG_Open(File, _TL("Import Classification"), SG_T("QGIS Layer Style File (*.qml)|*.qml|All Files|*.*|")) )
+	{
+		CSG_Table Classes;
+
+		if( QGIS_Styles_Import(&File, Classes) )
+		{
+			m_Parameters("LUT")->asTable()->Assign(&Classes);
+			m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
+
+			m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
+
+			Parameters_Changed();
+		}
 	}
 }
 
