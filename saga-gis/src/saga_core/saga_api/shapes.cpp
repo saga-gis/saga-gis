@@ -348,9 +348,9 @@ bool CSG_Shapes::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
+bool CSG_Shapes::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
-	if( CSG_Data_Object::Assign(pObject) && pObject->asShapes(true) )
+	if( pObject->asShapes(true) && CSG_Data_Object::Assign(pObject, bProgress) )
 	{
 		CSG_Shapes *pShapes = pObject->asShapes(true);
 
@@ -358,9 +358,9 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		Get_Projection().Create(pShapes->Get_Projection());
 
-		for(sLong iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Get_Okay(); iShape++)
+		for(sLong i=0; i<pShapes->Get_Count() && (!bProgress || SG_UI_Process_Set_Progress(i, pShapes->Get_Count())); i++)
 		{
-			Add_Shape(pShapes->Get_Shape(iShape));
+			Add_Shape(pShapes->Get_Shape(i));
 		}
 
 		return( true );

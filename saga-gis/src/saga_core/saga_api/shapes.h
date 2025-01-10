@@ -796,7 +796,7 @@ public:
 
 	virtual TSG_Data_Object_Type	Get_ObjectType			(void)	const			{	return( SG_DATAOBJECT_TYPE_Shapes );	}
 
-	virtual bool					Assign					(CSG_Data_Object *pObject);
+	virtual bool					Assign					(CSG_Data_Object *pObject, bool bProgress = false);
 
 	virtual bool					Save					(const CSG_String &File, int Format = 0);
 	virtual bool					Save					(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}

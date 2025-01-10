@@ -613,12 +613,9 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject, bool bProgress)
 	{
 		CSG_PointCloud *pPoints = pObject->asPointCloud();
 
-		Get_Projection().Create(pPoints->Get_Projection());
+		Create(pPoints);
 
-		for(int iField=0; iField<pPoints->m_nFields; iField++)
-		{
-			_Add_Field(pPoints->m_Field_Name[iField]->c_str(), pPoints->m_Field_Type[iField]);
-		}
+		Get_Projection().Create(pPoints->Get_Projection());
 
 		for(sLong i=0; i<pPoints->m_nRecords && (!bProgress || SG_UI_Process_Set_Progress(i, pPoints->m_nRecords)); i++)
 		{
