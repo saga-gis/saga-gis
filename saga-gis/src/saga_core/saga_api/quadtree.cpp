@@ -673,7 +673,7 @@ void CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, CSG_PRQuadTree
 		}
 
 		//-------------------------------------------------
-		if( (int)Selection.Get_Size() < maxPoints )
+		if( Selection.Get_uSize() < maxPoints )
 		{
 			if( Distance < d )
 			{
@@ -684,7 +684,7 @@ void CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, CSG_PRQuadTree
 		}
 		else if( d < Distance )
 		{
-			for(size_t i=0; i<(int)Selection.Get_Size(); i++)
+			for(size_t i=0; i<Selection.Get_uSize(); i++)
 			{
 				if( Distance <= _Get_Selected(Selection, i)->Distance )
 				{
@@ -759,7 +759,7 @@ size_t CSG_PRQuadTree::Get_Nearest_Points(CSG_Points_3D &Points, double x, doubl
 
 	Points.Clear();
 
-	for(size_t i=0; i<(int)Selection.Get_Size(); i++)
+	for(size_t i=0; i<Selection.Get_uSize(); i++)
 	{
 		CSG_PRQuadTree_Leaf	*pLeaf	= _Get_Selected(Selection, i)->pLeaf;
 

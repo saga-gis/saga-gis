@@ -109,7 +109,7 @@
 //---------------------------------------------------------
 void SG_XML_Add_Parameter(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = "")
 {
-	if( !ID.is_Empty() )	ID	+= "_";	ID	+= pParameter->Get_Identifier();
+	if( !ID.is_Empty() ) { ID += "_"; } ID += pParameter->Get_Identifier();
 
 	CSG_MetaData	*pItem	= pParent->Add_Child(SG_XML_PARAM);
 

@@ -3078,7 +3078,7 @@ double CSG_Test_Distribution::Get_T_Inverse(double p, int df, TSG_Test_Distribut
 	}
 
 	bool bNegative = (Type == TESTDIST_TYPE_Left && p < 0.5) || (Type == TESTDIST_TYPE_Right && p > 0.5);
-	double t, p0, p1, diff = 1.;
+	double t = 0, p0, p1, diff = 1.;
 
 	p0 = p1 = _Change_Tail_Type(p, Type, TESTDIST_TYPE_TwoTail, bNegative);
 

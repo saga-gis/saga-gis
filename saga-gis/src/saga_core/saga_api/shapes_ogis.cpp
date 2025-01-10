@@ -1125,17 +1125,18 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 
 	switch( Flags & 0x0F )
 	{
-	case  0: Type = SG_DATATYPE_Bit   ; break; //  0:  1-bit boolean
-	case  1: Type = SG_DATATYPE_Char  ; break; //  1:  2-bit unsigned integer
-	case  2: Type = SG_DATATYPE_Char  ; break; //  2:  4-bit unsigned integer
-	case  3: Type = SG_DATATYPE_Char  ; break; //  3:  8-bit   signed integer
-	case  4: Type = SG_DATATYPE_Byte  ; break; //  4:  8-bit unsigned integer
-	case  5: Type = SG_DATATYPE_Short ; break; //  5: 16-bit   signed integer
-	case  6: Type = SG_DATATYPE_Word  ; break; //  6: 16-bit unsigned integer
-	case  7: Type = SG_DATATYPE_Int   ; break; //  7: 32-bit   signed integer
-	case  8: Type = SG_DATATYPE_DWord ; break; //  8: 32-bit unsigned integer
-	case 10: Type = SG_DATATYPE_Float ; break; // 10: 32-bit float
-	case 11: Type = SG_DATATYPE_Double; break; // 11: 64-bit float
+	case  0: Type = SG_DATATYPE_Bit      ; break; //  0:  1-bit boolean
+	case  1: Type = SG_DATATYPE_Char     ; break; //  1:  2-bit unsigned integer
+	case  2: Type = SG_DATATYPE_Char     ; break; //  2:  4-bit unsigned integer
+	case  3: Type = SG_DATATYPE_Char     ; break; //  3:  8-bit   signed integer
+	case  4: Type = SG_DATATYPE_Byte     ; break; //  4:  8-bit unsigned integer
+	case  5: Type = SG_DATATYPE_Short    ; break; //  5: 16-bit   signed integer
+	case  6: Type = SG_DATATYPE_Word     ; break; //  6: 16-bit unsigned integer
+	case  7: Type = SG_DATATYPE_Int      ; break; //  7: 32-bit   signed integer
+	case  8: Type = SG_DATATYPE_DWord    ; break; //  8: 32-bit unsigned integer
+	case 10: Type = SG_DATATYPE_Float    ; break; // 10: 32-bit float
+	case 11: Type = SG_DATATYPE_Double   ; break; // 11: 64-bit float
+	default: Type = SG_DATATYPE_Undefined; break;
 	}
 
 //	Flags |= 0x80; // isOffline: no, never here!
@@ -1163,8 +1164,7 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 	case SG_DATATYPE_DWord : noData	= Bytes.Read_DWord (bSwap); break; //  8: 32-bit unsigned integer
 	case SG_DATATYPE_Float : noData	= Bytes.Read_Float (bSwap); break; //  9: 32-bit float
 	case SG_DATATYPE_Double: noData	= Bytes.Read_Double(bSwap); break; // 10: 64-bit float
-	default:
-		break;
+	default                : noData = -99999.                 ; break;
 	}
 
 	pGrid->Set_NoData_Value(noData);
@@ -1184,8 +1184,7 @@ bool CSG_Grid_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pG
 			case SG_DATATYPE_DWord : pGrid->Set_Value(x, y, Bytes.Read_DWord (bSwap)); break; //  8: 32-bit unsigned integer
 			case SG_DATATYPE_Float : pGrid->Set_Value(x, y, Bytes.Read_Float (bSwap)); break; //  9: 32-bit float
 			case SG_DATATYPE_Double: pGrid->Set_Value(x, y, Bytes.Read_Double(bSwap)); break; // 10: 64-bit float
-			default:
-				break;
+			default                :                                                   break;
 			}
 		}
 	}
