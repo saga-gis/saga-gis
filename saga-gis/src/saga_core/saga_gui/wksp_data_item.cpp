@@ -551,7 +551,8 @@ bool CWKSP_Data_Item::Copy_Settings(CSG_Parameters *pParameters)
 			if( !pSource->Cmp_Identifier("OBJECT_NAME"  )
 			&&  !pSource->Cmp_Identifier("OBJECT_DESC"  )
 			&&  !pSource->Cmp_Identifier("OBJECT_NODATA")
-			&&  !pSource->Cmp_Identifier("MAX_SAMPLES"  ) )
+			&&  !pSource->Cmp_Identifier("MAX_SAMPLES"  )
+			&&  !pSource->Cmp_Identifier("FILE_CACHE"   ) )
 			{
 				CSG_Parameter *pTarget = Get_Parameter(pSource->Get_Identifier());
 
