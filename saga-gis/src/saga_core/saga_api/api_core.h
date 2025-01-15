@@ -1238,6 +1238,20 @@ protected:
 };
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_ZLib
+{
+public:
+
+	CSG_ZLib(void);
+
+	static bool						is_GZip_Supported			(void);
+
+	static CSG_String				Compress					(const CSG_String &File, const CSG_String &Target = "");
+	static CSG_String				Uncompress					(const CSG_String &File, const CSG_String &Target = "");
+
+};
+
+//---------------------------------------------------------
 #define CSG_File_Zip CSG_Archive // for backward compatibility
 
 //---------------------------------------------------------
@@ -1261,9 +1275,9 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Relative	(const CSG_String &Dir
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const CSG_String &Directory, const CSG_String &Name);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const CSG_String &Directory, const CSG_String &Name, const CSG_String &Extension);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Path			(const CSG_String &Path1, const CSG_String &Path2);
-SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension		(const CSG_String &FileName, const CSG_String &Extension);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension		(const CSG_String &FileName);
-SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension		(      CSG_String &FileName, const CSG_String &Extension);
+SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension		(const CSG_String &File, const CSG_String &Extension);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension		(const CSG_String &File);
+SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension		(      CSG_String &File, const CSG_String &Extension);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool			SG_Get_Environment			(const CSG_String &Variable,       CSG_String *Value = NULL);

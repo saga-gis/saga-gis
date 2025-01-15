@@ -55,9 +55,10 @@
 #include <wx/dir.h>
 #include <wx/wxcrtvararg.h>
 #include <wx/wfstream.h>
+#include <wx/txtstrm.h>
 #include <wx/zipstrm.h>
 #include <wx/tarstrm.h>
-#include <wx/txtstrm.h>
+#include <wx/zstream.h>
 #include <wx/log.h>
 #include <wx/version.h>
 
@@ -869,6 +870,85 @@ bool CSG_Archive::Extract(const SG_Char *File, const SG_Char *_toFile)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_ZLib::CSG_ZLib(void)
+{
+	// nop
+}
+
+//---------------------------------------------------------
+bool CSG_ZLib::is_GZip_Supported(void)
+{
+	return( wxZlibInputStream::CanHandleGZip() );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_ZLib::Compress(const CSG_String &File, const CSG_String &_Target)
+{
+	if( SG_File_Exists(File) )
+	{
+		wxFFileInputStream Input(File.c_str());
+
+		if( Input.IsOk() && Input.CanRead() )
+		{
+			CSG_String Target(_Target);
+
+			if( Target.is_Empty() )
+			{
+				Target = File + ".gz";
+			}
+
+			wxZlibOutputStream Output(new wxFFileOutputStream(Target.c_str()));
+
+			if( Output.IsOk() )
+			{
+				Output.Write(Input);
+
+				return( Target );
+			}
+		}
+	}
+
+	return( "" );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_ZLib::Uncompress(const CSG_String &File, const CSG_String &_Target)
+{
+	if( SG_File_Exists(File) )
+	{
+		wxZlibInputStream Input(new wxFFileInputStream(File.c_str()));
+
+		if( Input.IsOk() && Input.CanRead() )
+		{
+			CSG_String Target(_Target);
+
+			if( Target.is_Empty() )
+			{
+				Target = SG_File_Make_Path(SG_File_Get_Path(File), SG_File_Get_Name(File, false), "");
+			}
+
+			wxFFileOutputStream Output(Target.c_str());
+
+			if( Output.IsOk() )
+			{
+				Output.Write(Input);
+
+				return( Target );
+			}
+		}
+	}
+
+	return( "" );
 }
 
 
