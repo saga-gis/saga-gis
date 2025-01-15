@@ -980,8 +980,13 @@ public:
 
 	static CSG_String				Convert_WKT2_to_XML		(const CSG_String &WKT);
 
+	void							Set_UseInternalDB		(bool bUse = true) { m_bUseInternalDB = bUse; }
+	bool							Get_UseInternalDB		(void) const { return( m_bUseInternalDB ); }
+
 
 private:
+
+	bool							m_bUseInternalDB = true;
 
 	class CSG_Table					*m_pProjections, *m_pPreferences;
 

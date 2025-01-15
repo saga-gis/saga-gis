@@ -154,6 +154,15 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		), 0
 	);
 
+	m_Parameters.Add_Choice("NODE_TOOLS",
+		"CRS_CODE_DB"    , _TL("CRS Code Database"),
+		_TL("Preferred authority code database used to look-up coordinate reference system definitions."),
+		CSG_String::Format("%s|%s",
+			_TL("built-in"),
+			SG_T("proj")
+		), SG_Get_Projections().Get_UseInternalDB() ? 0 : 1
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_FILES", _TL("Files"), _TL(""));
 
@@ -222,6 +231,8 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
 
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
+
+	SG_Get_Projections().Set_UseInternalDB(m_Parameters("CRS_CODE_DB")->asInt() == 0);
 
 	#ifdef _OPENMP
 		SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
@@ -405,6 +416,8 @@ void CWKSP_Tool_Manager::Parameters_Changed(void)
 	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
 
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
+
+	SG_Get_Projections().Set_UseInternalDB(m_Parameters("CRS_CODE_DB")->asInt() == 0);
 
 #ifdef _OPENMP
 	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());

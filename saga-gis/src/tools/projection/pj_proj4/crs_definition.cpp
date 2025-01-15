@@ -83,7 +83,7 @@ CCRS_Definition::CCRS_Definition(void)
 	Add_Reference("https://proj.org", SG_T("PROJ Homepage"));
 
 	//-----------------------------------------------------
-	Parameters.Add_String("", "DEFINITION", _TL("Definition"), _TL(""), "epsg:4326");
+	Parameters.Add_String("", "DEFINITION", _TL("Definition"), _TL(""), "");
 
 	if( has_GUI() || has_CMD() )
 	{
@@ -107,11 +107,6 @@ CCRS_Definition::CCRS_Definition(void)
 	Parameters.Add_Bool("WKT2", "SIMPLIFIED", _TL("Simplified"), _TL("applies to WKT-2"       ), true);
 
 	Parameters.Add_Table("", "FORMATS", _TL("Formats"), _TL(""), PARAMETER_OUTPUT_OPTIONAL)->Set_UseInGUI(false);
-
-	if( has_GUI() )
-	{
-		On_Parameter_Changed(&Parameters, Parameters("DEFINITION"));
-	}
 }
 
 
@@ -166,6 +161,22 @@ int CCRS_Definition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Definition::On_Before_Execution(void)
+{
+	if( has_GUI() && !*Parameters("DEFINITION")->asString() )
+	{
+		Parameters.Set_Parameter("DEFINITION", "epsg:4326");
+	}
+
+	return( true );
 }
 
 

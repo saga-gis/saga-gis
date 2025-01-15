@@ -1037,6 +1037,21 @@ bool CSG_Projections::Get_Preference(CSG_Projection &Projection, int Code, const
 		}
 	}
 
+	if( m_bUseInternalDB )
+	{
+		for(sLong i=0; i<m_pProjections->Get_Count(); i++)
+		{
+			CSG_Table_Record *pProjection = m_pProjections->Get_Record(i);
+
+			if( Code == pProjection->asInt(PRJ_FIELD_AUTH_SRID) && !Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) )
+			{
+				Projection = _Get_Projection(pProjection);
+
+				return( Projection.is_Okay() );
+			}
+		}
+	}
+
 	return( false );
 }
 
@@ -1119,6 +1134,26 @@ bool CSG_Projections::Save(const CSG_String &File)
 //---------------------------------------------------------
 CSG_String CSG_Projections::Parse(const CSG_String &Definition, ESG_CRS_Format Format)
 {
+	if( Definition.is_Empty() )
+	{
+		return( "" );
+	}
+
+	//-----------------------------------------------------
+	CSG_Projection Projection; // check white list first !
+
+	if( SG_Get_Projections().Get_Preference(Projection, Definition) )
+	{
+		switch( Format )
+		{
+		case ESG_CRS_Format::PROJ: return( Projection.Get_PROJ() );
+		case ESG_CRS_Format::WKT2: return( Projection.Get_WKT2() );
+		default:
+			return( Parse(Projection.Get_WKT2(), Format) );
+		}
+	}
+
+	//-----------------------------------------------------
 	CSG_String s; CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 19); // Coordinate Reference System Format Conversion
 
 	if( pTool ) // check proj.lib, ...will check white list first !
@@ -1154,6 +1189,17 @@ bool CSG_Projections::Parse(const CSG_String &Definition, CSG_String *PROJ, CSG_
 	if( Definition.is_Empty() )
 	{
 		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Projection Projection; // check white list first !
+
+	if( SG_Get_Projections().Get_Preference(Projection, Definition) )
+	{
+		if( PROJ ) { *PROJ = Projection.Get_PROJ(); }
+		if( WKT2 ) { *WKT2 = Projection.Get_WKT2(); }
+
+		return( (!WKT1 && !JSON && !ESRI) || Parse(Projection.Get_WKT2(), NULL, NULL, WKT1, JSON, ESRI) );
 	}
 
 	//-----------------------------------------------------

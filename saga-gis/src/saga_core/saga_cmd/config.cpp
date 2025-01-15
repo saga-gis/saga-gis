@@ -125,6 +125,7 @@ bool	Config_Create	(wxConfigBase *pConfig)
 	Config_Write(pConfig,   "CMD", "XML_MESSAGE"         , false   );	// x: message output as xml
 
 	Config_Write(pConfig, "TOOLS", "LNG_FILE_DIC"        , SG_T(""));	// translation dictionary
+	Config_Write(pConfig, "TOOLS", "CRS_CODE_DB"         , SG_Get_Projections().Get_UseInternalDB() ? 0 : 1);
 	Config_Write(pConfig, "TOOLS", "OMP_THREADS_MAX"     , SG_OMP_Get_Max_Num_Procs());
 	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(""));	// additional tool library paths (aka SAGA_TLB)
 
@@ -165,6 +166,8 @@ bool	Config_Load		(wxConfigBase *pConfig)
 			? _TL("success") : _TL("failed")
 		));
 	}
+
+	if( Config_Read(pConfig, "TOOLS", "CRS_CODE_DB"         , iValue) )	{	SG_Get_Projections().Set_UseInternalDB(iValue == 0);	}
 
 	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
 
