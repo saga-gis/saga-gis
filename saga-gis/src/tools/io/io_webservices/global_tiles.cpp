@@ -236,9 +236,9 @@ bool CTiles_Provider::On_Execute(void)
 
 	if( !SG_Dir_Exists(Directory) )
 	{
-		Error_Set("no or invalid directory specified for local tiles database");
+		Message_Fmt("\n%s: %s\n", _TL("Warning"), _TL("No or invalid directory specified for local tiles database! Using temporary folder instead!"));
 
-		return( false );
+		Directory = SG_Dir_Get_Temp();
 	}
 
 	//--------------------------------------------------------
@@ -374,7 +374,7 @@ bool CTiles_Provider::On_Execute(void)
 
 	pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);
 
-	if( !pTool || !pTool->Reset() || !pTool->Set_Manager(&Data)
+	if( !pTool || !pTool->Set_Manager(&Data)
 	||  !pTool->Set_Parameter("CRS_STRING"       , Projection.Get_WKT())
 	||  !pTool->Set_Parameter("SOURCE"           , pGrid)
 	||  !pTool->Set_Parameter("RESAMPLING"       , 3) // B-Spline
@@ -394,7 +394,7 @@ bool CTiles_Provider::On_Execute(void)
 		return( false );
 	}
 
-	Data.Delete(pGrid); pGrid = pTool->Get_Parameter("GRID")->asGrid();
+	pGrid = pTool->Get_Parameter("GRID")->asGrid(); Data.Delete(pGrid, true);
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
