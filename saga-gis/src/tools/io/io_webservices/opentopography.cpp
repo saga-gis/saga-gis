@@ -50,11 +50,17 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-struct SDEMTypes { double size; CSG_String type, name; } Types[] =
+enum class Enum_DEMTypes
+{
+	SRTMGL3 = 0, SRTMGL1, SRTMGL1_E, AW3D30, AW3D30_E, SRTM15Plus, NASADEM, COP30, COP90, EU_DTM, GEDI_L3, GEBCOIceTopo, GEBCOSubIceTopo, Count
+};
+
+//---------------------------------------------------------
+struct SDEMTypes { double size; CSG_String type, name; } DEMTypes[(int)Enum_DEMTypes::Count] =
 {
 	{   90., "SRTMGL3"        , "SRTM GL3 90m"                        },
 	{   30., "SRTMGL1"        , "SRTM GL1 30m"                        },
@@ -73,9 +79,9 @@ struct SDEMTypes { double size; CSG_String type, name; } Types[] =
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -85,32 +91,23 @@ COpenTopography::COpenTopography(bool bLogin)
 
 	Set_Author		("O.Conrad (c) 2025");
 
-	Set_Description	(_TW(
+	CSG_String Choices, Description(_TW(
 		"Download and optionally project global digital elevation model (DEM) "
 		"data for the area of your interest provided by the OpenTopography project. "
 		"The download needs a personal <b>API key</b> which can be obtained easily "
-		"after login at the OpenTopography Data Portal.\n"
-		"\nAvailable DEM products are: "
-		"<ul>"
-		"<li>SRTMGL3 (SRTM GL3 90m)</li>"
-		"<li>SRTMGL1 (SRTM GL1 30m)</li>"
-		"<li>SRTMGL1_E (SRTM GL1 Ellipsoidal 30m)</li>"
-		"<li>AW3D30 (ALOS World 3D 30m)</li>"
-		"<li>AW3D30_E (ALOS World 3D Ellipsoidal, 30m)</li>"
-		"<li>SRTM15Plus (Global Bathymetry SRTM15+ V2.1 500m)</li>"
-		"<li>NASADEM (NASADEM Global DEM)</li>"
-		"<li>COP30 (Copernicus Global DSM 30m)</li>"
-		"<li>COP90 (Copernicus Global DSM 90m)</li>"
-		"<li>EU_DTM (DTM 30m)</li>"
-		"<li>GEDI_L3 (DTM 1000m)</li>"
-		"<li>GEBCOIceTopo (Global Bathymetry 500m)</li>"
-		"<li>GEBCOSubIceTopo (Global Bathymetry 500m)</li>"
-		"</ul>"
+		"after login at the OpenTopography Data Portal."
+		"\n\nAvailable DEM products are:<ul>"
 	));
+
+	for(int i=0; i<(int)Enum_DEMTypes::Count; i++)
+	{
+		Description += "<li>" + DEMTypes[i].name + "</li>"; Choices += DEMTypes[i].name + "|";
+	}
+
+	Set_Description(Description + "</ul>");
 
 	Add_Reference("https://opentopography.org/"       , SG_T("OpenTopography Homepage"   ));
 	Add_Reference("https://portal.opentopography.org/", SG_T("OpenTopography Data Portal"));
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
@@ -121,20 +118,7 @@ COpenTopography::COpenTopography(bool bLogin)
 	Parameters.Add_Choice("",
 		"DEMTYPE"    , _TL("DEM Type"),
 		_TL(""),
-		"{SRTMGL3}"         "SRTM GL3 90m|"
-		"{SRTMGL1}"         "SRTM GL1 30m|"
-		"{SRTMGL1_E}"       "SRTM GL1 Ellipsoidal 30m|"
-		"{AW3D30}"          "ALOS World 3D 30m|"
-		"{AW3D30_E}"        "ALOS World 3D Ellipsoidal, 30m|"
-		"{SRTM15Plus}"      "Global Bathymetry SRTM15+ V2.1 500m|"
-		"{NASADEM}"         "NASADEM Global DEM|"
-		"{COP30}"           "Copernicus Global DSM 30m|"
-		"{COP90}"           "Copernicus Global DSM 90m|"
-		"{EU_DTM}"          "EU DTM 30m|"
-		"{GEDI_L3}"         "GEDI_L3 DTM 1000m|"
-		"{GEBCOIceTopo}"    "Global Bathymetry 500m (Ice)|"
-		"{GEBCOSubIceTopo}" "Global Bathymetry 500m (Sub-Ice)|",
-		3 // => AW3D30
+		Choices, 3 // => AW3D30
 	);
 
 	Parameters.Add_String("",
@@ -205,7 +189,7 @@ COpenTopography::COpenTopography(bool bLogin)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -231,12 +215,12 @@ int COpenTopography::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 	{
 		double Cellsize = (*pParameters)("CELLSIZEDEF")->asInt() == 1
 			? (*pParameters)("CELLSIZE")->asDouble() // user defined
-			: Types[(*pParameters)("DEMTYPE")->asInt()].size;
+			: DEMTypes[(*pParameters)("DEMTYPE")->asInt()].size;
 
-		double xMin     = (*pParameters)("XMIN"    )->asDouble();
-		double yMin     = (*pParameters)("YMIN"    )->asDouble();
-		int    NX       = (*pParameters)("NX"      )->asInt   ();
-		int    NY       = (*pParameters)("NY"      )->asInt   ();
+		double xMin = (*pParameters)("XMIN")->asDouble();
+		double yMin = (*pParameters)("YMIN")->asDouble();
+		int    NX   = (*pParameters)("NX"  )->asInt   ();
+		int    NY   = (*pParameters)("NY"  )->asInt   ();
 
 		if( pParameter->Cmp_Identifier("CELLSIZE") )
 		{
@@ -301,7 +285,7 @@ int COpenTopography::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -309,7 +293,7 @@ bool COpenTopography::On_Execute(void)
 {
 	CSG_Rect Extent, Extent_GCS; CSG_Projection Projection; int Type = Parameters("DEMTYPE")->asInt();
 
-	double Cellsize = Parameters("CELLSIZEDEF")->asInt() == 1 ? Parameters("CELLSIZE")->asDouble() : Types[Type].size;
+	double Cellsize = Parameters("CELLSIZEDEF")->asInt() == 1 ? Parameters("CELLSIZE")->asDouble() : DEMTypes[Type].size;
 
 	switch( Parameters("EXTENT")->asInt() )
 	{
@@ -357,7 +341,7 @@ bool COpenTopography::On_Execute(void)
 		}
 	}
 
-	//--------------------------------------------------------
+	//-----------------------------------------------------
 	if( !Projection.is_Geographic() )
 	{
 		if( Parameters("EXTENT")->asInt() != 3 ) // grid system
@@ -393,31 +377,36 @@ bool COpenTopography::On_Execute(void)
 		Extent_GCS = Extent;
 	}
 
-	//--------------------------------------------------------
+	//-----------------------------------------------------
 	CSG_CURL Connection("https://portal.opentopography.org");
 
 	CSG_String Request = CSG_String::Format("/API/globaldem?demtype=%s&south=%f&north=%f&west=%f&east=%f&outputFormat=GTiff&API_Key=%s",
-		Types[Type].type.c_str(),
+		DEMTypes[Type].type.c_str(),
 		Extent_GCS.yMin, Extent_GCS.yMax,
 		Extent_GCS.xMin, Extent_GCS.xMax,
 		Parameters("API_KEY")->asString()
 	);
 
 	Message_Fmt("\nrequesting:\n  demtype = %s, south = %f, north = %f, west = %f, east = %f\n",
-		Types[Type].type.c_str(),
+		DEMTypes[Type].type.c_str(),
 		Extent_GCS.yMin, Extent_GCS.yMax,
 		Extent_GCS.xMin, Extent_GCS.xMax
 	);
 
 	CSG_String File(SG_File_Get_Name_Temp("sg")); SG_File_Delete(File); File += ".tif";
 
-	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("downloading"), Types[Type].name.c_str()));
+	Process_Set_Text                               ("%s: %s...", _TL("downloading"), DEMTypes[Type].name.c_str());
+	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("downloading"), DEMTypes[Type].name.c_str()));
 
 	if( !Connection.Request(Request, File.c_str()) )
 	{
 		SG_UI_Process_Set_Busy(false);
 
-		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
+		Message_Fmt("\n%s:\"https://portal.opentopography.org/API/globaldem?demtype=%s&south=%f&north=%f&west=%f&east=%f&outputFormat=GTiff&API_Key=*****\"", _TL("Request failed."),
+			DEMTypes[Type].type.c_str(),
+			Extent_GCS.yMin, Extent_GCS.yMax,
+			Extent_GCS.xMin, Extent_GCS.xMax
+		);
 
 		return( false );
 	}
@@ -425,48 +414,52 @@ bool COpenTopography::On_Execute(void)
 	SG_UI_Process_Set_Busy(false);
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Lock(true);
-	CSG_Grid *pGrid = SG_Create_Grid(File);
-	SG_UI_Msg_Lock(false);
+	SG_UI_Msg_Lock(true); CSG_Grid Grid(File); SG_UI_Msg_Lock(false);
 
-	if( !pGrid->is_Valid() )
+	SG_File_Delete(File); // remove temporary file
+
+	if( !Grid.is_Valid() )
 	{
-		Message_Fmt("\n%s [%s]", _TL("Raster import failed."), File.c_str());
+		Error_Fmt("\n%s [%s]", _TL("Raster import failed."), File.c_str());
 
 		return( false );
 	}
 
-	SG_File_Delete(File); // remove temporary file
+	if( !Grid.Get_Projection().is_Okay() )
+	{
+		switch( Type )
+		{
+		case (int)Enum_DEMTypes::EU_DTM:
+			Grid.Get_Projection().Create("EPSG:3035"); // ETRS89-extended / LAEA Europe
+			break;
+
+		default:
+			Grid.Get_Projection().Set_GCS_WGS84();
+			break;
+		}
+	}
+
+	CSG_Grid *pGrid = Parameters("RESULT")->asGrid(); if( !pGrid ) { Parameters("pGrid")->Set_Value(pGrid = SG_Create_Grid()); }
 
 	//--------------------------------------------------------
-	if( Projection.is_Geographic() || Projection.is_Geodetic() || !pGrid->Get_Projection().is_Okay() )
+	if( Grid.Get_Projection() == Projection || !Grid.Get_Projection().is_Okay() )
 	{
-		if( Parameters("RESULT")->asGrid() )
-		{
-			Parameters("RESULT")->asGrid()->Create(*pGrid); delete(pGrid);
+		pGrid->Create(Grid);
 
-			pGrid = Parameters("RESULT")->asGrid();
-		}
-		else
-		{
-			Parameters.Set_Parameter("RESULT", pGrid);
-		}
-
-		pGrid->Set_Name(Types[Type].name);
+		pGrid->Set_Name(DEMTypes[Type].name);
 
 		return( true );
 	}
 
-	//--------------------------------------------------------
+	//-----------------------------------------------------
 	Process_Set_Text("%s...", _TL("projection"));
-
-	CSG_Data_Manager Data; Data.Add(pGrid);
 
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);
 
-	if( !pTool || !pTool->Reset() || !pTool->Set_Manager(&Data)
+	if( !pTool || !pTool->Set_Manager(NULL)
 	||  !pTool->Set_Parameter("CRS_STRING"       , Projection.Get_WKT())
-	||  !pTool->Set_Parameter("SOURCE"           , pGrid)
+	||  !pTool->Set_Parameter("SOURCE"           , &Grid)
+	||  !pTool->Set_Parameter("GRID"             , pGrid)
 	||  !pTool->Set_Parameter("RESAMPLING"       , 3) // B-Spline
 	||  !pTool->Set_Parameter("DATA_TYPE"        , 8) // 4 byte floating point
 	||  !pTool->Set_Parameter("TARGET_DEFINITION", 0) // 'user defined'
@@ -484,30 +477,19 @@ bool COpenTopography::On_Execute(void)
 		return( false );
 	}
 
-	Data.Delete(pGrid); pGrid = pTool->Get_Parameter("GRID")->asGrid();
-
+	//-----------------------------------------------------
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-	//--------------------------------------------------------
-	pGrid->Set_Name(Types[Type].name);
-
-	if( Parameters("RESULT")->asGrid() )
-	{
-		Parameters("RESULT")->asGrid()->Create(*pGrid); delete(pGrid);
-	}
-	else
-	{
-		Parameters.Set_Parameter("RESULT", pGrid);
-	}
+	pGrid->Set_Name(DEMTypes[Type].name);
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
