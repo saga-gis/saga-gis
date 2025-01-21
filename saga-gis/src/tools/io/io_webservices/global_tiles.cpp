@@ -238,7 +238,14 @@ bool CTiles_Provider::On_Execute(void)
 	{
 		Message_Fmt("\n%s: %s\n", _TL("Warning"), _TL("No or invalid directory specified for local tiles database! Using temporary folder instead!"));
 
-		Directory = SG_Dir_Get_Temp();
+		Directory = SG_File_Make_Path(SG_Dir_Get_Temp(), Get_Name());
+
+		if( !SG_Dir_Create(Directory, true) )
+		{
+			Error_Fmt("%s: %s", _TL("failed to create temporary tiles directory"), Directory.c_str());
+
+			return( false );
+		}
 	}
 
 	//--------------------------------------------------------
