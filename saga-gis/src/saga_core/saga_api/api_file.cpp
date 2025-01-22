@@ -386,9 +386,13 @@ size_t CSG_File::Write(const CSG_String &Buffer) const
 		return( Write((void *)s.data(), sizeof(char), s.length()) );
 	}
 
-	CSG_Buffer s(Buffer.to_ASCII()); // returns NULL terminated char sequence, Get_Size() count includes terminating NULL!!!
+	CSG_String s(Buffer);
 
-	return( s.Get_Size() > 1 ? Write((void *)s.Get_Data(), sizeof(char), s.Get_Size() - 1) : 0 );
+	return( s.Length() > 0 ? Write((void *)s.b_str(), sizeof(char), s.Length()) : 0 );
+
+//	CSG_Buffer s(Buffer.to_ASCII()); // returns NULL terminated char sequence, Get_Size() count includes terminating NULL!!!
+
+//	return( s.Get_Size() > 1 ? Write((void *)s.Get_Data(), sizeof(char), s.Get_Size() - 1) : 0 );
 }
 
 //---------------------------------------------------------
