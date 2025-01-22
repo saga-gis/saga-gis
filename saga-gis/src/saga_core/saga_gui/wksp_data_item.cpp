@@ -320,26 +320,31 @@ void CWKSP_Data_Item::On_Create_Parameters(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Item::Save(void)
 {
-	int	idDlg;
+	int idDlg;
 
 	switch( Get_Type() )
 	{
-	case WKSP_ITEM_Table     :	idDlg	= ID_DLG_TABLE_SAVE     ;	break;
-	case WKSP_ITEM_TIN       :	idDlg	= ID_DLG_SHAPES_SAVE    ;	break;
-	case WKSP_ITEM_Shapes    :	idDlg	= ID_DLG_SHAPES_SAVE    ;	break;
-	case WKSP_ITEM_PointCloud:	idDlg	= ID_DLG_POINTCLOUD_SAVE;	break;
-	case WKSP_ITEM_Grid      :	idDlg	= ID_DLG_GRID_SAVE      ;	break;
-	case WKSP_ITEM_Grids     :	idDlg	= ID_DLG_GRIDS_SAVE     ;	break;
-	default:	return( false );
+	case WKSP_ITEM_Table     : idDlg = ID_DLG_TABLE_SAVE     ; break;
+	case WKSP_ITEM_TIN       : idDlg = ID_DLG_SHAPES_SAVE    ; break;
+	case WKSP_ITEM_Shapes    : idDlg = ID_DLG_SHAPES_SAVE    ; break;
+	case WKSP_ITEM_PointCloud: idDlg = ID_DLG_POINTCLOUD_SAVE; break;
+	case WKSP_ITEM_Grid      : idDlg = ID_DLG_GRID_SAVE      ; break;
+	case WKSP_ITEM_Grids     : idDlg = ID_DLG_GRIDS_SAVE     ; break;
+	default                  : return( false );
 	}
 
-	wxString	FileName	= m_pObject->Get_File_Name() && *m_pObject->Get_File_Name()
+	wxString FileName = m_pObject->Get_File_Name() && *m_pObject->Get_File_Name()
 		? m_pObject->Get_File_Name()
 		: m_pObject->Get_Name();
 
-	if( DLG_Save(FileName, idDlg) && m_pObject->Save(&FileName) )
+	if( DLG_Save(FileName, idDlg) )
 	{
-		return( true );
+		if( m_pObject->asTable() )
+		{
+			return( m_pObject->asTable()->Save(&FileName, 0, '\0', g_pData->Get_Parameter("TABLE_ENCODING")->asInt()) );
+		}
+
+		return( m_pObject->Save(&FileName) );
 	}
 
 	return( false );
