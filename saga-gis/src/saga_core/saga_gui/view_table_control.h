@@ -83,6 +83,8 @@ public:
 
 	bool						Update_Float_Format	(void);
 
+	virtual wxGridCellRenderer * GetDefaultRendererForCell  (int row, int col)  const;
+
 
 protected:
 

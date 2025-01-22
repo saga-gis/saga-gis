@@ -219,6 +219,47 @@ bool CVIEW_Table_Control::Save(const wxString &File, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CVIEW_Table_CellRenderer_Color : public wxGridCellStringRenderer
+{
+public:
+	CVIEW_Table_CellRenderer_Color(void) {}
+
+	virtual wxGridCellRenderer *	Clone	(void) {  return( new CVIEW_Table_CellRenderer_Color ); }
+
+	virtual void					Draw	(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, const wxRect &rect, int row, int col, bool isSelected)
+	{
+		wxColor color = Get_Color_asWX(grid.GetTable()->GetValueAsLong(row, col));
+
+		dc.SetBrush(color); dc.SetPen(color); dc.DrawRectangle(rect);
+	}
+};
+
+//---------------------------------------------------------
+wxGridCellRenderer * CVIEW_Table_Control::GetDefaultRendererForCell(int row, int col) const
+{
+	if( m_pTable->Get_Field_Type(col) == SG_DATATYPE_Color )
+	{
+		return( new CVIEW_Table_CellRenderer_Color );
+	}
+	else if( SG_Data_Type_is_Numeric(m_pTable->Get_Field_Type(col)) )
+	{
+		CSG_Table_Record *pRecord = m_pTable->Get_Record_byIndex(row);
+
+		if( !pRecord || pRecord->is_NoData(col) )
+		{
+			return( GetDefaultRendererForType(wxGRID_VALUE_STRING) );
+		}
+	}
+
+	return( wxGrid::GetDefaultRendererForCell(row, col) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CVIEW_Table_Control::Update_Float_Format(void)
 {
 	CWKSP_Base_Item *pItem = (CWKSP_Base_Item *)g_pData->Get(m_pTable);
@@ -302,25 +343,6 @@ bool CVIEW_Table_Control::_Update_Records(bool bViews)
 	else if( dRows < 0 )
 	{
 		DeleteRows(0, -dRows);
-	}
-
-	//-----------------------------------------------------
-	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
-	{
-		if( m_pTable->Get_Field_Type(iField) == SG_DATATYPE_Color )
-		{
-			BeginBatch();
-
-			for(int i=0; i<m_pData->GetNumberRows(); i++)
-			{
-				wxColour Colour(Get_Color_asWX(m_pData->Get_Record(i)->asInt(iField)));
-
-				SetCellBackgroundColour(i, iField, Colour);
-				SetCellTextColour      (i, iField, Colour);
-			}
-
-			EndBatch();
-		}
 	}
 
 	//-----------------------------------------------------
@@ -476,11 +498,6 @@ void CVIEW_Table_Control::On_LDClick(wxGridEvent &event)
 			{
 				pRecord->Set_Value(event.GetCol(), Value);
 
-				wxColour Colour(Get_Color_asWX(Value));
-
-				SetCellBackgroundColour(event.GetRow(), event.GetCol(), Colour);
-				SetCellTextColour      (event.GetRow(), event.GetCol(), Colour);
-
 				ForceRefresh();
 			}
 		}
@@ -586,11 +603,6 @@ void CVIEW_Table_Control::On_RClick(wxGridEvent &event)
 			if( pRecord && DLG_Color(lValue = pRecord->asInt(event.GetCol())) )
 			{
 				pRecord->Set_Value(event.GetCol(), lValue);
-
-				wxColour Colour(Get_Color_asWX(pRecord->asInt(event.GetCol())));
-
-				SetCellBackgroundColour(event.GetRow(), event.GetCol(), Colour);
-				SetCellTextColour      (event.GetRow(), event.GetCol(), Colour);
 
 				ForceRefresh();
 			}
