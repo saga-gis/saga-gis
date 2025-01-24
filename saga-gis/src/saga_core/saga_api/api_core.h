@@ -636,7 +636,8 @@ public:
 	int								Printf				(const wchar_t *Format, ...);
 
 	size_t							Replace				(const CSG_String &Old, const CSG_String &New, bool bReplaceAll = true);
-	size_t							Replace_Single_Char	(SG_Char Old, SG_Char New, bool bReplaceAll = true);
+	size_t							Replace_Single_Char	(const SG_Char     Old, const CSG_String &New, bool bReplaceAll = true);
+	size_t							Replace_Single_Char	(const SG_Char     Old, const SG_Char     New, bool bReplaceAll = true);
 
 	CSG_String &					Remove				(size_t pos);
 	CSG_String &					Remove				(size_t pos, size_t len);

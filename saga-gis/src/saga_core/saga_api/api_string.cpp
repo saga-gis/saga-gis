@@ -566,22 +566,45 @@ size_t CSG_String::Replace(const CSG_String &sOld, const CSG_String &sNew, bool 
 }
 
 //---------------------------------------------------------
-size_t CSG_String::Replace_Single_Char(SG_Char Old, SG_Char New, bool bReplaceAll)
+size_t CSG_String::Replace_Single_Char(const SG_Char Old, const CSG_String &New, bool bReplaceAll)
+{
+	size_t n = 0; CSG_String s;
+
+	for(size_t i=0; i<Length(); i++)
+	{
+		if( (n == 0 || bReplaceAll)
+		&&  Get_Char(i) == Old && ((i < 1 || !isalnum(Get_Char(i - 1))) && (i >= Length() - 1 || !isalnum(Get_Char(i + 1)))) )
+		{
+			s += New; n++;
+		}
+		else
+		{
+			s += Get_Char(i);
+		}
+	}
+
+	if( n )
+	{
+		*m_pString	= *s.m_pString;
+	}
+
+	return( n );
+}
+
+//---------------------------------------------------------
+size_t CSG_String::Replace_Single_Char(const SG_Char Old, const SG_Char New, bool bReplaceAll)
 {
 	size_t n = 0;
 
 	for(size_t i=0; i<Length(); i++)
 	{
-		if( Get_Char(i) == Old )
+		if( Get_Char(i) == Old && ((i < 1 || !isalnum(Get_Char(i - 1))) && (i >= Length() - 1 || !isalnum(Get_Char(i + 1)))) )
 		{
-			if( (i < 1 || !isalnum(Get_Char(i - 1))) && (i >= Length() - 1 || !isalnum(Get_Char(i + 1))) )
-			{
-				Set_Char(i, New); n++;
+			Set_Char(i, New); n++;
 
-				if( !bReplaceAll )
-				{
-					return( n );
-				}
+			if( !bReplaceAll )
+			{
+				return( n );
 			}
 		}
 	}
