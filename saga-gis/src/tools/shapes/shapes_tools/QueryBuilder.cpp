@@ -64,7 +64,7 @@ CSelect_Numeric::CSelect_Numeric(void)
 
 	Parameters.Add_Table_Field("SHAPES",
 		"FIELD"     , _TL("Attribute"),
-		_TL("attribute to be evaluated by expression ('x'); if not set all attributes can be addressed (f1, f2, ..., fn)."),
+		_TL("attribute to be evaluated by expression using variable 'x'; all attributes can additionally be addressed with their index (f1, f2, ..., fn)."),
 		true
 	);
 
@@ -163,11 +163,17 @@ bool CSelect_Numeric::On_Execute(void)
 		return( false );
 	}
 
+	if( strlen(Formula.Get_Used_Variables()) != Fields.Get_uSize())
+	{
+		Error_Set(_TL("Variable mismatch!\nIf your formula uses 'x' as field addressor make sure an attribute field has been selected!"));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	int     Method = Parameters("METHOD"    )->asInt ();
 	bool   Inverse = Parameters("INVERSE"   )->asBool();
 	bool UseNoData = Parameters("USE_NODATA")->asBool();
-	bool    Single = Parameters("FIELD"     )->asInt () >= 0;
 
 	CSG_Vector Values((int)Fields.Get_Size());
 
@@ -189,7 +195,7 @@ bool CSelect_Numeric::On_Execute(void)
 		//-------------------------------------------------
 		if( bOkay )
 		{
-			bool bSelect = (Single ? Formula.Get_Value(Values[0]) : Formula.Get_Value(Values)) ? !Inverse : Inverse;
+			bool bSelect = Formula.Get_Value(Values) ? !Inverse : Inverse;
 
 			switch( Method )
 			{
@@ -259,11 +265,8 @@ CSG_String CSelect_Numeric::Get_Formula(CSG_String Formula, CSG_Table *pShapes, 
 
 	if(	Parameters("FIELD")->asInt() >= 0 )
 	{
-		Fields += Parameters("FIELD")->asInt();
-
-		Formula.Replace_Single_Char('a', 'x');
-
-		return( Formula );
+		Formula.Replace_Single_Char('a', CSG_String::Format("f%d", 1 + Parameters("FIELD")->asInt()));
+		Formula.Replace_Single_Char('x', CSG_String::Format("f%d", 1 + Parameters("FIELD")->asInt()));
 	}
 
 	//---------------------------------------------------------
