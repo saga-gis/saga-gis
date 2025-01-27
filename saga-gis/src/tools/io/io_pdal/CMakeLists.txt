@@ -16,11 +16,11 @@ if(WITH_TOOLS_PDAL)
 	endif()
 
 	if(NOT PDAL_FOUND)
-		find_package(PDAL REQUIRED)
+		find_package(PDAL QUIET)
 	endif()
 
 	if(NOT PDAL_FOUND)
-		message(FATAL_ERROR "Error: Unable to locate the required library 'PDAL', even though WITH_TOOLS_PDAL is set to On. Please make sure to install the 'PDAL' library or update your configuration by setting WITH_TOOLS_PDAL to Off.")
+		message(STATUS "Option WITH_TOOLS_PDAL is set to ON but PDAL was not found. Please make sure to install the 'PDAL' library to build the io_pdal tool library.")
 	else()
 		project(io_pdal)
 		include(../../CMakePluginTemplate.cmake)	# load common tool template
