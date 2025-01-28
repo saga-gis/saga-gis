@@ -862,6 +862,24 @@ bool CSG_PointCloud::Mov_Field(int Index, int Position)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+* Returns the maximum number of bytes reserved for data type
+* string or the number of bytes used for all other data types.
+*/
+//---------------------------------------------------------
+int CSG_PointCloud::Get_Field_Length(int Field, int Encoding) const
+{
+	size_t Length = 0;
+
+	if( Field >= 0 && Field < m_nFields )
+	{
+		Length = (Field + 1 >= m_nFields ? m_nPointBytes : m_Field_Offset[Field + 1]) - m_Field_Offset[Field];
+	}
+
+	return( (int)Length );
+}
+
+//---------------------------------------------------------
 bool CSG_PointCloud::Set_Field_Type(int iField, TSG_Data_Type Type)
 {
 	if( iField < 3 || iField >= m_nFields )
@@ -1405,34 +1423,42 @@ CSG_Table_Record * CSG_PointCloud::Get_Record(sLong Index)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_PointCloud::Get_Shape(const CSG_Point &Point, double Epsilon)
+/**
+* Returns the index of the nearest point cloud point
+* within search distance (epsilon) to given point location.
+*/
+//---------------------------------------------------------
+sLong CSG_PointCloud::Get_Point(const CSG_Point &Point, double Epsilon)
 {
-	CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
+	sLong Index = -1; CSG_Rect r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		sLong Index = -1; double Distance = -1.;
+		double Distance = -1.;
 
 		for(sLong i=0; i<m_nRecords; i++)
 		{
-			Set_Cursor(i);
+			double x = Get_X(i), y = Get_Y(i);
 
-			if( r.Contains(Get_X(), Get_Y()) )
+			if( r.Contains(x, y) )
 			{
-				if( Index < 0 || Distance > SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y()) )
+				if( Index < 0 || Distance > SG_Get_Distance(Point.x, Point.y, x, y) )
 				{
-					Index = i; Distance = SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y());
+					Index = i; Distance = SG_Get_Distance(Point.x, Point.y, x, y);
 				}
 			}
 		}
-
-		if( Index >= 0 )
-		{
-			return( CSG_Shapes::Get_Shape(Index) );
-		}
 	}
 
-	return( NULL );
+	return( Index );
+}
+
+//---------------------------------------------------------
+CSG_Shape * CSG_PointCloud::Get_Shape(const CSG_Point &Point, double Epsilon)
+{
+	sLong Index = Get_Point(Point, Epsilon);
+
+	return( Index < 0 ? NULL : CSG_Shapes::Get_Shape(Index) );
 }
 
 //---------------------------------------------------------

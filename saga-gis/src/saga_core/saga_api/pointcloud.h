@@ -146,12 +146,14 @@ public:
 	virtual bool					Del_Field			(int Field);
 	virtual bool					Mov_Field			(int Field, int Position);
 
+	virtual int						Get_Field_Length	(int Field, int Encoding = SG_FILE_ENCODING_UNDEFINED)	const;
 	virtual bool					Set_Field_Type		(int Field, TSG_Data_Type Type);
 
 	//-----------------------------------------------------
-	int								Get_Attribute_Count	(void)			const	{	return( m_nFields - 3 );	}
-	const SG_Char *					Get_Attribute_Name	(int Field)		const	{	Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Name[Field]->c_str() : NULL );			}
-	TSG_Data_Type					Get_Attribute_Type	(int Field)		const	{	Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Type[Field] : SG_DATATYPE_Undefined );	}
+	int								Get_Attribute_Count	(void)      const { return( m_nFields - 3 ); }
+	const SG_Char *					Get_Attribute_Name	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Name[Field]->c_str() : NULL         ); }
+	TSG_Data_Type					Get_Attribute_Type	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Type[Field] : SG_DATATYPE_Undefined ); }
+	int								Get_Attribute_Length(int Field, int Encoding = SG_FILE_ENCODING_UNDEFINED) const { return( Get_Field_Length(Field + 3) ); }
 
 	//-----------------------------------------------------
 	bool							Add_Point			(double x, double y, double z);
@@ -190,6 +192,7 @@ public:
 	virtual bool					Set_Attribute		(sLong Index, int Field, const SG_Char *Value)			{	return( Set_Value(Index, Field + 3, Value) );	}
 	virtual bool					Get_Attribute		(sLong Index, int Field, CSG_String    &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
 
+	sLong							Get_Point			(const CSG_Point &Point, double Epsilon = 0.);
 	TSG_Point_3D					Get_Point			(void)			const;
 	TSG_Point_3D					Get_Point			(sLong Index)	const;
 	virtual bool					Set_Point			(             const TSG_Point_3D &Point);

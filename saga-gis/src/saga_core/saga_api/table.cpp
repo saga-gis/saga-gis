@@ -649,33 +649,51 @@ bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-int CSG_Table::Get_Field_Length(int iField, int Encoding)	const
+/**
+* Returns the maximum number of characters for data type string
+* or the number of bytes used for all other data types.
+*/
+//---------------------------------------------------------
+int CSG_Table::Get_Field_Length(int Field, int Encoding) const
 {
 	size_t Length = 0;
 
-	if( iField >= 0 && iField < m_nFields && m_Field_Type[iField] == SG_DATATYPE_String )
+	if( Field >= 0 && Field < m_nFields )
 	{
-		for(sLong i=0; i<m_nRecords; i++)
+		switch( m_Field_Type[Field] )
 		{
-			CSG_String s(m_Records[i]->asString(iField));
+		default:
+			Length = SG_Data_Type_Get_Size(m_Field_Type[Field]);
+			break;
 
-			size_t nBytes;
+		case SG_DATATYPE_Date:
+			Length = 10; // => YYYY-MM-DD
+			break;
 
-			switch( Encoding )
+		case SG_DATATYPE_String:
+			for(sLong i=0; i<m_nRecords; i++)
 			{
-			default                      :
-			case SG_FILE_ENCODING_UTF7   : nBytes = s.Length()            ; break;
-			case SG_FILE_ENCODING_UTF8   : nBytes = s.to_UTF8().Get_Size(); break;
-			case SG_FILE_ENCODING_UTF16LE:
-			case SG_FILE_ENCODING_UTF16BE: nBytes = s.Length() * 2        ; break;
-			case SG_FILE_ENCODING_UTF32LE:
-			case SG_FILE_ENCODING_UTF32BE: nBytes = s.Length() * 4        ; break;
-			}
+				CSG_String s(m_Records[i]->asString(Field));
 
-			if( Length < nBytes )
-			{
-				Length = nBytes;
+				size_t nBytes;
+
+				switch( Encoding )
+				{
+				default                      :
+				case SG_FILE_ENCODING_UTF7   : nBytes = s.Length()            ; break;
+				case SG_FILE_ENCODING_UTF8   : nBytes = s.to_UTF8().Get_Size(); break;
+				case SG_FILE_ENCODING_UTF16LE:
+				case SG_FILE_ENCODING_UTF16BE: nBytes = s.Length() * 2        ; break;
+				case SG_FILE_ENCODING_UTF32LE:
+				case SG_FILE_ENCODING_UTF32BE: nBytes = s.Length() * 4        ; break;
+				}
+
+				if( Length < nBytes )
+				{
+					Length = nBytes;
+				}
 			}
+			break;
 		}
 	}
 
@@ -687,11 +705,11 @@ int CSG_Table::Get_Field(const char       *Name) const { return( Get_Field(CSG_S
 int CSG_Table::Get_Field(const wchar_t    *Name) const { return( Get_Field(CSG_String(Name))); }
 int CSG_Table::Get_Field(const CSG_String &Name) const
 {
-	for(int iField=0; iField<Get_Field_Count(); iField++)
+	for(int Field=0; Field<Get_Field_Count(); Field++)
 	{
-		if( !Name.Cmp(Get_Field_Name(iField)) )
+		if( !Name.Cmp(Get_Field_Name(Field)) )
 		{
-			return( iField );
+			return( Field );
 		}
 	}
 
