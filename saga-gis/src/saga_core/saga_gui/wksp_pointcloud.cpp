@@ -92,6 +92,9 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 
 	CSG_Table &LUT = *m_Parameters("LUT")->asTable(); LUT.Del_Records();
 
+	LUT.Set_Field_Type(LUT_MIN, SG_DATATYPE_String);
+	LUT.Set_Field_Type(LUT_MAX, SG_DATATYPE_String);
+
 	#define ADD_CLASS(color, name, value) { CSG_Table_Record &r = *LUT.Add_Record(); r.Set_Value(0, color); r.Set_Value(1, name); r.Set_Value(3, value); r.Set_Value(4, value); }
 
 	ADD_CLASS(12632256, "Created, Never Classified"   ,  0);
@@ -785,9 +788,17 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 	{
 		switch( m_fValue < 0 ? -1 : m_pClassify->Get_Mode() )
 		{
-		case -1:
+		case -1               :
 			Value.Printf("%s: %lld", _TL("Index"), Index + 1);
 			break;
+
+		default               :
+			Value.Printf("%f", Get_PointCloud()->Get_Value(Index, m_fValue));
+			break;
+
+		case CLASSIFY_RGB     : { int color = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
+			Value.Printf("R%03d G%03d B%03d", SG_GET_R(color), SG_GET_G(color), SG_GET_B(color));
+			break; }
 
 		case CLASSIFY_LUT     :
 			if( SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(m_fValue)) )
@@ -800,15 +811,6 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 				Value = m_pClassify->Get_Class_Name_byValue(s.c_str());
 			}
-			break;
-
-		case CLASSIFY_DISCRETE:	default:
-			Value.Printf("%d", Get_PointCloud()->Get_Value(Index, m_fValue));
-			break;
-
-		case CLASSIFY_RGB     :
-			int color = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
-			Value.Printf("R%03d G%03d B%03d", SG_GET_R(color), SG_GET_G(color), SG_GET_B(color));
 			break;
 		}
 	}
