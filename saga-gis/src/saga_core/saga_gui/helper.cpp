@@ -184,10 +184,15 @@ wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 
 		for(int i=0; i<nFields; i++)
 		{
+			wxString Type(SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)).c_str());
+
+			if( pTable->asPointCloud(true) && pTable->Get_Field_Type(i) == SG_DATATYPE_String )
+			{
+				Type += wxString::Format(" [%d]", pTable->Get_Field_Length(i));
+			}
+
 			s += wxString::Format("<tr><td>%d</td><td>%s</td><td>%s</td>",
-				i + 1,
-				pTable->Get_Field_Name(i),
-				SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)).c_str()
+				i + 1, pTable->Get_Field_Name(i), Type
 			);
 
 			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
