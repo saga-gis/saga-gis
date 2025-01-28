@@ -281,16 +281,25 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		);
 		break;
 
-	case ID_CMD_DATA_SELECTION_CLEAR:
-		Get_PointCloud()->Select();
-		Update_Views();
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_DATA_SELECTION_CLEAR : Get_PointCloud()->Select       (); Update_Views(); break;
+	case ID_CMD_DATA_SELECTION_INVERT: Get_PointCloud()->Inv_Selection(); Update_Views(); break;
 
-	case ID_CMD_DATA_SELECTION_INVERT:
-		Get_PointCloud()->Inv_Selection();
-		Update_Views();
-		break;
+	case ID_CMD_TABLE_SELECT_NUMERIC : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 3);
+			if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", m_pObject) && DLG_Parameters(pTool->Get_Parameters()) )
+			{
+				pTool->Execute();
+			}
+ 		break; }
 
+	case ID_CMD_TABLE_SELECT_STRING  : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_tools", 4);
+			if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", m_pObject) && DLG_Parameters(pTool->Get_Parameters()) )
+			{
+				pTool->Execute();
+			}
+ 		break; }
+
+	//-----------------------------------------------------
 	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
 		if( Get_PointCloud()->Get_Selection_Count() > 0 && DLG_Message_Confirm(_TL("Delete selected point(s)."), _TL("Edit Point Cloud")) )
 		{
@@ -318,6 +327,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
         }
         break;
 
+	//-----------------------------------------------------
 	case ID_CMD_TABLE_SHOW    : m_pTable->Toggle_View   (); break;
 	case ID_CMD_DATA_DIAGRAM  : m_pTable->Toggle_Diagram(); break;
 	case ID_CMD_DATA_HISTOGRAM: Histogram_Toggle        (); break;
@@ -594,11 +604,11 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	}
 
 	{
-		CSG_String	Fields;
+		CSG_String Fields;
 
 		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 		{
-			Fields	+= CSG_String(Get_PointCloud()->Get_Field_Name(i)) + "|";
+			Fields += CSG_String(Get_PointCloud()->Get_Field_Name(i)) + "|";
 		}
 
 		Parameters("FIELD")->asChoice()->Set_Items(Fields);
@@ -612,45 +622,47 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	//-----------------------------------------------------
 	DataObject_Changed();
 
-	int	Field	= Parameters("FIELD")->asInt();
+	int Field = Parameters("FIELD")->asInt();
 
-	CSG_Colors	Colors(*Parameters("COLOR")->asColors());
+	CSG_Colors Colors(*Parameters("COLOR")->asColors());
 
-	CSG_Table	Classes(m_Parameters("LUT")->asTable());
+	CSG_Table Classes(m_Parameters("LUT")->asTable());
 
 	switch( SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0 )
 	{
 	//-----------------------------------------------------
 	case 0:	// unique values
 		{
-			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field))
-									? SG_DATATYPE_Double : SG_DATATYPE_String;
+			TSG_Data_Type Type = SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field))
+				? SG_DATATYPE_Double
+				: SG_DATATYPE_String;
 
 			Classes.Set_Field_Type(LUT_MIN, Type);
 			Classes.Set_Field_Type(LUT_MAX, Type);
 
-			CSG_Unique_String_Statistics	s;
+			CSG_Unique_String_Statistics Values; CSG_String Value;
 
 			#define MAX_CLASSES	1024
 
-			for(sLong iShape=0; iShape<Get_PointCloud()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
+			for(sLong iPoint=0; iPoint<Get_PointCloud()->Get_Count() && Values.Get_Count()<MAX_CLASSES; iPoint++)
 			{
-				s	+= Get_PointCloud()->Get_Record(iShape)->asString(Field);
+				if( Get_PointCloud()->Get_Value(iPoint, Field, Value) )
+				{
+					Values += Value;
+				}
 			}
 
-			Colors.Set_Count(s.Get_Count());
+			Colors.Set_Count(Values.Get_Count());
 
-			for(int iClass=0; iClass<s.Get_Count(); iClass++)
+			for(int iClass=0; iClass<Values.Get_Count(); iClass++)
 			{
-				CSG_String	Value	= s.Get_Value(iClass);
+				CSG_Table_Record &Class = *Classes.Add_Record(); Value = Values.Get_Value(iClass);
 
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Value         );	// Name
-				pClass->Set_Value(2, Value         );	// Description
-				pClass->Set_Value(3, Value         );	// Minimum
-				pClass->Set_Value(4, Value         );	// Maximum
+				Class.Set_Value(0, Colors[iClass]); // Color
+				Class.Set_Value(1, Value         ); // Name
+				Class.Set_Value(2, ""            ); // Description
+				Class.Set_Value(3, Value         ); // Minimum
+				Class.Set_Value(4, Value         ); // Maximum
 			}
 		}
 		break;
@@ -658,28 +670,25 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 1:	// equal intervals
 		{
-			double	Minimum, Maximum, Interval;
-
-			Interval	= Get_PointCloud()->Get_Range  (Field) / (double)Colors.Get_Count();
-			Minimum		= Get_PointCloud()->Get_Minimum(Field);
+			double Interval = Get_PointCloud()->Get_Range  (Field) / (double)Colors.Get_Count();
+			double Minimum  = Get_PointCloud()->Get_Minimum(Field);
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_PointCloud()->Get_Maximum(Field) + 1.;
+				CSG_Table_Record &Class = *Classes.Add_Record();
 
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
+				double Maximum = iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_PointCloud()->Get_Maximum(Field) + 1.;
 
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
+				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
 
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
+				Class.Set_Value(0, Colors[iClass]); // Color
+				Class.Set_Value(1, Name          ); // Name
+				Class.Set_Value(2, ""            ); // Description
+				Class.Set_Value(3, Minimum       ); // Minimum
+				Class.Set_Value(4, Maximum       ); // Maximum
 			}
 		}
 		break;
@@ -687,10 +696,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 2:	// quantiles
 		{
-			TSG_Table_Index_Order	old_Order	= Get_PointCloud()->Get_Index_Order(0);
-			int						old_Field	= Get_PointCloud()->Get_Index_Field(0);
-
-			Get_PointCloud()->Set_Index(Field, TABLE_INDEX_Ascending);
+			CSG_Index Index; Get_PointCloud()->Set_Index(Index, Field, true);
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
@@ -700,36 +706,34 @@ void CWKSP_PointCloud::_LUT_Create(void)
 				Colors.Set_Count(Get_PointCloud()->Get_Count());
 			}
 
-			double	Minimum, Maximum, Count, iRecord;
+			double Maximum = Get_PointCloud()->Get_Minimum(Field);
 
-			Maximum	= Get_PointCloud()->Get_Minimum(Field);
-			iRecord	= Count	= Get_PointCloud()->Get_Count() / (double)Colors.Get_Count();
+			double Step	= Get_PointCloud()->Get_Count() / (double)Colors.Get_Count();
 
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iRecord+=Count)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
-				Minimum	= Maximum;
-				Maximum	= iRecord < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Record_byIndex((int)iRecord)->asDouble(Field) : Get_PointCloud()->Get_Maximum(Field) + 1.;
+				CSG_Table_Record &Class = *Classes.Add_Record();
 
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
+				sLong i = (sLong)(0.5 + iClass * Step);
 
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
+				double Minimum = Maximum;
+				Maximum	= i < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Value(Index[i], Field) : Get_PointCloud()->Get_Maximum(Field) + 1.;
 
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
+				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
+
+				Class.Set_Value(0, Colors[iClass]); // Color
+				Class.Set_Value(1, Name          ); // Name
+				Class.Set_Value(2, ""            ); // Description
+				Class.Set_Value(3, Minimum       ); // Minimum
+				Class.Set_Value(4, Maximum       ); // Maximum
 			}
-
-			Get_PointCloud()->Set_Index(old_Field, old_Order);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case 3:	// natural breaks
 		{
-			CSG_Natural_Breaks	Breaks(Get_PointCloud(), Field, Colors.Get_Count(), Get_PointCloud()->Get_Count() > 4096 ? 256 : 0);
+			CSG_Natural_Breaks Breaks(Get_PointCloud(), Field, Colors.Get_Count(), Get_PointCloud()->Get_Count() > 4096 ? 256 : 0);
 
 			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
 
@@ -738,19 +742,18 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
+				CSG_Table_Record &Class = *Classes.Add_Record();
 
-				double	Minimum	= Breaks[iClass    ];
-				double	Maximum	= Breaks[iClass + 1];
+				double Minimum = Breaks[iClass    ];
+				double Maximum = Breaks[iClass + 1];
 
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
+				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
 
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
+				Class.Set_Value(0, Colors[iClass]); // Color
+				Class.Set_Value(1, Name          ); // Name
+				Class.Set_Value(2, ""            ); // Description
+				Class.Set_Value(3, Minimum       ); // Minimum
+				Class.Set_Value(4, Maximum       ); // Maximum
 			}
 		}
 		break;
@@ -761,7 +764,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	{
 		m_Parameters("LUT")->asTable()->Assign(&Classes);
 
-		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
+		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
 		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
 
 		Parameters_Changed();
@@ -776,32 +779,41 @@ void CWKSP_PointCloud::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	CSG_Shape *pShape = Get_PointCloud()->Get_Shape(ptWorld, Epsilon);
+	wxString Value; sLong Index = Get_PointCloud()->Get_Point(ptWorld, Epsilon);
 
-	if( pShape != NULL )
+	if( Index >= 0 )
 	{
-		if( m_fValue >= 0 )
+		switch( m_fValue < 0 ? -1 : m_pClassify->Get_Mode() )
 		{
-			switch( m_pClassify->Get_Mode() )
+		case -1:
+			Value.Printf("%s: %lld", _TL("Index"), Index + 1);
+			break;
+
+		case CLASSIFY_LUT     :
+			if( SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(m_fValue)) )
 			{
-			case CLASSIFY_LUT     :
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_fValue)) );
-
-			case CLASSIFY_DISCRETE:	default:
-				return( pShape->asString(m_fValue) );
-
-			case CLASSIFY_RGB     :
-				double Value = pShape->asDouble(m_fValue);
-				return( wxString::Format("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
+				Value = m_pClassify->Get_Class_Name_byValue(Get_PointCloud()->Get_Value(Index, m_fValue));
 			}
-		}
-		else
-		{
-			return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
+			else
+			{
+				CSG_String s; Get_PointCloud()->Get_Value(Index, m_fValue, s);
+
+				Value = m_pClassify->Get_Class_Name_byValue(s.c_str());
+			}
+			break;
+
+		case CLASSIFY_DISCRETE:	default:
+			Value.Printf("%d", Get_PointCloud()->Get_Value(Index, m_fValue));
+			break;
+
+		case CLASSIFY_RGB     :
+			int color = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
+			Value.Printf("R%03d G%03d B%03d", SG_GET_R(color), SG_GET_G(color), SG_GET_B(color));
+			break;
 		}
 	}
 
-	return( _TL("") );
+	return( Value );
 }
 
 
@@ -1086,7 +1098,16 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 				{
 					int Color;
 					
-					if( m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color) )
+					if( m_pClassify->Get_Mode() == CLASSIFY_LUT && !SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(m_fValue)) )
+					{
+						CSG_String Value;
+
+						if( pPoints->Get_Value(m_fValue, Value) && m_pClassify->Get_Class_Color_byValue(Value, Color) )
+						{
+							_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
+						}
+					}
+					else if( m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color) )
 					{
 						_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 					}
