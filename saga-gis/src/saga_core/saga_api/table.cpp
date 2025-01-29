@@ -616,34 +616,56 @@ bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
+bool CSG_Table::Set_Field_Type(int Field, TSG_Data_Type Type)
 {
-	if( iField < 0 || iField >= m_nFields )
+	if( Field < 0 || Field >= m_nFields )
 	{
 		return( false );
 	}
 
-	if( m_Field_Type[iField] == Type )
+	if( m_Field_Type[Field] == Type )
 	{
 		return( true );
 	}
 
-	m_Field_Type[iField] = Type;
-
+	#pragma omp parallel for
 	for(sLong i=0; i<m_nRecords; i++)
 	{
 		CSG_Table_Record *pRecord = m_Records[i];
 
-		CSG_Table_Value  *pValue  = CSG_Table_Record::_Create_Value(Type);
+		bool bNoData = pRecord->is_NoData(Field);
 
-		(*pValue) = *pRecord->m_Values[iField];
+		CSG_Table_Value *pValue = pRecord->m_Values[Field];
 
-		delete(pRecord->m_Values[iField]);
+		pRecord->m_Values[Field] = CSG_Table_Record::_Create_Value(Type);
 
-		pRecord->m_Values[iField] = pValue;
+		if( bNoData )
+		{
+			if( Type != SG_DATATYPE_String && Type != SG_DATATYPE_Binary )
+			{
+				pRecord->m_Values[Field]->Set_Value(Get_NoData_Value());
+			}
+		}
+		else if( pValue->Get_Type() == SG_TABLE_VALUE_TYPE_String && SG_Data_Type_is_Numeric(Type) )
+		{
+			if( !pRecord->m_Values[Field]->Set_Value(pValue->asString()) )
+			{
+				pRecord->m_Values[Field]->Set_Value(Get_NoData_Value());
+			}
+		}
+		else
+		{
+			*(pRecord->m_Values[Field]) = *pValue;
+		}
 
-		pRecord->Set_Modified();
+		delete(pValue);
+
+		pRecord->m_Flags |= SG_TABLE_REC_FLAG_Modified;
 	}
+
+	m_Field_Type[Field] = Type;
+
+	Set_Update_Flag(); _Stats_Invalidate(Field); Set_Modified();
 
 	return( true );
 }
