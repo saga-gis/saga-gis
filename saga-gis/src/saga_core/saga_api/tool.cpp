@@ -2153,7 +2153,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 			if( Parameter.is_Input() )
 			{
-				if( !Parameter.asDataObject() && Parameter.is_Optional() ) // don't add optional input that has not been set
+				if( (bOnlyNonDefaults && !Parameter.asDataObject()) && Parameter.is_Optional() ) // don't add optional input that has not been set
 				{
 					return( false );
 				}
@@ -2166,7 +2166,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 			}
 			else // if( Parameter.is_Output() )
 			{
-				if( !Parameter.asDataObject() && Parameter.is_Optional() ) // don't add optional output that has not been requested
+				if( (bOnlyNonDefaults && !Parameter.asDataObject()) && Parameter.is_Optional() ) // don't add optional output that has not been requested
 				{
 					return( false );
 				}
@@ -2180,7 +2180,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 			if( Parameter.is_Input() )
 			{
-				if( Parameter.asList()->Get_Item_Count() < 1 && Parameter.is_Optional() ) // don't add optional input that has not been set
+				if( (bOnlyNonDefaults && Parameter.asList()->Get_Item_Count() < 1) && Parameter.is_Optional() ) // don't add optional input that has not been set
 				{
 					return( false );
 				}
