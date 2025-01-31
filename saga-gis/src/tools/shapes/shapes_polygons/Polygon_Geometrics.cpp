@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     Polygon_Geometrics.cpp
     Copyright (C) Victor Olaya
@@ -22,9 +19,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -32,13 +29,13 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPolygon_Geometrics::CPolygon_Geometrics(void)
+CPolygon_Properties::CPolygon_Properties(void)
 {
 	Set_Name		(_TL("Polygon Properties"));
 
@@ -49,76 +46,81 @@ CPolygon_Geometrics::CPolygon_Geometrics(void)
 	));
 
 	Parameters.Add_Shapes("",
-		"POLYGONS"	, _TL("Polygons"),
+		"POLYGONS", _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes("",
-		"OUTPUT"	, _TL("Polygons with Property Attributes"),
+		"OUTPUT"  , _TL("Polygons with Property Attributes"),
 		_TL("If not set property attributes will be added to the original layer."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Table_Fields("POLYGONS",
-		"FIELDS"	, _TL("Copy Attributes"),
+		"FIELDS"  , _TL("Copy Attributes"),
 		_TL("Select one or more attributes to be copied to the target layer.")
 	);
 
 	Parameters.Add_Bool("",
-		"BPARTS"	, _TL("Number of Parts"),
+		"BPARTS"  , _TL("Number of Parts"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Bool("",
-		"BPOINTS"	, _TL("Number of Vertices"),
+		"BPOINTS" , _TL("Number of Vertices"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Bool("",
-		"BEXTENT"	, _TL("Extent"),
+		"BEXTENT" , _TL("Extent"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Bool("",
-		"BCENTER"	, _TL("Centroid"),
+		"BCENTER" , _TL("Centroid"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Bool("",
-		"BLENGTH"	, _TL("Perimeter"),
+		"BLENGTH" , _TL("Perimeter"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"BAREA"		, _TL("Area"),
+		"BAREA"   , _TL("Area"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Double("",
-		"SCALING"	, _TL("Scaling"),
+		"SCALING" , _TL("Scaling"),
 		_TL("Scaling factor for perimeter and area (squared). meter to feet = 1 / 0.3048 = 3.2808"),
-		1.0, 0.0, true
+		1., 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPolygon_Geometrics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CPolygon_Properties::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("OUTPUT") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asPointer() && pParameter->asPointer() != (*pParameters)("POLYGONS")->asPointer());
+	}
+
+	if( pParameter->Cmp_Identifier("BLENGTH") || pParameter->Cmp_Identifier("BAREA") )
+	{
+		pParameters->Set_Enabled("SCALING", (*pParameters)("BLENGTH")->asBool() || (*pParameters)("BAREA")->asBool());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -126,19 +128,18 @@ int CPolygon_Geometrics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Geometrics::On_Execute(void)
+bool CPolygon_Properties::On_Execute(void)
 {
-	//-------------------------------------------------
-	int	fParts	= Parameters("BPARTS" )->asBool() ? 0 : -1;
-	int	fPoints	= Parameters("BPOINTS")->asBool() ? 0 : -1;
-	int	fCenter	= Parameters("BCENTER")->asBool() ? 0 : -1;
-	int	fExtent	= Parameters("BEXTENT")->asBool() ? 0 : -1;
-	int	fLength	= Parameters("BLENGTH")->asBool() ? 0 : -1;
-	int	fArea	= Parameters("BAREA"  )->asBool() ? 0 : -1;
+	int fParts  = Parameters("BPARTS" )->asBool() ? 0 : -1;
+	int fPoints = Parameters("BPOINTS")->asBool() ? 0 : -1;
+	int fCenter = Parameters("BCENTER")->asBool() ? 0 : -1;
+	int fExtent = Parameters("BEXTENT")->asBool() ? 0 : -1;
+	int fLength = Parameters("BLENGTH")->asBool() ? 0 : -1;
+	int fArea   = Parameters("BAREA"  )->asBool() ? 0 : -1;
 
 	if( fParts && fPoints && fCenter && fExtent && fLength && fArea )
 	{
@@ -148,9 +149,9 @@ bool CPolygon_Geometrics::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 
-	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() <= 0 )
+	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() < 1 )
 	{
 		Error_Set(_TL("invalid or empty polygons layer"));
 
@@ -160,11 +161,11 @@ bool CPolygon_Geometrics::On_Execute(void)
 	//-------------------------------------------------
 	if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pPolygons )
 	{
-		CSG_Shapes *pCopies	= Parameters("OUTPUT")->asShapes();
+		CSG_Shapes *pCopies = Parameters("OUTPUT")->asShapes();
 
 		pCopies->Create(SHAPE_TYPE_Polygon, pPolygons->Get_Name(), NULL, pPolygons->Get_Vertex_Type());
 
-		CSG_Parameter_Table_Fields	*pFields	= Parameters("FIELDS")->asTableFields();
+		CSG_Parameter_Table_Fields *pFields = Parameters("FIELDS")->asTableFields();
 
 		for(int Field=0; Field<pFields->Get_Count(); Field++)
 		{
@@ -180,11 +181,11 @@ bool CPolygon_Geometrics::On_Execute(void)
 
 			for(int Field=0; Field<pFields->Get_Count(); Field++)
 			{
-				*pCopy->Get_Value(Field)	= *pPolygon->Get_Value(pFields->Get_Index(Field));
+				*pCopy->Get_Value(Field) = *pPolygon->Get_Value(pFields->Get_Index(Field));
 			}
 		}
 
-		pPolygons	= pCopies;
+		pPolygons = pCopies;
 	}
 
 	//-------------------------------------------------
@@ -199,13 +200,12 @@ bool CPolygon_Geometrics::On_Execute(void)
 	if( !fLength ) { fLength = pPolygons->Get_Field_Count(); pPolygons->Add_Field("PERIMETER", SG_DATATYPE_Double); }
 	if( !fArea   ) { fArea   = pPolygons->Get_Field_Count(); pPolygons->Add_Field("AREA"     , SG_DATATYPE_Double); }
 
-	//-------------------------------------------------
-	double	Scaling	= Parameters("SCALING")->asDouble();
+	double Scaling = Parameters("SCALING")->asDouble();
 
 	//-------------------------------------------------
 	for(sLong i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
+		CSG_Shape_Polygon *pPolygon = (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 		if( fParts  >= 0 ) { pPolygon->Set_Value(fParts , pPolygon->Get_Part_Count ()                  ); }
 		if( fPoints >= 0 ) { pPolygon->Set_Value(fPoints, pPolygon->Get_Point_Count()                  ); }
@@ -214,7 +214,7 @@ bool CPolygon_Geometrics::On_Execute(void)
 
 		if( fCenter >= 0 )
 		{
-			TSG_Point	p	= pPolygon->Get_Centroid();
+			CSG_Point p(pPolygon->Get_Centroid());
 
 			pPolygon->Set_Value(fCenter + 0, p.x);
 			pPolygon->Set_Value(fCenter + 1, p.y);
@@ -240,9 +240,9 @@ bool CPolygon_Geometrics::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

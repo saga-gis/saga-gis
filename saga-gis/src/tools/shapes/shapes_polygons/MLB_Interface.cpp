@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -120,45 +111,43 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  1:	return( new CPolygon_Centroids );
-	case  2:	return( new CPolygon_Geometrics );
-	case  3:	return( new CPolygons_From_Lines );
-	case  4:	return( new CPolygonStatisticsFromPoints );
-	case  5:	return( new CPolygon_Dissolve );
-	case  6:	return( new CPolygon_To_Points );
-	case  7:	return( new CShape_Index );
-	case  8:	return( new CPolygon_Line_Intersection );
-	case  9:	return( new CPolygon_to_Edges_Nodes );
-	case 10:	return( new CPolygon_Split_Parts );
-	case 11:	return( new CPolygon_Clip );
-	case 12:	return( new CPolygon_SelfIntersection );
+	case  1: return( new CPolygon_Centroids );
+	case  2: return( new CPolygon_Properties );
+	case  3: return( new CPolygons_From_Lines );
+	case  4: return( new CPolygonStatisticsFromPoints );
+	case  5: return( new CPolygon_Dissolve );
+	case  6: return( new CPolygon_To_Points );
+	case  7: return( new CShape_Index );
+	case  8: return( new CPolygon_Line_Intersection );
+	case  9: return( new CPolygon_to_Edges_Nodes );
+	case 10: return( new CPolygon_Split_Parts );
+	case 11: return( new CPolygon_Clip );
+	case 12: return( new CPolygon_SelfIntersection );
 
-	case 14:	return( new CPolygon_Intersection );
-	case 15:	return( new CPolygon_Difference );
-	case 16:	return( new CPolygon_SymDifference );
-	case 17:	return( new CPolygon_Union );
-	case 18:	return( new CPolygon_Update );
-	case 19:	return( new CPolygon_Identity );
-	case 20:	return( new CAdd_Point_Attributes );
+	case 14: return( new CPolygon_Intersection );
+	case 15: return( new CPolygon_Difference );
+	case 16: return( new CPolygon_SymDifference );
+	case 17: return( new CPolygon_Union );
+	case 18: return( new CPolygon_Update );
+	case 19: return( new CPolygon_Identity );
+	case 20: return( new CAdd_Point_Attributes );
 
-	case 21:	return( new CPolygon_Flatten );
-	case 22:	return( new CPolygon_Shared_Edges );
-	case 23:	return( new CPolygon_Generalization );
-	case 24:	return( new CPolygon_Invert_Ring_Ordering );
+	case 21: return( new CPolygon_Flatten );
+	case 22: return( new CPolygon_Shared_Edges );
+	case 23: return( new CPolygon_Generalization );
+	case 24: return( new CPolygon_Invert_Ring_Ordering );
 
 	//-----------------------------------------------------
-	case 25:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	case 25: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
-
-	return( NULL );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
