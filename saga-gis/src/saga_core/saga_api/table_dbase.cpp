@@ -56,9 +56,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -73,9 +73,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,7 +120,7 @@ void CSG_Table_DBase::Close(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -225,6 +225,18 @@ bool CSG_Table_DBase::Open_Read(const SG_Char *FileName, CSG_Table *pTable, bool
 }
 
 //---------------------------------------------------------
+inline bool CSG_Table_DBase::Read(void *buffer, size_t size, size_t count)
+{
+	return( m_hFile && fread(buffer, size, count, m_hFile) == size * count );
+}
+
+//---------------------------------------------------------
+inline bool CSG_Table_DBase::Write(void *buffer, size_t size, size_t count)
+{
+	return( m_hFile && fwrite(buffer, size, count, m_hFile) == size * count );
+}
+
+//---------------------------------------------------------
 bool CSG_Table_DBase::Header_Read(void)
 {
 	if( !m_hFile )
@@ -233,59 +245,58 @@ bool CSG_Table_DBase::Header_Read(void)
 	}
 
 	//-----------------------------------------------------
-	char		buf[16];
-	TDBF_Header	h;
+	char buffer[16]; TDBF_Header h;
 
 	fseek(m_hFile, 0, SEEK_SET);
 
 	//-----------------------------------------------------
 	// Bytes 0-31: File Header...
-	fread(&h.FileType		, sizeof(char),  1, m_hFile);	// 00		FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo	- 0x03
-															//			FoxBase+, dBaseIII+ with memo					- 0x83
-															//			FoxPro with memo								- 0xF5
-															//			dBaseIV with memo								- 0x8B
-															//			dBaseIV with SQL Table							- 0x8E
-	fread(&h.LastUpdate		, sizeof(char),  3, m_hFile);	// 01-03	Last update, format YYYYMMDD   **correction: it is YYMMDD**
-	fread(&m_nRecords		, sizeof(char),  4, m_hFile);	// 04-07	Number of records in file (32-bit number)
-	fread(&m_nHeaderBytes	, sizeof(char),  2, m_hFile);	// 08-09	Number of bytes in header (16-bit number)
-	fread(&m_nRecordBytes	, sizeof(char),  2, m_hFile);	// 10-11	Number of bytes in record (16-bit number)
-	fread( buf				, sizeof(char),  2, m_hFile);	// 12-13	Reserved, fill with 0x00
-	fread(&h.Transaction	, sizeof(char),  1, m_hFile);	// 14		dBaseIV flag, incomplete transaction
-															//			Begin Transaction sets it to					- 0x01
-															//			End Transaction or RollBack reset it to			- 0x00
-	fread(&h.bEncrypted		, sizeof(char),  1, m_hFile);	// 15		Encryption flag, encrypted 0x01 else 0x00
-															//			Changing the flag does not encrypt or decrypt the records
-	fread( buf				, sizeof(char), 12, m_hFile);	// 16-27	dBaseIV multi-user environment use
-	fread(&h.ProductionIdx	, sizeof(char),  1, m_hFile);	// 28		Production index exists - 0x01 else 0x00
-	fread(&h.LanguageDrvID	, sizeof(char),  1, m_hFile);	// 29		dBaseIV language driver ID
-	fread( buf				, sizeof(char),  2, m_hFile);	// 30-31	Reserved fill with 0x00
+	Read(&h.FileType     , sizeof(char),  1); // 00		FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo   - 0x03
+	                                          //        FoxBase+, dBaseIII+ with memo                   - 0x83
+	                                          //        FoxPro with memo                                - 0xF5
+	                                          //        dBaseIV with memo                               - 0x8B
+	                                          //        dBaseIV with SQL Table                          - 0x8E
+	Read(&h.LastUpdate   , sizeof(char),  3); // 01-03  Last update, format YYYYMMDD   **correction: it is YYMMDD**
+	Read(&m_nRecords     , sizeof(char),  4); // 04-07  Number of records in file (32-bit number)
+	Read(&m_nHeaderBytes , sizeof(char),  2); // 08-09  Number of bytes in header (16-bit number)
+	Read(&m_nRecordBytes , sizeof(char),  2); // 10-11  Number of bytes in record (16-bit number)
+	Read(buffer          , sizeof(char),  2); // 12-13  Reserved, fill with 0x00
+	Read(&h.Transaction  , sizeof(char),  1); // 14     dBaseIV flag, incomplete transaction
+	                                          //        Begin Transaction sets it to                    - 0x01
+	                                          //        End Transaction or RollBack reset it to         - 0x00
+	Read(&h.bEncrypted   , sizeof(char),  1); // 15		Encryption flag, encrypted 0x01 else 0x00
+	                                          //        Changing the flag does not encrypt or decrypt the records
+	Read(buffer          , sizeof(char), 12); // 16-27  dBaseIV multi-user environment use
+	Read(&h.ProductionIdx, sizeof(char),  1); // 28		Production index exists                         - 0x01 else 0x00
+	Read(&h.LanguageDrvID, sizeof(char),  1); // 29     dBaseIV language driver ID
+	Read(buffer          , sizeof(char),  2); // 30-31  Reserved fill with                              - 0x00
 
 	//-----------------------------------------------------
 	// Bytes 32-n: Field Descriptor Array...
 	while( ftell(m_hFile) < (long)m_nHeaderBytes - 1 && !feof(m_hFile) )
 	{
-		m_Fields	= (TDBF_Field *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(TDBF_Field));
+		m_Fields = (TDBF_Field *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(TDBF_Field));
 
-		fread( m_Fields[m_nFields].Name				, sizeof(char), 11, m_hFile);	// 0-10		Field Name ASCII padded with 0x00
-		fread(&m_Fields[m_nFields].Type				, sizeof(char),  1, m_hFile);	// 11		Field Type Identifier (see table)
-		fread(&m_Fields[m_nFields].Displacement		, sizeof(char),  4, m_hFile);	// 12-15	Displacement of field in record
-		fread(&m_Fields[m_nFields].Width			, sizeof(char),  1, m_hFile);	// 16		Field length in bytes
-		fread(&m_Fields[m_nFields].Decimals			, sizeof(char),  1, m_hFile);	// 17		Field decimal places
-		fread( buf									, sizeof(char),  2, m_hFile);	// 18-19	Reserved
-		fread(&m_Fields[m_nFields].WorkAreaID		, sizeof(char),  1, m_hFile);	// 20		dBaseIV work area ID
-		fread( buf									, sizeof(char), 10, m_hFile);	// 21-30	Reserved
-		fread(&m_Fields[m_nFields].ProductionIdx	, sizeof(char),  1, m_hFile);	// 31	 	Field is part of production index - 0x01 else 0x00
+		Read( m_Fields[m_nFields].Name         , sizeof(char), 11); // 0-10   Field Name ASCII padded with 0x00
+		Read(&m_Fields[m_nFields].Type         , sizeof(char),  1); // 11     Field Type Identifier (see table)
+		Read(&m_Fields[m_nFields].Displacement , sizeof(char),  4); // 12-15  Displacement of field in record
+		Read(&m_Fields[m_nFields].Width        , sizeof(char),  1); // 16     Field length in bytes
+		Read(&m_Fields[m_nFields].Decimals     , sizeof(char),  1); // 17     Field decimal places
+		Read(buffer                            , sizeof(char),  2); // 18-19  Reserved
+		Read(&m_Fields[m_nFields].WorkAreaID   , sizeof(char),  1); // 20     dBaseIV work area ID
+		Read(buffer                            , sizeof(char), 10); // 21-30  Reserved
+		Read(&m_Fields[m_nFields].ProductionIdx, sizeof(char),  1); // 31     Field is part of production index - 0x01 else 0x00
 
-		m_Fields[m_nFields].Name[11]	= '\0';
+		m_Fields[m_nFields].Name[11] = '\0';
 
 		m_nFields++;
 	}
 
 	//-----------------------------------------------------
 	// Byte n+1: Header m_Record Terminator (0x0D)...
-	fread( buf				, sizeof(char),  1, m_hFile);
+	Read(buffer, sizeof(char), 1);
 
-	if( buf[0] == 0x0d )
+	if( buffer[0] == 0x0d )
 	{
 		Init_Record();
 		Move_First();
@@ -300,7 +311,7 @@ bool CSG_Table_DBase::Header_Read(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -325,79 +336,77 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 	m_bReadOnly	= false;
 
 	//-----------------------------------------------------
-	int		iField, nBytes;
+	m_nFields = pTable->Get_Field_Count();
+	m_Fields  = (TDBF_Field *)SG_Calloc(m_nFields, sizeof(TDBF_Field));	// init all bytes with 0x00
 
-	m_nFields	= pTable->Get_Field_Count();
-	m_Fields	= (TDBF_Field *)SG_Calloc(m_nFields, sizeof(TDBF_Field));	// init all bytes with 0x00
-
-	for(iField=0; iField<Get_Field_Count(); iField++)
+	for(int iField=0; iField<Get_Field_Count(); iField++)
 	{
-		CSG_String	Name(pTable->Get_Field_Name(iField));
+		CSG_String Name(pTable->Get_Field_Name(iField)); int nBytes;
 
 		for(int j=0; j<11 && j<(int)Name.Length(); j++)
 		{
-			m_Fields[iField].Name[j]	= Name.b_str()[j];
+			m_Fields[iField].Name[j] = Name.b_str()[j];
 		}
 
 		switch( pTable->Get_Field_Type(iField) )
 		{
 		case SG_DATATYPE_String: default:
-			m_Fields[iField].Type		= DBF_FT_CHARACTER;
-			m_Fields[iField].Width		= (BYTE)((nBytes = pTable->Get_Field_Length(iField, m_Encoding)) > 255 ? 255 : nBytes < 1 ? 1 : nBytes);
+			m_Fields[iField].Type      = DBF_FT_CHARACTER;
+			m_Fields[iField].Width     = (BYTE)((nBytes = pTable->Get_Field_Length(iField, m_Encoding)) > 255 ? 255 : nBytes < 1 ? 1 : nBytes);
 			break;
 
-		case SG_DATATYPE_Date:
-			m_Fields[iField].Type		= DBF_FT_DATE;
-			m_Fields[iField].Width		= (BYTE)8;
+		case SG_DATATYPE_Date  :
+			m_Fields[iField].Type      = DBF_FT_DATE;
+			m_Fields[iField].Width     = (BYTE)8;
 			break;
 
-		case SG_DATATYPE_Char:
-			m_Fields[iField].Type		= DBF_FT_CHARACTER;
-			m_Fields[iField].Width		= (BYTE)1;
+		case SG_DATATYPE_Char  :
+			m_Fields[iField].Type      = DBF_FT_CHARACTER;
+			m_Fields[iField].Width     = (BYTE)1;
 			break;
 
-		case SG_DATATYPE_Bit:
-			m_Fields[iField].Type		= DBF_FT_NUMERIC;
-			m_Fields[iField].Width		= (BYTE)1;
+		case SG_DATATYPE_Bit   :
+			m_Fields[iField].Type      = DBF_FT_NUMERIC;
+			m_Fields[iField].Width     = (BYTE)1;
 			break;
 
-		case SG_DATATYPE_Byte:
-			m_Fields[iField].Type		= DBF_FT_NUMERIC;
-			m_Fields[iField].Width		= (BYTE)3;
+		case SG_DATATYPE_Byte  :
+			m_Fields[iField].Type      = DBF_FT_NUMERIC;
+			m_Fields[iField].Width     = (BYTE)3;
 			break;
 
-		case SG_DATATYPE_Word:
-		case SG_DATATYPE_Short:
-			m_Fields[iField].Type		= DBF_FT_NUMERIC;
-			m_Fields[iField].Width		= (BYTE)6;
+		case SG_DATATYPE_Word  :
+		case SG_DATATYPE_Short :
+			m_Fields[iField].Type      = DBF_FT_NUMERIC;
+			m_Fields[iField].Width     = (BYTE)6;
 			break;
 
-		case SG_DATATYPE_DWord:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_ULong:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Color:
-			m_Fields[iField].Type		= DBF_FT_NUMERIC;
-			m_Fields[iField].Width		= (BYTE)16;
+		case SG_DATATYPE_DWord :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_ULong :
+		case SG_DATATYPE_Long  :
+		case SG_DATATYPE_Color :
+			m_Fields[iField].Type     = DBF_FT_NUMERIC;
+			m_Fields[iField].Width    = (BYTE)16;
 			break;
 
 		case SG_DATATYPE_Float:
-			m_Fields[iField].Type		= DBF_FT_NUMERIC;
-			m_Fields[iField].Width		= (BYTE)16;
-			m_Fields[iField].Decimals	= (BYTE)8;
+			m_Fields[iField].Type     = DBF_FT_NUMERIC;
+			m_Fields[iField].Width    = (BYTE)16;
+			m_Fields[iField].Decimals = (BYTE)8;
 			break;
 
 		case SG_DATATYPE_Double:
-			m_Fields[iField].Type		= DBF_FT_FLOAT;
-			m_Fields[iField].Width		= (BYTE)19;
-			m_Fields[iField].Decimals	= (BYTE)10;
+			m_Fields[iField].Type     = DBF_FT_FLOAT;
+			m_Fields[iField].Width    = (BYTE)19;
+			m_Fields[iField].Decimals = (BYTE)10;
 			break;
 		}
 	}
 
 	Header_Write();
 
-	m_nFileBytes	= m_nHeaderBytes;
+	m_nFileBytes = m_nHeaderBytes;
 
 	//-----------------------------------------------------
 	if( bRecords_Save )
@@ -408,7 +417,7 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 
 			Add_Record();
 
-			for(iField=0; iField<Get_Field_Count(); iField++)
+			for(int iField=0; iField<Get_Field_Count(); iField++)
 			{
 				if( pRecord->is_NoData(iField) )
 				{
@@ -445,27 +454,23 @@ void CSG_Table_DBase::Header_Write(void)
 	}
 
 	//-----------------------------------------------------
-	char		buf[16];
-	int			iField;
-	time_t		ltime;
-	TDBF_Header	h;
+	char buffer[16]; TDBF_Header h;
 
-	time(&ltime);
-	struct tm	*pTime	= localtime(&ltime);
+	time_t ltime; time(&ltime); struct tm *pTime = localtime(&ltime);
 
-	h.FileType		= 0x03;
-	h.Transaction	= 0;
-	h.bEncrypted	= 0;
-	h.LanguageDrvID	= 0;
-	h.ProductionIdx	= 0;
-	h.LastUpdate[0]	= (unsigned char)pTime->tm_year;
-	h.LastUpdate[1]	= (unsigned char)pTime->tm_mon + 1;
-	h.LastUpdate[2]	= (unsigned char)pTime->tm_mday;
+	h.FileType      = 0x03;
+	h.Transaction   = 0;
+	h.bEncrypted    = 0;
+	h.LanguageDrvID = 0;
+	h.ProductionIdx = 0;
+	h.LastUpdate[0] = (unsigned char)pTime->tm_year;
+	h.LastUpdate[1] = (unsigned char)pTime->tm_mon + 1;
+	h.LastUpdate[2] = (unsigned char)pTime->tm_mday;
 
-	m_nHeaderBytes	= (m_nFields + 1) * 32 + 1;
-	m_nRecordBytes	= 1;	// Delete-Flag = Byte 0...
+	m_nHeaderBytes  = (m_nFields + 1) * 32 + 1;
+	m_nRecordBytes  = 1; // Delete-Flag = Byte 0...
 
-	for(iField=0; iField<m_nFields; iField++)
+	for(int iField=0; iField<m_nFields; iField++)
 	{
 		if( m_Fields[iField].Type == DBF_FT_CHARACTER )
 		{
@@ -475,65 +480,65 @@ void CSG_Table_DBase::Header_Write(void)
 			}
 			else if( m_Fields[iField].Width > 255 )
 			{
-				m_Fields[iField].Width	= 255;
+				m_Fields[iField].Width = 255;
 			}
 		}
 
-		m_nRecordBytes	+= m_Fields[iField].Width;
+		m_nRecordBytes += m_Fields[iField].Width;
 	}
 
 	Init_Record();
 
 	fseek(m_hFile, 0, SEEK_SET);
 
-	memset(buf, 0, 16 * sizeof(char));
+	memset(buffer, 0, 16 * sizeof(char));
 
 	//-----------------------------------------------------
 	// Bytes 0-31: File Header...
-	fwrite(&h.FileType		, sizeof(char),  1, m_hFile);	// 00		FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo	- 0x03
-															//			FoxBase+, dBaseIII+ with memo					- 0x83
-															//			FoxPro with memo								- 0xF5
-															//			dBaseIV with memo								- 0x8B
-															//			dBaseIV with SQL Table							- 0x8E
-	fwrite(&h.LastUpdate	, sizeof(char),  3, m_hFile);	// 01-03	Last update, format YYYYMMDD   **correction: it is YYMMDD**
-	fwrite(&m_nRecords		, sizeof(char),  4, m_hFile);	// 04-07	Number of records in file (32-bit number)
-	fwrite(&m_nHeaderBytes	, sizeof(char),  2, m_hFile);	// 08-09	Number of bytes in header (16-bit number)
-	fwrite(&m_nRecordBytes	, sizeof(char),  2, m_hFile);	// 10-11	Number of bytes in record (16-bit number)
-	fwrite( buf				, sizeof(char),  2, m_hFile);	// 12-13	Reserved, fill with 0x00
-	fwrite(&h.Transaction	, sizeof(char),  1, m_hFile);	// 14		dBaseIV flag, incomplete transaction
-															//			Begin Transaction sets it to					- 0x01
-															//			End Transaction or RollBack reset it to			- 0x00
-	fwrite(&h.bEncrypted	, sizeof(char),  1, m_hFile);	// 15		Encryption flag, encrypted 0x01 else 0x00
-															//			Changing the flag does not encrypt or decrypt the records
-	fwrite( buf				, sizeof(char), 12, m_hFile);	// 16-27	dBaseIV multi-user environment use
-	fwrite(&h.ProductionIdx	, sizeof(char),  1, m_hFile);	// 28		Production index exists - 0x01 else 0x00
-	fwrite(&h.LanguageDrvID	, sizeof(char),  1, m_hFile);	// 29		dBaseIV language driver ID
-	fwrite( buf				, sizeof(char),  2, m_hFile);	// 30-31	Reserved fill with 0x00
+	Write(&h.FileType     , sizeof(char),  1); // 00     FoxBase+, FoxPro, dBaseIII+, dBaseIV, no memo - 0x03
+	                                           //        FoxBase+, dBaseIII+ with memo                 - 0x83
+	                                           //        FoxPro with memo                              - 0xF5
+	                                           //        dBaseIV with memo                             - 0x8B
+	                                           //        dBaseIV with SQL Table                        - 0x8E
+	Write(&h.LastUpdate   , sizeof(char),  3); // 01-03  Last update, format YYYYMMDD   **correction: it is YYMMDD**
+	Write(&m_nRecords     , sizeof(char),  4); // 04-07  Number of records in file (32-bit number)
+	Write(&m_nHeaderBytes , sizeof(char),  2); // 08-09  Number of bytes in header (16-bit number)
+	Write(&m_nRecordBytes , sizeof(char),  2); // 10-11  Number of bytes in record (16-bit number)
+	Write(buffer          , sizeof(char),  2); // 12-13  Reserved, fill with 0x00
+	Write(&h.Transaction  , sizeof(char),  1); // 14     dBaseIV flag, incomplete transaction
+	                                           //        Begin Transaction sets it to					- 0x01
+	                                           //        End Transaction or RollBack reset it to        - 0x00
+	Write(&h.bEncrypted   , sizeof(char),  1); // 15     Encryption flag, encrypted 0x01 else 0x00
+	                                           //        Changing the flag does not encrypt or decrypt the records
+	Write(buffer          , sizeof(char), 12); // 16-27  dBaseIV multi-user environment use
+	Write(&h.ProductionIdx, sizeof(char),  1); // 28     Production index exists 0x01 else 0x00
+	Write(&h.LanguageDrvID, sizeof(char),  1); // 29     dBaseIV language driver ID
+	Write(buffer          , sizeof(char),  2); // 30-31  Reserved fill with 0x00
 
 	//-----------------------------------------------------
 	// Bytes 32-n: Field Descriptor Array...
-	for(iField=0; iField<m_nFields; iField++)
+	for(int iField=0; iField<m_nFields; iField++)
 	{
-		fwrite( m_Fields[iField].Name			, sizeof(char), 11, m_hFile);	// 00-10	Field Name ASCII padded with 0x00
-		fwrite(&m_Fields[iField].Type			, sizeof(char),  1, m_hFile);	// 11		Field Type Identifier (see table)
-		fwrite(&m_Fields[iField].Displacement	, sizeof(char),  4, m_hFile);	// 12-15	Displacement of field in record
-		fwrite(&m_Fields[iField].Width			, sizeof(char),  1, m_hFile);	// 16		Field length in bytes
-		fwrite(&m_Fields[iField].Decimals		, sizeof(char),  1, m_hFile);	// 17		Field decimal places
-		fwrite( buf								, sizeof(char),  2, m_hFile);	// 18-19	Reserved
-		fwrite(&m_Fields[iField].WorkAreaID		, sizeof(char),  1, m_hFile);	// 20		dBaseIV work area ID
-		fwrite( buf								, sizeof(char), 10, m_hFile);	// 21-30	Reserved
-		fwrite(&m_Fields[iField].ProductionIdx	, sizeof(char),  1, m_hFile);	// 31	 	Field is part of production index - 0x01 else 0x00
+		Write( m_Fields[iField].Name         , sizeof(char), 11); // 00-10  Field Name ASCII padded with 0x00
+		Write(&m_Fields[iField].Type         , sizeof(char),  1); // 11     Field Type Identifier (see table)
+		Write(&m_Fields[iField].Displacement , sizeof(char),  4); // 12-15  Displacement of field in record
+		Write(&m_Fields[iField].Width        , sizeof(char),  1); // 16     Field length in bytes
+		Write(&m_Fields[iField].Decimals     , sizeof(char),  1); // 17     Field decimal places
+		Write(buffer                         , sizeof(char),  2); // 18-19  Reserved
+		Write(&m_Fields[iField].WorkAreaID   , sizeof(char),  1); // 20     dBaseIV work area ID
+		Write(buffer                         , sizeof(char), 10); // 21-30  Reserved
+		Write(&m_Fields[iField].ProductionIdx, sizeof(char),  1); // 31     Field is part of production index - 0x01 else 0x00
 	}
 
 	//-----------------------------------------------------
 	// Byte n+1: Header m_Record Terminator (0x0D)...
-	buf[0]	= 0x0D;
-	fwrite( buf				, sizeof(char),  1, m_hFile);
+	buffer[0] = 0x0D;
+	Write(buffer, sizeof(char), 1);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -556,13 +561,13 @@ int CSG_Table_DBase::Get_File_Position(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Table_DBase::Move_First(void)
 {
-	bool	Result	= false;
+	bool Result = false;
 
 	if( m_hFile )
 	{
@@ -570,9 +575,9 @@ bool CSG_Table_DBase::Move_First(void)
 
 		fseek(m_hFile, m_nHeaderBytes, SEEK_SET);
 
-		if( fread(m_Record, m_nRecordBytes, sizeof(char), m_hFile) == 1 )
+		if( Read(m_Record, sizeof(char), (size_t)m_nRecordBytes) )
 		{
-			Result	= true;
+			Result = true;
 		}
 
 		fseek(m_hFile, m_nHeaderBytes, SEEK_SET);
@@ -584,7 +589,7 @@ bool CSG_Table_DBase::Move_First(void)
 //---------------------------------------------------------
 bool CSG_Table_DBase::Move_Next(void)
 {
-	bool	Result	= false;
+	bool Result = false;
 
 	if( m_hFile )
 	{
@@ -592,9 +597,9 @@ bool CSG_Table_DBase::Move_Next(void)
 
 		fseek(m_hFile, m_nRecordBytes, SEEK_CUR);
 
-		if( fread(m_Record, m_nRecordBytes, sizeof(char), m_hFile) == 1 )
+		if( Read(m_Record, sizeof(char), (size_t)m_nRecordBytes) )
 		{
-			Result	= true;
+			Result = true;
 		}
 
 		fseek(m_hFile, -m_nRecordBytes, SEEK_CUR);
@@ -605,7 +610,7 @@ bool CSG_Table_DBase::Move_Next(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -618,7 +623,7 @@ void CSG_Table_DBase::Add_Record(void)
 		memset(m_Record, ' ', m_nRecordBytes);
 
 		fseek(m_hFile, 0, SEEK_END);
-		fwrite(m_Record, m_nRecordBytes, sizeof(char), m_hFile);
+		Write(m_Record, m_nRecordBytes, sizeof(char));
 		fseek(m_hFile, -m_nRecordBytes, SEEK_END);
 
 		m_nRecords		++;
@@ -632,14 +637,14 @@ void CSG_Table_DBase::Flush_Record(void)
 	if( m_hFile && !m_bReadOnly && m_bModified )
 	{
 		m_bModified	= false;
-		fwrite(m_Record, m_nRecordBytes, sizeof(char), m_hFile);
+		Write(m_Record, m_nRecordBytes, sizeof(char));
 		fseek(m_hFile, -m_nRecordBytes, SEEK_CUR);
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -725,16 +730,16 @@ CSG_String CSG_Table_DBase::asString(int iField)
 		switch( m_Encoding )
 		{
 		case SG_FILE_ENCODING_ANSI: default:
-		{	char *s	= m_Record + m_Fields[iField].Offset;
+		{	char *s = m_Record + m_Fields[iField].Offset;
 
 			for(int i=0; i<m_Fields[iField].Width && *s; i++, s++)
 			{
-				Value	+= *s;
+				Value += *s > 0 ? *s : '?';
 			}
 		}	break;
 
 		case SG_FILE_ENCODING_UTF8:
-			Value	= CSG_String::from_UTF8(m_Record + m_Fields[iField].Offset, m_Fields[iField].Width);
+			Value = CSG_String::from_UTF8(m_Record + m_Fields[iField].Offset, m_Fields[iField].Width);
 			break;
 		}
 
@@ -764,7 +769,7 @@ CSG_String CSG_Table_DBase::asString(int iField)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -918,9 +923,9 @@ bool CSG_Table_DBase::Set_NoData(int iField)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
