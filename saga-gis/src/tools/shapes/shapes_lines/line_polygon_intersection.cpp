@@ -199,23 +199,31 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 							pNew->Add_Part(pParts->Get_Part(iPart));
 						}
 					}
+
+					if( pNew->Get_Part_Count() < 1 )
+					{
+						pIntersection->Del_Shape(pNew);
+					}
 				}
 				else                  // keep original line attributes
 				{
 					for(int iSegment=0; iSegment<Intersection.Get_Count(); iSegment++)
 					{
-						CSG_Shape *pNew = pIntersection->Add_Shape(Intersection.Get_Shape(iSegment));
-
-						for(int iField=0; iField<pLines->Get_Field_Count(); iField++)
+						if( Intersection.Get_Shape(iSegment)->Get_Part_Count() )
 						{
-							*pNew->Get_Value(iField) = *pLine->Get_Value(iField);
-						}
+							CSG_Shape *pNew = pIntersection->Add_Shape(Intersection.Get_Shape(iSegment));
 
-						if( Attributes == 2 ) // ...and add polygon attributes
-						{
-							for(int iField=0, jField=pLines->Get_Field_Count(); iField<pPolygons->Get_Field_Count(); iField++, jField++)
+							for(int iField=0; iField<pLines->Get_Field_Count(); iField++)
 							{
-								*pNew->Get_Value(jField) = *pPolygon->Get_Value(iField);
+								*pNew->Get_Value(iField) = *pLine->Get_Value(iField);
+							}
+
+							if( Attributes == 2 ) // ...and add polygon attributes
+							{
+								for(int iField=0, jField=pLines->Get_Field_Count(); iField<pPolygons->Get_Field_Count(); iField++, jField++)
+								{
+									*pNew->Get_Value(jField) = *pPolygon->Get_Value(iField);
+								}
 							}
 						}
 					}
