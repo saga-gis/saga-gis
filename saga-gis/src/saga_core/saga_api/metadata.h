@@ -112,6 +112,7 @@ public:
 
 	bool						Load_HTTP			(const CSG_String &Server, const CSG_String &Path, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
 
+	bool						from_XML			(const char       *XML, size_t Length, const char *Encoding = "UTF-8");
 	bool						from_XML			(const CSG_String &XML);
 	bool						to_XML				(      CSG_String &XML)  const;
 

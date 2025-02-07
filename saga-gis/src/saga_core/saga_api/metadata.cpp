@@ -941,6 +941,23 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_MetaData::from_XML(const char *_XML, size_t Length, const char *Encoding)
+{
+	Destroy();
+
+	wxXmlDocument XML; wxMemoryInputStream Stream((const void *)_XML, Length);
+
+	if( XML.Load(Stream, Encoding) )
+	{
+		_Load(XML.GetRoot());
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_MetaData::from_XML(const CSG_String &_XML)
 {
 	Destroy();
