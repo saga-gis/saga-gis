@@ -295,9 +295,9 @@ bool CUSGS_Earthquakes::On_Execute(void)
 	Process_Set_Text                               ("%s: %s...", _TL("requesting"), _TL("USGS Earthquake Catalog"));
 	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s...", _TL("requesting"), _TL("USGS Earthquake Catalog")));
 
-	CSG_String Response;
+	CSG_MetaData Data;
 
-	if( !Connection.Request(Request, Response) )
+	if( !Connection.Request(Request, Data) )
 	{
 		SG_UI_Process_Set_Busy(false);
 
@@ -309,17 +309,7 @@ bool CUSGS_Earthquakes::On_Execute(void)
 	SG_UI_Process_Set_Busy(false);
 
 	//-----------------------------------------------------
-	if( Response.is_Empty() )
-	{
-		Error_Fmt  ("%s:\n\"https://earthquake.usgs.gov%s\"", _TL("Request failed."), Request.c_str());
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_MetaData Data;
-
-	if( !Data.from_XML(Response) || !Data.Cmp_Name("q:quakeml") || !Data("eventParameters") )
+	if( !Data.Cmp_Name("q:quakeml") || !Data("eventParameters") )
 	{
 		Error_Fmt  ("%s:\n\"https://earthquake.usgs.gov%s\"", _TL("Invalid QuakeML Format."), Request.c_str());
 

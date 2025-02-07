@@ -238,9 +238,9 @@ size_t CSG_CURL::_Callback_Write_File(char *Bytes, size_t Size, size_t nBytes, v
 //---------------------------------------------------------
 bool CSG_CURL::Request(const CSG_String &Request, CSG_MetaData &Answer)
 {
-	CSG_String	_Answer;
+	CSG_Bytes	_Answer;
 
-	return( CSG_CURL::Request(Request, _Answer) && Answer.from_XML(_Answer) );
+	return( CSG_CURL::Request(Request, _Answer) && Answer.from_XML((const char *)_Answer.Get_Bytes(), (size_t)_Answer.Get_Count()) );
 }
 
 //---------------------------------------------------------
