@@ -2083,6 +2083,8 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 //---------------------------------------------------------
 bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, bool bOnlyNonDefaults, const CSG_String &Prefix)
 {
+	#define MULTILINE true
+
 	if( Parameter.do_UseInCMD() == false
 	||  Parameter.is_Information()
 	||  Parameter.Get_Type() == PARAMETER_TYPE_Node
@@ -2227,7 +2229,11 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 		if( !Value.is_Empty() )
 		{
-			if( !Arguments.is_Empty() )
+			if( MULTILINE )
+			{
+				Arguments += !Arguments.is_Empty() ? ",\n    " : "\n    ";
+			}
+			else if( !Arguments.is_Empty() )
 			{
 				Arguments += ", ";
 			}
@@ -2239,7 +2245,11 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 	}
 
 	//-----------------------------------------------------
-	if( !Arguments.is_Empty() )
+	if( MULTILINE )
+	{
+		Arguments += !Arguments.is_Empty() ? ",\n    " : "\n    ";
+	}
+	else if( !Arguments.is_Empty() )
 	{
 		Arguments += ", ";
 	}
