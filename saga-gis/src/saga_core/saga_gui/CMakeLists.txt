@@ -213,7 +213,7 @@ if(MSVC)
 	target_compile_definitions(saga_gui PUBLIC -D_SAGA_MSW -DUNICODE)
 	target_link_options(saga_gui PRIVATE /SUBSYSTEM:WINDOWS)
 	
-	option(WITH_DPI_AWARENESS "GUI as DPI aware application" OFF)
+	option(WITH_DPI_AWARENESS "GUI as DPI aware application" ON)
 	if(WITH_DPI_AWARENESS)
 		message(STATUS "GUI as DPI aware application")
 		target_compile_definitions(saga_gui PRIVATE DPI_AWARE)
