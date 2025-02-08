@@ -274,7 +274,9 @@ if(MSVC)
 		COMMAND IF NOT EXIST "$(OutDir)tools" MKDIR "$(OutDir)tools"
 		COMMAND IF EXIST "$(OutDir)tools\\toolchains" RMDIR /S/Q "$(OutDir)tools\\toolchains"
 		COMMAND MKDIR    "$(OutDir)tools\\toolchains"
-		COMMAND XCOPY /C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)\\tools\\toolchains"
-	#	COMMAND COPY "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)\\tools\\toolchains"
+		COMMAND XCOPY /C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)tools\\toolchains"
+		COMMAND IF EXIST "$(OutDir)resources" RMDIR /S/Q "$(OutDir)resources"
+		COMMAND MKDIR    "$(OutDir)resources"
+		COMMAND XCOPY /S/E/C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\resources\\" "$(OutDir)resources"
 	)
 endif()
