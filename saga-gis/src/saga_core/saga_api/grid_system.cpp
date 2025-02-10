@@ -126,6 +126,12 @@ CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, int 
 }
 
 //---------------------------------------------------------
+CSG_Grid_System::CSG_Grid_System(const CSG_String &System, int Precision)
+{
+	Create(System, Precision);
+}
+
+//---------------------------------------------------------
 CSG_Grid_System::~CSG_Grid_System(void)
 {
 	Destroy();
@@ -220,6 +226,38 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 }
 
 //---------------------------------------------------------
+/**
+* Tries to construct a grid system from a string that uses
+* one of the formats provided by the Get_Name() function,
+* i.e. "<double>; <int>x <int>y; <double>x <double>y"
+* or "Cell size: <double>, Number of cells: <int>x/<int>y, Lower left corner: <double>x/<double>y"
+*/
+bool CSG_Grid_System::Create(const CSG_String &System, int Precision)
+{
+	double Cellsize, xMin, yMin; int NX, NY; CSG_Strings Values;
+
+	//      1   2    3     4
+	// "%.*f; %dx %dy; %.*fx %.*fy"
+	Values = SG_String_Tokenize(System, ";x");
+
+	if( Values.Get_Count() == 5 && Values[0].asDouble(Cellsize) && Values[1].asInt(NX) && Values[2].asInt(NY) && Values[3].asDouble(xMin) && Values[4].asDouble(yMin) )
+	{
+		return( Create(Cellsize, xMin, yMin, NX, NY, Precision) );
+	}
+
+	//    1   2   3    4   5   6    7
+	// "%s: %f, %s: %dx/%dy, %s: %fx/%fy"
+	Values = SG_String_Tokenize(System, ":,/");
+
+	if( Values.Get_Count() == 8 && Values[1].asDouble(Cellsize) && Values[3].asInt(NX) && Values[4].asInt(NY) && Values[6].asDouble(xMin) && Values[7].asDouble(yMin) )
+	{
+		return( Create(Cellsize, xMin, yMin, NX, NY, Precision) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Grid_System::Destroy(void)
 {
 	m_NX       = 0;
@@ -270,8 +308,8 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 			m_Name.Printf("%.*f; %dx %dy; %.*fx %.*fy",
 				SG_Get_Significant_Decimals(Get_Cellsize()), Get_Cellsize(),
 				Get_NX(), Get_NY(),
-				SG_Get_Significant_Decimals(Get_XMin    ()), Get_XMin    (),
-				SG_Get_Significant_Decimals(Get_YMin    ()), Get_YMin    ()
+				SG_Get_Significant_Decimals(Get_XMin()), Get_XMin(),
+				SG_Get_Significant_Decimals(Get_YMin()), Get_YMin()
 			);
 		}
 		else
@@ -291,6 +329,12 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 	return( m_Name );
 }
 
+//---------------------------------------------------------
+const SG_Char * CSG_Grid_System::asString(void)
+{
+	return( Get_Name() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -302,6 +346,17 @@ CSG_Grid_System & CSG_Grid_System::operator = (const CSG_Grid_System &System)
 	Create(System);
 
 	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_System::operator == (const CSG_Grid_System *pSystem) const
+{
+	return( pSystem != NULL && is_Equal(*pSystem) ==  true );
+}
+
+bool CSG_Grid_System::operator != (const CSG_Grid_System *pSystem) const
+{
+	return( pSystem == NULL || is_Equal(*pSystem) == false );
 }
 
 //---------------------------------------------------------

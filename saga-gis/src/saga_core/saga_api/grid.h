@@ -213,6 +213,9 @@ public:
 								CSG_Grid_System		(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision = -1);
 	bool						Create				(double Cellsize, double xMin, double yMin, int NX, int NY, int Precision = -1);
 
+								CSG_Grid_System		(const CSG_String &System, int Precision = -1);
+	bool						Create				(const CSG_String &System, int Precision = -1);
+
 	~CSG_Grid_System(void);
 
 	bool						Destroy				(void);
@@ -227,6 +230,7 @@ public:
 	bool						is_Valid			(void)	const;
 
 	const SG_Char *				Get_Name			(bool bShort = true);
+	const SG_Char *				asString			(void);
 
 	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
 	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );	}
@@ -249,8 +253,10 @@ public:
 	//-----------------------------------------------------
 	CSG_Grid_System &			operator =			(const CSG_Grid_System &System);
 
-	bool						operator ==			(const CSG_Grid_System &System) const;
-	bool						operator !=			(const CSG_Grid_System &System) const;
+	bool						operator ==			(const CSG_Grid_System *pSystem) const;
+	bool						operator !=			(const CSG_Grid_System *pSystem) const;
+	bool						operator ==			(const CSG_Grid_System  &System) const;
+	bool						operator !=			(const CSG_Grid_System  &System) const;
 
 	bool						is_Equal			(const CSG_Grid_System &System) const;
 	bool						is_Equal			(double Cellsize, const TSG_Rect &Extent) const;
