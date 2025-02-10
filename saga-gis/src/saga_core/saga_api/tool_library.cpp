@@ -977,10 +977,10 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 			{
 				if( bName )
 				{
-					Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME, false));
+					Stream.Write(pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_Name, false));
 				}
 
-				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+				Stream.Write(pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_ID, false));
 			}
 
 			pLibrary->Delete_Tool(pTool);
@@ -1034,10 +1034,10 @@ bool CSG_Tool_Library_Manager::Create_Python_ToolBox(const CSG_String &Destinati
 			{
 				if( bName )
 				{
-					Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME, false));
+					Stream.Write(pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_Name, false));
 				}
 
-				Stream.Write(pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_ID, false));
+				Stream.Write(pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_ID, false));
 			}
 
 			pLibrary->Delete_Tool(pTool);

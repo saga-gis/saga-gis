@@ -390,61 +390,6 @@ bool CWKSP_Tool::Finish(bool bDialog, bool bCloseGUI)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/clipbrd.h>
-
-//---------------------------------------------------------
-void CWKSP_Tool::Save_to_Clipboard(void)
-{
-	wxArrayString Choices;
-
-	Choices.Add(_TL("Command Line"                              ));
-	Choices.Add(_TL("Command Line (with header)"                ));
-	Choices.Add(_TL("Tool Chain"                                ));
-	Choices.Add(_TL("Tool Chain (with header)"                  ));
-	Choices.Add(_TL("Python Wrapper Call (no settings)"         ));
-	Choices.Add(_TL("Python Wrapper Call (non-default settings)"));
-	Choices.Add(_TL("Python Wrapper Call (all settings)"        ));
-	Choices.Add(_TL("Python Wrapper Function"                   ));
-	Choices.Add(_TL("Python Wrapper Function (with header)"     ));
-	Choices.Add(_TL("Python"                                    ));
-	Choices.Add(_TL("Python (with header)"                      ));
-
-	wxSingleChoiceDialog dlg(MDI_Get_Top_Window(), _TL("Select Format"), _TL("Save to Clipboard"), Choices);
-
-	if( dlg.ShowModal() == wxID_OK )
-	{
-		CSG_String Script;
-
-		switch( dlg.GetSelection() )
-		{
-		#ifdef _SAGA_MSW
-		case  0: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH                 , false); break; // Command Line
-		case  1: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH                 ,  true); break; // Command Line with Header
-		#else
-		case  0: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL                 , false); break; // Command Line
-		case  1: Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL                 ,  true); break; // Command Line with Header
-		#endif
-		case  2: Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN                     , false); break; // Tool Chain
-		case  3: Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN                     ,  true); break; // Tool Chain with Header
-		case  4: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL     , false); break; // Python Wrapper Call (complete interface without settings)
-		case  5: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL     ,  true); break; // Python Wrapper Call with Header (only current non-default parameter settings)
-		case  6: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL_FULL,  true); break; // Python Wrapper Call with Header (complete interface with current parameter settings)
-		case  7: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME          , false); break; // Python Wrapper
-		case  8: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON_WRAP_NAME          ,  true); break; // Python Wrapper with Header
-		case  9: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON                    , false); break; // Python
-		case 10: Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON                    ,  true); break; // Python with Header
-		}
-
-		if( !Script.is_Empty() && wxTheClipboard->Open() )
-		{
-			wxTheClipboard->SetData(new wxTextDataObject(Script.c_str()));
-
-			wxTheClipboard->Close();
-		}
-	}
-}
-
-//---------------------------------------------------------
 void CWKSP_Tool::Save_to_Script(void)
 {
 	wxString FileName;
@@ -453,32 +398,137 @@ void CWKSP_Tool::Save_to_Script(void)
 	{
 		CSG_String Script;
 
-		if( SG_File_Cmp_Extension(&FileName, "xml") )
-		{
-			Script = m_pTool->Get_Script(TOOL_SCRIPT_CHAIN    ,  true);
-		}
+		if( SG_File_Cmp_Extension(&FileName, "xml") ) { Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Toolchain,  true); }
+		if( SG_File_Cmp_Extension(&FileName, "bat") ) { Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Batch,  true); }
+		if( SG_File_Cmp_Extension(&FileName, "sh" ) ) { Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Shell , true); }
+		if( SG_File_Cmp_Extension(&FileName, "py" ) ) { Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python    , true); }
 
-		if( SG_File_Cmp_Extension(&FileName, "bat") )
-		{
-			Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_BATCH,  true);
-		}
-
-		if( SG_File_Cmp_Extension(&FileName, "sh") )
-		{
-			Script = m_pTool->Get_Script(TOOL_SCRIPT_CMD_SHELL, true);
-		}
-
-		if( SG_File_Cmp_Extension(&FileName, "py") )
-		{
-			Script = m_pTool->Get_Script(TOOL_SCRIPT_PYTHON   , true);
-		}
-
-		//-------------------------------------------------
 		CSG_File File;
 
 		if( !Script.is_Empty() && File.Open(FileName, SG_FILE_W, false) )
 		{
 			File.Write(Script);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWKSP_Tool::On_Clipboard_Format_Changed(CSG_Parameter *pParameter, int Flags)
+{
+	if( pParameter && pParameter->Get_Parameters() )
+	{
+		CSG_Parameters &Parameters = *pParameter->Get_Parameters();
+
+		if( Flags & PARAMETER_CHECK_ENABLE )
+		{
+			Parameters.Set_Enabled("PYTHON", Parameters["FORMAT"].asInt() == 2);
+
+			Parameters.Set_Enabled("HEADER",
+				Parameters["FORMAT"].asInt() != 2 || Parameters["PYTHON"].asInt() == 0
+			);
+
+			Parameters.Set_Enabled("WRAP",
+				Parameters["FORMAT"].asInt() == 0 || (Parameters["FORMAT"].asInt() == 2 && Parameters["PYTHON"].asInt() == 0)
+			);
+
+			Parameters.Set_Enabled("ARGS",
+				Parameters["PYTHON"].asInt() == 0
+			);
+		}
+
+		return( 1 );
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+#include <wx/clipbrd.h>
+
+//---------------------------------------------------------
+void CWKSP_Tool::Save_to_Clipboard(void)
+{
+	static CSG_Parameters Format;
+
+	if( !Format.Get_Count() )
+	{
+		Format.Create(_TL("Copy Script Tool Call to Clipboard"), _TL(""), SG_T("SCRIPT_FORMAT"));
+
+		Format.Add_Choice("",
+			"FORMAT", _TL("Format"       ), _TL(""), CSG_String::Format("%s|%s|%s",
+			_TL("Command Line"),
+			_TL("Tool Chain"),
+			_TL("Python"))
+		);
+
+		Format.Add_Choice("FORMAT",
+			"PYTHON", _TL("Python Format"), _TL(""), CSG_String::Format("%s|%s|%s",
+			_TL("Wrapper Function Call"),
+			_TL("Wrapper Function"),
+			_TL("Tool Settings and Call"))
+		);
+
+		Format.Add_Choice("PYTHON",
+			"ARGS"  , _TL("Arguments"    ), _TL(""), CSG_String::Format("%s|%s|%s",
+			_TL("pure function call"),
+			_TL("non-default settings"),
+			_TL("all settings")), 1
+		);
+
+		Format.Add_Bool("", "HEADER", _TL("Header"        ), _TL(""), true);
+
+		Format.Add_Bool("", "WRAP"  , _TL("Wrap Arguments"), _TL(""), true);
+
+		Format.Set_Callback_On_Parameter_Changed(On_Clipboard_Format_Changed);
+
+		On_Clipboard_Format_Changed(Format(0), PARAMETER_CHECK_ENABLE);
+	}
+
+	if( DLG_Parameters(&Format, _TL("Copy Script Tool Call to Clipboard")) )
+	{
+		CSG_String Script;
+
+		switch( Format["FORMAT"].asInt() )
+		{
+		case  0: // Command Line
+			#ifdef _SAGA_MSW
+			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Batch, Format["HEADER"].asBool(), 1, Format["WRAP"].asBool());
+			#else
+			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Shell, Format["HEADER"].asBool(), 1, Format["WRAP"].asBool());
+			#endif
+			break;
+
+		case  1: // Tool Chain
+			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Toolchain, Format["HEADER"].asBool(), 1);
+			break;
+
+		case  2: // Python
+			switch( Format["PYTHON"].asInt() )
+			{
+			case  0: // Wrapper Function Call
+				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Call_Name, Format["HEADER"].asBool(), Format["ARGS"].asInt() - 1, Format["WRAP"].asBool());
+				break;
+
+			case  1: // Wrapper Function
+				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_Name, Format["HEADER"].asBool());
+				break;
+
+			case  2: // Tool Settings and Call
+				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python                  , Format["HEADER"].asBool());
+				break;
+			}
+		}
+
+		if( !Script.is_Empty() && wxTheClipboard->Open() )
+		{
+			wxTheClipboard->SetData(new wxTextDataObject(Script.c_str()));
+
+			wxTheClipboard->Close();
 		}
 	}
 }

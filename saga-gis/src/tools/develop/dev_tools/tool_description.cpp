@@ -374,7 +374,7 @@ bool CTool_Description::Write_Tool(const CSG_String &Folder, CSG_Tool_Library *p
 
 	//-----------------------------------------------------
 	s += "<hr><h3>Command Line</h3>\n";
-	s += "<pre class=\"usage\">\n" + pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE) + "</pre>\n";
+	s += "<pre class=\"usage\">\n" + pTool->Get_Script(CSG_Tool::Script_Format::CMD_Usage) + "</pre>\n";
 	s += "</main>\n";
 
 	//-----------------------------------------------------

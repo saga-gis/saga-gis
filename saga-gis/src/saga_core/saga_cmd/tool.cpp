@@ -90,7 +90,7 @@ bool CCMD_Tool::Create(CSG_Tool *pTool)
 
 	if( (m_pTool = pTool) != NULL )
 	{
-		m_Usage = m_pTool->Get_Script(TOOL_SCRIPT_CMD_USAGE);
+		m_Usage = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Usage);
 
 		return( true );
 	}

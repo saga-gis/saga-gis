@@ -109,6 +109,8 @@ private:
 	class CSG_Tool					*m_pTool;
 
 
+	static int						On_Clipboard_Format_Changed	(CSG_Parameter *pParameter, int Flags);
+
 	void							Save_to_Clipboard	(void);
 	void							Save_to_Script		(void);
 

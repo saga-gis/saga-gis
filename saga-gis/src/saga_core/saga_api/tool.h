@@ -115,22 +115,6 @@ typedef enum
 }
 TSG_Tool_Error;
 
-//---------------------------------------------------------
-typedef enum
-{
-	TOOL_SCRIPT_CMD_SHELL	= 0,
-	TOOL_SCRIPT_CMD_BATCH,
-	TOOL_SCRIPT_CMD_USAGE,
-	TOOL_SCRIPT_CHAIN,
-	TOOL_SCRIPT_PYTHON,
-	TOOL_SCRIPT_PYTHON_WRAP_NAME,
-	TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL,
-	TOOL_SCRIPT_PYTHON_WRAP_NAME_CALL_FULL,
-	TOOL_SCRIPT_PYTHON_WRAP_ID,
-	TOOL_SCRIPT_PYTHON_WRAP_ID_CALL
-}
-TSG_Tool_Script_Type;
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -249,7 +233,17 @@ public:
 
 	const SG_Char *				Get_Execution_Info			(void)	const	{	return( m_Execution_Info );	}
 
-	CSG_String					Get_Script					(TSG_Tool_Script_Type Type, bool bHeader = true, bool bAllParameters = false);
+	//-----------------------------------------------------
+	enum class Script_Format
+	{
+		CMD_Shell, CMD_Batch, CMD_Usage,
+		Toolchain,
+		Python,
+		Python_Wrapper_Func_Name, Python_Wrapper_Func_ID,
+		Python_Wrapper_Call_Name, Python_Wrapper_Call_ID
+	};
+
+	CSG_String					Get_Script					(Script_Format Format, bool bHeader = true, int Arguments = 0, bool bWrapArgs = true);
 
 
 protected:
@@ -353,17 +347,17 @@ private:
 
 	bool						_Synchronize_DataObjects	(void);
 
-	CSG_String					_Get_Script_CMD				(bool bHeader, bool bAllParameters, TSG_Tool_Script_Type Type);
-	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, TSG_Tool_Script_Type Type);
+	CSG_String					_Get_Script_CMD				(bool bHeader                                   , bool bAllArguments, bool bWrapArgs, bool bBatch);
+	void						_Get_Script_CMD				(CSG_String &Script, CSG_Parameters *pParameters, bool bAllArguments, bool bWrapArgs, bool bBatch);
 
 	CSG_String					_Get_Script_CMD_Usage		(void);
 	void						_Get_Script_CMD_Usage		(CSG_Parameters *pParameters, class wxCmdLineParser &Parser);
 
-	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllParameters);
-	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllParameters, const CSG_String &Prefix = "");
+	CSG_String					_Get_Script_Python			(bool bHeader, bool bAllArguments);
+	void						_Get_Script_Python			(CSG_String &Script, CSG_Parameters *pParameters, bool bAllArguments, const CSG_String &Prefix = "");
 
-	CSG_String					_Get_Script_Python_Wrap		(bool bHeader, bool bName, bool bCall, bool bOnlyNonDefaults);
-	bool						_Get_Script_Python_Wrap		(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, bool bOnlyNonDefaults, const CSG_String &Prefix = "");
+	CSG_String					_Get_Script_Python_Wrap		(bool bHeader, bool bName, bool bCall, int AllArguments, bool bWrapArgs);
+	bool						_Get_Script_Python_Wrap		(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, bool bOnlyNonDefaults, bool bWrapArgs, const CSG_String &Prefix = "");
 
 	CSG_MetaData				_Get_Output_History			(void);
 	void						_Set_Output_History			(void);
