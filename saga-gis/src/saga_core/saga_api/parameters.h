@@ -1034,6 +1034,7 @@ protected:
 	CSG_Grid_System				m_System;
 
 
+	virtual int					_Set_Value				(const CSG_String &Value);
 	virtual int					_Set_Value				(void *Value);
 
 	virtual void				_Set_String				(void);

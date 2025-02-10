@@ -2000,6 +2000,14 @@ CSG_Parameter_Grid_System::CSG_Parameter_Grid_System(CSG_Parameters *pOwner, CSG
 }
 
 //---------------------------------------------------------
+int CSG_Parameter_Grid_System::_Set_Value(const CSG_String &Value)
+{
+	CSG_Grid_System System;
+
+	return( System.Create(Value) ? _Set_Value(&System) : SG_PARAMETER_DATA_SET_FALSE );
+}
+
+//---------------------------------------------------------
 int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 {
 	CSG_Grid_System System;
