@@ -236,6 +236,15 @@ bool CSG_Grid_System::Create(const CSG_String &System, int Precision)
 {
 	double Cellsize, xMin, yMin; int NX, NY; CSG_Strings Values;
 
+	//      1   2   3     4
+	// "%.*f; %d; %d; %.*f; %.*fy"
+	Values = SG_String_Tokenize(System, ";");
+
+	if( Values.Get_Count() == 5 && Values[0].asDouble(Cellsize) && Values[1].asInt(NX) && Values[2].asInt(NY) && Values[3].asDouble(xMin) && Values[4].asDouble(yMin) )
+	{
+		return( Create(Cellsize, xMin, yMin, NX, NY, Precision) );
+	}
+
 	//      1   2    3     4
 	// "%.*f; %dx %dy; %.*fx %.*fy"
 	Values = SG_String_Tokenize(System, ";x");
@@ -306,18 +315,17 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 		if( bShort )
 		{
 			m_Name.Printf("%.*f; %dx %dy; %.*fx %.*fy",
-				SG_Get_Significant_Decimals(Get_Cellsize()), Get_Cellsize(),
-				Get_NX(), Get_NY(),
-				SG_Get_Significant_Decimals(Get_XMin()), Get_XMin(),
-				SG_Get_Significant_Decimals(Get_YMin()), Get_YMin()
+				SG_Get_Significant_Decimals(m_Cellsize   ), m_Cellsize, m_NX, m_NY,
+				SG_Get_Significant_Decimals(m_Extent.xMin), m_Extent.xMin,
+				SG_Get_Significant_Decimals(m_Extent.yMin), m_Extent.yMin
 			);
 		}
 		else
 		{
 			m_Name.Printf("%s: %f, %s: %dx/%dy, %s: %fx/%fy",
-				_TL("Cell size"        ), Get_Cellsize(),
-				_TL("Number of cells"  ), Get_NX(), Get_NY(),
-				_TL("Lower left corner"), Get_XMin(), Get_YMin()
+				_TL("Cell size"             ), m_Cellsize,
+				_TL("Number of cells"       ), m_NX, m_NY,
+				_TL("Lower left cell center"), m_Extent.xMin, m_Extent.yMin
 			);
 		}
 	}
@@ -332,7 +340,13 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 //---------------------------------------------------------
 const SG_Char * CSG_Grid_System::asString(void)
 {
-	return( Get_Name() );
+	m_Name.Printf("%.*f; %d; %d; %.*f; %.*f",
+		SG_Get_Significant_Decimals(m_Cellsize   ), m_Cellsize, m_NX, m_NY,
+		SG_Get_Significant_Decimals(m_Extent.xMin), m_Extent.xMin,
+		SG_Get_Significant_Decimals(m_Extent.yMin), m_Extent.yMin
+	);
+
+	return( m_Name );
 }
 
 
