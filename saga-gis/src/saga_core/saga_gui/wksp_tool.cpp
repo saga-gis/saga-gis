@@ -420,26 +420,26 @@ void CWKSP_Tool::Save_to_Script(void)
 //---------------------------------------------------------
 int CWKSP_Tool::On_Clipboard_Format_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Parameters() )
+	if( pParameter && pParameter->Get_Parameters() && (Flags & PARAMETER_CHECK_ENABLE) )
 	{
 		CSG_Parameters &Parameters = *pParameter->Get_Parameters();
 
-		if( Flags & PARAMETER_CHECK_ENABLE )
+		Parameters.Set_Enabled("CMD"    , Parameters["TYPE"].asInt() == 0);
+		Parameters.Set_Enabled("ARGS"   , Parameters["TYPE"].asInt() != 2 || (Parameters["TYPE"].asInt() == 2 && Parameters["PYTHON"].asInt() != 1));
+		Parameters.Set_Enabled("WRAP"   , Parameters["TYPE"].asInt() == 0 || (Parameters["TYPE"].asInt() == 2 && Parameters["PYTHON"].asInt() == 0));
+		Parameters.Set_Enabled("PYTHON" , Parameters["TYPE"].asInt() == 2);
+		Parameters.Set_Enabled("PY_FUNC",                                    (Parameters["TYPE"].asInt() == 2 && Parameters["PYTHON"].asInt() != 2));
+
+		CSG_String Arguments;
+
+		if( Parameters["TYPE"].asInt() == 2 && Parameters["PYTHON"].asInt() == 0 )
 		{
-			Parameters.Set_Enabled("PYTHON", Parameters["FORMAT"].asInt() == 2);
-
-			Parameters.Set_Enabled("HEADER",
-				Parameters["FORMAT"].asInt() != 2 || Parameters["PYTHON"].asInt() == 0
-			);
-
-			Parameters.Set_Enabled("WRAP",
-				Parameters["FORMAT"].asInt() == 0 || (Parameters["FORMAT"].asInt() == 2 && Parameters["PYTHON"].asInt() == 0)
-			);
-
-			Parameters.Set_Enabled("ARGS",
-				Parameters["PYTHON"].asInt() == 0
-			);
+			Arguments.Printf("%s|", _TL("pure function call"));
 		}
+
+		Arguments += CSG_String::Format("%s|%s", _TL("non-default settings"), _TL("all settings"));
+
+		Parameters["ARGS"].asChoice()->Set_Items(Arguments);
 
 		return( 1 );
 	}
@@ -453,73 +453,122 @@ int CWKSP_Tool::On_Clipboard_Format_Changed(CSG_Parameter *pParameter, int Flags
 //---------------------------------------------------------
 void CWKSP_Tool::Save_to_Clipboard(void)
 {
-	static CSG_Parameters Format;
+	static CSG_Parameters Options;
 
-	if( !Format.Get_Count() )
+	if( !Options.Get_Count() )
 	{
-		Format.Create(_TL("Copy Script Tool Call to Clipboard"), _TL(""), SG_T("SCRIPT_FORMAT"));
+		Options.Create(_TL("Copy Script Tool Call to Clipboard"), _TL(""), SG_T("SCRIPT_FORMAT"));
 
-		Format.Add_Choice("",
-			"FORMAT", _TL("Format"       ), _TL(""), CSG_String::Format("%s|%s|%s",
-			_TL("Command Line"),
-			_TL("Tool Chain"),
-			_TL("Python"))
+		Options.Add_Choice("",
+			"TYPE"   , _TL("Script Type"),
+			_TL(""),
+			CSG_String::Format("%s|%s|%s",
+				_TL("Command Line"),
+				_TL("Tool Chain"),
+				_TL("Python")
+			)
 		);
 
-		Format.Add_Choice("FORMAT",
-			"PYTHON", _TL("Python Format"), _TL(""), CSG_String::Format("%s|%s|%s",
-			_TL("Wrapper Function Call"),
-			_TL("Wrapper Function"),
-			_TL("Tool Settings and Call"))
+		Options.Add_Choice("TYPE",
+			"CMD"    , _TL("Command Line"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("Batch"),
+				_TL("Shell")
+			#ifdef _SAGA_MSW
+			), 0
+			#else
+			), 1
+			#endif
 		);
 
-		Format.Add_Choice("PYTHON",
-			"ARGS"  , _TL("Arguments"    ), _TL(""), CSG_String::Format("%s|%s|%s",
-			_TL("pure function call"),
-			_TL("non-default settings"),
-			_TL("all settings")), 1
+		Options.Add_Choice("TYPE",
+			"PYTHON" , _TL("Python Format"),
+			_TL(""),
+			CSG_String::Format("%s|%s|%s",
+				_TL("Wrapper Function Call"),
+				_TL("Wrapper Function"),
+				_TL("Tool Settings and Call")
+			)
 		);
 
-		Format.Add_Bool("", "HEADER", _TL("Header"        ), _TL(""), true);
+		Options.Add_Choice("PYTHON",
+			"PY_FUNC", _TL("Function Format"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("name"),
+				_TL("library + identifier")
+			), 0
+		);
 
-		Format.Add_Bool("", "WRAP"  , _TL("Wrap Arguments"), _TL(""), true);
+		Options.Add_Bool("",
+			"HEADER" , _TL("Header"),
+			_TL(""),
+			true
+		);
 
-		Format.Set_Callback_On_Parameter_Changed(On_Clipboard_Format_Changed);
+		Options.Add_Choice("",
+			"ARGS"   , _TL("Arguments"),
+			_TL(""),
+			CSG_String::Format("%s|%s",
+				_TL("non-default settings"),
+				_TL("all settings")
+			), 0
+		);
 
-		On_Clipboard_Format_Changed(Format(0), PARAMETER_CHECK_ENABLE);
+		Options.Add_Bool("ARGS",
+			"WRAP"   , _TL("Line Breaks"),
+			_TL(""),
+			true
+		);
+
+		Options.Set_Callback_On_Parameter_Changed(On_Clipboard_Format_Changed);
+
+		On_Clipboard_Format_Changed(Options(0), PARAMETER_CHECK_ENABLE);
 	}
 
-	if( DLG_Parameters(&Format, _TL("Copy Script Tool Call to Clipboard")) )
+	//-----------------------------------------------------
+	if( DLG_Parameters(&Options, _TL("Copy Script Tool Call to Clipboard")) )
 	{
 		CSG_String Script;
 
-		switch( Format["FORMAT"].asInt() )
+		switch( Options["TYPE"].asInt() )
 		{
 		case  0: // Command Line
-			#ifdef _SAGA_MSW
-			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Batch, Format["HEADER"].asBool(), 1, Format["WRAP"].asBool());
-			#else
-			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::CMD_Shell, Format["HEADER"].asBool(), 1, Format["WRAP"].asBool());
-			#endif
+			Script = m_pTool->Get_Script(Options["CMD"].asInt() == 0 ?
+				CSG_Tool::Script_Format::CMD_Batch : CSG_Tool::Script_Format::CMD_Shell,
+				Options["HEADER"].asBool(), Options["ARGS"].asInt(), Options["WRAP"].asBool()
+			);
 			break;
 
 		case  1: // Tool Chain
-			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Toolchain, Format["HEADER"].asBool(), 1);
+			Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Toolchain,
+				Options["HEADER"].asBool(), Options["ARGS"].asInt()
+			);
 			break;
 
 		case  2: // Python
-			switch( Format["PYTHON"].asInt() )
+			switch( Options["PYTHON"].asInt() )
 			{
 			case  0: // Wrapper Function Call
-				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Call_Name, Format["HEADER"].asBool(), Format["ARGS"].asInt() - 1, Format["WRAP"].asBool());
+				Script = m_pTool->Get_Script(Options["PY_FUNC"].asInt() == 0 ?
+					CSG_Tool::Script_Format::Python_Wrapper_Call_Name : CSG_Tool::Script_Format::Python_Wrapper_Call_ID,
+					Options["HEADER"].asBool(), Options["ARGS"].asInt() - 1, Options["WRAP"].asBool()
+				);
 				break;
 
 			case  1: // Wrapper Function
-				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python_Wrapper_Func_Name, Format["HEADER"].asBool());
+				Script = m_pTool->Get_Script(Options["PY_FUNC"].asInt() == 0 ?
+					CSG_Tool::Script_Format::Python_Wrapper_Func_Name : CSG_Tool::Script_Format::Python_Wrapper_Func_ID,
+					Options["HEADER"].asBool(), 1, false
+				);
 				break;
 
 			case  2: // Tool Settings and Call
-				Script = m_pTool->Get_Script(CSG_Tool::Script_Format::Python                  , Format["HEADER"].asBool());
+				Script = m_pTool->Get_Script(
+					CSG_Tool::Script_Format::Python,
+					Options["HEADER"].asBool(), Options["ARGS"].asInt()
+				);
 				break;
 			}
 		}

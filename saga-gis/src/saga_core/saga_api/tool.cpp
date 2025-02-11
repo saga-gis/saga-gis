@@ -1323,19 +1323,19 @@ CSG_String CSG_Tool::Get_Script(Script_Format Format, bool bHeader, int Argument
 {
 	switch( Format )
 	{
-	case Script_Format::CMD_Shell                    : return( _Get_Script_CMD           (      bHeader, Arguments > 0, bWrapArgs, false     ) );
-	case Script_Format::CMD_Batch                    : return( _Get_Script_CMD           (      bHeader, Arguments > 0, bWrapArgs, true      ) );
-	case Script_Format::CMD_Usage                    : return( _Get_Script_CMD_Usage     (                                                   ) );
+	case Script_Format::CMD_Shell                    : return( _Get_Script_CMD           (      bHeader, Arguments > 0, bWrapArgs, false    ) );
+	case Script_Format::CMD_Batch                    : return( _Get_Script_CMD           (      bHeader, Arguments > 0, bWrapArgs, true     ) );
+	case Script_Format::CMD_Usage                    : return( _Get_Script_CMD_Usage     (                                                  ) );
 
-	case Script_Format::Toolchain                    : return( CSG_Tool_Chain::Get_Script(this, bHeader, Arguments > 0                       ) );
+	case Script_Format::Toolchain                    : return( CSG_Tool_Chain::Get_Script(this, bHeader, Arguments > 0                      ) );
 
-	case Script_Format::Python                       : return( _Get_Script_Python        (      bHeader, Arguments > 0                       ) );
+	case Script_Format::Python                       : return( _Get_Script_Python        (      bHeader, Arguments > 0                      ) );
 
-	case Script_Format::Python_Wrapper_Func_Name     : return( _Get_Script_Python_Wrap   (      bHeader, true , false, 1, bWrapArgs          ) );
-	case Script_Format::Python_Wrapper_Func_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, false, 1, bWrapArgs          ) );
+	case Script_Format::Python_Wrapper_Func_Name     : return( _Get_Script_Python_Wrap   (      bHeader, true , false,         1, bWrapArgs ) );
+	case Script_Format::Python_Wrapper_Func_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, false,         1, bWrapArgs ) );
 
-	case Script_Format::Python_Wrapper_Call_Name     : return( _Get_Script_Python_Wrap   (      bHeader, true , true , Arguments, bWrapArgs  ) );
-	case Script_Format::Python_Wrapper_Call_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, true , Arguments, bWrapArgs  ) );
+	case Script_Format::Python_Wrapper_Call_Name     : return( _Get_Script_Python_Wrap   (      bHeader, true , true , Arguments, bWrapArgs ) );
+	case Script_Format::Python_Wrapper_Call_ID       : return( _Get_Script_Python_Wrap   (      bHeader, false, true , Arguments, bWrapArgs ) );
 	}
 
 	return( "" );
@@ -1979,7 +1979,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 {
 	CSG_String Arguments, Description, Code;
 
-	if( AllArguments >= 0 )
+	if( AllArguments >= 0 ) // if( AllArguments < 0 ) => skip arguments list
 	{
 		for(int i=0; i<Parameters.Get_Count(); i++)	// add input that is not optional in 1st place
 		{
@@ -1998,7 +1998,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 
 		for(int i=0; i<Parameters.Get_Count(); i++) // add options
 		{
-			_Get_Script_Python_Wrap(Parameters[i], 0                       , Arguments, Description, Code, bCall && bHeader, AllArguments == 0, bWrapArgs);
+			_Get_Script_Python_Wrap(Parameters[i], 0                       , Arguments, Description, Code, bCall           , AllArguments == 0, bWrapArgs);
 		}
 	}
 
@@ -2033,24 +2033,27 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 		Name.Replace(" ", "_");
 	}
 
-	CSG_Strings _Description = SG_String_Tokenize(SG_HTML_Tag_Replacer(Get_Description()), "\n");
-
 	//---------------------------------------------------------
 	CSG_String Script;
 
 	if( bCall )
 	{
-		Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
-
 		if( bHeader )
 		{
-			Script += Code + "\n";
+			Script += "from PySAGA import saga_api; from PySAGA.tools import " + Get_Library() + "\n\n";
+
+			if( !Code.is_Empty() )
+			{
+				Script += Code + "\n";
+			}
 		}
 
 		Script += Get_Library() + '.' + Name + "(" + Arguments + ")\n";
 	}
 	else
 	{
+		CSG_Strings _Description = SG_String_Tokenize(SG_HTML_Tag_Replacer(Get_Description()), "\n");
+
 		if( bHeader )
 		{
 			Script += "#! /usr/bin/env python\n";
@@ -2095,7 +2098,7 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 		return( false );
 	}
 
-	if( bCall && !Parameter.is_Enabled() )
+	if( bCall && !Parameter.is_Enabled() && !(Parameter.is_Output() && Parameter.Get_Parent() && Parameter.Get_Parent()->Cmp_Identifier("TARGET_SYSTEM")) )
 	{
 		return( false );
 	}
@@ -2226,14 +2229,12 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 			case PARAMETER_TYPE_FilePath    : Value.Printf("'%s'", Parameter.asString()); break;
 
 			case PARAMETER_TYPE_Grid_System :
-				if( Parameter.Cmp_Identifier("TARGET_SYSTEM") )
-				{
-					Value.Printf("'%s'", Parameter.asString());
-				}
-				else
+				if( !Parameter.Cmp_Identifier("TARGET_SYSTEM") )
 				{
 					return( false );
 				}
+
+				Value.Printf("'%s'", Parameter.asGrid_System()->asString());
 				break;
 
 			default                         : return( false );
