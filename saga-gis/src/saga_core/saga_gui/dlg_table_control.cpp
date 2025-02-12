@@ -265,7 +265,7 @@ void CDLG_Table_Control::On_Selected(wxGridRangeSelectEvent &event)
 {
 	if( event.Selecting() )
 	{
-		m_Table.Select();	// clear current selection
+		m_Table.Select(); // clear current selection
 
 		for(sLong i=0; i<m_Table.Get_Count(); i++)
 		{
@@ -437,10 +437,9 @@ void CDLG_Table_Control::On_RClick(wxGridEvent &event)
 //---------------------------------------------------------
 void CDLG_Table_Control::On_RClick_Label(wxGridEvent &event)
 {
-	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		wxMenu	Menu(_TL("Columns"));
+		wxMenu Menu(_TL("Columns"));
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
@@ -452,7 +451,7 @@ void CDLG_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	else if( event.GetRow() != -1 )
 	{
-		wxMenu	Menu(_TL("Rows"));
+		wxMenu Menu(_TL("Rows"));
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_ADD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS);
@@ -497,7 +496,7 @@ void CDLG_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Table_Control::On_Cell_Open(wxCommandEvent &event)
 {
-	wxString	Value	= GetCellValue(GetGridCursorRow(), GetGridCursorCol());
+	wxString Value = GetCellValue(GetGridCursorRow(), GetGridCursorCol());
 
 	if( event.GetId() == ID_CMD_TABLE_FIELD_OPEN_APP )
 	{
@@ -641,24 +640,23 @@ void CDLG_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 bool CDLG_Table_Control::Load(void)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
-	//-----------------------------------------------------
-	wxString	File, Filter;
-
-	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
+	wxString File, Filter = wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
 
 	if( m_LUT_Type != SG_DATAOBJECT_TYPE_Undefined )
 	{
-		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
+		Filter += wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
 
-	Filter	+= wxString::Format("%s|*.*", _TL("All Files"));
+	Filter += wxString::Format("%s|*.*", _TL("All Files"));
 
 	//-----------------------------------------------------
 	if( DLG_Open(File, _TL("Load Table"), Filter) )
 	{
-		CSG_Table	Table;
+		SG_UI_Progress_Lock(true);
+
+		CSG_Table Table;
 
 		if( m_LUT_Type != SG_DATAOBJECT_TYPE_Undefined && SG_File_Cmp_Extension(&File, "qml") )
 		{
@@ -669,10 +667,9 @@ bool CDLG_Table_Control::Load(void)
 			Table.Create(&File);
 		}
 
-		bResult	= Table.Get_Count() > 0 && Table.Get_Field_Count() == m_Table.Get_Field_Count()
-			&& m_Table.Assign_Values(&Table) && Update_Table();
+		bResult	= Table.Get_Count() > 0 && m_Table.Assign_Values(Table) && Update_Table();
 
-		PROCESS_Set_Okay();
+		SG_UI_Progress_Lock(false);
 	}
 
 	return( bResult );
@@ -681,30 +678,27 @@ bool CDLG_Table_Control::Load(void)
 //---------------------------------------------------------
 bool CDLG_Table_Control::Save(void)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
-	//-----------------------------------------------------
-	wxString	File, Filter;
-
-	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
+	wxString File, Filter = wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
 
 	if( m_LUT_Type == SG_DATAOBJECT_TYPE_Grid )
 	{
-		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
+		Filter += wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
 
-	Filter	+= wxString::Format("%s|*.*", _TL("All Files"));
+	Filter += wxString::Format("%s|*.*", _TL("All Files"));
 
 	//-----------------------------------------------------
 	if( DLG_Save(File, _TL("Save Table"), Filter) )
 	{
 		if( m_LUT_Type == SG_DATAOBJECT_TYPE_Grid && SG_File_Cmp_Extension(&File, "qml") )
 		{
-			bResult	= QGIS_Styles_Export(&File, m_Table);
+			bResult = QGIS_Styles_Export(&File, m_Table);
 		}
 		else
 		{
-			bResult	= m_Table.Save(&File);
+			bResult = m_Table.Save(&File);
 		}
 
 		PROCESS_Set_Okay();

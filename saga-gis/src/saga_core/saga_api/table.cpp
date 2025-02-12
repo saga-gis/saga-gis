@@ -369,9 +369,16 @@ CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
 //---------------------------------------------------------
 bool CSG_Table::Assign(CSG_Data_Object *pObject, bool bProgress)
 {
-	if( CSG_Data_Object::Assign(pObject) && pObject->asTable(true) && Create(pObject->asTable(true)) )
+	if( pObject && pObject->asTable(true) && CSG_Data_Object::Assign(pObject) )
 	{
 		CSG_Table *pTable = pObject->asTable(true);
+
+		m_Encoding = pTable->m_Encoding;
+
+		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		{
+			Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
+		}
 
 		for(sLong i=0; i<pTable->Get_Count() && (!bProgress || SG_UI_Process_Set_Progress(i, pTable->Get_Count())); i++)
 		{
