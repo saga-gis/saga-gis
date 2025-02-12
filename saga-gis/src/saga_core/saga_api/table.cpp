@@ -431,30 +431,14 @@ bool CSG_Table::is_Compatible(const CSG_Table &Table, bool bExactMatch) const
 {
 	if( Get_Field_Count() == Table.Get_Field_Count() )
 	{
-		for(int i=0; i<Get_Field_Count(); i++)
+		if( bExactMatch )
 		{
-			if( bExactMatch )
+			for(int i=0; i<Get_Field_Count(); i++)
 			{
 				if( Get_Field_Type(i) != Table.Get_Field_Type(i) )
 				{
 					return( false );
 				}
-			}
-			else switch( Get_Field_Type(i) )
-			{
-			case SG_DATATYPE_String:
-			//	if( Table.Get_Field_Type(i) != SG_DATATYPE_String )
-			//	{
-			//		return( false );
-			//	}
-				break;
-
-			default:
-				if( Table.Get_Field_Type(i) == SG_DATATYPE_String )
-				{
-					return( false );
-				}
-				break;
 			}
 		}
 
