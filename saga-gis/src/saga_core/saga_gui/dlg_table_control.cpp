@@ -658,7 +658,7 @@ bool CDLG_Table_Control::Load(void)
 
 		CSG_Table Table;
 
-		if( m_LUT_Type != SG_DATAOBJECT_TYPE_Undefined && SG_File_Cmp_Extension(&File, "qml") )
+		if( SG_File_Cmp_Extension(&File, "qml") )
 		{
 			QGIS_Styles_Import(&File, Table);
 		}
