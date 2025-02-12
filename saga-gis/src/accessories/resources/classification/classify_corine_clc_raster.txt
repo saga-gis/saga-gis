@@ -1,0 +1,46 @@
+Color	Name	Description	Minimum	Maximum
+5046502	"Continuous urban fabric"	"111"	1	1
+255	"Discontinuous urban fabric"	"112"	2	2
+15879628	"Industrial or commercial units"	"121"	3	3
+204	"Road and rail networks and associated land"	"122"	4	4
+13421798	"Port areas"	"123"	5	5
+15125734	"Airports"	"124"	6	6
+13369510	"Mineral extraction sites"	"131"	7	7
+19878	"Dump sites"	"132"	8	8
+16731647	"Construction sites"	"133"	9	9
+16754431	"Green urban areas"	"141"	10	10
+16770815	"Sport and leisure facilities"	"142"	11	11
+11075583	"Non-irrigated arable land"	"211"	12	12
+65535	"Permanently irrigated land"	"212"	13	13
+59110	"Rice fields"	"213"	14	14
+32998	"Vineyards"	"221"	15	15
+5089010	"Fruit trees and berry plantations"	"222"	16	16
+42726	"Olive groves"	"223"	17	17
+5105382	"Pastures"	"231"	18	18
+10938111	"Annual crops associated with permanent crops"	"241"	19	19
+5105407	"Complex cultivation patterns"	"242"	20	20
+5098726	"Land principally occupied by agriculture with significant areas of natural vegetation"	"243"	21	21
+10931442	"Agro-forestry areas"	"244"	22	22
+65408	"Broad-leaved forest"	"311"	23	23
+42496	"Coniferous forest"	"312"	24	24
+65357	"Mixed forest"	"313"	25	25
+5108428	"Natural grasslands"	"321"	26	26
+8454054	"Moors and heathland"	"322"	27	27
+5105318	"Sclerophyllous vegetation"	"323"	28	28
+62118	"Transitional woodland-shrub"	"324"	29	29
+15132390	"Beaches - dunes - sands"	"331"	30	30
+13421772	"Bare rocks"	"332"	31	31
+13434828	"Sparsely vegetated areas"	"333"	32	32
+0	"Burnt areas"	"334"	33	33
+13428390	"Glaciers and perpetual snow"	"335"	34	34
+16754342	"Inland marshes"	"411"	35	35
+16731469	"Peat bogs"	"412"	36	36
+16764108	"Salt marshes"	"421"	37	37
+16770790	"Salines"	"422"	38	38
+15115942	"Intertidal flats"	"423"	39	39
+15911936	"Water courses"	"511"	40	40
+15135360	"Water bodies"	"512"	41	41
+10944256	"Coastal lagoons"	"521"	42	42
+15138726	"Estuaries"	"522"	43	43
+16773862	"Sea and ocean"	"523"	44	44
+16777215	"NODATA"	"999"	48	48
