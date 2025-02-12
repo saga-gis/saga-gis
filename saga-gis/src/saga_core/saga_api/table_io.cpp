@@ -431,7 +431,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File, bool bHeadline, const SG_Char
 			//---------------------------------------------
 			if( Types[Field] != SG_DATATYPE_String && !Value.is_Empty() )
 			{
-				if( Value[0] == '0' && Value[1] != '.' ) // keep leading zero(s) => don't interpret as number !
+				if( Value[0] == '0' && Value[1] != '.' && Value[1] != '\0' ) // keep leading zero(s) => don't interpret as number !
 				{
 					Types[Field] = SG_DATATYPE_String;
 				}
