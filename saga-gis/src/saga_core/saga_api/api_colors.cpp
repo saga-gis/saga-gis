@@ -483,27 +483,31 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 	switch( Index )
 	{
 	case SG_COLORS_DEFAULT:
-		Set_Default(nColors);
+		Set_Default(nColors < 17 ? 17 : nColors);
 		break;
 
 	case SG_COLORS_DEFAULT_BRIGHT:
-		Set_Default(nColors);
+		Set_Default(nColors < 17 ? 17 : nColors);
 		Set_Ramp_Brighness(127, 127);
 		break;
 
 	case SG_COLORS_BLACK_WHITE:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(255, 255, 255));
 		break;
 
 	case SG_COLORS_BLACK_RED:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(255,   0,   0));
 		break;
 
 	case SG_COLORS_BLACK_GREEN:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(  0, 255,   0));
 		break;
 
 	case SG_COLORS_BLACK_BLUE:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
@@ -515,6 +519,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_WHITE_GREEN:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(  0, 127,   0));
 		break;
 
@@ -561,10 +566,12 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_RED_BLUE:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(255,   0,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
 	case SG_COLORS_GREEN_BLUE:
+		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0, 255,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
@@ -821,10 +828,10 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
 
-	case SG_COLORS_COUNT + 10:
-		Set_Count(nColors);
-		Random();
-		break;
+//	case SG_COLORS_COUNT + 10:
+//		Set_Count(nColors);
+//		Random();
+//		break;
 
 	default:
 		return( false );
@@ -836,20 +843,25 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Revert();
 	}
 
-	return( Set_Count(nColors) );
+	if( nColors > 0 )
+	{
+		Set_Count(nColors);
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Colors::Set_Default(int nColors)
 {
-	if( nColors > 0 )
+	if( nColors > 1 )
 	{
-		m_nColors	= nColors;
-		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
+		m_nColors = nColors;
+		m_Colors  = (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
-		double	d	= 0., dStep = 2. * M_PI / (double)Get_Count();
+		double d = 0., dStep = 2. * M_PI / (m_nColors - 1.);
 
-		for(int i=0; i<Get_Count(); i++, d+=dStep)
+		for(int i=0; i<m_nColors; i++, d+=dStep)
 		{
 			Set_Color(i,
 				(int)(d < M_PI / 2 ? 0 : 128 - 127 * sin(M_PI - d)),
