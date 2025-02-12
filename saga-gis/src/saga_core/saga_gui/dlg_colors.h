@@ -93,6 +93,8 @@ protected:
 
 	class CSG_Colors			*m_pColors, *m_pOriginal;
 
+	class CColorPresets			*m_pPresets;
+
 	class CDLG_Colors_Control	*m_pControl;
 
 

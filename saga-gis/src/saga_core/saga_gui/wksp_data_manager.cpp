@@ -127,7 +127,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"), _TL(""), true);
 
 	m_Parameters.Add_Bool("",
-		"SHOW_FILE_SOURCES"		, _TL("Show Data File Source Browser"),
+		"SHOW_FILE_SOURCES"     , _TL("Show Data File Source Browser"),
 		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
 		true
 	);
@@ -136,7 +136,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_PROJECT", _TL("Projects"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_PROJECT",
-		"PROJECT_START"			, _TL("Startup Project"),
+		"PROJECT_START"         , _TL("Startup Project"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("empty"),
@@ -146,7 +146,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Choice("NODE_PROJECT",
-		"PROJECT_MAP_ARRANGE", _TL("Map Window Arrangement"),
+		"PROJECT_MAP_ARRANGE"   , _TL("Map Window Arrangement"),
 		_TL("Initial map window arrangement after a project has been loaded."),
 		#ifndef MDI_TABBED
 		CSG_String::Format("%s|%s|%s|%s|%s",
@@ -168,7 +168,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_DB", _TL("Databases"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_DB",
-		"PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
+		"PROJECT_DB_REOPEN"     , _TL("Reopen Database Connections"),
 		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted passwords for automatic connection will be stored."),
 		CSG_String::Format("%s|%s",
 			_TL("no"),
@@ -177,7 +177,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Int("PROJECT_DB_REOPEN",
-		"PROJECT_DB_WAIT"		, _TL("Response Time"),
+		"PROJECT_DB_WAIT"       , _TL("Response Time"),
 		_TL("Maximum time (seconds) to wait for server response. If zero it waits until the PostgreSQL connection is established or refused."),
 		2, 0, true
 	);
@@ -186,26 +186,36 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_DATA", _TL("Data"), _TL(""));
 
 	m_Parameters.Add_Int("NODE_DATA",
-		"NUMBERING"				, _TL("Data Set Numeration"),
+		"NUMBERING"             , _TL("Data Set Numeration"),
 		_TL("Minimum width of data set numbering. If set to 0 no numbering is applied at all. Negative values will prepend zeros. Numbering helps in data set sorting and selection."),
 		3
 	);
 
 	m_Parameters.Add_Bool("NODE_DATA",
-		"NAME_BY_FILE"			, _TL("Use File Name for Naming"),
+		"NAME_BY_FILE"          , _TL("Use File Name for Naming"),
 		_TL("Use file name to name a data set, when it has been loaded from file."),
 		false
 	);
 
 	m_Parameters.Add_Bool("NODE_DATA",
-		"COLORS_FROM_TOOL"		, _TL("Tool Set Colors"),
+		"COLORS_FROM_TOOL"      , _TL("Tool Set Colors"),
 		_TL("Allow tools to change data set colors programmatically."),
 		true
 	);
 
 	m_Parameters.Add_Colors("NODE_DATA",
-		"COLORS_DEFAULT"		, _TL("Default Colors"),
+		"COLORS_DEFAULT"        , _TL("Default Color Ramp"),
 		_TL("")
+	);
+
+	m_Parameters.Add_FilePath("NODE_DATA",
+		"COLORS_FOLDER"         , _TL("Additional Color Ramps"),
+		_TL(""),
+		#if defined(_SAGA_MSW)
+		NULL, SG_UI_Get_Application_Path(true) + "\\resources\\color_ramps", false, true
+		#elif defined(SHARE_PATH)
+		NULL, SG_File_Make_Path(SHARE_PATH, "resources/color_ramps"), false, true
+		#endif
 	);
 
 	m_Parameters.Add_Choice("NODE_DATA"      , "STRETCH_DEFAULT", _TL("Histogram Stretch Defaults"), _TL("Histogram stretch applied by default to new data."), CSG_String::Format("%s|%s|%s",
@@ -216,23 +226,23 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Double("STRETCH_DEFAULT", "STRETCH_STDDEV" , _TL("Standard Deviation"        ), _TL(""), 2., 0., true);
 	m_Parameters.Add_Range ("STRETCH_DEFAULT", "STRETCH_PCTL"   , _TL("Percent Clip"              ), _TL(""), 2., 98., 0., true, 100., true);
 
-	SG_DataObject_Set_Max_Samples(1000000);	// default to one million
+	SG_DataObject_Set_Max_Samples(1000000);	// defaults to one million
 
 	m_Parameters.Add_Int("NODE_DATA",
-		"DATA_SAMPLE_MAX"		, _TL("Maximum Samples"),
+		"DATA_SAMPLE_MAX"       , _TL("Maximum Samples"),
 		_TL("Default maximum number of samples used to build statistics and histograms. Set to zero to use all data records."),
 		(int)SG_DataObject_Get_Max_Samples(), 0, true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Int("NODE_DATA",
-		"HISTORY_DEPTH"			, _TL("History Depth"),
+		"HISTORY_DEPTH"         , _TL("History Depth"),
 		_TL("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
 		SG_Get_History_Depth(), -1, true
 	);
 
 	m_Parameters.Add_Bool("HISTORY_DEPTH",
-		"HISTORY_LISTS"			, _TL("Ignore Input Lists"),
+		"HISTORY_LISTS"         , _TL("Ignore Input Lists"),
 		_TL(""),
 		SG_Get_History_Ignore_Lists() != 0
 	);
@@ -241,7 +251,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_GRID", _TL("Grids"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_GRID",
-		"GRID_FMT_DEFAULT"		, _TL("Default Output Format"),
+		"GRID_FMT_DEFAULT"      , _TL("Default Output Format"),
 		_TL(""),
 		CSG_String::Format("%s (*.sg-grd-z)|%s (*.sg-grd)|%s (*.tif)",
 			_TL("SAGA Compressed Grid Files"),
@@ -251,19 +261,19 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Int("NODE_GRID",
-		"GRID_COORD_PRECISION"	, _TL("Coordinate Precision"),
+		"GRID_COORD_PRECISION"  , _TL("Coordinate Precision"),
 		_TL("Precision used to store coordinates and cell sizes (i.e. number of decimals). Ignored if negative."),
 		10, -1, true
 	);
 
 	m_Parameters.Add_Int("NODE_GRID",
-		"GRID_SELECT_MAX"		, _TL("Maximum Selection"),
+		"GRID_SELECT_MAX"       , _TL("Maximum Selection"),
 		_TL("Maximum number of rows/columns in selection of grid cells."),
 		100, 1, true
 	);
 
 	m_Parameters.Add_Choice("NODE_GRID",
-		"GRID_CACHE_MODE"		, _TL("File Cache"),
+		"GRID_CACHE_MODE"       , _TL("File Cache"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
 		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
@@ -273,13 +283,13 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Double("GRID_CACHE_MODE",
-		"GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
+		"GRID_CACHE_THRSHLD"    , _TL("Threshold for automatic mode [MB]"),
 		_TL(""),
 		SG_Grid_Cache_Get_Threshold_MB(), 0., true
 	);
 
 	m_Parameters.Add_FilePath("GRID_CACHE_MODE",
-		"GRID_CACHE_TMPDIR"		, _TL("Temporary files"),
+		"GRID_CACHE_TMPDIR"     , _TL("Temporary files"),
 		_TL("Directory, where temporary cache files shall be saved."),
 		NULL, SG_Grid_Cache_Get_Directory(), true, true
 	);
@@ -288,7 +298,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_TABLE", _TL("Tables"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_TABLE",
-		"TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
+		"TABLE_FLT_STYLE"       , _TL("Floating Point Numbers"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("system default"),
@@ -298,13 +308,13 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	m_Parameters.Add_Int("NODE_TABLE",
-		"TABLE_FLT_DECIMALS"	, _TL("Decimals"),
+		"TABLE_FLT_DECIMALS"    , _TL("Decimals"),
 		_TL(""),
 		6, 0, true
 	);
 
 	m_Parameters.Add_Choice("NODE_TABLE",
-		"TABLE_ENCODING"		, _TL("Default Encoding"),
+		"TABLE_ENCODING"        , _TL("Default Encoding"),
 		_TL("Default encoding used when loading a table."),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			SG_T("ANSI"),
@@ -321,7 +331,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node("", "NODE_SHAPES", _TL("Shapes"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_SHAPES",
-		"SHAPES_FMT_DEFAULT"	, _TL("Default Output Format"),
+		"SHAPES_FMT_DEFAULT"    , _TL("Default Output Format"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("ESRI Shape File (*.shp)"),

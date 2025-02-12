@@ -71,13 +71,13 @@ IMPLEMENT_CLASS(CDLG_Colors_Control, wxPanel)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Colors_Control, wxPanel)
-	EVT_SIZE			(CDLG_Colors_Control::On_Size)
-	EVT_PAINT			(CDLG_Colors_Control::On_Paint)
+	EVT_SIZE      (CDLG_Colors_Control::On_Size)
+	EVT_PAINT     (CDLG_Colors_Control::On_Paint)
 
-	EVT_LEFT_DOWN		(CDLG_Colors_Control::On_Mouse_LDown)
-	EVT_MOTION			(CDLG_Colors_Control::On_Mouse_Motion)
-	EVT_LEFT_UP			(CDLG_Colors_Control::On_Mouse_LUp)
-	EVT_RIGHT_DOWN		(CDLG_Colors_Control::On_Mouse_RUp)
+	EVT_LEFT_DOWN (CDLG_Colors_Control::On_Mouse_LDown)
+	EVT_MOTION    (CDLG_Colors_Control::On_Mouse_Motion)
+	EVT_LEFT_UP   (CDLG_Colors_Control::On_Mouse_LUp)
+	EVT_RIGHT_DOWN(CDLG_Colors_Control::On_Mouse_RUp)
 END_EVENT_TABLE()
 
 
@@ -105,20 +105,21 @@ CDLG_Colors_Control::~CDLG_Colors_Control(void)
 //---------------------------------------------------------
 void CDLG_Colors_Control::Set_Positions(void)
 {
-	#define BOX_DISTANCE	10
+	#define SPACE 10
 
-	wxRect	r(wxPoint(0, 0), GetClientSize());
+	wxRect r(wxPoint(0, 0), GetClientSize());
 
-	r.Deflate(BOX_DISTANCE);
+	r.Deflate(SPACE);
 
-	int	h	= (int)(r.GetHeight() / (4 + 0.25));
-	int	p	= r.GetTop();
+	int h = (int)(r.GetHeight() / (4 + 0.5));
+	int p = r.GetTop();
 
-	m_red	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
-	m_green	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
-	m_blue	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
-	m_sum	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
-	m_rgb	= wxRect(r.GetX(), p, r.GetWidth(), (int)(h * 0.25));
+	m_red   = wxRect(r.GetX(), p, r.GetWidth(), h - SPACE); p += h;
+	m_green = wxRect(r.GetX(), p, r.GetWidth(), h - SPACE); p += h;
+	m_blue  = wxRect(r.GetX(), p, r.GetWidth(), h - SPACE); p += h;
+	m_sum   = wxRect(r.GetX(), p, r.GetWidth(), h - SPACE); p += h;
+	m_rgb   = wxRect(r.GetX(), p, r.GetWidth(), (int)(h * 0.25)); p += (int)(h * 0.25) + SPACE / 2;
+	m_grad  = wxRect(r.GetX(), p, r.GetWidth(), (int)(h * 0.25));
 
 	Refresh();
 }
@@ -146,6 +147,7 @@ void CDLG_Colors_Control::On_Paint(wxPaintEvent &event)
 	Draw_Box(dc, 2);
 	Draw_Box(dc, 3);
 	Draw_Box(dc, 4);
+	Draw_Box(dc, 5);
 
 	if( m_selBox >= 0 && m_Mouse_Down != m_Mouse_Move )
 	{
@@ -169,51 +171,66 @@ void CDLG_Colors_Control::Draw_Box(wxDC &dc, int BoxID)
 	rBox.Inflate(1); Draw_Edge(dc, EDGE_STYLE_SUNKEN, rBox); rBox.Deflate(1);
 
 	//-----------------------------------------------------
-	double xStep = (double)rBox.GetWidth () / (double)m_pColors->Get_Count();
-	double yStep = (double)rBox.GetHeight() / 255.;
+	if( BoxID != 5 )
+	{
+		double xStep = (double)rBox.GetWidth () / (double)m_pColors->Get_Count();
+		double yStep = (double)rBox.GetHeight() / 255.;
 
-	int r = 0, g = 0, b = 0, s = 255;
+		int r = 0, g = 0, b = 0, s = 255;
+
+		for(int i=0, ax=rBox.GetLeft(), ay=rBox.GetBottom(); i<m_pColors->Get_Count(); i++)
+		{
+			switch( BoxID )
+			{
+			case 0:
+				r = s = m_pColors->Get_Red  (i);
+				break;
+
+			case 1:
+				g = s = m_pColors->Get_Green(i);
+				break;
+
+			case 2:
+				b = s = m_pColors->Get_Blue (i);
+				break;
+
+			case 3:
+				r     = m_pColors->Get_Red  (i);
+				g     = m_pColors->Get_Green(i);
+				b     = m_pColors->Get_Blue (i);
+				s     = (r + g + b) / 3;
+				break;
+
+			case 4:
+				r     = m_pColors->Get_Red  (i);
+				g     = m_pColors->Get_Green(i);
+				b     = m_pColors->Get_Blue (i);
+				break;
+			}
+
+			int bx = ax; ax	= rBox.GetLeft() + (int)(xStep * (i + 1.));
+			int by = ay - (int)(yStep * (double)s);
+
+			if( BoxID != 4 )
+			{
+				Draw_FillRect(dc, SYS_Get_Color(wxSYS_COLOUR_WINDOW), ax, by, bx, rBox.GetTop()-1);
+			}
+
+			Draw_FillRect(dc, wxColour(r, g, b), ax, ay, bx, by);
+		}
+	}
 
 	//-----------------------------------------------------
-	for(int i=0, ax=rBox.GetLeft(), ay=rBox.GetBottom(); i<m_pColors->Get_Count(); i++)
+	else
 	{
-		switch( BoxID )
+		CSG_Colors Colors(*m_pColors); Colors.Set_Count(rBox.GetWidth());
+
+		for(int i=0, ix=rBox.GetLeft(); i<Colors.Get_Count(); i++, ix++)
 		{
-		case 0:
-			r = s = m_pColors->Get_Red  (i);
-			break;
+			dc.SetPen(Get_Color_asWX(Colors[i]));
 
-		case 1:
-			g = s = m_pColors->Get_Green(i);
-			break;
-
-		case 2:
-			b = s = m_pColors->Get_Blue (i);
-			break;
-
-		case 3:
-			r     = m_pColors->Get_Red  (i);
-			g     = m_pColors->Get_Green(i);
-			b     = m_pColors->Get_Blue (i);
-			s     = (r + g + b) / 3;
-			break;
-
-		case 4:
-			r     = m_pColors->Get_Red  (i);
-			g     = m_pColors->Get_Green(i);
-			b     = m_pColors->Get_Blue (i);
-			break;
+			dc.DrawLine(ix, rBox.GetBottom(), ix, rBox.GetTop());
 		}
-
-		int bx = ax; ax	= rBox.GetLeft() + (int)(xStep * (i + 1.));
-		int by = ay - (int)(yStep * (double)s);
-
-		if( BoxID != 4 )
-		{
-			Draw_FillRect(dc, SYS_Get_Color(wxSYS_COLOUR_WINDOW), ax, by, bx, rBox.GetTop()-1);
-		}
-
-		Draw_FillRect(dc, wxColour(r, g, b), ax, ay, bx, by);
 	}
 }
 
@@ -389,6 +406,7 @@ wxRect CDLG_Colors_Control::Get_BoxRect(int BoxID)
 	case 2: return( m_blue  ); break;
 	case 3: return( m_sum   ); break;
 	case 4: return( m_rgb   ); break;
+	case 5: return( m_grad  ); break;
 	}
 
 	return( wxRect() );

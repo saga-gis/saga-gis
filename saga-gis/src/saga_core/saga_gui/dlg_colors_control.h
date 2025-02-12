@@ -94,7 +94,7 @@ protected:
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move;
 
-	wxRect						m_red, m_green, m_blue, m_sum, m_rgb;
+	wxRect						m_red, m_green, m_blue, m_sum, m_rgb, m_grad;
 
 	class CSG_Colors			*m_pColors;
 

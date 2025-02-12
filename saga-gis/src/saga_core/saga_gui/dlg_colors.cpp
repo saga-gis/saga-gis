@@ -61,6 +61,8 @@
 #include "dlg_colors.h"
 #include "dlg_colors_control.h"
 
+#include "wksp_data_manager.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -71,31 +73,65 @@
 //---------------------------------------------------------
 class CColorPresets : public wxOwnerDrawnComboBox
 {
+private:
+
+	CSG_Array_Pointer m_Ramps; wxArrayString m_Names;
+
+
+	void Add_Ramp(const CSG_Colors &Ramp, const CSG_String &Name)
+	{
+		m_Ramps += new CSG_Colors(Ramp); m_Names.Add(Name.c_str());
+	}
+
+
 public:
+
 	CColorPresets(wxWindow *pParent)
 	{
-		wxArrayString Colors; CSG_Colors Dummy;
+		CSG_Colors Ramp;
 
-		for(int i=0; Dummy.Set_Predefined(i); i++)
+		for(int i=0; Ramp.Set_Predefined(i, false, 0); i++)
 		{
-			Colors.Add(CSG_Colors::Get_Predefined_Name(i).c_str());
+			Add_Ramp(Ramp, CSG_Colors::Get_Predefined_Name(i));
 		}
 
-		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, Colors, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
+		CSG_Strings Files;
+
+		if( SG_Dir_List_Files(Files, g_pData->Get_Parameter("COLORS_FOLDER")->asString(), "pal") )
+		{
+			for(int i=0; i<Files.Get_Count(); i++)
+			{
+				if( Ramp.Load(Files[i]) )
+				{
+					Add_Ramp(Ramp, SG_File_Get_Name(Files[i], false));
+				}
+			}
+		}
+
+		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, m_Names, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
 
 		SetSelection(0);
 	}
 
-	//-----------------------------------------------------
-	void	Draw_Colors(wxDC &dc, const wxRect &r, int Palette) const
+	virtual ~CColorPresets(void)
 	{
-		CSG_Colors Colors(r.GetWidth(), Palette);
-
-		for(int i=0, x=r.GetLeft(); i<Colors.Get_Count(); i++)
+		for(sLong i=0; i<m_Ramps.Get_Size(); i++)
 		{
-			int xx = x; x = r.GetLeft() + (int)((i + 1.) * r.GetWidth() / (double)Colors.Get_Count());
+			delete((CSG_Colors *)m_Ramps[i]);
+		}
+	}
 
-			Draw_FillRect(dc, Get_Color_asWX(Colors.Get_Color(i)), xx, r.GetTop(), x, r.GetBottom());
+	//-----------------------------------------------------
+	const CSG_Colors & Get_Ramp(int i) const { return( *((CSG_Colors *)m_Ramps[i]) ); }
+
+	//-----------------------------------------------------
+	void	Draw_Colors(wxDC &dc, const wxRect &r, int item) const
+	{
+		CSG_Colors Ramp(Get_Ramp(item)); Ramp.Set_Count(r.GetWidth());
+
+		for(int i=0, x=r.GetLeft(); i<Ramp.Get_Count(); i++, x++)
+		{
+			Draw_FillRect(dc, Get_Color_asWX(Ramp[i]), x, r.GetTop(), x + 1, r.GetBottom());
 		}
 	}
 
@@ -171,16 +207,16 @@ END_EVENT_TABLE()
 CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
 	: CDLG_Base(-1, _TL("Colors"))
 {
-	m_pOriginal	= pColors;
-	m_pColors	= new CSG_Colors();
+	m_pOriginal = pColors;
+	m_pColors   = new CSG_Colors();
 	m_pColors->Assign(pColors);
 
-	m_pControl	= new CDLG_Colors_Control(this, m_pColors);
+	m_pControl  = new CDLG_Colors_Control(this, m_pColors);
 
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_SAVE);
 	Add_Button(-1);
-	Add_Control(new CColorPresets(Get_Controls()));
+	Add_Control(m_pPresets = new CColorPresets(Get_Controls()));
 //	Add_Button(-1);
 	Add_Button(ID_BTN_COLORS_COUNT    );
 	Add_Button(ID_BTN_COLORS_MIRROR   );
@@ -325,7 +361,7 @@ void CDLG_Colors::On_ComboBox(wxCommandEvent &event)
 
 	if( event.GetEventType() == wxEVT_COMBOBOX )
 	{
-		m_pColors->Set_Palette(event.GetSelection(), false, m_pColors->Get_Count());
+		m_pColors->Create(m_pPresets->Get_Ramp(event.GetSelection()));
 
 		m_pControl->Refresh(false);
 	}
