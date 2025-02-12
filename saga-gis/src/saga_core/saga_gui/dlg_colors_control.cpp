@@ -309,8 +309,6 @@ wxPoint CDLG_Colors_Control::Get_ColorPosition(wxPoint p, int BoxID)
 
 	KeepInBoxRect(p, BoxID);
 
-	int dy = r.GetBottom() - p.y;
-
 	p.x	= (int)((p.x   - r.GetLeft()) * m_pColors->Get_Count() / (r.GetWidth () - 1.));
 	p.y	= (int)((r.GetBottom() - p.y) * 255.                   / (r.GetHeight() - 1.));
 
