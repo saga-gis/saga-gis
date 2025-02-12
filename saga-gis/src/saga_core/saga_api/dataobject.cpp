@@ -801,9 +801,11 @@ bool CSG_Data_Object::Assign(CSG_Data_Object *pObject, bool bProgress)
 		Destroy();
 
 		m_Name         = pObject->Get_Name();
+		m_Description  = pObject->Get_Description();
 		m_Projection   = pObject->m_Projection;
 		Get_MetaData() = pObject->Get_MetaData();
 	//	Get_History () = pObject->Get_History ();
+		Set_NoData_Value_Range(pObject->m_NoData_Value[0], pObject->m_NoData_Value[1]);
 
 		return( true );
 	}
