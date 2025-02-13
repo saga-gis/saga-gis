@@ -65,25 +65,14 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CColorPresets : public wxOwnerDrawnComboBox
 {
-private:
-
-	CSG_Array_Pointer m_Ramps; wxArrayString m_Names;
-
-
-	void Add_Ramp(const CSG_Colors &Ramp, const CSG_String &Name)
-	{
-		m_Ramps += new CSG_Colors(Ramp); m_Names.Add(Name.c_str());
-	}
-
-
 public:
 
 	CColorPresets(wxWindow *pParent)
@@ -97,7 +86,7 @@ public:
 
 		CSG_Strings Files;
 
-		if( SG_Dir_List_Files(Files, g_pData->Get_Parameter("COLORS_FOLDER")->asString(), "pal") )
+		if( SG_Dir_List_Files(Files, g_pData->Get_Parameter("COLORS_FOLDER")->asString(), "pal", true) )
 		{
 			for(int i=0; i<Files.Get_Count(); i++)
 			{
@@ -108,7 +97,7 @@ public:
 			}
 		}
 
-		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, m_Names, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
+		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, m_Labels, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
 
 		SetSelection(0);
 	}
@@ -122,6 +111,13 @@ public:
 	}
 
 	//-----------------------------------------------------
+	CSG_Array_Pointer m_Ramps; wxArrayString m_Labels; bool m_bLabels = true;
+
+	void Add_Ramp(const CSG_Colors &Ramp, const CSG_String &Name)
+	{
+		m_Ramps += new CSG_Colors(Ramp); m_Labels.Add(Name.c_str());
+	}
+
 	const CSG_Colors & Get_Ramp(int i) const { return( *((CSG_Colors *)m_Ramps[i]) ); }
 
 	//-----------------------------------------------------
@@ -132,6 +128,13 @@ public:
 		for(int i=0, x=r.GetLeft(); i<Ramp.Get_Count(); i++, x++)
 		{
 			Draw_FillRect(dc, Get_Color_asWX(Ramp[i]), x, r.GetTop(), x + 1, r.GetBottom());
+		}
+
+		if( m_bLabels )
+		{
+			wxColour Color(dc.GetTextForeground()); Color.Set(255 - Color.Red(), 255 - Color.Green(), 255 - Color.Blue());
+
+			Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetTop() + r.GetHeight() / 2, m_Labels.Item(item), TEXTEFFECT_FRAME, Color);
 		}
 	}
 
@@ -176,9 +179,9 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -196,11 +199,12 @@ BEGIN_EVENT_TABLE(CDLG_Colors, CDLG_Base)
 	EVT_BUTTON(ID_BTN_COLORS_PRESET   , CDLG_Colors::On_Preset   )
 
 	EVT_COMBOBOX(wxID_ANY             , CDLG_Colors::On_ComboBox )
+	EVT_CHECKBOX(wxID_ANY             , CDLG_Colors::On_CheckBox )
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -213,11 +217,16 @@ CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
 
 	m_pControl  = new CDLG_Colors_Control(this, m_pColors);
 
+	m_pPresets  = new CColorPresets(Get_Controls());
+
+	wxCheckBox *pLabels = new wxCheckBox(Get_Controls(), wxID_ANY, _TL("Labels")); pLabels->SetValue(m_pPresets->m_bLabels);
+
 	Add_Button(ID_BTN_LOAD);
 	Add_Button(ID_BTN_SAVE);
 	Add_Button(-1);
-	Add_Control(m_pPresets = new CColorPresets(Get_Controls()));
-//	Add_Button(-1);
+	Add_Control(m_pPresets);
+	Add_Control(pLabels);
+	Add_Button(-1);
 	Add_Button(ID_BTN_COLORS_COUNT    );
 	Add_Button(ID_BTN_COLORS_MIRROR   );
 	Add_Button(ID_BTN_COLORS_INVERT   );
@@ -236,7 +245,7 @@ CDLG_Colors::~CDLG_Colors(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -247,7 +256,7 @@ void CDLG_Colors::Set_Position(wxRect r)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -258,7 +267,7 @@ void CDLG_Colors::Save_Changes(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -367,11 +376,18 @@ void CDLG_Colors::On_ComboBox(wxCommandEvent &event)
 	}
 }
 
+//---------------------------------------------------------
+void CDLG_Colors::On_CheckBox(wxCommandEvent &event)
+{
+	m_pPresets->m_bLabels = event.IsChecked();
+	m_pPresets->Refresh();
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

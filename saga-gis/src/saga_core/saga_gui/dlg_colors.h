@@ -80,14 +80,6 @@ public:
 	void						On_Load			(wxCommandEvent &event);
 	void						On_Save			(wxCommandEvent &event);
 
-	void						On_Count		(wxCommandEvent &event);
-	void						On_Mirror		(wxCommandEvent &event);
-	void						On_Invert		(wxCommandEvent &event);
-	void						On_Greyscale	(wxCommandEvent &event);
-	void						On_Random		(wxCommandEvent &event);
-	void						On_Preset		(wxCommandEvent &event);
-	void						On_ComboBox		(wxCommandEvent &event);
-
 
 protected:
 
@@ -102,9 +94,18 @@ protected:
 
 	virtual void				Save_Changes	(void);
 
+	void						On_Count		(wxCommandEvent &event);
+	void						On_Mirror		(wxCommandEvent &event);
+	void						On_Invert		(wxCommandEvent &event);
+	void						On_Greyscale	(wxCommandEvent &event);
+	void						On_Random		(wxCommandEvent &event);
+	void						On_Preset		(wxCommandEvent &event);
+	void						On_ComboBox		(wxCommandEvent &event);
+	void						On_CheckBox		(wxCommandEvent &event);
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 
