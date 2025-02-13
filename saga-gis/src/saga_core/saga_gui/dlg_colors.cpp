@@ -111,7 +111,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Pointer m_Ramps; wxArrayString m_Labels; bool m_bLabels = true;
+	CSG_Array_Pointer m_Ramps; wxArrayString m_Labels; bool m_bLabels = false;
 
 	void Add_Ramp(const CSG_Colors &Ramp, const CSG_String &Name)
 	{
