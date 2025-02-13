@@ -1007,21 +1007,24 @@ CSG_String		SG_Dir_Get_Temp(void)
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory)
+bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory, bool bRecursive)
 {
-	List.Clear();
-
-	wxDir	Dir;
+	List.Clear(); wxDir Dir;
 
 	if( Dir.Open(Directory.c_str()) )
 	{
-		wxString	FileName;
+		wxString FileName;
 
 		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
 		{
 			do
 			{
-				List	+= SG_File_Make_Path(Directory, &FileName);
+				List += SG_File_Make_Path(Directory, &FileName);
+
+				if( bRecursive )
+				{
+					CSG_Strings _List; SG_Dir_List_Subdirectories(_List, SG_File_Make_Path(Directory, &FileName), bRecursive); List += _List;
+				}
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -1031,20 +1034,13 @@ bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Director
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory)
+bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension, bool bRecursive)
 {
-	return( SG_Dir_List_Files(List, Directory, "") );
-}
-
-bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension)
-{
-	List.Clear();
-
-	wxDir	Dir;
+	List.Clear(); wxDir Dir;
 
 	if( Dir.Open(Directory.c_str()) )
 	{
-		wxString	FileName;
+		wxString FileName;
 
 		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
@@ -1052,8 +1048,17 @@ bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, cons
 			{
 				if( Extension.is_Empty() || SG_File_Cmp_Extension(&FileName, Extension) )
 				{
-					List	+= SG_File_Make_Path(Directory, &FileName);
+					List += SG_File_Make_Path(Directory, &FileName);
 				}
+			}
+			while( Dir.GetNext(&FileName) );
+		}
+
+		if( bRecursive && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
+		{
+			do
+			{
+				CSG_Strings _List; SG_Dir_List_Files(_List, SG_File_Make_Path(Directory, &FileName), Extension, bRecursive); List += _List;
 			}
 			while( Dir.GetNext(&FileName) );
 		}

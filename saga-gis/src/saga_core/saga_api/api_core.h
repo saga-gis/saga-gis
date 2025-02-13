@@ -1261,9 +1261,8 @@ SAGA_API_DLL_EXPORT bool			SG_Dir_Create				(const CSG_String &Directory, bool b
 SAGA_API_DLL_EXPORT bool			SG_Dir_Delete				(const CSG_String &Directory, bool bRecursive = false);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current			(void);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Temp				(void);
-SAGA_API_DLL_EXPORT bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory);
-SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory);
-SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory                                  , bool bRecursive = false);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension = "", bool bRecursive = false);
 
 SAGA_API_DLL_EXPORT bool			SG_File_Exists				(const CSG_String &FileName);
 SAGA_API_DLL_EXPORT bool			SG_File_Delete				(const CSG_String &FileName);
@@ -1324,37 +1323,72 @@ SAGA_API_DLL_EXPORT bool			SG_Set_Environment			(const CSG_String &Variable, con
 //---------------------------------------------------------
 enum ESG_Colors
 {
-	SG_COLORS_DEFAULT			= 0,
+	SG_COLORS_DEFAULT = 0,
 	SG_COLORS_DEFAULT_BRIGHT,
+	SG_COLORS_RAINBOW,
+	SG_COLORS_RAINBOW_2,
+
 	SG_COLORS_BLACK_WHITE,
 	SG_COLORS_BLACK_RED,
 	SG_COLORS_BLACK_GREEN,
 	SG_COLORS_BLACK_BLUE,
+
 	SG_COLORS_WHITE_RED,
 	SG_COLORS_WHITE_GREEN,
 	SG_COLORS_WHITE_BLUE,
+
 	SG_COLORS_YELLOW_RED,
 	SG_COLORS_YELLOW_GREEN,
 	SG_COLORS_YELLOW_BLUE,
+
+	SG_COLORS_BLUE_RED,
 	SG_COLORS_GREEN_RED,
-	SG_COLORS_RED_GREEN,
-	SG_COLORS_RED_BLUE,
 	SG_COLORS_GREEN_BLUE,
+
+	SG_COLORS_BLUE_WHITE_RED,
+	SG_COLORS_GREEN_WHITE_RED,
+	SG_COLORS_GREEN_WHITE_BLUE,
+
+	SG_COLORS_BLUE_GREY_RED,
 	SG_COLORS_RED_GREY_BLUE,
+	SG_COLORS_GREEN_GREY_RED,
 	SG_COLORS_RED_GREY_GREEN,
 	SG_COLORS_GREEN_GREY_BLUE,
+
+	SG_COLORS_BLUE_YELLOW_RED,
+	SG_COLORS_GREEN_YELLOW_RED,
+	SG_COLORS_RED_YELLOW_GREEN,
+	SG_COLORS_GREEN_YELLOW_BLUE,
+
 	SG_COLORS_RED_GREEN_BLUE,
 	SG_COLORS_RED_BLUE_GREEN,
 	SG_COLORS_GREEN_RED_BLUE,
-	SG_COLORS_RAINBOW,
 	SG_COLORS_NEON,
+
 	SG_COLORS_TOPOGRAPHY,
 	SG_COLORS_TOPOGRAPHY_2,
 	SG_COLORS_TOPOGRAPHY_3,
-	SG_COLORS_PRECIPITATION,
+	SG_COLORS_TOPOGRAPHY_4,
+
 	SG_COLORS_ASPECT_1,
 	SG_COLORS_ASPECT_2,
 	SG_COLORS_ASPECT_3,
+
+	SG_COLORS_THERMAL_1,
+	SG_COLORS_THERMAL_2,
+
+	SG_COLORS_PRECIPITATION_1,
+	SG_COLORS_PRECIPITATION_2,
+	SG_COLORS_PRECIPITATION_3,
+	SG_COLORS_PRECIPITATION_4,
+	SG_COLORS_PRECIPITATION_5,
+
+	SG_COLORS_VEGETATION,
+
+	SG_COLORS_SPECTRUM_1,
+	SG_COLORS_SPECTRUM_2,
+	SG_COLORS_SPECTRUM_3,
+
 	SG_COLORS_COUNT
 };
 
@@ -1418,8 +1452,8 @@ public:
 
 	static int						Get_Predefined_Count(void);
 	static CSG_String				Get_Predefined_Name	(int Identifier);
-	bool							Set_Predefined		(int Index, bool bRevert = false, int nColors = 11);
-	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11)	{	return( Set_Predefined(Index, bRevert, nColors) );	}
+	bool							Set_Predefined		(int Index, bool bRevert = false, int nColors = 0);
+	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 0)	{	return( Set_Predefined(Index, bRevert, nColors) );	}
 	bool							Set_Default			(int nColors = 11);
 	bool							Set_Ramp			(long Color_A, long Color_B);
 	bool							Set_Ramp			(long Color_A, long Color_B, int iColor_A, int iColor_B);
