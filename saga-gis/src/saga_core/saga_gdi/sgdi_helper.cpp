@@ -344,9 +344,8 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 //---------------------------------------------------------
 void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orientation, int Tick, int Style, const wxString &Unit, bool bUseDCFont)
 {
-	//-----------------------------------------------------
-	int	Width	= Orientation != SCALE_VERTICAL ? r.GetWidth() : r.GetHeight();
-	int	Height	= Orientation != SCALE_VERTICAL ? r.GetHeight() : r.GetWidth();
+	int Width  = Orientation != SCALE_VERTICAL ? r.GetWidth() : r.GetHeight();
+	int Height = Orientation != SCALE_VERTICAL ? r.GetHeight() : r.GetWidth();
 
 	if( zMin >= zMax || Width < 5 || Height < 5 )
 	{
@@ -354,33 +353,32 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 	}
 
 	//-----------------------------------------------------
+	wxPen   oldPen  (dc.GetPen  ());
+	wxBrush oldBrush(dc.GetBrush());
+	wxFont  oldFont (dc.GetFont ());
+
+	//-----------------------------------------------------
 	if( Style & SCALE_STYLE_GLOOMING )
 	{
-		Style	^= SCALE_STYLE_GLOOMING;
+		Style ^= SCALE_STYLE_GLOOMING;
 
-		wxRect	rTmp;
+		wxRect rTmp; wxColour oldColour(dc.GetTextForeground());
 
-		dc.SetPen     (wxPen(*wxWHITE));
-		dc.SetTextForeground(*wxWHITE);
+		dc.SetPen(wxPen(*wxWHITE)); dc.SetTextForeground(*wxWHITE);
 
-		rTmp	= r; rTmp.Offset( 0,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset( 1,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset( 1,  0); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset( 1, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset( 0, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset(-1, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset(-1,  0); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
-		rTmp	= r; rTmp.Offset(-1,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit);
+		rTmp = r; rTmp.Offset( 0,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset( 1,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset( 1,  0); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset( 1, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset( 0, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset(-1, -1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset(-1,  0); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
+		rTmp = r; rTmp.Offset(-1,  1); Draw_Scale(dc, rTmp, zMin, zMax, Orientation, Tick, Style, Unit, bUseDCFont);
 
-		dc.SetPen     (wxPen(*wxBLACK));
-		dc.SetTextForeground(*wxBLACK);
+		dc.SetPen(oldPen); dc.SetTextForeground(oldColour);
 	}
 
 	//-----------------------------------------------------
-	wxPen	oldPen  (dc.GetPen  ());
-	wxBrush	oldBrush(dc.GetBrush());
-	wxFont	oldFont (dc.GetFont ());
-
 	if( bUseDCFont )
 	{
 		wxFont Font(dc.GetFont());
