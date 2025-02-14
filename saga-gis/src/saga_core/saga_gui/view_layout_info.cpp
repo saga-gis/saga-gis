@@ -321,6 +321,7 @@ public:
 
 				m_pLayout->Get_Map()->Draw_Frame(dc, rWorld, rMap, rMap.x - rFrame.x, false, true);
 			}
+			else
 			{
 				wxFont oldFont(dc.GetFont()), Font; wxColor oldColor(dc.GetTextForeground()), Color; Set_Font(m_Parameters("FONT"), Font, Color);
 
