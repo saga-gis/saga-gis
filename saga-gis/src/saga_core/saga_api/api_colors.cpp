@@ -440,7 +440,7 @@ int CSG_Colors::Get_Predefined_Count(void)
 //---------------------------------------------------------
 CSG_String CSG_Colors::Get_Predefined_Name(int Index)
 {
-	#define MAKE_NAME(name) CSG_String::Format("[%02d] %s", 1 + Index, name)
+	#define MAKE_NAME(name) CSG_String::Format("[%d] %s", Index, name)
 
 	switch( Index )
 	{
@@ -463,8 +463,8 @@ CSG_String CSG_Colors::Get_Predefined_Name(int Index)
 	case SG_COLORS_YELLOW_BLUE      : return( MAKE_NAME(_TL("yellow-blue"      )) );
 
 	case SG_COLORS_BLUE_RED         : return( MAKE_NAME(_TL("blue-red"         )) );
-	case SG_COLORS_GREEN_BLUE       : return( MAKE_NAME(_TL("green-blue"       )) );
 	case SG_COLORS_GREEN_RED        : return( MAKE_NAME(_TL("green-red"        )) );
+	case SG_COLORS_GREEN_BLUE       : return( MAKE_NAME(_TL("green-blue"       )) );
 
 	case SG_COLORS_BLUE_WHITE_RED   : return( MAKE_NAME(_TL("blue-white-red"   )) );
 	case SG_COLORS_GREEN_WHITE_RED  : return( MAKE_NAME(_TL("green-white-red"  )) );
@@ -617,12 +617,12 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Ramp(SG_GET_RGB(  0,   0, 255), SG_GET_RGB(255,   0,   0));
 		break;
 
-	case SG_COLORS_GREEN_BLUE:
+	case SG_COLORS_GREEN_RED:
 		Set_Count(2);
-		Set_Ramp(SG_GET_RGB(  0, 255,   0), SG_GET_RGB(  0,   0, 255));
+		Set_Ramp(SG_GET_RGB(  0, 255,   0), SG_GET_RGB(255,   0,   0));
 		break;
 
-	case SG_COLORS_GREEN_RED:
+	case SG_COLORS_GREEN_BLUE:
 		Set_Count(2);
 		Set_Ramp(SG_GET_RGB(  0, 255,   0), SG_GET_RGB(  0,   0, 255));
 		break;
@@ -653,7 +653,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 	case SG_COLORS_BLUE_GREY_RED:
 		Set_Count(3);
 		Set_Color(0, SG_GET_RGB(  0,   0, 127));
-		Set_Color(1, SG_GET_RGB(239, 239, 239));
+		Set_Color(1, SG_GET_RGB(191, 191, 191));
 		Set_Color(2, SG_GET_RGB(127,   0,   0));
 		break;
 
@@ -669,7 +669,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 	case SG_COLORS_GREEN_GREY_RED:
 		Set_Count(3);
 		Set_Color(0, SG_GET_RGB(  0, 127,   0));
-		Set_Color(1, SG_GET_RGB(239, 239, 239));
+		Set_Color(1, SG_GET_RGB(191, 191, 191));
 		Set_Color(2, SG_GET_RGB(127,   0,   0));
 		break;
 
@@ -686,7 +686,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Count(5);
 		Set_Color(0, SG_GET_RGB(  0, 127,   0));
 		Set_Color(1, SG_GET_RGB(127, 255,   0));
-		Set_Color(2, SG_GET_RGB(239, 239, 239));
+		Set_Color(2, SG_GET_RGB(191, 191, 191));
 		Set_Color(3, SG_GET_RGB(  0, 127, 255));
 		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
@@ -770,6 +770,13 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_TOPOGRAPHY_2:
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(  0, 128,   0));
+		Set_Color(1, SG_GET_RGB(255, 255, 127));
+		Set_Color(2, SG_GET_RGB(127,  63,  63));
+		break;
+
+	case SG_COLORS_TOPOGRAPHY_3:
 		Set_Count(6);
 		Set_Color(0, SG_GET_RGB(  0, 191, 191));
 		Set_Color(1, SG_GET_RGB(  0, 255,   0));
@@ -779,7 +786,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color(5, SG_GET_RGB(199, 199, 199));
 		break;
 
-	case SG_COLORS_TOPOGRAPHY_3:
+	case SG_COLORS_TOPOGRAPHY_4:
 		Set_Count(9);
 		Set_Color(0, SG_GET_RGB(177, 242, 212));
 		Set_Color(1, SG_GET_RGB(248, 252, 179));
@@ -790,13 +797,6 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color(6, SG_GET_RGB(185, 121, 076));
 		Set_Color(7, SG_GET_RGB(179, 179, 179));
 		Set_Color(8, SG_GET_RGB(255, 255, 255));
-		break;
-
-	case SG_COLORS_TOPOGRAPHY_4:
-		Set_Count(3);
-		Set_Color(0, SG_GET_RGB(  0, 128,   0));
-		Set_Color(1, SG_GET_RGB(255, 255, 127));
-		Set_Color(2, SG_GET_RGB(127,  63,  63));
 		break;
 
 	//-----------------------------------------------------
@@ -885,20 +885,6 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_PRECIPITATION_3:
 		Set_Count(10);
-		Set_Color( 0, SG_GET_RGB(254, 135, 000));
-		Set_Color( 1, SG_GET_RGB(254, 194, 063));
-		Set_Color( 2, SG_GET_RGB(254, 254, 126));
-		Set_Color( 3, SG_GET_RGB(231, 231, 227));
-		Set_Color( 4, SG_GET_RGB(132, 222, 254));
-		Set_Color( 5, SG_GET_RGB(042, 163, 239));
-		Set_Color( 6, SG_GET_RGB(000, 105, 224));
-		Set_Color( 7, SG_GET_RGB(000, 047, 210));
-		Set_Color( 8, SG_GET_RGB(000, 001, 156));
-		Set_Color( 9, SG_GET_RGB(000, 000, 103));
-		break;
-
-	case SG_COLORS_PRECIPITATION_4:
-		Set_Count(10);
 		Set_Color( 0, SG_GET_RGB(255, 255, 185));
 		Set_Color( 1, SG_GET_RGB(229, 253, 139));
 		Set_Color( 2, SG_GET_RGB(204, 252,  94));
@@ -911,7 +897,7 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color( 9, SG_GET_RGB(  0,   0, 123));
 		break;
 
-	case SG_COLORS_PRECIPITATION_5:
+	case SG_COLORS_PRECIPITATION_4:
 		Set_Count(10);
 		Set_Color( 0, SG_GET_RGB(255, 255, 200));
 		Set_Color( 1, SG_GET_RGB(227, 254, 145));
@@ -923,6 +909,20 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		Set_Color( 7, SG_GET_RGB(  0, 100, 210));
 		Set_Color( 8, SG_GET_RGB(  0,  55, 176));
 		Set_Color( 9, SG_GET_RGB( 62,   0, 142));
+		break;
+
+	case SG_COLORS_PRECIPITATION_5:
+		Set_Count(10);
+		Set_Color( 0, SG_GET_RGB(254, 135, 000));
+		Set_Color( 1, SG_GET_RGB(254, 194, 063));
+		Set_Color( 2, SG_GET_RGB(254, 254, 126));
+		Set_Color( 3, SG_GET_RGB(231, 231, 227));
+		Set_Color( 4, SG_GET_RGB(132, 222, 254));
+		Set_Color( 5, SG_GET_RGB(042, 163, 239));
+		Set_Color( 6, SG_GET_RGB(000, 105, 224));
+		Set_Color( 7, SG_GET_RGB(000, 047, 210));
+		Set_Color( 8, SG_GET_RGB(000, 001, 156));
+		Set_Color( 9, SG_GET_RGB(000, 000, 103));
 		break;
 
 	//-----------------------------------------------------
