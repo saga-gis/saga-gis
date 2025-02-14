@@ -169,10 +169,6 @@ bool CSGDI_Diagram::_Draw(wxDC &dc)
 		Draw_Ruler(dc, m_rDiagram, true , m_xMin, m_xMax);
 		Draw_Ruler(dc, m_rDiagram, false, m_yMin, m_yMax);
 
-		//---------------------------------------------------------------------
-		double dx = m_rDiagram.GetWidth()  / (m_xMax - m_xMin);
-		double dy = m_rDiagram.GetHeight() / (m_yMax - m_yMin);
-
 		On_Draw(dc, m_rDiagram);
 
 		return( true );

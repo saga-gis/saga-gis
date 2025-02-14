@@ -102,7 +102,6 @@
 
 #include "./res/xpm/tb_active.xpm"
 #include "./res/xpm/tb_datasource.xpm"
-#include "./res/xpm/tb_delete.xpm"
 #include "./res/xpm/tb_diagram_parameters.xpm"
 #include "./res/xpm/tb_edit_shape_add.xpm"
 #include "./res/xpm/tb_edit_shape_add_part.xpm"
