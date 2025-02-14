@@ -67,7 +67,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -75,7 +75,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -96,9 +96,9 @@ const char * CVIEW_Layout_Info::Get_Item_Type_Name(int Type)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -236,7 +236,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -251,6 +251,8 @@ public:
 	{
 		m_Parameters.Add_Bool  (""           , "FRAME_SHOW"  , _TL("Frame"       ), _TL(""), true);
 		m_Parameters.Add_Int   ("FRAME_SHOW" , "FRAME_SIZE"  , _TL("Size"        ), _TL(""), 5, 2, true);
+		m_Parameters.Add_Choice("FRAME_SHOW" , "FONT_USER"   , _TL("Font"        ), _TL(""), CSG_String::Format("%s|%s", _TL("system default"), _TL("user defined")), 0);
+		m_Parameters.Add_Font  ("FONT_USER"  , "FONT"        , _TL("User Defined"), _TL(""));
 
 		m_Parameters.Add_Bool  (""           , "SCALE_FIXED" , _TL("Fixed Scale" ), _TL(""), false);
 		m_Parameters.Add_Double("SCALE_FIXED", "SCALE_NUMBER", _TL("Scale Number"), _TL(""), 10000, 0.0001, true);
@@ -259,7 +261,12 @@ public:
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
-		Parameters.Set_Enabled("FRAME_SIZE"  , Parameters["FRAME_SHOW" ].asBool());
+		if( Parameter.Cmp_Identifier("FRAME_SHOW") )
+		{
+			Parameter.Set_Children_Enabled(Parameter.asBool());
+		}
+
+		Parameters.Set_Enabled("FONT"        , Parameters["FONT_USER"  ].asInt () == 1);
 		Parameters.Set_Enabled("SCALE_NUMBER", Parameters["SCALE_FIXED"].asBool());
 
 		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
@@ -308,9 +315,19 @@ public:
 
 		if( m_Parameters["FRAME_SHOW"].asBool() )
 		{
-			dc.SetTextForeground(*wxBLACK);
+			if( m_Parameters("FONT_USER")->asInt() == 0 )
+			{
+				dc.SetTextForeground(*wxBLACK);
 
-			m_pLayout->Get_Map()->Draw_Frame(dc, rWorld, rMap, rMap.x - rFrame.x, false);
+				m_pLayout->Get_Map()->Draw_Frame(dc, rWorld, rMap, rMap.x - rFrame.x, false, true);
+			}
+			{
+				wxFont oldFont(dc.GetFont()), Font; wxColor oldColor(dc.GetTextForeground()), Color; Set_Font(m_Parameters("FONT"), Font, Color);
+
+				dc.SetFont(   Font); dc.SetTextForeground(   Color);
+				m_pLayout->Get_Map()->Draw_Frame(dc, rWorld, rMap, rMap.x - rFrame.x, false, true);
+				dc.SetFont(oldFont); dc.SetTextForeground(oldColor);
+			}
 		}
 
 		return( true );
@@ -334,7 +351,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -347,28 +364,26 @@ public:
 	CLayout_Scalebar(CVIEW_Layout_Info *pLayout)
 		: CLayout_Item(pLayout)
 	{
-		m_Parameters.Add_Choice("",
-			"UNIT"	, _TL("Unit"),
-			_TL(""),
-			CSG_String::Format("%s|%s",
-				_TL("do not show"),
-				_TL("automatically")
-			), 1
-		);
-
-		m_Parameters.Add_Choice("",
-			"STYLE"	, _TL("Style"),
-			_TL(""),
-			CSG_String::Format("%s|%s",
-				_TL("scale line"),
-				_TL("alternating scale bar")
-			), 1
-		);
+		m_Parameters.Add_Choice(""         , "STYLE"    , _TL("Style"       ), _TL(""), CSG_String::Format("%s|%s", _TL("scale line"), _TL("alternating scale bar")), 1);
+		m_Parameters.Add_Choice(""         , "UNIT"     , _TL("Unit"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("do not show"), _TL("automatically"), _TL("user defined")), 1);
+		m_Parameters.Add_String("UNIT"     , "UNIT_TEXT", _TL("User Defined"), _TL(""), _TL("meter"));
+		m_Parameters.Add_Choice(""         , "FONT_USER", _TL("Font"        ), _TL(""), CSG_String::Format("%s|%s", _TL("system default"), _TL("user defined")), 0);
+		m_Parameters.Add_Font  ("FONT_USER", "FONT"     , _TL("User Defined"), _TL(""));
 	}
 
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
+		if( Parameter.Cmp_Identifier("UNIT") )
+		{
+			Parameters.Set_Enabled("UNIT_TEXT", Parameter.asInt() == 2);
+		}
+
+		if( Parameter.Cmp_Identifier("FONT_USER") )
+		{
+			Parameters.Set_Enabled("FONT"     , Parameter.asInt() == 1);
+		}
+
 		return( CLayout_Item::On_Parameter_Changed(Parameters, Parameter) );
 	}
 
@@ -392,27 +407,46 @@ public:
 		//-------------------------------------------------
 		CSG_String Unit;
 
-		if( m_Parameters("UNIT")->asInt() >= 1 )
+		switch( m_Parameters("UNIT")->asInt() )
 		{
-			CSG_Projection Projection(m_pLayout->Get_Map()->Get_Projection());
-
-			if( Projection.is_Okay() )
+		case  1:
 			{
-				Unit = CSG_Projections::Get_Unit_Name(Projection.Get_Unit(), true);
+				CSG_Projection Projection(m_pLayout->Get_Map()->Get_Projection());
 
-				if( Unit.is_Empty() ) Unit = Projection.Get_Unit_Name();
-
-				if( Projection.Get_Unit() == ESG_Projection_Unit::Meter && Width > 10000. )
+				if( Projection.is_Okay() )
 				{
-					Unit   = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
+					Unit = CSG_Projections::Get_Unit_Name(Projection.Get_Unit(), true);
 
-					Width /= 1000.;
+					if( Unit.is_Empty() ) Unit = Projection.Get_Unit_Name();
+
+					if( Projection.Get_Unit() == ESG_Projection_Unit::Meter && Width > 10000. )
+					{
+						Unit   = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
+
+						Width /= 1000.;
+					}
 				}
 			}
+			break;
+
+		case  2:
+			Unit = m_Parameters("UNIT_TEXT")->asString();
+			break;
 		}
 
 		//-------------------------------------------------
-		Draw_Scale(dc, rDC, 0., Width, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+		if( m_Parameters("FONT_USER")->asInt() == 0 )
+		{
+			Draw_Scale(dc, rDC, 0., Width, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+		}
+		else
+		{
+			wxFont oldFont(dc.GetFont()), Font; wxColor oldColor(dc.GetTextForeground()), Color; Set_Font(m_Parameters("FONT"), Font, Color);
+
+			dc.SetFont(   Font); dc.SetTextForeground(   Color);
+			Draw_Scale(dc, rDC, 0., Width, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str(), true);
+			dc.SetFont(oldFont); dc.SetTextForeground(oldColor);
+		}
 
 		return( true );
 	}
@@ -420,7 +454,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -521,7 +555,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -534,12 +568,13 @@ public:
 	CLayout_Legend(CVIEW_Layout_Info *pLayout)
 		: CLayout_Item(pLayout)
 	{
-		m_Parameters.Add_Bool  (""       , "FILL"        , _TL("Fill"    ), _TL(""), false);
-		m_Parameters.Add_Color ("FILL"   , "FILL_RGB"    , _TL("Color"   ), _TL(""), SG_COLOR_WHITE);
-		m_Parameters.Add_Bool  (""       , "OUTLINE"     , _TL("Outline" ), _TL(""), false);
-		m_Parameters.Add_Color ("OUTLINE", "OUTLINE_RGB" , _TL("Color"   ), _TL(""), SG_COLOR_BLACK);
-		m_Parameters.Add_Int   ("OUTLINE", "OUTLINE_SIZE", _TL("Width"   ), _TL(""), 1, 1, true);
-		m_Parameters.Add_Int   (""       , "INFLATE"     , _TL("Distance"), _TL(""), 1, 1, true);
+		m_Parameters.Add_Bool  (""         , "FILL"        , _TL("Fill"    ), _TL(""), false);
+		m_Parameters.Add_Color ("FILL"     , "FILL_RGB"    , _TL("Color"   ), _TL(""), SG_COLOR_WHITE);
+		m_Parameters.Add_Bool  (""         , "OUTLINE"     , _TL("Outline" ), _TL(""), false);
+		m_Parameters.Add_Color ("OUTLINE"  , "OUTLINE_RGB" , _TL("Color"   ), _TL(""), SG_COLOR_BLACK);
+		m_Parameters.Add_Int   ("OUTLINE"  , "OUTLINE_SIZE", _TL("Width"   ), _TL(""), 1, 1, true);
+		m_Parameters.Add_Int   (""         , "INFLATE"     , _TL("Distance"), _TL(""), 1, 1, true);
+		m_Parameters.Add_Font  ("FONT_USER", "FONT"        , _TL("Font"    ), _TL(""));
 	}
 
 	//-----------------------------------------------------
@@ -606,7 +641,10 @@ public:
 				Scale	= rDC.GetWidth() / (double)Size.x;
 			}
 
+			wxFont oldFont(dc.GetFont()), Font; wxColor oldColor(dc.GetTextForeground()), Color; Set_Font(m_Parameters("FONT"), Font, Color);
+			dc.SetFont(   Font); dc.SetTextForeground(   Color);
 			m_pLayout->Get_Map()->Draw_Legend(dc, m_pLayout->Get_Paper2DC(), Scale, rDC.GetLeftTop());
+			dc.SetFont(oldFont); dc.SetTextForeground(oldColor);
 
 			return( true );
 		}
@@ -617,7 +655,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -747,7 +785,7 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -996,9 +1034,9 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1089,9 +1127,9 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1163,7 +1201,7 @@ CVIEW_Layout_Info::~CVIEW_Layout_Info(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1180,7 +1218,7 @@ int CVIEW_Layout_Info::Get_Page_Count(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1198,7 +1236,7 @@ bool CVIEW_Layout_Info::Properties(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1239,7 +1277,7 @@ wxPoint CVIEW_Layout_Info::Get_Margin_BottomRight(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1325,7 +1363,7 @@ bool CVIEW_Layout_Info::Print(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1549,7 +1587,7 @@ bool CVIEW_Layout_Info::Save(CSG_MetaData &Layout)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1698,7 +1736,7 @@ bool CVIEW_Layout_Info::Clipboard_Paste(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1851,7 +1889,7 @@ bool CVIEW_Layout_Info::Menu_On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1906,7 +1944,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc, bool bPrintOut)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1984,9 +2022,9 @@ bool CVIEW_Layout_Info::Clipboard_Copy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
