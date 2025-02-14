@@ -531,10 +531,20 @@ void CWKSP_Map::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Bool("SCALE_SHOW",
+	m_Parameters.Add_Choice("SCALE_SHOW",
 		"SCALE_UNIT"    , _TL("Unit"),
 		_TL(""),
-		true
+		CSG_String::Format("%s|%s|%s",
+			_TL("do not show"),
+			_TL("automatically"),
+			_TL("user defined")
+		), 1
+	);
+
+	m_Parameters.Add_String("SCALE_UNIT",
+		"SCALE_TEXT"    , _TL("Text"),
+		_TL(""),
+		_TL("Meters")
 	);
 
 	m_Parameters.Add_Double("SCALE_SHOW",
@@ -615,6 +625,11 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("SCALE_UNIT") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asInt() == 2);
 		}
 	}
 
@@ -2418,16 +2433,25 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 
 	CSG_String Unit;
 
-	if( m_Projection.is_Okay() && m_Parameters("SCALE_UNIT")->asBool() )
+	switch( m_Parameters("SCALE_UNIT")->asInt() )
 	{
-		Unit = CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
-
-		if( Unit.is_Empty() ) Unit = m_Projection.Get_Unit_Name();
-
-		if( m_Projection.Get_Unit() == ESG_Projection_Unit::Meter && dWidth > 10000. )
+	case  1:
+		if( m_Projection.is_Okay() )
 		{
-			dWidth /= 1000.; Unit = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
+			Unit = CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
+
+			if( Unit.is_Empty() ) Unit = m_Projection.Get_Unit_Name();
+
+			if( m_Projection.Get_Unit() == ESG_Projection_Unit::Meter && dWidth > 10000. )
+			{
+				dWidth /= 1000.; Unit = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
+			}
 		}
+		break;
+
+	case  2:
+		Unit = m_Parameters("SCALE_TEXT")->asString();
+		break;
 	}
 
 	int Style = SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING;

@@ -367,7 +367,7 @@ public:
 	{
 		m_Parameters.Add_Choice(""         , "STYLE"    , _TL("Style"       ), _TL(""), CSG_String::Format("%s|%s", _TL("scale line"), _TL("alternating scale bar")), 1);
 		m_Parameters.Add_Choice(""         , "UNIT"     , _TL("Unit"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("do not show"), _TL("automatically"), _TL("user defined")), 1);
-		m_Parameters.Add_String("UNIT"     , "UNIT_TEXT", _TL("User Defined"), _TL(""), _TL("meter"));
+		m_Parameters.Add_String("UNIT"     , "UNIT_TEXT", _TL("User Defined"), _TL(""), _TL("Meters"));
 		m_Parameters.Add_Choice(""         , "FONT_USER", _TL("Font"        ), _TL(""), CSG_String::Format("%s|%s", _TL("system default"), _TL("user defined")), 0);
 		m_Parameters.Add_Font  ("FONT_USER", "FONT"     , _TL("User Defined"), _TL(""));
 	}
