@@ -111,7 +111,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Pointer m_Ramps; wxArrayString m_Labels; bool m_bLabels = false;
+	CSG_Array_Pointer m_Ramps; wxArrayString m_Labels; static bool m_bLabels;
 
 	void Add_Ramp(const CSG_Colors &Ramp, const CSG_String &Name)
 	{
@@ -176,6 +176,9 @@ public:
 		return( (wxCoord)(10. * GetSize().GetWidth ()) ); // return( -1 ); // will be measured from text width
 	}
 };
+
+//---------------------------------------------------------
+bool CColorPresets::m_bLabels = false;
 
 
 ///////////////////////////////////////////////////////////
