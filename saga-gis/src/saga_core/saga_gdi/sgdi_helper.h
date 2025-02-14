@@ -52,9 +52,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -65,9 +65,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -93,9 +93,9 @@ SGDI_API_DLL_EXPORT void	Draw_FillRect		(wxDC &dc, wxColour Color, wxRect r);
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -136,9 +136,9 @@ SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double An
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -161,15 +161,15 @@ SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double An
 
 //---------------------------------------------------------
 SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, int Orientation = SCALE_HORIZONTAL, int Tick = SCALE_TICK_NONE, int Style = SCALE_STYLE_DEFAULT, const wxString &Unit = "", bool bUseDCFont = false);
-SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop);
+SGDI_API_DLL_EXPORT void	Draw_Scale	(wxDC &dc, const wxRect &r, double min_Value, double max_Value, bool bHorizontal, bool bAscendent, bool bTickAtTop                                             , const wxString &Unit = "", bool bUseDCFont = false);
 
 SGDI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

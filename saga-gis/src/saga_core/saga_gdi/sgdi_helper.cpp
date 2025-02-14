@@ -56,9 +56,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,9 +120,9 @@ void		Draw_Edge(wxDC &dc, int Edge_Style, wxRect r)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -141,9 +141,9 @@ void		Draw_Rect(wxDC &dc, wxColour Color, wxRect r)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -189,9 +189,9 @@ void		Draw_FillRect(wxDC &dc, wxColour Color, wxRect r)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -333,9 +333,9 @@ void			Draw_Text			(wxDC &dc, int Align, int x, int y, double Angle, const wxStr
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -514,16 +514,16 @@ void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, int Orient
 }
 
 //---------------------------------------------------------
-void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop)
+void		Draw_Scale(wxDC &dc, const wxRect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop, const wxString &Unit, bool bUseDCFont)
 {
-	Draw_Scale(dc, r, zMin, zMax, bHorizontal ? SCALE_HORIZONTAL : SCALE_VERTICAL, bTickAtTop ? SCALE_TICK_TOP : SCALE_TICK_BOTTOM, bAscendent ? SCALE_STYLE_DEFAULT : SCALE_STYLE_DESCENDENT);
+	Draw_Scale(dc, r, zMin, zMax, bHorizontal ? SCALE_HORIZONTAL : SCALE_VERTICAL, bTickAtTop ? SCALE_TICK_TOP : SCALE_TICK_BOTTOM, bAscendent ? SCALE_STYLE_DEFAULT : SCALE_STYLE_DESCENDENT, Unit, bUseDCFont);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -590,9 +590,9 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
