@@ -65,9 +65,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -101,9 +101,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -116,9 +116,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -132,9 +132,9 @@ CWKSP_Layer_Legend::CWKSP_Layer_Legend(CWKSP_Layer *pLayer)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -213,9 +213,9 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -223,24 +223,23 @@ inline void CWKSP_Layer_Legend::_Set_Size(int xSet, int yAdd)
 {
 	if( m_Size.x < xSet )
 	{
-		m_Size.x	= xSet;
+		m_Size.x = xSet;
 	}
 
-	m_Position.y	+= yAdd;
-	m_Size.y		+= yAdd;
+	m_Position.y += yAdd;
+	m_Size    .y += yAdd;
 }
 
 //---------------------------------------------------------
 inline void CWKSP_Layer_Legend::_Set_Font(wxDC &dc, int Style)
 {
-	wxFont	Font;
+	wxFont Font(dc.GetFont());
 
 	switch( Style )
 	{
-	default:
-	case FONT_LABEL   : Font.Create(FONT_SIZE_LABEL   , wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL); break;
-	case FONT_SUBTITLE: Font.Create(FONT_SIZE_SUBTITLE, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD  ); break;
-	case FONT_TITLE   : Font.Create(FONT_SIZE_TITLE   , wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD  ); break;
+	case FONT_LABEL   : Font.SetPointSize(FONT_SIZE_LABEL   ); Font.SetStyle(wxFONTSTYLE_ITALIC); Font.SetWeight(wxFONTWEIGHT_NORMAL); break;
+	case FONT_SUBTITLE: Font.SetPointSize(FONT_SIZE_SUBTITLE); Font.SetStyle(wxFONTSTYLE_NORMAL); Font.SetWeight(wxFONTWEIGHT_BOLD  ); break;
+	case FONT_TITLE   : Font.SetPointSize(FONT_SIZE_TITLE   ); Font.SetStyle(wxFONTSTYLE_NORMAL); Font.SetWeight(wxFONTWEIGHT_BOLD  ); break;
 	}
 
 	dc.SetFont(Font);
@@ -259,7 +258,7 @@ inline void CWKSP_Layer_Legend::_Draw_Title(wxDC &dc, int Style, wxString Text)
 
 		dc.GetTextExtent(Text, &dx_Text, &dy_Text);
 
-		dy_Text			+= SPACE_VERTICAL;
+		dy_Text += SPACE_VERTICAL;
 
 		_Set_Size(dx_Text, dy_Text);
 	}
@@ -386,9 +385,9 @@ void CWKSP_Layer_Legend::_Draw_Boxes(wxDC &dc, int y, int Style, double zFactor)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -573,9 +572,9 @@ void CWKSP_Layer_Legend::_Draw_Layer_Image(wxDC &dc, int ay, CWKSP_Layer *pLayer
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -816,9 +815,9 @@ void CWKSP_Layer_Legend::_Draw_Continuum_H(wxDC &dc, int y, double yToDC, double
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
