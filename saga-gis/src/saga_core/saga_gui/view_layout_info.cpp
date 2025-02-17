@@ -365,9 +365,15 @@ public:
 	CLayout_Scalebar(CVIEW_Layout_Info *pLayout)
 		: CLayout_Item(pLayout)
 	{
+		CSG_String Units(CSG_String::Format("%s|%s", _TL("do not show"), _TL("automatically")));
+
+		for(int i=0; i<(int)ESG_Projection_Unit::Undefined; i++)
+		{
+			Units += "|" + CSG_Projections::Get_Unit_Name((ESG_Projection_Unit)i);
+		}
+
 		m_Parameters.Add_Choice(""         , "STYLE"    , _TL("Style"       ), _TL(""), CSG_String::Format("%s|%s", _TL("scale line"), _TL("alternating scale bar")), 1);
-		m_Parameters.Add_Choice(""         , "UNIT"     , _TL("Unit"        ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("do not show"), _TL("automatically"), _TL("user defined")), 1);
-		m_Parameters.Add_String("UNIT"     , "UNIT_TEXT", _TL("User Defined"), _TL(""), _TL("Meters"));
+		m_Parameters.Add_Choice(""         , "UNIT"     , _TL("Unit"        ), _TL(""), Units, 1);
 		m_Parameters.Add_Choice(""         , "FONT_USER", _TL("Font"        ), _TL(""), CSG_String::Format("%s|%s", _TL("system default"), _TL("user defined")), 0);
 		m_Parameters.Add_Font  ("FONT_USER", "FONT"     , _TL("User Defined"), _TL(""));
 	}
@@ -375,11 +381,6 @@ public:
 	//-----------------------------------------------------
 	virtual bool		On_Parameter_Changed	(CSG_Parameters &Parameters, CSG_Parameter &Parameter)
 	{
-		if( Parameter.Cmp_Identifier("UNIT") )
-		{
-			Parameters.Set_Enabled("UNIT_TEXT", Parameter.asInt() == 2);
-		}
-
 		if( Parameter.Cmp_Identifier("FONT_USER") )
 		{
 			Parameters.Set_Enabled("FONT"     , Parameter.asInt() == 1);
@@ -408,31 +409,20 @@ public:
 		//-------------------------------------------------
 		CSG_String Unit;
 
-		switch( m_Parameters("UNIT")->asInt() )
+		if( m_Parameters("UNIT")->asInt() > 0 )
 		{
-		case  1:
+			ESG_Projection_Unit _Unit = m_Parameters("UNIT")->asInt() > 1
+				? (ESG_Projection_Unit)(m_Parameters("UNIT")->asInt() - 2) : m_pLayout->Get_Map()->Get_Projection().Get_Unit();
+
+			if( _Unit != ESG_Projection_Unit::Undefined )
 			{
-				CSG_Projection Projection(m_pLayout->Get_Map()->Get_Projection());
-
-				if( Projection.is_Okay() )
+				if( Width > 10000. && _Unit == ESG_Projection_Unit::Meter )
 				{
-					Unit = CSG_Projections::Get_Unit_Name(Projection.Get_Unit(), true);
-
-					if( Unit.is_Empty() ) Unit = Projection.Get_Unit_Name();
-
-					if( Projection.Get_Unit() == ESG_Projection_Unit::Meter && Width > 10000. )
-					{
-						Unit   = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
-
-						Width /= 1000.;
-					}
+					Width /= 1000.; _Unit = ESG_Projection_Unit::Kilometer;
 				}
-			}
-			break;
 
-		case  2:
-			Unit = m_Parameters("UNIT_TEXT")->asString();
-			break;
+				Unit = CSG_Projections::Get_Unit_Name(_Unit, true);
+			}
 		}
 
 		//-------------------------------------------------

@@ -531,20 +531,17 @@ void CWKSP_Map::On_Create_Parameters(void)
 		), 1
 	);
 
+	CSG_String Units(CSG_String::Format("%s|%s", _TL("do not show"), _TL("automatically")));
+
+	for(int i=0; i<(int)ESG_Projection_Unit::Undefined; i++)
+	{
+		Units += "|" + CSG_Projections::Get_Unit_Name((ESG_Projection_Unit)i);
+	}
+
 	m_Parameters.Add_Choice("SCALE_SHOW",
 		"SCALE_UNIT"    , _TL("Unit"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("do not show"),
-			_TL("automatically"),
-			_TL("user defined")
-		), 1
-	);
-
-	m_Parameters.Add_String("SCALE_UNIT",
-		"SCALE_TEXT"    , _TL("Text"),
-		_TL(""),
-		_TL("Meters")
+		Units, 1
 	);
 
 	m_Parameters.Add_Double("SCALE_SHOW",
@@ -625,11 +622,6 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
-		}
-
-		if(	pParameter->Cmp_Identifier("SCALE_UNIT") )
-		{
-			pParameter->Set_Children_Enabled(pParameter->asInt() == 2);
 		}
 	}
 
@@ -2413,7 +2405,7 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 		return( true );
 	}
 
-	double dWidth = 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
+	double Width = 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
 
 	wxRect r = !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(dc.rDC()) : wxRect(
 		(int) dc.xWorld2DC    (Get_Extent().Get_XMin  ()),
@@ -2425,33 +2417,28 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 	r = wxRect(
 		(int)(0.5 + r.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()) + r.GetX(), r.GetY() + r.GetHeight() -
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
-		(int)(0.5 + r.GetWidth () * dWidth),
+		(int)(0.5 + r.GetWidth () * Width),
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
 	);
 
-	dWidth = dc.DC2World() * r.GetWidth();
+	Width = dc.DC2World() * r.GetWidth();
 
 	CSG_String Unit;
 
-	switch( m_Parameters("SCALE_UNIT")->asInt() )
+	if( m_Parameters("SCALE_UNIT")->asInt() > 0 )
 	{
-	case  1:
-		if( m_Projection.is_Okay() )
+		ESG_Projection_Unit _Unit = m_Parameters("SCALE_UNIT")->asInt() > 1
+			? (ESG_Projection_Unit)(m_Parameters("SCALE_UNIT")->asInt() - 2) : m_Projection.Get_Unit();
+
+		if( _Unit != ESG_Projection_Unit::Undefined )
 		{
-			Unit = CSG_Projections::Get_Unit_Name(m_Projection.Get_Unit(), true);
-
-			if( Unit.is_Empty() ) Unit = m_Projection.Get_Unit_Name();
-
-			if( m_Projection.Get_Unit() == ESG_Projection_Unit::Meter && dWidth > 10000. )
+			if( Width > 10000. && _Unit == ESG_Projection_Unit::Meter )
 			{
-				dWidth /= 1000.; Unit = CSG_Projections::Get_Unit_Name(ESG_Projection_Unit::Kilometer, true);
+				Width /= 1000.; _Unit = ESG_Projection_Unit::Kilometer;
 			}
-		}
-		break;
 
-	case  2:
-		Unit = m_Parameters("SCALE_TEXT")->asString();
-		break;
+			Unit = CSG_Projections::Get_Unit_Name(_Unit, true);
+		}
 	}
 
 	int Style = SCALE_STYLE_LINECONN|SCALE_STYLE_GLOOMING;
@@ -2461,7 +2448,7 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 		Style |= SCALE_STYLE_BLACKWHITE;
 	}
 
-	Draw_Scale(dc.Get_DC(), r, 0., dWidth, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+	Draw_Scale(dc.Get_DC(), r, 0., Width, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
 
 	return( true );
 }
