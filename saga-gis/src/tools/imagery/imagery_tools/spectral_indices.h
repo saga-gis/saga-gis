@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                    imagery_tools                      //
+//                    Module Library:                    //
+//                     image_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                         evi.h                         //
+//                 spectral_indices.cpp                  //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2025                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,8 +45,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__evi_H
-#define HEADER_INCLUDED__evi_H
+#ifndef HEADER_INCLUDED__spectral_indices_H
+#define HEADER_INCLUDED__spectral_indices_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,17 +66,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CEnhanced_VI : public CSG_Tool_Grid
+class CSpectral_Indices : public CSG_Tool_Grid
 {
 public:
-	CEnhanced_VI(void);
+	CSpectral_Indices(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spectral Indices") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Formula				m_Formula;
+
+	CSG_Array_Pointer		m_Bands;
+
+
+	bool					Set_Formula				(int Index);
+
+	bool					Get_Result				(int x, int y, double &Value);
 
 };
 
@@ -89,4 +102,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__evi_H
+#endif // #ifndef HEADER_INCLUDED__spectral_indices_H

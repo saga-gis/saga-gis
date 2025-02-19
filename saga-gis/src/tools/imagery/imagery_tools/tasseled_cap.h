@@ -72,15 +72,12 @@ class CTasseled_Cap : public CSG_Tool_Grid
 public:
 	CTasseled_Cap(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spectral Indices") );	}
 
 
 protected:
 
 	virtual bool			On_Execute		(void);
-
-
-private:
 
 };
 

@@ -86,6 +86,7 @@ CSG_String Get_Info(int i)
 #include "Image_VI_Slope.h"
 #include "evi.h"
 #include "tasseled_cap.h"
+#include "spectral_indices.h"
 
 #include "pansharpening.h"
 
@@ -119,6 +120,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  1: return( new CImage_VI_Slope );
 	case  2: return( new CEnhanced_VI );
 	case  3: return( new CTasseled_Cap );
+	case 24: return( new CSpectral_Indices );
 
 	case  4: return( new CPanSharp_IHS );
 	case  5: return( new CPanSharp_Brovey );
@@ -149,7 +151,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 22: return( new CSPOT_Scene_Import );
 
 	//-----------------------------------------------------
-	case 24: return( NULL );
+	case 25: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

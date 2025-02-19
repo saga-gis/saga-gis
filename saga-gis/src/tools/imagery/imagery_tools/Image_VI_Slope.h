@@ -51,7 +51,7 @@ class CImage_VI_Slope : public CSG_Tool_Grid
 public:
 	CImage_VI_Slope(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spectral Indices") );	}
 
 
 protected:

@@ -51,7 +51,7 @@ class CImage_VI_Distance : public CSG_Tool_Grid
 public:
 	CImage_VI_Distance(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Vegetation Indices") );	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spectral Indices") );	}
 
 
 protected:
