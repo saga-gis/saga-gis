@@ -404,9 +404,6 @@ class Tool_Wrapper:
                 if Verbose == 1:
                     saga_api.SG_UI_Console_Print_StdOut('[{:s}] execution... '.format(self.Tool.Get_Name().c_str()), '')
 
-            if not self.Tool.On_Before_Execution():
-                return False
-
             for Option in self.Options: # 1st pass -> dis-/enabling data object parameters
                 self.Tool.Set_Parameter(Option[0], Option[1])
 
@@ -428,7 +425,7 @@ class Tool_Wrapper:
                 if Parameter and Parameter.is_Output() and Parameter.is_DataObject():
                     Parameter.Set_Value(Data[1])
 
-            return True
+            return self.Tool.On_Before_Execution()
 
         #________________________________
         def _Finalize(Success):
