@@ -344,7 +344,7 @@ CSpectral_Indices::CSpectral_Indices(void)
 	);	
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "INDEX", _TL("Spectral Index"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "RESULT", _TL("Spectral Index"), _TL(""), PARAMETER_OUTPUT);
 
 	for(int i=0; i<m_Indices.Get_Band_Count(); i++)
 	{
@@ -370,26 +370,39 @@ CSpectral_Indices::CSpectral_Indices(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice("", "DOMAIN", _TL("Application Domain"), _TL(""), m_Indices.Get_Domain_Choices(), 0);
-
-	for(int iDomain=0; iDomain<m_Indices.Get_Domain_Count(); iDomain++)
+	if( has_GUI() )
 	{
-		CSG_String Indices, Domain(m_Indices.Get_Domain_ID(iDomain));
+		Parameters.Add_Choice("", "DOMAIN", _TL("Application Domain"), _TL(""), m_Indices.Get_Domain_Choices(), 0)->Set_UseInCMD(false);
 
-		for(int i=0; i<m_Indices.Get_Count(); i++)
+		for(int iDomain=0; iDomain<m_Indices.Get_Domain_Count(); iDomain++)
 		{
-			if( Domain.Cmp(m_Indices.Get_Domain(i)) == 0 )
+			CSG_String Indices, Domain(m_Indices.Get_Domain_ID(iDomain));
+
+			for(int i=0; i<m_Indices.Get_Count(); i++)
 			{
-				Indices += CSG_String::Format("{%d}%s|", i, m_Indices.Get_Name(i));
+				if( Domain.Cmp(m_Indices.Get_Domain(i)) == 0 )
+				{
+					Indices += CSG_String::Format("{%d}%s|", i, m_Indices.Get_Name(i));
+				}
 			}
-		}
 
-		if( !Indices.is_Empty() )
-		{
-			Parameters.Add_Choice("DOMAIN", Domain, _TL("Spectral Index"), _TL(""), Indices);
+			if( !Indices.is_Empty() )
+			{
+				Parameters.Add_Choice("DOMAIN", Domain, _TL("Spectral Index"), _TL(""), Indices)->Set_UseInCMD(false);
+			}
 		}
 	}
 
+	CSG_String Indices;
+
+	for(int i=0; i<m_Indices.Get_Count(); i++)
+	{
+		Indices += CSG_String::Format("{%d}%s|", i, m_Indices.Get_ID(i));
+	}
+
+	Parameters.Add_Choice("", "INDEX", _TL("Spectral Index"), _TL(""), Indices)->Set_UseInGUI(false);
+
+	//-----------------------------------------------------
 	for(int i=0; i<m_Indices.Get_Constant_Count(); i++)
 	{
 		Parameters.Add_Double("", m_Indices.Get_Constant_ID(i), m_Indices.Get_Constant_ID(i), m_Indices.Get_Constant_Name(i), m_Indices.Get_Constant(i));
@@ -404,43 +417,58 @@ CSpectral_Indices::CSpectral_Indices(void)
 //---------------------------------------------------------
 int CSpectral_Indices::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_String Domain(m_Indices.Get_Domain_ID((*pParameters)("DOMAIN")->asInt()));
-
-	if( pParameter->Cmp_Identifier("DOMAIN") )
+	if( has_GUI() )
 	{
-		for(int iDomain=0; iDomain<m_Indices.Get_Domain_Count(); iDomain++)
+		CSG_String Domain(m_Indices.Get_Domain_ID((*pParameters)("DOMAIN")->asInt()));
+
+		if( pParameter->Cmp_Identifier("DOMAIN") )
 		{
-			pParameters->Set_Enabled(m_Indices.Get_Domain_ID(iDomain), Domain.Cmp(m_Indices.Get_Domain_ID(iDomain)) == 0);
+			for(int iDomain=0; iDomain<m_Indices.Get_Domain_Count(); iDomain++)
+			{
+				pParameters->Set_Enabled(m_Indices.Get_Domain_ID(iDomain), Domain.Cmp(m_Indices.Get_Domain_ID(iDomain)) == 0);
+			}
+		}
+
+		if( pParameter->Cmp_Identifier("DOMAIN") || pParameter->Cmp_Identifier(Domain) )
+		{
+			for(int i=0; i<m_Indices.Get_Band_Count    (); i++) { pParameters->Set_Enabled(m_Indices.Get_Band_ID    (i), false); }
+			for(int i=0; i<m_Indices.Get_Constant_Count(); i++) { pParameters->Set_Enabled(m_Indices.Get_Constant_ID(i), false); }
+
+			int Index; CSG_Strings Variables;
+
+			if( (*pParameters)(Domain)->asChoice()->Get_Data(Index) && m_Indices.Get_Variables(Index, Variables) )
+			{
+				for(int i=0; i< Variables.Get_Count(); i++) { pParameters->Set_Enabled(Variables[i], true); }
+			}
+
+			for(int i=0; i<pParameters->Get_Count(); i++)
+			{
+				CSG_Parameter *pP = pParameters->Get_Parameter(i);
+
+				if( pP->Get_Type() == PARAMETER_TYPE_Grid_System )
+				{
+					bool bEnable = false; pP->Set_Enabled(true);
+
+					for(int j=0; !bEnable && j<pP->Get_Children_Count(); j++)
+					{
+						bEnable = pP->Get_Child(j)->is_Enabled();
+					}
+
+					pP->Set_Enabled(bEnable);
+				}
+			}
 		}
 	}
 
-	if( pParameter->Cmp_Identifier("DOMAIN") || pParameter->Cmp_Identifier(Domain) )
+	else if( pParameter->Cmp_Identifier("INDEX") ) // non-gui calls only => disable unused input bands
 	{
-		for(int i=0; i<m_Indices.Get_Band_Count    (); i++) { pParameters->Set_Enabled(m_Indices.Get_Band_ID    (i), false); }
-		for(int i=0; i<m_Indices.Get_Constant_Count(); i++) { pParameters->Set_Enabled(m_Indices.Get_Constant_ID(i), false); }
+		for(int i=0; i<m_Indices.Get_Band_Count(); i++) { pParameters->Set_Enabled(m_Indices.Get_Band_ID(i), false); }
 
 		int Index; CSG_Strings Variables;
 
-		if( (*pParameters)(Domain)->asChoice()->Get_Data(Index) && m_Indices.Get_Variables(Index, Variables) )
+		if( pParameter->asChoice()->Get_Data(Index) && m_Indices.Get_Variables(Index, Variables) )
 		{
 			for(int i=0; i< Variables.Get_Count(); i++) { pParameters->Set_Enabled(Variables[i], true); }
-		}
-
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			CSG_Parameter *pP = pParameters->Get_Parameter(i);
-
-			if( pP->Get_Type() == PARAMETER_TYPE_Grid_System )
-			{
-				bool bEnable = false; pP->Set_Enabled(true);
-
-				for(int j=0; !bEnable && j<pP->Get_Children_Count(); j++)
-				{
-					bEnable = pP->Get_Child(j)->is_Enabled();
-				}
-
-				pP->Set_Enabled(bEnable);
-			}
 		}
 	}
 
@@ -455,11 +483,9 @@ int CSpectral_Indices::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CSpectral_Indices::On_Execute(void)
 {
-	CSG_String Domain(m_Indices.Get_Domain_ID(Parameters("DOMAIN")->asInt()));
+	int Index; CSG_String Domain(has_GUI() ? m_Indices.Get_Domain_ID(Parameters("DOMAIN")->asInt()) : SG_T("INDEX"));
 
-	int Index; CSG_Strings Variables;
-
-	if( !Parameters(Domain)->asChoice()->Get_Data(Index) && m_Indices.Get_Variables(Index, Variables) )
+	if( !Parameters(Domain)->asChoice()->Get_Data(Index) )
 	{
 		Error_Set(_TL("spectral index selection error"));
 
@@ -473,16 +499,27 @@ bool CSpectral_Indices::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pIndex = Parameters("INDEX")->asGrid();
+	CSG_Grid *pIndex = Parameters("RESULT")->asGrid();
 
-	pIndex->Fmt_Name("%s [%s - %s]", _TL("Spectral Index"), m_Indices.Get_Domain_Name(Parameters("DOMAIN")->asInt()), m_Indices.Get_ID(Index));
+	if( !pIndex->Get_System().is_Valid() )
+	{
+		pIndex->Create(((CSG_Grid *)m_Bands[0])->Get_System());
+
+		Set_Grid_System(pIndex->Get_System());
+	}
+
+	pIndex->Fmt_Name("%s (%s %s)", m_Indices.Get_ID(Index), m_Indices.Get_Domain(Index), _TL("index"));
+
+	pIndex->Get_MetaData().Add_Child("Name"     , m_Indices.Get_Name     (Index));
+	pIndex->Get_MetaData().Add_Child("ID"       , m_Indices.Get_ID       (Index));
+	pIndex->Get_MetaData().Add_Child("Domain"   , m_Indices.Get_Domain   (Index));
+	pIndex->Get_MetaData().Add_Child("Formula"  , m_Indices.Get_Formula  (Index));
+	pIndex->Get_MetaData().Add_Child("Reference", m_Indices.Get_Reference(Index));
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{
-		#ifndef _DEBUG
 		#pragma omp parallel for
-		#endif // !_DEBUG
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double Value;
