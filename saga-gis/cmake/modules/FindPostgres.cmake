@@ -77,13 +77,13 @@ ELSE(WIN32)
       SET(POSTGRES_INCLUDE_DIR ${PG_TMP} CACHE STRING INTERNAL)
 
       # set LIBRARY_DIR
-      execute_process(COMMAND ${POSTGRES_CONFIG} --includedir
+      execute_process(COMMAND ${POSTGRES_CONFIG} --libdir
         OUTPUT_VARIABLE PG_TMP
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       IF (APPLE)
         SET(POSTGRES_LIBRARY ${PG_TMP}/libpq.dylib CACHE STRING INTERNAL)
       ELSEIF (CYGWIN)
-        execute_process(COMMAND ${POSTGRES_CONFIG} --includedir
+        execute_process(COMMAND ${POSTGRES_CONFIG} --libs
           OUTPUT_VARIABLE PG_TMP
           OUTPUT_STRIP_TRAILING_WHITESPACE)
 
