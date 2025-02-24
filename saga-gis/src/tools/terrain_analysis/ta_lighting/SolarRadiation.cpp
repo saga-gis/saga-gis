@@ -1199,11 +1199,6 @@ void CSolarRadiation::Set_Shade_Bended(double x, double y, double z, int Shadowi
 		//-------------------------------------------------
 		double d = SG_Get_Distance(xStart, yStart, x, y);
 
-		if( d >= Radius )
-		{
-			return;
-		}
-
 		double zSphere = d < Radius ? Radius - sqrt(Radius*Radius - d*d) : Radius;
 
 		//-------------------------------------------------
