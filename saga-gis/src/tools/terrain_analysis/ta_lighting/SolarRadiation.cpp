@@ -1181,6 +1181,10 @@ void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double 
 //---------------------------------------------------------
 void CSolarRadiation::Set_Shade_Bended(double x, double y, double z, int Shadowing)
 {
+	const double Radius = 6371000; // radius of earth [m]
+
+	double xStart = x, yStart = y;
+
 	for(int ix=(int)x, iy=(int)y; ; )
 	{
 		double dx, dy, dz;
@@ -1191,6 +1195,16 @@ void CSolarRadiation::Set_Shade_Bended(double x, double y, double z, int Shadowi
 		}
 
 		x += dx; y += dy; z -= dz;
+
+		//-------------------------------------------------
+		double d = SG_Get_Distance(xStart, yStart, x, y);
+
+		if( d >= Radius )
+		{
+			return;
+		}
+
+		double zSphere = d < Radius ? Radius - sqrt(Radius*Radius - d*d) : Radius;
 
 		//-------------------------------------------------
 		bool bX = dx && fabs(dx) < 1., bY = dy && fabs(dy) < 1.;
@@ -1205,7 +1219,7 @@ void CSolarRadiation::Set_Shade_Bended(double x, double y, double z, int Shadowi
 
 		if( !m_pDEM->is_NoData(ix, iy) )
 		{
-			if( z < m_pDEM->asDouble(ix, iy) )
+			if( z < m_pDEM->asDouble(ix, iy) - zSphere )
 			{
 				return;
 			}
