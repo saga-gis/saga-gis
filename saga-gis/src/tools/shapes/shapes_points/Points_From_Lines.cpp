@@ -233,7 +233,7 @@ void CPoints_From_Lines::Convert_Add_Points_Segment(CSG_Shapes *pLines, CSG_Shap
 
 				double dLength = 0.0;
 
-				while( dLength + Distance < dLine )
+				while( dLength + Distance < (dLine - Distance / 2.) )
 				{
 					Pt_A.x	+= Distance * dx;
 					Pt_A.y	+= Distance * dy;
@@ -259,6 +259,19 @@ void CPoints_From_Lines::Convert_Add_Points_Segment(CSG_Shapes *pLines, CSG_Shap
 					}
 
 					dLength += Distance;
+				}
+
+				pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
+				pPoint	->Add_Point(Pt_B);
+
+				if( pLines->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
+				{
+					pPoint->Set_Z(B_z, 0);
+
+					if( pLines->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+					{
+						pPoint->Set_M(B_m, 0);
+					}
 				}
 			}
 		}
