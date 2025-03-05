@@ -376,6 +376,7 @@ bool CFmask::Initialize(void)
 		m_pBand[NIR] 	= Parameters("NIR_TM"    )->asGrid();
 		m_pBand[SWIR1] 	= Parameters("SWIR1_TM"  )->asGrid();
 		m_pBand[SWIR2] 	= Parameters("SWIR2_TM"  )->asGrid();
+		m_pBand[CIR] 	= NULL;
 		m_pBand[QARAD_G]= Parameters("QARAD_G_TM")->asGrid();
 		m_pBand[QARAD_R]= Parameters("QARAD_R_TM")->asGrid();
 		//m_pBand[SAA]	= Parameters("SAA_TM"	 )->asGrid();
@@ -636,10 +637,17 @@ double CFmask::Get_Brightness(int x, int y, int Band, bool &Eval )
 //---------------------------------------------------------
 bool CFmask::Set_Fmask_Pass_One_Two(void)
 {
+	/*
 	CSG_Simple_Statistics Clear_Sky_Water 	  = CSG_Simple_Statistics(true);
 	CSG_Simple_Statistics Clear_Sky_Land 	  = CSG_Simple_Statistics(true);
 	CSG_Simple_Statistics Clear_Sky_Land_Nir  = CSG_Simple_Statistics(true);
 	CSG_Simple_Statistics Clear_Sky_Land_Swir = CSG_Simple_Statistics(true);
+	*/
+	CSG_Histogram Clear_Sky_Water(1000, m_pBand[TIR]->Get_Min(), m_pBand[TIR]->Get_Max()); 	  
+	//= CSG_Simple_Statistics(true);
+	CSG_Histogram Clear_Sky_Land 	  = CSG_Simple_Statistics(true);
+	CSG_Histogram Clear_Sky_Land_Nir  = CSG_Simple_Statistics(true);
+	CSG_Histogram Clear_Sky_Land_Swir = CSG_Simple_Statistics(true);
 
 	SpectralBand SSWIR = SWIR1;
 
@@ -886,9 +894,13 @@ bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
 	
 	bool	bResult	=
 		  	pTool->Set_Parameter("DEM", 	m_pBand[Band_Input])
-		&& 	pTool->Set_Parameter("RESULT",	m_pResults[Band_Output])
 		&&  pTool->Set_Parameter("BOUNDARY", (int) Boundary )
 		&&  pTool->Execute();
+		
+	if( bResult )
+	{
+		m_pResults[Band_Output] = pTool->Get_Parameter("RESULT")->asGrid();
+	}
 
 	return bResult && m_pResults[Band_Output] && SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
