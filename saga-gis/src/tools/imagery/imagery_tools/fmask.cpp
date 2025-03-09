@@ -643,11 +643,11 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	CSG_Simple_Statistics Clear_Sky_Land_Nir  = CSG_Simple_Statistics(true);
 	CSG_Simple_Statistics Clear_Sky_Land_Swir = CSG_Simple_Statistics(true);
 	*/
-	CSG_Histogram Clear_Sky_Water(1000, m_pBand[TIR]->Get_Min(), m_pBand[TIR]->Get_Max()); 	  
-	//= CSG_Simple_Statistics(true);
-	CSG_Histogram Clear_Sky_Land 	  = CSG_Simple_Statistics(true);
-	CSG_Histogram Clear_Sky_Land_Nir  = CSG_Simple_Statistics(true);
-	CSG_Histogram Clear_Sky_Land_Swir = CSG_Simple_Statistics(true);
+	double T_Off = m_bCelsius ? 0 : -273.15;
+	CSG_Histogram Clear_Sky_Water(		1000, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+	CSG_Histogram Clear_Sky_Land(		1000, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+	CSG_Histogram Clear_Sky_Land_Nir(	1000, m_pBand[NIR]->Get_Min(), m_pBand[NIR]->Get_Max() ); 	  
+	CSG_Histogram Clear_Sky_Land_Swir(	1000, m_pBand[SWIR1]->Get_Min(), m_pBand[SWIR1]->Get_Max()); 	  
 
 	SpectralBand SSWIR = SWIR1;
 
@@ -660,6 +660,7 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 
 	for( int y=0; y<m_pSystem.Get_NY(); y++ )
 	{
+		#pragma omp parallel for
 		for( int x=0; x<m_pSystem.Get_NX(); x++ )
 		{
 	  		bool bR = true, bG = true, bB = true, bN = true, bS1 = true, bS2 = true, bT = true, bSS = true, bC = true;
@@ -748,18 +749,24 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 					// Eq. 7
 					if( Water_Test &&  Swir2 < 0.03 )
 					{	
-						Clear_Sky_Water += Tir;
+	  					#pragma omp critical 
+						{
+							Clear_Sky_Water += Tir;
+						}
 					}
 
 					// Eq. 12
 					if( !Water_Test )
 					{
-						Clear_Sky_Land += Tir;
-						Clear_Sky_Land_Nir += Nir;
-
-						if( m_Algorithm == FMASK_3_2 )
+	  					#pragma omp critical 
 						{
-							Clear_Sky_Land_Swir += SSWIR;
+							Clear_Sky_Land += Tir;
+							Clear_Sky_Land_Nir += Nir;
+
+							if( m_Algorithm == FMASK_3_2 )
+							{
+								Clear_Sky_Land_Swir += Swir1;
+							}
 						}
 					}
 				}
@@ -776,12 +783,16 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	}
 
 	// Eq. 8
+	Clear_Sky_Water.Update();
 	double T_Water 	= Clear_Sky_Water.Get_Percentile(82.5);
 	// Eq. 13
+	Clear_Sky_Land.Update();
 	double T_Low 	= Clear_Sky_Land.Get_Percentile(17.5);
 	double T_High 	= Clear_Sky_Land.Get_Percentile(82.5);
 
+	Clear_Sky_Land_Nir.Update();
 	double Lower_Level_NIR = Clear_Sky_Land_Nir.Get_Percentile(17.5);
+	Clear_Sky_Land_Swir.Update();
 	double Lower_Level_Swir = Clear_Sky_Land_Swir.Get_Percentile(17.5);
 
 	if( !Get_Flood_Fill( Lower_Level_NIR, NIR, RESULT_FFN ) )
