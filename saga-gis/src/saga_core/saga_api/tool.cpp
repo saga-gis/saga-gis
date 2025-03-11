@@ -2040,7 +2040,7 @@ CSG_String CSG_Tool::_Get_Script_Python_Wrap(bool bHeader, bool bName, bool bCal
 	{
 		if( bHeader )
 		{
-			Script += "from PySAGA import saga_api; from PySAGA.tools import " + Get_Library() + "\n\n";
+			Script += "from PySAGA.tools import " + Get_Library() + "\n\n";
 
 			if( !Code.is_Empty() )
 			{
