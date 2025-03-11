@@ -795,60 +795,75 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	Clear_Sky_Land_Swir.Update();
 	double Lower_Level_Swir = Clear_Sky_Land_Swir.Get_Percentile(17.5);
 
-	if( !Get_Flood_Fill( Lower_Level_NIR, NIR, RESULT_FFN ) )
-	{
-		return false;
-	}
+	bool FloodFillNir  = false;
+	bool FloodFillSwir = false;
 	
-	if( m_Algorithm == FMASK_3_2 )
+	#pragma omp parallel 
 	{
-		if( !Get_Flood_Fill( Lower_Level_Swir, SSWIR, RESULT_FFS ) )
+		#pragma omp single 
 		{
-			return false;
+			#pragma omp task
+			{
+				FloodFillNir = Get_Flood_Fill( Lower_Level_NIR, NIR, RESULT_FFN );
+			}
+			
+			#pragma omp task
+			{
+				if( m_Algorithm == FMASK_3_2 )
+				{
+					FloodFillSwir = Get_Flood_Fill( Lower_Level_Swir, SSWIR, RESULT_FFS );
+				}
+			}
+			
+			#pragma omp task 
+			{
+				for( int y=0; y<m_pSystem.Get_NY(); y++ )
+				{
+					#pragma omp parallel for
+					for( int x=0; x<m_pSystem.Get_NX(); x++ )
+					{
+						bool bSwir1 = true, bTir = true, bCir = true;
+						double Swir1= Get_Brightness( x, y, SWIR1, bSwir1 ); 
+						double Tir 	= Get_Brightness( x, y, TIR,   bTir   ); 
+						double Cir 	= Get_Brightness( x, y, CIR,   bCir   ); 
+
+						double Cirrus_Prob = 0.;
+						if( bCir && m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
+						{
+							Cirrus_Prob = Cir / 0.04;
+						}
+
+						if( bTir && bSwir1 )
+						{
+							if( m_pResults[RESULT_WATER]->asInt(x,y) == 1 )
+							{
+								// Eq. 9
+								double wTemp_Prob = (T_Water - Tir) / 4.;
+
+								// Eq. 10
+								double Brightness_Prob = std::min( Swir1, 0.11 ) / 0.11;
+
+								// Eq. 11	
+								m_pResults[RESULT_WCP]->Set_Value( x, y, (wTemp_Prob * Brightness_Prob) + Cirrus_Prob );
+							}
+							if( !m_pResults[RESULT_LCP]->is_NoData(x,y) )
+							{
+								// Eq. 14
+								double lTemp_Prob = ( T_High + 4.0 - Tir ) / ( T_High + 4.0 - ( T_Low - 4.0 )); 
+								// The Variability_Prob is actually calculated in pass one and stored in the lCloud_Prop Grid.
+								// Now recover the value and overwrite with lCloud_Prop after calculation.
+								double Variability_Prob = m_pResults[RESULT_LCP]->asDouble( x, y);
+								// Eq. 16
+								m_pResults[RESULT_LCP]->Set_Value( x, y, (lTemp_Prob * Variability_Prob) + Cirrus_Prob );
+							}
+						}
+					}
+				}
+			}
+			#pragma omp taskwait
 		}
 	}
-	
-	for( int y=0; y<m_pSystem.Get_NY(); y++ )
-	{
-		for( int x=0; x<m_pSystem.Get_NX(); x++ )
-		{
-			bool bSwir1 = true, bTir = true, bCir = true;
-			double Swir1= Get_Brightness( x, y, SWIR1, bSwir1 ); 
-			double Tir 	= Get_Brightness( x, y, TIR,   bTir   ); 
-			double Cir 	= Get_Brightness( x, y, CIR,   bCir   ); 
 
-			double Cirrus_Prob = 0.;
-			if( bCir && m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
-			{
-				Cirrus_Prob = Cir / 0.04;
-			}
-
-			if( bTir && bSwir1 )
-			{
-				if( m_pResults[RESULT_WATER]->asInt(x,y) == 1 )
-				{
-					// Eq. 9
-					double wTemp_Prob = (T_Water - Tir) / 4.;
-
-					// Eq. 10
-					double Brightness_Prob = std::min( Swir1, 0.11 ) / 0.11;
-
-					// Eq. 11	
-					m_pResults[RESULT_WCP]->Set_Value( x, y, (wTemp_Prob * Brightness_Prob) + Cirrus_Prob );
-				}
-				if( !m_pResults[RESULT_LCP]->is_NoData(x,y) )
-	  			{
-					// Eq. 14
-					double lTemp_Prob = ( T_High + 4.0 - Tir ) / ( T_High + 4.0 - ( T_Low - 4.0 )); 
-					// The Variability_Prob is actually calculated in pass one and stored in the lCloud_Prop Grid.
-					// Now recover the value and overwrite with lCloud_Prop after calculation.
-					double Variability_Prob = m_pResults[RESULT_LCP]->asDouble( x, y);
-					// Eq. 16
-					m_pResults[RESULT_LCP]->Set_Value( x, y, (lTemp_Prob * Variability_Prob) + Cirrus_Prob );
-				}
-			}
-	 	}
-	}
 
 	// Eq. 17
 	double Land_threshold = m_pResults[RESULT_LCP]->Get_Percentile(82.5) + 0.2;
@@ -862,6 +877,7 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 
 	for( int y=0; y<m_pSystem.Get_NY(); y++ )
 	{
+		#pragma omp parallel for
 		for( int x=0; x<m_pSystem.Get_NX(); x++ )
 		{
 			bool bTir = true, bNir = true, bSwir1 = true;
