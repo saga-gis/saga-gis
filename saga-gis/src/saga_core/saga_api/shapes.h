@@ -1441,7 +1441,33 @@ SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Difference		(CSG_Shape *pSubject, CSG_Sh
 SAGA_API_DLL_EXPORT bool			SG_Shape_Get_ExclusiveOr	(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
 SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Union			(CSG_Shape *pSubject, CSG_Shape_Polygon *pClip, CSG_Shape *pSolution = NULL);
 SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Dissolve		(CSG_Shape *pSubject                          , CSG_Shape *pSolution = NULL);
+#ifdef CLIPPER_ONE
 SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Offset			(CSG_Shape *pSubject, double Size, double dArc, CSG_Shape *pSolution = NULL);
+#else
+//---------------------------------------------------------
+typedef enum
+{
+	SG_LINE_JOINTYPE_Square = 0,
+	SG_LINE_JOINTYPE_Bevel,
+	SG_LINE_JOINTYPE_Round,
+	SG_LINE_JOINTYPE_Miter
+}
+TSG_Line_JoinType;
+
+//---------------------------------------------------------
+typedef enum
+{
+	SG_LINE_ENDTYPE_Polygon = 0,
+	SG_LINE_ENDTYPE_Joined,
+	SG_LINE_ENDTYPE_Butt,
+	SG_LINE_ENDTYPE_Square,
+	SG_LINE_ENDTYPE_Round
+}
+TSG_Line_EndType
+;
+
+SAGA_API_DLL_EXPORT bool			SG_Shape_Get_Offset			(CSG_Shape *pSubject, double Size, double dArc, CSG_Shape *pSolution = NULL, TSG_Line_JoinType = TSG_Line_JoinType::SG_LINE_JOINTYPE_Round, TSG_Line_EndType = TSG_Line_EndType::SG_LINE_ENDTYPE_Round);
+#endif // CLIPPER_ONE
 
 SAGA_API_DLL_EXPORT const char *	SG_Clipper_Get_Version		(void);
 

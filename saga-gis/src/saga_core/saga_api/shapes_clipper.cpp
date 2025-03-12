@@ -230,26 +230,26 @@ public:
 	}
 
 	//-----------------------------------------------------
-	static bool	Offset		(CSG_Shape *pShape, double Delta, double dArc, CSG_Shape *pSolution)
+	static bool	Offset		(CSG_Shape *pShape, double Delta, double dArc, CSG_Shape *pSolution, TSG_Line_JoinType JoinType, TSG_Line_EndType EndType)
 	{
 		Clipper2Lib::PathsD Paths, Solution;
 
 		if(	to_Paths(pShape, Paths) )
 		{
-			Clipper2Lib::EndType EndType;
+			Clipper2Lib::EndType ClipperEndType;
 
 			if( pShape->Get_Type() != SHAPE_TYPE_Polygon )
 			{
-				EndType = Clipper2Lib::EndType::Round;
+				ClipperEndType = Clipper2Lib::EndType(EndType);
 			}
 			else
 			{
-				EndType = Clipper2Lib::EndType::Polygon;
+				ClipperEndType = Clipper2Lib::EndType::Polygon;
 			}
 
 			double ArcTolerance = std::pow(10., m_Precision) * Delta * (1. - cos(dArc / 2.));
 
-			Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType::Round, EndType, 2., m_Precision, ArcTolerance);
+			Solution = Clipper2Lib::InflatePaths(Paths, Delta, Clipper2Lib::JoinType(JoinType), ClipperEndType, 2., m_Precision, ArcTolerance);
 
 			return( to_Shape(Solution, pSolution ? pSolution : pShape) );
 		}
@@ -391,9 +391,9 @@ bool	SG_Shape_Get_Dissolve		(CSG_Shape *pShape, CSG_Shape *pSolution)
 }
 
 //---------------------------------------------------------
-bool	SG_Shape_Get_Offset		(CSG_Shape *pShape, double Size, double dArc, CSG_Shape *pSolution)
+bool	SG_Shape_Get_Offset		(CSG_Shape *pShape, double Size, double dArc, CSG_Shape *pSolution, TSG_Line_JoinType JoinType, TSG_Line_EndType EndType)
 {
-	return( CSG_Clipper::Offset(pShape, Size, dArc, pSolution) );
+	return( CSG_Clipper::Offset(pShape, Size, dArc, pSolution, JoinType, EndType) );
 }
 
 

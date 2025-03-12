@@ -85,7 +85,10 @@ private:
 	bool						m_bPolyInner;
 
 	double						m_dArc;
-
+#ifndef CLIPPER_ONE
+	TSG_Line_JoinType			m_JoinType;
+	TSG_Line_EndType			m_EndType;
+#endif // !CLIPPER_ONE
 
 	bool						Get_Buffers				(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBuffers, double Scale, bool bDissolve);
 

@@ -60,17 +60,15 @@ CShapes_Buffer::CShapes_Buffer(void)
 {
 	Set_Name		(_TL("Shapes Buffer"));
 
-	Set_Author		("O.Conrad (c) 2008");
+	Set_Author		("O.Conrad, V.Wichmann (c) 2008-2025");
 
 	Set_Description	(_TW(
-		"A vector based buffer construction partly based on the method supposed by Dong et al. (2003)."
+		"The tool allows one to buffer point, line and polygon shapes layers.\n"
+		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson."
 	));
 
-	Add_Reference("Dong, P, Yang, C., Rui, X., Zhang, L., Cheng, Q.", "2003",
-		"An effective buffer generation method in GIS",
-		"Geoscience and Remote Sensing Symposium, IGARSS '03. Proceedings. 2003 IEEE International, Vol.6, p.3706-3708.",
-		SG_T("http://ieeexplore.ieee.org/iel5/9010/28606/01295244.pdf"), SG_T("online")
-	);
+	Add_Reference("https://github.com/AngusJohnson/Clipper2/", SG_T("Clipper Homepage"));
+
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
@@ -120,6 +118,33 @@ CShapes_Buffer::CShapes_Buffer(void)
 		_TL(""),
 		5.0, 0.01, true, 45.0, true
 	);
+
+#ifndef CLIPPER_ONE
+	Parameters.Add_Choice("",
+		"JOIN_TYPE"	, _TL("Join Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+            _TL("Square"),
+			_TL("Bevel"),
+			_TL("Round"),
+            _TL("Miter")
+        ), 2
+	);
+	
+	Parameters.Add_Choice("",
+		"END_TYPE"	, _TL("End Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s",
+            _TL("Polygon"),
+			_TL("Joined"),
+			_TL("Butt"),
+			_TL("Square"),
+            _TL("Round")
+        ), 4
+	);
+	
+#endif // !CLIPPER_ONE
+
 }
 
 
@@ -133,6 +158,10 @@ int CShapes_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	if(	pParameter->Cmp_Identifier("SHAPES") )
 	{
 		pParameters->Set_Enabled("POLY_INNER", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
+#ifndef CLIPPER_ONE
+		pParameters->Set_Enabled("JOIN_TYPE" , pParameter->asShapes() && pParameter->asShapes()->Get_Type() != SHAPE_TYPE_Point && pParameter->asShapes()->Get_Type() != SHAPE_TYPE_Points);
+		pParameters->Set_Enabled("END_TYPE"  , pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
+#endif // !CLIPPER_ONE
 	}
 
 	if(	pParameter->Cmp_Identifier("NZONES") )
@@ -164,6 +193,11 @@ bool CShapes_Buffer::On_Execute(void)
 
 	m_dArc			= Parameters("DARC"      )->asDouble() * M_DEG_TO_RAD;
 	m_bPolyInner	= Parameters("POLY_INNER")->asBool() && pShapes->Get_Type() == SHAPE_TYPE_Polygon;
+
+#ifndef CLIPPER_ONE
+	m_JoinType		= TSG_Line_JoinType(Parameters("JOIN_TYPE" )->asInt());
+	m_EndType		= TSG_Line_EndType (Parameters("END_TYPE"  )->asInt());
+#endif // !CLIPPER_ONE
 
 	//-----------------------------------------------------
 	if( !pShapes->is_Valid() )
@@ -332,7 +366,11 @@ bool CShapes_Buffer::Get_Buffer_Points(CSG_Shape *pPoints, CSG_Shape *pBuffer, d
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Line(CSG_Shape *pLine, CSG_Shape *pBuffer, double Distance)
 {
+#ifndef CLIPPER_ONE
+	return( SG_Shape_Get_Offset(pLine, Distance, m_dArc, pBuffer, m_JoinType, m_EndType) );
+#else
 	return( SG_Shape_Get_Offset(pLine, Distance, m_dArc, pBuffer) );
+#endif
 }
 
 //---------------------------------------------------------
@@ -340,7 +378,11 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon, CSG_Shape *pBuffer,
 {
 	if( m_bPolyInner )
 	{
+#ifndef CLIPPER_ONE
+		if(	SG_Shape_Get_Offset(pPolygon, -Distance, m_dArc, pBuffer, m_JoinType, m_EndType) )
+#else
 		if(	SG_Shape_Get_Offset(pPolygon, -Distance, m_dArc, pBuffer) )
+#endif
 		{
 			SG_Shape_Get_Difference(pPolygon, pBuffer->asPolygon(), pBuffer);
 		}
@@ -352,7 +394,11 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon, CSG_Shape *pBuffer,
 		return( true );
 	}
 
+#ifndef CLIPPER_ONE
+	return( SG_Shape_Get_Offset(pPolygon, Distance, m_dArc, pBuffer, m_JoinType, m_EndType) );
+#else
 	return( SG_Shape_Get_Offset(pPolygon, Distance, m_dArc, pBuffer) );
+#endif
 }
 
 

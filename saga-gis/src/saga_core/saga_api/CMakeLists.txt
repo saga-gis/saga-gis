@@ -166,6 +166,8 @@ target_include_directories(saga_api INTERFACE "${saga_core_include_dir}")
 
 if(NOT WITH_CLIPPER_ONE)
 	target_include_directories(saga_api PRIVATE "${saga_core_include_dir}/saga_api")
+else()
+	target_compile_definitions(saga_api PUBLIC -DCLIPPER_ONE)
 endif()
 
 find_package(wxWidgets COMPONENTS base net xml html REQUIRED)
