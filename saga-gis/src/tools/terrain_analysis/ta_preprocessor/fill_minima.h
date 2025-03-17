@@ -57,6 +57,51 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 #include <limits.h>
+#include <memory>
+#include <vector>
+#include <queue>
+#include <utility>
+
+/*
+template<typename T>
+struct pixel 
+{
+    sLong x, y;
+	T height;
+};
+
+template<typename T>
+struct pixelQueue
+{
+	T height_min;
+	T number_levels;
+	
+	std::vector<std::shared_ptr<std::queue<pixel<T>>>> data;
+};
+
+//using pixelQueue = std::vector<std::queue<pixel<int>>>;
+using pixelQueuePtr = std::shared_ptr<pixelQueue<int>>;
+*/
+
+
+//pixelQueuePtr PQ_init(int hMin, int hMax) {
+//    pixelQueuePtr pixQ = std::make_shared<pixelQueue<int>>();
+//        
+//    int numLevels = hMax - hMin + 1;
+//    
+//	pixQ->height_min = hMin;
+//    pixQ->number_levels = numLevels;
+//    pixQ->data.reserve(numLevels);
+//    
+//	for( std::shared_ptr<std::queue<pixel<int>>> height : pixQ->data )
+//		height = std::make_shared<std::queue<pixel<int>>>();
+//		
+//	return pixQ;
+//}
+
+
+
+
 
 /* Routines for handling the hierarchical pixel queue which the
    algorithm requires.
@@ -91,7 +136,7 @@ static PQel *newPix(int i, int j) {
     }
     return p;
 }
-    
+
 /* Initialize pixel queue */
 static PixelQueue *PQ_init(int hMin, int hMax) {
     PixelQueue *pixQ;
@@ -107,8 +152,27 @@ static PixelQueue *PQ_init(int hMin, int hMax) {
         pixQ->q[i].last = NULL;
         pixQ->q[i].n = 0;
     }
-    return pixQ;
+return pixQ;
 }
+
+    
+///* Initialize pixel queue */
+//static PixelQueue *PQ_init(int hMin, int hMax) {
+//    PixelQueue *pixQ;
+//    int numLevels, i;
+//        
+//    pixQ = (PixelQueue *)calloc(1, sizeof(PixelQueue));
+//    numLevels = hMax - hMin + 1;
+//    pixQ->hMin = hMin;
+//    pixQ->numLevels = numLevels;
+//    pixQ->q = (PQhdr *)calloc(numLevels, sizeof(PQhdr));
+//    for (i=0; i<numLevels; i++) {
+//        pixQ->q[i].first = NULL;
+//        pixQ->q[i].last = NULL;
+//        pixQ->q[i].n = 0;
+//    }
+//return pixQ;
+//}
     
 /* Add a pixel at level h */
 static void PQ_add(PixelQueue *pixQ, PQel *p, int h) {
@@ -235,15 +299,18 @@ protected:
 
 	virtual bool		On_Execute		(void);
 	
-	PixelQueue* 		Create_Queue	(int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
-	bool 				Fill_Queue( PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
+	PixelQueue* 		Create_Queue	( CSG_Grid *pInput, CSG_Grid *pOutput, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
+	bool 				Fill_Queue 		( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
+	//bool 				Fill_Queue 		( PriorityQueuePtr PG, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
+	
+	//PriorityQueuePtr 	Create_Queue	(CSG_Grid *pGrid, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
 
 
 private:
 
-	CSG_Grid *m_pInput 	= NULL;
-	CSG_Grid *m_pImg2 	= NULL;
-	
+	//CSG_Grid *m_pInput 	= NULL;
+	//CSG_Grid *m_pOutput 	= NULL;
+
 };
 
 
