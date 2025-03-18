@@ -1402,6 +1402,26 @@ bool CSG_Histogram::_Update(sLong nElements)
 	return( Update() );
 }
 
+bool CSG_Histogram::Add_Histogram(const CSG_Histogram &Histogram )
+{
+	if( m_nClasses  == 0
+	||	m_nClasses 	!= Histogram.m_nClasses 
+	|| 	m_Minimum 	!= Histogram.m_Minimum 
+	||	m_Maximum 	!= Histogram.m_Maximum )
+	{
+		return( false );
+	}
+
+	m_Statistics 	+= Histogram.m_Statistics;
+
+	for( size_t i=0; i<m_nClasses; i++ )
+	{
+		m_Elements[i] += Histogram.m_Elements[i];
+	}
+
+	return( true );
+}
+
 //---------------------------------------------------------
 /**
 * Returns the correspondend value for the requested quantile.
