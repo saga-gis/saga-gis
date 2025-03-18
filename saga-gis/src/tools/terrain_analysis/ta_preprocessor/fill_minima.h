@@ -155,25 +155,6 @@ static PixelQueue *PQ_init(int hMin, int hMax) {
 return pixQ;
 }
 
-    
-///* Initialize pixel queue */
-//static PixelQueue *PQ_init(int hMin, int hMax) {
-//    PixelQueue *pixQ;
-//    int numLevels, i;
-//        
-//    pixQ = (PixelQueue *)calloc(1, sizeof(PixelQueue));
-//    numLevels = hMax - hMin + 1;
-//    pixQ->hMin = hMin;
-//    pixQ->numLevels = numLevels;
-//    pixQ->q = (PQhdr *)calloc(numLevels, sizeof(PQhdr));
-//    for (i=0; i<numLevels; i++) {
-//        pixQ->q[i].first = NULL;
-//        pixQ->q[i].last = NULL;
-//        pixQ->q[i].n = 0;
-//    }
-//return pixQ;
-//}
-    
 /* Add a pixel at level h */
 static void PQ_add(PixelQueue *pixQ, PQel *p, int h) {
     int ndx;
@@ -301,15 +282,9 @@ protected:
 	
 	PixelQueue* 		Create_Queue	( CSG_Grid *pInput, CSG_Grid *pOutput, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
 	bool 				Fill_Queue 		( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
-	//bool 				Fill_Queue 		( PriorityQueuePtr PG, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
-	
-	//PriorityQueuePtr 	Create_Queue	(CSG_Grid *pGrid, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
 
 
 private:
-
-	//CSG_Grid *m_pInput 	= NULL;
-	//CSG_Grid *m_pOutput 	= NULL;
 
 };
 
