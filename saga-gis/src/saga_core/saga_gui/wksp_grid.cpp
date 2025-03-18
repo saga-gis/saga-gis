@@ -144,6 +144,13 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grid()->Get_Type()).c_str());
 	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
+	DESC_ADD_STR (_TL("Scaled"            ), Get_Grid()->is_Scaled() ? _TL("yes") : _TL("no"));
+
+	if( Get_Grid()->is_Scaled() )
+	{
+		DESC_ADD_STR(_TL("Scale"     	  ), wxString::Format("%.17f", Get_Grid()->Get_Scaling()));
+		DESC_ADD_STR(_TL("Offset"         ), wxString::Format("%.17f", Get_Grid()->Get_Offset ()));
+	}
 
 	if( Get_Grid()->is_Cached() )
 	{
