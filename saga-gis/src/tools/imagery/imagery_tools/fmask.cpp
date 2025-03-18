@@ -644,10 +644,11 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	CSG_Simple_Statistics Clear_Sky_Land_Swir = CSG_Simple_Statistics(true);
 	*/
 	double T_Off = m_bCelsius ? 0 : -273.15;
-	CSG_Histogram Clear_Sky_Water(		1000, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
-	CSG_Histogram Clear_Sky_Land(		1000, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
-	CSG_Histogram Clear_Sky_Land_Nir(	1000, m_pBand[NIR]->Get_Min(), m_pBand[NIR]->Get_Max() ); 	  
-	CSG_Histogram Clear_Sky_Land_Swir(	1000, m_pBand[SWIR1]->Get_Min(), m_pBand[SWIR1]->Get_Max()); 	  
+	size_t Bin_Count = 2048;
+	CSG_Histogram Clear_Sky_Water(		Bin_Count, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+	CSG_Histogram Clear_Sky_Land(		Bin_Count, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+	CSG_Histogram Clear_Sky_Land_Nir(	Bin_Count, m_pBand[NIR]->Get_Min(), m_pBand[NIR]->Get_Max() ); 	  
+	CSG_Histogram Clear_Sky_Land_Swir(	Bin_Count, m_pBand[SWIR1]->Get_Min(), m_pBand[SWIR1]->Get_Max()); 	  
 
 	SpectralBand SSWIR = SWIR1;
 
@@ -658,127 +659,137 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 		Snow_Temp_Threshold = 9.85;
 	}
 
-	for( int y=0; y<m_pSystem.Get_NY(); y++ )
+	#pragma omp parallel 
 	{
-		#pragma omp parallel for
-		for( int x=0; x<m_pSystem.Get_NX(); x++ )
+		CSG_Histogram Local_Clear_Sky_Water(		Bin_Count, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+		CSG_Histogram Local_Clear_Sky_Land(			Bin_Count, m_pBand[TIR]->Get_Min() + T_Off, m_pBand[TIR]->Get_Max() + T_Off ); 	  
+		CSG_Histogram Local_Clear_Sky_Land_Nir(		Bin_Count, m_pBand[NIR]->Get_Min(), m_pBand[NIR]->Get_Max() ); 	  
+		CSG_Histogram Local_Clear_Sky_Land_Swir(	Bin_Count, m_pBand[SWIR1]->Get_Min(), m_pBand[SWIR1]->Get_Max()); 	  
+
+	 	#pragma omp for
+		for( int y=0; y<m_pSystem.Get_NY(); y++ )
 		{
-	  		bool bR = true, bG = true, bB = true, bN = true, bS1 = true, bS2 = true, bT = true, bSS = true, bC = true;
-			double Red 	 = Get_Brightness( x, y, RED, 	bR  ); 
-			double Green = Get_Brightness( x, y, GREEN, bG  ); 
-			double Blue  = Get_Brightness( x, y, BLUE, 	bB  ); 
-			double Nir 	 = Get_Brightness( x, y, NIR,	bN  ); 
-			double Cir 	 = Get_Brightness( x, y, CIR,	bC  ); 
-			double Swir1 = Get_Brightness( x, y, SWIR1, bS1 ); 
-			double Swir2 = Get_Brightness( x, y, SWIR2, bS2 ); 
-			double Tir 	 = Get_Brightness( x, y, TIR, 	bT  ); 
-
-			if( !bR || !bG || !bB || !bN || !bS1 || !bS2 || !bT )
+			for( int x=0; x<m_pSystem.Get_NX(); x++ )
 			{
-				m_pResults[RESULT_PCP]->Set_Value(	x, y, 0.0 );
-				m_pResults[RESULT_WATER]->Set_Value( x, y, 0.0 );
-				m_pResults[RESULT_SNOW]->Set_Value( x, y, 0.0 );
-				//m_pResults[RESULT_LCP]->Set_NoData( x, y);
-				m_pResults[RESULT_WCP]->Set_NoData( x, y);
-				m_pResults[RESULT_PCSL]->Set_Value( 	x, y, 0.0 );
-			}
-			else
-	  		{
-				// Eq. 1
-				double NDSI = (Green - Swir1) / (Green + Swir1);
-				double NDVI = (Nir - Red) / (Nir + Red);
-				bool Basic_Test = Swir2 > 0.03 && Tir < 27.0 && NDSI < 0.8 && NDVI < 0.8;
-				
-				// Eq. 20
-				if( NDSI > 0.15 && Tir < Snow_Temp_Threshold && Nir > 0.11 && Green > 0.1 )
-				{
-					m_pResults[RESULT_SNOW]->Set_Value( x, y, 1.0 );
-				}
-				else
-				{
-					m_pResults[RESULT_SNOW]->Set_Value( x, y, 0.0 );
-				}
-				
-				// Eq. 2
-				double MV = ( Red + Green + Blue )/3.0;
-				double Whitenes = (fabs((Blue - MV)/MV) + fabs((Green - MV)/MV) + fabs((Red - MV)/MV));
-				bool Whitenes_Test = Whitenes < 0.7;
+				bool bR = true, bG = true, bB = true, bN = true, bS1 = true, bS2 = true, bT = true, bSS = true, bC = true;
+				double Red 	 = Get_Brightness( x, y, RED, 	bR  ); 
+				double Green = Get_Brightness( x, y, GREEN, bG  ); 
+				double Blue  = Get_Brightness( x, y, BLUE, 	bB  ); 
+				double Nir 	 = Get_Brightness( x, y, NIR,	bN  ); 
+				double Cir 	 = Get_Brightness( x, y, CIR,	bC  ); 
+				double Swir1 = Get_Brightness( x, y, SWIR1, bS1 ); 
+				double Swir2 = Get_Brightness( x, y, SWIR2, bS2 ); 
+				double Tir 	 = Get_Brightness( x, y, TIR, 	bT  ); 
 
-				// Eq. 3
-				double HOT = Blue - 0.5 * Red - 0.08; 
-				bool HOT_Test = HOT > 0.0;
-
-				// Eq. 4
-				bool B4_B5_Test = Nir /  Swir1 > 0.75;
-
-				// Eq. 5
-				bool Water_Test = ( NDVI < 0.01 && Nir < 0.11 ) || ( NDVI < 0.1 && Nir < 0.05 );
-				if( Water_Test ) 
+				if( !bR || !bG || !bB || !bN || !bS1 || !bS2 || !bT )
 				{
-					m_pResults[RESULT_WATER]->Set_Value( x, y, 1.0 );
-				}
-				else 
-				{
+					m_pResults[RESULT_PCP]->Set_Value(	x, y, 0.0 );
 					m_pResults[RESULT_WATER]->Set_Value( x, y, 0.0 );
-				}
-				
-				if( m_Algorithm == FMASK_3_2 )
-				{
-					Snow_Temp_Threshold = 9.85;
-				}
-
-				bool Cirrus_Cloud_Test = false;
-				if( m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
-				{
-					Cirrus_Cloud_Test = bC && Cir > 0.01;
-				}
-
-				// Eq. 6
-				if( (Basic_Test && Whitenes_Test && HOT_Test && B4_B5_Test) || Cirrus_Cloud_Test )
-				{
-					m_pResults[RESULT_PCP]->Set_Value(x,y, 1.0 );
+					m_pResults[RESULT_SNOW]->Set_Value( x, y, 0.0 );
+					//m_pResults[RESULT_LCP]->Set_NoData( x, y);
+					m_pResults[RESULT_WCP]->Set_NoData( x, y);
+					m_pResults[RESULT_PCSL]->Set_Value( 	x, y, 0.0 );
 				}
 				else
 				{
-					m_pResults[RESULT_PCP]->Set_Value(x,y, 0.0 );
+					// Eq. 1
+					double NDSI = (Green - Swir1) / (Green + Swir1);
+					double NDVI = (Nir - Red) / (Nir + Red);
+					bool Basic_Test = Swir2 > 0.03 && Tir < 27.0 && NDSI < 0.8 && NDVI < 0.8;
+					
+					// Eq. 20
+					if( NDSI > 0.15 && Tir < Snow_Temp_Threshold && Nir > 0.11 && Green > 0.1 )
+					{
+						m_pResults[RESULT_SNOW]->Set_Value( x, y, 1.0 );
+					}
+					else
+					{
+						m_pResults[RESULT_SNOW]->Set_Value( x, y, 0.0 );
+					}
+					
+					// Eq. 2
+					double MV = ( Red + Green + Blue )/3.0;
+					double Whitenes = (fabs((Blue - MV)/MV) + fabs((Green - MV)/MV) + fabs((Red - MV)/MV));
+					bool Whitenes_Test = Whitenes < 0.7;
 
-					bool Eval;
-					double Swir2= Get_Brightness( x, y, SWIR2, 	Eval ); 
-					double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
+					// Eq. 3
+					double HOT = Blue - 0.5 * Red - 0.08; 
+					bool HOT_Test = HOT > 0.0;
 
-					// Eq. 7
-					if( Water_Test &&  Swir2 < 0.03 )
-					{	
-	  					#pragma omp critical 
-						{
-							Clear_Sky_Water += Tir;
-						}
+					// Eq. 4
+					bool B4_B5_Test = Nir /  Swir1 > 0.75;
+
+					// Eq. 5
+					bool Water_Test = ( NDVI < 0.01 && Nir < 0.11 ) || ( NDVI < 0.1 && Nir < 0.05 );
+					if( Water_Test ) 
+					{
+						m_pResults[RESULT_WATER]->Set_Value( x, y, 1.0 );
+					}
+					else 
+					{
+						m_pResults[RESULT_WATER]->Set_Value( x, y, 0.0 );
+					}
+					
+					if( m_Algorithm == FMASK_3_2 )
+					{
+						Snow_Temp_Threshold = 9.85;
 					}
 
-					// Eq. 12
-					if( !Water_Test )
+					bool Cirrus_Cloud_Test = false;
+					if( m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
 					{
-	  					#pragma omp critical 
+						Cirrus_Cloud_Test = bC && Cir > 0.01;
+					}
+
+					// Eq. 6
+					if( (Basic_Test && Whitenes_Test && HOT_Test && B4_B5_Test) || Cirrus_Cloud_Test )
+					{
+						m_pResults[RESULT_PCP]->Set_Value(x,y, 1.0 );
+					}
+					else
+					{
+						m_pResults[RESULT_PCP]->Set_Value(x,y, 0.0 );
+
+						bool Eval;
+						double Swir2= Get_Brightness( x, y, SWIR2, 	Eval ); 
+						double Tir 	= Get_Brightness( x, y, TIR, 	Eval ); 
+
+						// Eq. 7
+						if( Water_Test &&  Swir2 < 0.03 )
+						{	
+							Local_Clear_Sky_Water += Tir;
+						}
+
+						// Eq. 12
+						if( !Water_Test )
 						{
-							Clear_Sky_Land += Tir;
-							Clear_Sky_Land_Nir += Nir;
+							Local_Clear_Sky_Land += Tir;
+							Local_Clear_Sky_Land_Nir += Nir;
 
 							if( m_Algorithm == FMASK_3_2 )
 							{
-								Clear_Sky_Land_Swir += Swir1;
+								Local_Clear_Sky_Land_Swir += Swir1;
 							}
 						}
 					}
+					
+					// Eq. 15
+					// Calculating Variability_Prob in pass bc every needed value is here.
+					// Store the Variability_Prob in the lCloud_Prop Grid.
+					double modNDSI = Is_Saturated( x, y, GREEN) && Swir1 > Green ? 0. : NDSI;
+					double modNDVI = Is_Saturated( x, y, RED) 	&& Nir 	 > Red 	 ? 0. : NDVI;
+					double Variability_Prob = 1.0 - std::max( std::abs(modNDSI), std::max( std::abs(modNDVI), Whitenes));
+					m_pResults[RESULT_LCP]->Set_Value( x, y, Variability_Prob );
 				}
-				
-				// Eq. 15
-				// Calculating Variability_Prob in pass bc every needed value is here.
-				// Store the Variability_Prob in the lCloud_Prop Grid.
-				double modNDSI = Is_Saturated( x, y, GREEN) && Swir1 > Green ? 0. : NDSI;
-				double modNDVI = Is_Saturated( x, y, RED) 	&& Nir 	 > Red 	 ? 0. : NDVI;
-				double Variability_Prob = 1.0 - std::max( std::abs(modNDSI), std::max( std::abs(modNDVI), Whitenes));
-				m_pResults[RESULT_LCP]->Set_Value( x, y, Variability_Prob );
-			}	
+			}
+		}
+
+		#pragma omp critical 
+		{
+			Clear_Sky_Water.Add_Histogram(Local_Clear_Sky_Water);
+			Clear_Sky_Land.Add_Histogram(Local_Clear_Sky_Land);
+			Clear_Sky_Land_Nir.Add_Histogram(Local_Clear_Sky_Land_Nir);
+			Clear_Sky_Land_Swir.Add_Histogram(Local_Clear_Sky_Land_Swir);
 		}
 	}
 
@@ -817,9 +828,9 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 			
 			#pragma omp task 
 			{
+				#pragma omp parallel for
 				for( int y=0; y<m_pSystem.Get_NY(); y++ )
 				{
-					#pragma omp parallel for
 					for( int x=0; x<m_pSystem.Get_NX(); x++ )
 					{
 						bool bSwir1 = true, bTir = true, bCir = true;
@@ -901,6 +912,7 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 				||	( Tir < T_Low - 35.0 ) )
 				{
 					m_pResults[RESULT_PCL]->Set_Value(x,y, 1.0);
+
 				}
 			}
 	 	}
