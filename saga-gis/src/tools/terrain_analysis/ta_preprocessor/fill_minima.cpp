@@ -75,12 +75,23 @@ The algorithm is intended for hydrological processing of a DEM, but is used by t
 Fmask cloud shadow algorithm as part of its process for finding local minima which 
 represent potential shadow objects. 
 */
+
+//---------------------------------------------------------
 #include "fill_minima.h"
 #include <math.h>
 
+//#define max(a,b) ((a) > (b) ? (a) : (b))
 
+static int	xnb[] = { -1, 0, 1, 1, 1, 0,-1,-1};
+static int	ynb[] = {  1, 1, 1, 0,-1,-1,-1, 0};
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 CFillMinima::CFillMinima(void)
 {
 	Set_Name 		(_TL("Fill Minima"));
@@ -120,12 +131,13 @@ CFillMinima::CFillMinima(void)
 	);
 }
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-//#define max(a,b) ((a) > (b) ? (a) : (b))
-
-static int	xnb[] = { -1, 0, 1, 1, 1, 0,-1,-1};
-static int	ynb[] = {  1, 1, 1, 0,-1,-1,-1, 0};
-
+//---------------------------------------------------------
 bool CFillMinima::On_Execute(void)
 {
 	CSG_Grid *pInput = Parameters("DEM")->asGrid();
@@ -182,7 +194,7 @@ bool CFillMinima::On_Execute(void)
 	}
 
 	int Num_Threads = SG_OMP_Get_Max_Num_Threads();
-    int Chunk_Size = Get_NX() / Num_Threads;
+    int Chunk_Size = Get_NY() / Num_Threads;
 	while( Chunk_Size % 4 != 0 ){ Chunk_Size++; }
 	int Half = Chunk_Size / 2;
 	int Overlap = Half;
@@ -199,13 +211,13 @@ bool CFillMinima::On_Execute(void)
 		{
 			int Thread_ID = SG_OMP_Get_Thread_Num();
 
-			int xStart	=  Thread_ID * Chunk_Size - Overlap;
-			int xEnd 	= (Thread_ID * Chunk_Size) + Chunk_Size + Overlap;
-			if( xStart < 0 ) 		xStart = 0;
-			if( xEnd > Get_NX() ) 	xEnd = Get_NX();
+			int yStart	=  Thread_ID * Chunk_Size - Overlap;
+			int yEnd 	= (Thread_ID * Chunk_Size) + Chunk_Size + Overlap;
+			if( yStart < 0 ) 		yStart = 0;
+			if( yEnd > Get_NY() ) 	yEnd = Get_NY();
 
-			int yStart = 0;
-			int yEnd = Get_NY();
+			int xStart = 0;
+			int xEnd = Get_NY();
 			
 			PixelQueue* pixQ = 	Create_Queue( pInput, Thread_ID % 2 ? &Copy : pOutput, hMin, hMax, BoundaryVal, xStart, xEnd, yStart, yEnd );
 								Fill_Queue(   pInput, Thread_ID % 2 ? &Copy : pOutput, pixQ, hMin, hMax, xStart, xEnd, yStart, yEnd);
@@ -232,6 +244,14 @@ bool CFillMinima::On_Execute(void)
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd )
 {
 	#ifdef _DEBUG 
@@ -312,6 +332,13 @@ bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *p
 }
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 PixelQueue* CFillMinima::Create_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd )
 {
 	#ifdef _DEBUG 
@@ -385,3 +412,9 @@ PixelQueue* CFillMinima::Create_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, int 
 	return( pixQ );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////

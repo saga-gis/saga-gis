@@ -57,51 +57,6 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 #include <limits.h>
-#include <memory>
-#include <vector>
-#include <queue>
-#include <utility>
-
-/*
-template<typename T>
-struct pixel 
-{
-    sLong x, y;
-	T height;
-};
-
-template<typename T>
-struct pixelQueue
-{
-	T height_min;
-	T number_levels;
-	
-	std::vector<std::shared_ptr<std::queue<pixel<T>>>> data;
-};
-
-//using pixelQueue = std::vector<std::queue<pixel<int>>>;
-using pixelQueuePtr = std::shared_ptr<pixelQueue<int>>;
-*/
-
-
-//pixelQueuePtr PQ_init(int hMin, int hMax) {
-//    pixelQueuePtr pixQ = std::make_shared<pixelQueue<int>>();
-//        
-//    int numLevels = hMax - hMin + 1;
-//    
-//	pixQ->height_min = hMin;
-//    pixQ->number_levels = numLevels;
-//    pixQ->data.reserve(numLevels);
-//    
-//	for( std::shared_ptr<std::queue<pixel<int>>> height : pixQ->data )
-//		height = std::make_shared<std::queue<pixel<int>>>();
-//		
-//	return pixQ;
-//}
-
-
-
-
 
 /* Routines for handling the hierarchical pixel queue which the
    algorithm requires.
@@ -288,11 +243,8 @@ private:
 
 };
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
