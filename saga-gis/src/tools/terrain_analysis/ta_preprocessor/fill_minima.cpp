@@ -96,40 +96,116 @@ CFillMinima::CFillMinima(void)
 {
 	Set_Name 		(_TL("Fill Minima"));
 
-	Set_Author 		("Neil Flood (c) 2015, Justus Spitzmueller (c) 2023");
+	Set_Author 		("Justus Spitzm\u00fcller \u00a9 2025, Neil Flood \u00a9 2015, Richard Barnes \u00a9 2014");
 
-	Set_Version 	("1.1");
+	Set_Version 	("2.0");
 
 	Set_Description(_TW(
-		"Minima filling for integer grids."
+		"This tool performs basic sink filling on Digital Elevation Models (DEMs). It identifies and "
+		"fills local depressions (sinks) to ensure continuous flow paths across the terrain surface. "
+		"Note: this tool does not carry out a full hydrological correction — it only addresses "
+		"depressions and does not modify flat areas, resolve flow directions, or enforce hydrological "
+		"consistency beyond sink removal.\n\n"
+		"The tool accepts a DEM as input and returns a version with filled depressions. Optionally, "
+		"users can define a fixed boundary value to control how edge/boundary cells are initialized "
+		"during filling.\n\n"
+		"Recommended Usage:\n"
+		"<ul>"
+		"<li> Choose Soille & Gratin for (scaled) integer DEMs.</li>"
+		"<li> Choose Barnes et al. for floating-point DEMs.</li>"
+		"</ul>\n"
 	));
+
+
+    Add_Reference("Soille, P., & C. Gratin", "1994", 
+		"An efficient algorithm for drainage network extraction on DEMs. ",
+		"Journal of Visual Communication and Image Representation. 5(2): 181-189."
+	);
+
+    Add_Reference("Barnes, R., Lehman, C., & Mulla, D.", "2014",
+		"Priority-flood: An optimal depression-filling and watershed-labeling "
+		"algorithm for digital elevation models.", 
+		"Computers & Geosciences, 62, 117-127."
+	);
 
 	Add_Reference("https://www.pythonfmask.org/",
 		SG_T("Python Fmask")
 	);
 
-    Add_Reference("Soille, P., & C. Gratin", "1994", 
-		"An efficient algorithm for drainage network extraction on DEMs.",
-		"J. Visual Communication and Image Representation. 5(2): 181-189."
+	Add_Reference("https://github.com/r-barnes/richdem",
+		SG_T("RichDEM")
 	);
 	
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		"", "DEM"		, _TL("DEM"),
-		_TL("digital elevation model [m]"),
+		_TL("Digital Elevation Model"),
 		PARAMETER_INPUT, true
 	);
 
 	Parameters.Add_Grid(
 		"", "RESULT"	, _TL("Filled DEM"),
-		_TL("processed DEM"),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte 
+		_TL("Processed DEM"),
+		PARAMETER_OUTPUT, true
+	);
+
+	Parameters.Add_Choice(
+		"", "METHOD", _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			SG_T("Auto detection by input"),
+			SG_T("Soille & Gratin 1994"),
+			SG_T("Barnes et al. 2014")
+		), 0 
+	);
+	
+	Parameters.Add_Bool(
+		"", "BOUNDARY", _TL("Set Fixed Boundary Value"), _TL(""), false 
 	);
 
 	Parameters.Add_Double(
-		"", "BOUNDARY", _TL("Boundary Value"), _TL(""), 0.197
+		"BOUNDARY", "BOUNDARY_VALUE", _TL("Boundary Value"), _TL("The boundary value will be scaled by the scaling factor of the input. "), 1.0
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CFillMinima::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("BOUNDARY_VALUE", pParameters->Get_Parameter("BOUNDARY")->asBool());
+	
+	if( pParameter->Cmp_Identifier("DEM") || pParameter->Cmp_Identifier("METHOD") )
+	{
+		CSG_Grid	*pDEM	= pParameters->Get_Parameter("DEM")->asGrid();
+		int 		Method 	= pParameters->Get_Parameter("METHOD")->asInt();
+
+		if( pDEM && Method == 0 )
+		{
+			TSG_Data_Type Type = pDEM->Get_Type();
+			if( Type == SG_DATATYPE_Float || Type == SG_DATATYPE_Double )
+			{
+				pParameters->Set_Parameter("METHOD", 2);
+			}
+			else if( SG_Data_Type_is_Numeric(Type) )
+			{
+				pParameters->Set_Parameter("METHOD", 1);
+			}
+			else 
+			{		
+				pParameters->Set_Parameter("METHOD", 0);
+			}
+		}
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -148,94 +224,293 @@ bool CFillMinima::On_Execute(void)
 	pOutput->Set_Name( CSG_String::Format("%s_Fill", pInput->Get_Name()) );
 	pOutput->Set_NoData_Value( NoDataValue );
 	pOutput->Set_Scaling( pInput->Get_Scaling(), pInput->Get_Offset() );
-
-	CSG_Grid Copy( Get_System(), pInput->Get_Type() );
-	Copy.Set_NoData_Value( NoDataValue );
-	Copy.Set_Scaling( pInput->Get_Scaling(), pInput->Get_Offset() );
 	
-	int BoundaryVal = (int) ((Parameters("BOUNDARY")->asDouble() - pInput->Get_Offset()) / pInput->Get_Scaling() );
+	CSG_Grid Closed(Get_System(), SG_DATATYPE_Bit);
+	Closed.Assign_NoData();
+	//CSG_Array _Closed(sizeof(bool), pInput->Get_NCells()); bool* Closed = (bool*)_Closed.Get_Array();
+	//for( size_t i=0; i<Get_NCells(); i++ )
+	//	Closed[i] = false;
+	//
+	//	Closed[y * nx + x]
+
+	int 	Method = Parameters("METHOD")->asInt();
+	bool 	Fix_Boundary = Parameters("BOUNDARY")->asBool();
+
+	double 	Boundary_Value = (Parameters("BOUNDARY_VALUE")->asDouble() - pInput->Get_Offset()) / (pInput->is_Scaled() ? pInput->Get_Scaling() : 1. ); // Don't divide by zero
 
 	int hMin = INT_MAX;
 	int hMax = INT_MIN;
-
-	Process_Set_Text(_TL("Creating statistics"));
-
-	#pragma omp parallel for reduction(min:hMin) reduction(max:hMax) 
-	for(sLong y=0; y<Get_NY(); y++)
+	
+	if( Method == 0 )
 	{
-		for(sLong x=0; x<Get_NX(); x++)
-		{
-			if( !pInput->is_NoData(x,y) )
-			{
-				int value = pInput->asInt(x, y, false);
-				hMin = std::min( hMin, value );
-				hMax = std::max( hMax, value );
-			}
-		}
+		On_Parameter_Changed( &Parameters, Parameters("METHOD") );
+		Method = Parameters("METHOD")->asInt();
 	}
 	
-	Process_Set_Text(_TL("Initializing output"));
-	#pragma omp parallel for
-	for(sLong y=0; y<Get_NY(); y++)
+	if( Method == 1 )
 	{
-		for(sLong x=0; x<Get_NX(); x++)
+		Process_Set_Text(_TL("Creating statistics"));
+		#pragma omp parallel for reduction(min:hMin) reduction(max:hMax) 
+		for(sLong y=0; y<Get_NY(); y++)
 		{
-			if( pInput->is_NoData(x,y) )
+			for(int x=0; x<Get_NX(); x++)
 			{
-				pOutput->Set_NoData(x,y);
-				Copy.Set_NoData(x,y);
-			}
-			else 
-			{
-				pOutput->Set_Value( x, y, hMax, false);
-				Copy.Set_Value( x, y, hMax, false);
+				if( !pInput->is_NoData(x,y) )
+				{
+					int value = pInput->asInt(x, y, false);
+					hMin = std::min( hMin, value );
+					hMax = std::max( hMax, value );
+				}
+				else
+				{
+					pOutput->Set_NoData(x,y);
+				}
 			}
 		}
+
+		PixelQueue *pixQ = PQ_init(hMin,hMax);
+		Process_Set_Text(_TL("Filling Minima"));
+		Create_Queue( pInput, pOutput, &Closed, pixQ, NULL, Method, Fix_Boundary, Boundary_Value );
+		Fill_Sinks_Soille( pInput, pOutput, &Closed, pixQ, Fix_Boundary ? (int) Boundary_Value : hMin, hMax );
+	}
+	
+
+	if( Method == 2 )
+	{
+		Process_Set_Text(_TL("Filling Minima"));
+		pOutput->Assign(pInput);
+		grid_cellz_pq open;
+		Create_Queue( pInput, pOutput, &Closed, NULL, &open, Method, Fix_Boundary, Boundary_Value );
+		Fill_Sinks_Barnes( pInput, pOutput, &Closed, &open );
 	}
 
-	int Num_Threads = SG_OMP_Get_Max_Num_Threads();
-    int Chunk_Size = Get_NY() / Num_Threads;
-	while( Chunk_Size % 4 != 0 ){ Chunk_Size++; }
-	int Half = Chunk_Size / 2;
-	int Overlap = Half;
+	return( true );
+}
 
-	Process_Set_Text(_TL("Filling Minima"));
-	if( Num_Threads <= 2 )
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFillMinima::Create_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, PixelQueue *pixQ, grid_cellz_pq *pOpen, int Method, bool Boundary, double Boundary_Value )
+{
+	if((Method == 1 && pixQ == NULL) 
+	|| (Method == 2 && pOpen == NULL))
 	{
-		PixelQueue* pixQ = 	Create_Queue( pInput, pOutput, hMin, hMax, BoundaryVal, 0, Get_NX(), 0, Get_NY() );
-							Fill_Queue(   pInput, pOutput, pixQ, hMin, hMax, 0, Get_NX(), 0, Get_NY() );
+		return( false );
+	}
+
+	bool Scale = (Method == 1) ? false : true;
+	
+	if( pInput->Get_NoData_Count() > 0 )
+	{
+		for( int y=0; y<Get_NY(); y++ )
+		{
+			for( int x=0; x<Get_NX(); x++ )
+			{
+				if( pInput->is_NoData(x,y) )
+				{
+					pClosed->Set_Value( x, y, true, true );
+					
+					for( int i=0; i<8; i++ )
+					{
+						int xdiff = x + xnb[i];
+						int ydiff = y + ynb[i];
+
+						if( pInput->is_InGrid( xdiff, ydiff, true ) && pClosed->is_NoData( xdiff, ydiff) )
+						{
+							pClosed->Set_Value( xdiff, ydiff, true, true );
+							pOutput->Set_Value( xdiff, ydiff,  Boundary ? Boundary_Value : pInput->asDouble(xdiff,ydiff,Scale), Scale );
+					
+							if( x != 0 && x != Get_NX()-1 && y != 0 && y != Get_NY()-1 )
+							{
+								if( Method == 1 )
+								{
+									PQ_add(pixQ, newPix(ydiff, xdiff), Boundary ? Boundary_Value : pInput->asInt(xdiff,ydiff,false) );
+								}
+								if( Method == 2 )
+								{	
+									pOpen->push_cell(	xdiff, ydiff,  Boundary ? Boundary_Value : pInput->asDouble(xdiff,ydiff) );
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					if( x == 0 || x == Get_NX()-1 || y == 0 || y == Get_NY()-1 )
+					{
+						pClosed->Set_Value( x, y, true, true );
+						pOutput->Set_Value( x, y,  Boundary ? Boundary_Value : pInput->asDouble(x,y,Scale), Scale );
+					}
+
+					if( x == 1 || x == Get_NX()-2 || y == 1 || y == Get_NY()-2 )
+					{
+						pClosed->Set_Value( x, y, true, true );
+						pOutput->Set_Value( x, y,  Boundary ? Boundary_Value : pInput->asDouble(x,y,Scale), Scale );
+						
+						if( Method == 1 )
+						{
+							PQ_add(pixQ, newPix(y, x), Boundary ? Boundary_Value : pInput->asInt(x,y,false) );
+						}
+						if( Method == 2 )
+						{	
+							pOpen->push_cell( 	x, y,  Boundary ? Boundary_Value : pInput->asDouble(x,y) );
+						}
+					}
+				}
+			}
+		}
 	}
 	else 
 	{
-		#pragma omp parallel
+		int cx[4] = { 0, Get_NX()-2, Get_NX()-2, 0 			};
+		int cy[4] = { 0, 0, 		 Get_NY()-2, Get_NY()-2 };
+
+		int dx[4] = { 1, 0, 0, 1 };
+		int dy[4] = { 1, 1, 0, 0 };
+
+		for( int c = 0; c < 4; c++ )
 		{
-			int Thread_ID = SG_OMP_Get_Thread_Num();
+			int sx = cx[c];
+			int sy = cy[c];
 
-			int yStart	=  Thread_ID * Chunk_Size - Overlap;
-			int yEnd 	= (Thread_ID * Chunk_Size) + Chunk_Size + Overlap;
-			if( yStart < 0 ) 		yStart = 0;
-			if( yEnd > Get_NY() ) 	yEnd = Get_NY();
+			double Grid_Max = pInput->asDouble(sx + dx[0], sy + dy[0], Scale);
+			for( int i = 1; i < 4; i++ )
+			{
+				Grid_Max = std::max(Grid_Max, pInput->asDouble(sx + dx[i], sy + dy[i], Scale));
+			}
 
-			int xStart = 0;
-			int xEnd = Get_NY();
-			
-			PixelQueue* pixQ = 	Create_Queue( pInput, Thread_ID % 2 ? &Copy : pOutput, hMin, hMax, BoundaryVal, xStart, xEnd, yStart, yEnd );
-								Fill_Queue(   pInput, Thread_ID % 2 ? &Copy : pOutput, pixQ, hMin, hMax, xStart, xEnd, yStart, yEnd);
-			
+			if( Method == 1 )
+			{
+				PQ_add(pixQ, newPix(sy+dy[c],sx+dx[c]),   (int) (Boundary ? std::max(Boundary_Value, pInput->asDouble(sx+dx[c], sy+dy[c], Scale)) : Grid_Max) );
+			}
+			else if( Method == 2 )
+			{
+				pOpen->push_cell(sx+dx[c], sy+dy[c], 			(Boundary ? std::max(Boundary_Value, pInput->asDouble(sx+dx[c], sy+dy[c], Scale)) : Grid_Max) );
+			}
+
+			for( int i = 0; i < 4; i++ )
+			{
+				int x = sx + dx[i];
+				int y = sy + dy[i];
+				
+				pClosed->Set_Value(x, y, true, true);
+				pOutput->Set_Value(x, y, Boundary ? Boundary_Value : (i == c ? Grid_Max : pInput->asDouble(x,y,Scale)), Scale);
+			}
 		}
 
-		#pragma omp parallel for
-		for(sLong y=0; y<Get_NY(); y++)
+		for( int x=2; x<Get_NX()-2; x++ )
 		{
-			for(sLong x=0; x<Get_NX(); x++)
-			{
-				if( !pOutput->is_NoData(x,y) )
-				{
-					int oValue = pOutput->asInt(x, y, false);
-					int cValue = Copy.asInt(x, y, false);
+			pClosed->Set_Value(	x, 0, 		   true, true );
+			pClosed->Set_Value(	x, 1, 		   true, true );
+			pClosed->Set_Value(	x, Get_NY()-1, true, true );
+			pClosed->Set_Value(	x, Get_NY()-2, true, true );
+			
+			double Boundary_Top  = std::max(Boundary_Value							, pInput->asDouble( x, 1,			Scale)		 );
+			double Boundary_Down = std::max(Boundary_Value							, pInput->asDouble( x, Get_NY()-2, 	Scale)		 ); 
+			double Grid_Top	  	 = std::max(pInput->asDouble(x,0,Scale)				, pInput->asDouble( x, 1, 			Scale)		 );
+			double Grid_Down 	 = std::max(pInput->asDouble(x,Get_NY()-1,Scale)	, pInput->asDouble( x, Get_NY()-2, 	Scale)		 ); 
 
-					int writeValue = (oValue == hMax || cValue == hMax) ? std::min( oValue, cValue ) : std::max( oValue, cValue );
-					pOutput->Set_Value(x,y, writeValue, false );
+			pOutput->Set_Value( x, 0, 				Boundary ? Boundary_Value 		: pInput->asDouble( x, 0,		   	Scale), Scale);
+			pOutput->Set_Value( x, 1,				Boundary ? Boundary_Top   		: Grid_Top, 								Scale);
+			pOutput->Set_Value( x, Get_NY()-1, 		Boundary ? Boundary_Value 		: pInput->asDouble( x, Get_NY()-1, 	Scale), Scale);
+			pOutput->Set_Value( x, Get_NY()-2, 		Boundary ? Boundary_Down  		: Grid_Down,								Scale);
+			
+			if( Method == 1 )
+			{
+				PQ_add( pixQ, newPix(1, 		 x),Boundary ? Boundary_Top   		: Grid_Top 	);
+				PQ_add( pixQ, newPix(Get_NY()-2, x),Boundary ? Boundary_Down  		: Grid_Down );
+			}
+			if( Method == 2 )
+	  		{
+				pOpen->push_cell(	x, 1, 		    Boundary ? Boundary_Top 		: Grid_Top 	);
+				pOpen->push_cell(	x, Get_NY()-2,  Boundary ? Boundary_Down 		: Grid_Down );
+			}
+		}
+		for( int y=2; y<Get_NY()-2; y++ )
+		{
+			pClosed->Set_Value( 0,          y, true, true );
+			pClosed->Set_Value( 1,          y, true, true );
+			pClosed->Set_Value( Get_NX()-1, y, true, true );
+			pClosed->Set_Value( Get_NX()-2, y, true, true );
+
+			double Boundary_Left   = std::max(Boundary_Value						, pInput->asDouble(1,          y, Scale)	   );
+			double Boundary_Right  = std::max(Boundary_Value						, pInput->asDouble(Get_NX()-2, y, Scale)	   );
+			double Grid_Left       = std::max(pInput->asDouble(0,         y,Scale)	, pInput->asDouble(1,          y, Scale)	   );
+			double Grid_Right      = std::max(pInput->asDouble(Get_NX()-1,y,Scale)	, pInput->asDouble(Get_NX()-2, y, Scale)	   );
+
+			pOutput->Set_Value( 0,          y, 		Boundary ? Boundary_Value  		: pInput->asDouble(0,          y, Scale), Scale);
+			pOutput->Set_Value( 1,          y, 		Boundary ? Boundary_Left   		: Grid_Left,                      		  Scale);
+			pOutput->Set_Value( Get_NX()-1, y, 		Boundary ? Boundary_Value  		: pInput->asDouble(Get_NX()-1, y, Scale), Scale);
+			pOutput->Set_Value( Get_NX()-2, y, 		Boundary ? Boundary_Right  		: Grid_Right,                     		  Scale);
+
+			if( Method == 1 )
+			{
+				PQ_add(pixQ, newPix(y, 1),          Boundary ? Boundary_Left  		: Grid_Left);
+				PQ_add(pixQ, newPix(y, Get_NX()-2), Boundary ? Boundary_Right 		: Grid_Right);
+			}
+			if( Method == 2 )
+			{
+				pOpen->push_cell(1,           y, 	Boundary ? Boundary_Left  		: Grid_Left);
+				pOpen->push_cell(Get_NX()-2,  y, 	Boundary ? Boundary_Right 		: Grid_Right);
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFillMinima::Fill_Sinks_Barnes( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, grid_cellz_pq *open )
+{
+	std::queue<grid_cellz> pit;
+	while(open->size()>0 || pit.size()>0)
+	{
+		grid_cellz c;
+		if(pit.size()>0)
+		{
+      		c=pit.front();
+      		pit.pop();
+		}
+		else
+		{
+			c=open->top();
+			open->pop();
+    	}
+
+		for(int n=1;n<=8;n++)
+		{
+			int nx=c.x+dx[n];
+			int ny=c.y+dy[n];
+      		
+			if( pClosed->is_NoData( nx, ny) )
+			{		
+				pClosed->Set_Value( nx, ny, true, true );
+
+				double elevation = pInput->asDouble( nx, ny);
+      
+				if( elevation <=c.z)
+				{
+					if( elevation <c.z )
+					{
+						pOutput->Set_Value( nx,ny, c.z);
+					}
+					pit.push(grid_cellz(nx,ny,c.z));
+				} 
+				else
+				{
+					open->push_cell(nx,ny,elevation);
 				}
 			}
 		}
@@ -252,38 +527,30 @@ bool CFillMinima::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd )
+bool CFillMinima::Fill_Sinks_Soille( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, PixelQueue *pixQ, int hStart, int hEnd )
 {
-	#ifdef _DEBUG 
-	CSG_Simple_Statistics Stats;
-	#endif
+	PQel *p, *nbrs, *pNbr, *pNext;
+    int hCrt = (int) hStart;
 
-    PQel *p, *nbrs, *pNbr, *pNext;
-    int hCrt = (int)hMin;
-	
+	int dxs[] = { 0, 1, 0,-1};
+	int dys[] = { 1, 0,-1, 0};
     do 
 	{
         while (! PQ_empty(pixQ, hCrt)) 
 		{
             p = PQ_first(pixQ, hCrt);
-            //nbrs = neighbours(p, yStart, yEnd, xStart, xEnd );
-
 			PQel *pl = NULL;
-			for (int ii=-1; ii<=1; ii++)
+			
+			for (int i=0; i<4; i++)
 			{
-				for (int jj=-1; jj<=1; jj++)
+				int y = p->i + dys[i];
+				int x = p->j + dxs[i];
+
+				if( pClosed->is_NoData(x, y) )
 				{
-					if (!(ii == 0 && jj == 0))
-					{
-						int i = p->i + ii;
-						int j = p->j + jj;
-						if( i >= yStart && i < yEnd && j >= xStart && j < xEnd ) 
-						{
-							PQel *pNew = newPix(i, j);
-							pNew->next = pl;
-							pl = pNew;
-						}
-					}
+					PQel *pNew = newPix(y, x);
+					pNew->next = pl;
+					pl = pNew;
 				}
 			}
 
@@ -292,23 +559,15 @@ bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *p
 			{
                 int x = pNbr->j;
                 int y = pNbr->i;
-                // Exclude null area of original image 
-                //if (! *((npy_bool*)PyArray_GETPTR2(pNullMask, r, c)))
-                if ( !pInput->is_NoData(x, y) && y >= yStart && y < yEnd && x >= xStart && x < xEnd )
+				
+				if( pClosed->is_NoData(x, y) )
 				{
-                    int imgval = pInput->asInt(x,y, false);
-                    int img2val = pOutput->asInt(x,y, false);
-                    if (img2val == hMax) 
-					{
-                        img2val = std::max(hCrt, imgval);
-                        // *((npy_int16*)PyArray_GETPTR2(pimg2, r, c)) = img2val;
-						pOutput->Set_Value(x,y, img2val, false);
-                        PQ_add(pixQ, pNbr, img2val);
-						
-						#ifdef _DEBUG 
-						Stats += hCrt - img2val;
-						#endif
-                    }
+                    int height = std::max(hCrt, pInput->asInt(x,y, false));
+					
+					pOutput->Set_Value(x,y, height, false);
+					PQ_add(pixQ, pNbr, height);
+				
+					pClosed->Set_Value( x, y, true, true );
                 }
                 pNext = pNbr->next;
                 free(pNbr);
@@ -317,18 +576,11 @@ bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *p
             free(p);
         }
         hCrt++;
-    } while (hCrt < hMax);
+    } while (hCrt < hEnd);
     
     free(pixQ);
 
-	#ifdef _DEBUG 
-	#pragma omp critical
-	{
-		Message_Fmt("Thread No: %d\n", SG_OMP_Get_Thread_Num() );
-		Message_Fmt("Operations: %d, Min: %.2f, Max: %.2f, Mean: %.2f\n", Stats.Get_Count(), Stats.Get_Minimum(), Stats.Get_Maximum(), Stats.Get_Mean());
-	}
-	#endif
-	return true;
+	return( true );
 }
 
 
@@ -338,83 +590,5 @@ bool CFillMinima::Fill_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *p
 //														 //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-PixelQueue* CFillMinima::Create_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd )
-{
-	#ifdef _DEBUG 
-	CSG_Simple_Statistics Top_Boundary, Down_Boundary, Left_Boundary, Right_Boundary, Boundary, Values;
-	#endif
-
-	PixelQueue *pixQ = PQ_init(hMin,hMax);
-	
-	for( sLong y=yStart; y<yEnd; y++ )
-	{
-		for( sLong x=xStart; x<xEnd; x++ )
-		{
-			if( pInput->is_NoData(x,y) )
-			{
-				for( int i=0; i<8; i++ )
-				{
-					int xdiff = x + xnb[i];
-					int ydiff = y + ynb[i];
-					
-					if( pInput->is_InGrid( xdiff, ydiff, true ) )
-					{
-						PQel *p = newPix(ydiff, xdiff);
-
-                    	int imgval = pInput->asInt(xdiff, ydiff, false);
-                    	pInput->Set_Value(xdiff, ydiff, BoundaryVal,false);
-						PQ_add(pixQ, p, BoundaryVal);
-
-						#ifdef _DEBUG 
-						Boundary += imgval;
-						#endif
-					}
-				}
-			}
-			else
-			{
-				if( x == xStart || x == xEnd-1 || y == yStart || y == yEnd-1 )
-				{
-					PQel *p = newPix(y, x);
-                    int imgval = pInput->asInt(x, y, false);
-					PQ_add(pixQ, p, imgval);
-
-					#ifdef _DEBUG 
-					if( 	 y == yEnd-1 && yEnd != Get_NY()) 	Top_Boundary 	+= imgval;
-					else if( y == yStart && yStart != 0 )		Down_Boundary 	+= imgval;
-					else if( x == xEnd-1 && xEnd != Get_NX()) 	Right_Boundary 	+= imgval;
-					else if( x == xStart && xStart != 0 ) 		Left_Boundary 	+= imgval;
-					else 										Boundary 		+= imgval;
-					#endif
-				}
-				#ifdef _DEBUG 
-				else
-	  			{
-					Values += pInput->asInt(x, y, false);
-				}
-				#endif
-			}
-		}
-	}
-	#ifdef _DEBUG 
-	#pragma omp critical
-	{
-		Message_Fmt("Thread No: %d, Cells: %d, Min: %f.2, Max: %f.2\n", SG_OMP_Get_Thread_Num(), Values.Get_Count(), Values.Get_Minimum(), Values.Get_Maximum());
-		if( Boundary.Get_Count() ) 		Message_Fmt("Boundary Cells: %d, Min: %f.2, Max: %f.2\n", Boundary.Get_Count(), Boundary.Get_Minimum(), Boundary.Get_Maximum());
-		if( Top_Boundary.Get_Count() ) 	Message_Fmt("Top Tile Boundary Cells: %d, Min: %f.2, Max: %f.2\n", Top_Boundary.Get_Count(), Top_Boundary.Get_Minimum(), Top_Boundary.Get_Maximum());
-		if( Down_Boundary.Get_Count() ) Message_Fmt("Down Tile Boundary Cells: %d, Min: %f.2, Max: %f.2\n", Down_Boundary.Get_Count(), Down_Boundary.Get_Minimum(), Down_Boundary.Get_Maximum());
-		if( Left_Boundary.Get_Count() ) Message_Fmt("Left Tile Boundary Cells: %d, Min: %f.2, Max: %f.2\n", Left_Boundary.Get_Count(), Left_Boundary.Get_Minimum(), Left_Boundary.Get_Maximum());
-		if( Right_Boundary.Get_Count() )Message_Fmt("Right Tile Boundary Cells: %d, Min: %f.2, Max: %f.2\n", Right_Boundary.Get_Count(), Right_Boundary.Get_Minimum(), Right_Boundary.Get_Maximum());
-	}
-	#endif
-
-	return( pixQ );
-}
 
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////

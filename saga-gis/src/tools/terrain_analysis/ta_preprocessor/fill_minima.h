@@ -57,6 +57,7 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 #include <limits.h>
+#include <queue>
 
 /* Routines for handling the hierarchical pixel queue which the
    algorithm requires.
@@ -218,6 +219,57 @@ static PQel *neighbours(PQel *p, int bRows, int nRows, int bCols, int nCols) {
     return pl;
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/// Stores the (x,y) coordinates of a grid cell
+class grid_cell {
+  public:
+    int x; ///< Grid cell's x-coordinate
+    int y; ///< Grid cell's y-coordinate
+    /// Initiate the grid cell without coordinates; should generally be avoided
+    grid_cell(){}
+    /// Initiate the grid cell to the coordinates (x0,y0)
+    grid_cell(int x, int y):x(x),y(y){}
+};
+
+
+/// Stores the (x,y,z) coordinates of a grid cell; useful for priority sorting
+/// with \ref grid_cellz_compare
+/// @todo z-coordinate should be templated
+class grid_cellz : public grid_cell {
+  public:
+    double z;         ///< Grid cell's z-coordinate
+    grid_cellz(int x, int y, double z): grid_cell(x,y), z(z) {}
+    grid_cellz(){}
+    bool operator< (const grid_cellz& a) const { return z< a.z; }
+    bool operator> (const grid_cellz& a) const { return z> a.z; }
+    bool operator>=(const grid_cellz& a) const { return z>=a.z; }
+    bool operator<=(const grid_cellz& a) const { return z<=a.z; }
+    bool operator==(const grid_cellz& a) const { return z==a.z; }
+    bool operator!=(const grid_cellz& a) const { return !operator==(a); }
+};
+
+///A priority queue of grid_cells, sorted by ascending height
+class grid_cellz_pq : public std::priority_queue<grid_cellz, std::vector<grid_cellz>, std::greater<grid_cellz> > {
+  public:
+    void push_cell(int x, int y, double z){
+      std::priority_queue<grid_cellz, std::vector<grid_cellz>, std::greater<grid_cellz> >::push(grid_cellz(x,y,z));
+    }
+
+};
+
+///x offsets of D8 neighbours, from a central cell
+const int dx[9]={0,-1,-1,0,1,1,1,0,-1};
+///y offsets of D8 neighbours, from a central cell
+const int dy[9]={0,0,-1,-1,-1,0,1,1,1};
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -234,10 +286,13 @@ public:
 protected:
 
 	virtual bool		On_Execute		(void);
-	
-	PixelQueue* 		Create_Queue	( CSG_Grid *pInput, CSG_Grid *pOutput, int hMin, int hMax, int BoundaryVal, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd);
-	bool 				Fill_Queue 		( CSG_Grid *pInput, CSG_Grid *pOutput, PixelQueue *pixQ, int hMin, int hMax, sLong xStart, sLong xEnd, sLong yStart, sLong yEnd );
+	virtual int 		On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	bool 				Create_Queue( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, PixelQueue *pixQ, grid_cellz_pq *open, int Method, bool Boundary, double Boundary_Value );
+	
+	bool 				Fill_Sinks_Soille( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, PixelQueue *pixQ, int hStart, int hEnd );
+
+	bool 				Fill_Sinks_Barnes( CSG_Grid *pInput, CSG_Grid *pOutput, CSG_Grid *pClosed, grid_cellz_pq *open );
 
 private:
 
