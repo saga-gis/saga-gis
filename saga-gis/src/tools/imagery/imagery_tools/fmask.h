@@ -57,9 +57,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "saga_api/grid.h"
 #include <saga_api/saga_api.h>
 #include <bitset>
 #include <functional>
+#include <algorithm>
 
 
 ///////////////////////////////////////////////////////////
@@ -76,6 +78,166 @@ typedef enum Algorithm
 {
 	FMASK_1_6 = 0, FMASK_3_2
 } Algorithm;
+
+inline int CompareCoords(const TSG_Point_Int& a, const TSG_Point_Int& b) {
+    if (a.y < b.y) return -1;
+    if (a.y > b.y) return 1;
+    if (a.x < b.x) return -1;
+    if (a.x > b.x) return 1;
+    return 0; // gleich
+}
+
+class CSG_Cloud_Stack : public CSG_Grid_Stack
+{
+public:
+	bool					Overlap( CSG_Cloud_Stack &Other )
+	{
+		if( !m_Rect.Intersect(Other.m_Rect) )
+		{
+			return( false );
+		}
+
+		Sort();
+		Other.Sort();
+
+		TSG_Point_Int* Stack_This = (TSG_Point_Int*) Get_Array();
+		TSG_Point_Int* Stack_Other = (TSG_Point_Int*) Other.Get_Array();
+
+		int i = 0;
+		int j = 0;
+
+		while (i < Get_Size() && j < Other.Get_Size()) 
+		{
+        	int Compare = CompareCoords(Stack_This[i], Stack_Other[j]);
+			if( Compare == 0)
+			{
+            	return( true ); 
+        	} 
+			else if( Compare < 0)
+			{
+            	++i;
+        	} 
+			else
+			{
+            	++j;
+        	}
+		}
+
+		return( false );
+	}
+
+	CSG_Cloud_Stack& 			Merge( CSG_Cloud_Stack &Other )
+	{
+		if( !Overlap(Other) )
+		{
+			return( *this );
+		}
+
+		Sort();
+		Other.Sort();
+		
+		TSG_Point_Int* Stack_This = (TSG_Point_Int*) Get_Array();
+		TSG_Point_Int* Stack_Other = (TSG_Point_Int*) Other.Get_Array();
+
+		CSG_Array 		Output(sizeof(TSG_Point_Int));
+
+		int i = 0;
+		int j = 0;
+		
+		while (i < Get_Size() && j < Other.Get_Size()) 
+		{
+        	int Compare = CompareCoords(Stack_This[i], Stack_Other[j]);
+			if( Compare < 0)
+			{
+				Output.Inc_Array();
+				*((TSG_Point_Int*)Output.Get_Entry(Output.Get_Size() - 1)) = Stack_This[i++];
+			}
+			else if (Compare > 0)
+			{
+				Output.Inc_Array();
+				*((TSG_Point_Int*)Output.Get_Entry(Output.Get_Size() - 1)) = Stack_Other[j++];
+			}
+			else 
+			{
+				Output.Inc_Array();
+				*((TSG_Point_Int*)Output.Get_Entry(Output.Get_Size() - 1)) = Stack_This[i];
+				++i;
+				++j;
+			}
+		}
+
+		while (i < Get_Size())
+		{
+			Output.Inc_Array();
+			*((TSG_Point_Int*)Output.Get_Entry(Output.Get_Size() - 1)) = Stack_This[i++];
+		}
+
+		// Rest von Other
+		while (j < Other.Get_Size())
+		{
+			Output.Inc_Array();
+			*((TSG_Point_Int*)Output.Get_Entry(Output.Get_Size() - 1)) = Stack_Other[j++];
+		}
+
+		Clear();
+
+		TSG_Point_Int* Final = (TSG_Point_Int*) Output.Get_Array();
+		for( int i=0; i<Output.Get_Size(); i++ )
+		{
+			TSG_Point_Int P = Final[i];
+			Push( P.x, P.y );
+		}
+		
+		return( *this );
+	}
+	
+	virtual bool			Push			(int  x, int  y)
+	{
+		m_Rect.Union(x,y);
+
+		m_isSorted = false;
+
+		return( CSG_Grid_Stack::Push(x,y) );
+	}
+
+	virtual bool			Pop				(int &x, int &y)
+	{
+		m_isSorted = false;
+
+		return( CSG_Grid_Stack::Pop(x, y) );
+	}
+
+
+	void 					Sort(void)
+	{
+		if( m_isSorted )
+			return;
+
+		TSG_Point_Int* Array = (TSG_Point_Int*) Get_Array();
+		std::sort( Array, Array + Get_Size(), 
+			[](const TSG_Point_Int& A, const TSG_Point_Int& B)
+			{
+				return( CompareCoords(A, B) < 0 );
+    		}
+		);
+
+		m_isSorted = true;
+
+	}
+  
+private: 
+
+	CSG_Rect_Int 	m_Rect;
+	
+	bool 			m_isSorted = false;
+
+};
+
+
+struct Fragment{
+	CSG_Grid_Stack 	Stack;
+	CSG_Rect_Int 	Rect;
+};
 
 //---------------------------------------------------------
 class CFmask : public CSG_Tool
@@ -122,7 +284,7 @@ private:
 
 //	bool						Set_ACCA				(CSG_Grid *pClouds);
 
-	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, double T_Low, double T_High);
+	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, CSG_Array *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
 
 };
 
