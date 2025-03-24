@@ -48,7 +48,7 @@ if(MSVC)
 else()
 	# Unix Flags
 	set(CMAKE_CXX_FLAGS_RELEASE         "-O3 -Wall -DNDEBUG"            CACHE STRING "" FORCE)
-	set(CMAKE_CXX_FLAGS_DEBUG           "-Og -Wall -D_DEBUG -ggdb"      CACHE STRING "" FORCE)
+	set(CMAKE_CXX_FLAGS_DEBUG           "-Og -fno-inline -Wall -D_DEBUG -ggdb"      CACHE STRING "" FORCE)
 endif()
 
 # options
