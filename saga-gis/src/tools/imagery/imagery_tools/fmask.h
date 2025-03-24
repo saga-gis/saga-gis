@@ -62,6 +62,7 @@
 #include <bitset>
 #include <functional>
 #include <algorithm>
+#include <vector>
 
 
 ///////////////////////////////////////////////////////////
@@ -139,7 +140,7 @@ public:
 		TSG_Point_Int* Stack_This = (TSG_Point_Int*) Get_Array();
 		TSG_Point_Int* Stack_Other = (TSG_Point_Int*) Other.Get_Array();
 
-		CSG_Array 		Output(sizeof(TSG_Point_Int));
+		CSG_Array 		Output(sizeof(TSG_Point_Int), Get_Size() + Other.Get_Size());
 
 		int i = 0;
 		int j = 0;
@@ -187,12 +188,19 @@ public:
 			TSG_Point_Int P = Final[i];
 			Push( P.x, P.y );
 		}
+
+		m_isSorted = true;
 		
 		return( *this );
 	}
 	
 	virtual bool			Push			(int  x, int  y)
 	{
+		if( Get_Size() == 0 )
+		{
+			m_Rect.Create(x,y,x,y);
+		}
+
 		m_Rect.Union(x,y);
 
 		m_isSorted = false;
@@ -224,6 +232,29 @@ public:
 		m_isSorted = true;
 
 	}
+
+	/*
+	CSG_Cloud_Stack & operator=(const CSG_Cloud_Stack &Other)
+	{
+		if( this == &Other )
+			return *this;
+		
+		Clear();
+
+		TSG_Point_Int *pOther = (TSG_Point_Int*)Other.Get_Array();
+
+		for( int i = 0; i < Other.Get_Size(); i++ )
+		{
+			Push(pOther[i].x, pOther[i].y);
+		}
+
+		m_Rect     = Other.m_Rect;
+		m_isSorted = Other.m_isSorted;
+		return *this;
+	}
+	*/
+
+
   
 private: 
 
@@ -233,11 +264,6 @@ private:
 
 };
 
-
-struct Fragment{
-	CSG_Grid_Stack 	Stack;
-	CSG_Rect_Int 	Rect;
-};
 
 //---------------------------------------------------------
 class CFmask : public CSG_Tool
@@ -284,7 +310,7 @@ private:
 
 //	bool						Set_ACCA				(CSG_Grid *pClouds);
 
-	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, CSG_Array *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
+	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, std::vector<CSG_Cloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
 
 };
 

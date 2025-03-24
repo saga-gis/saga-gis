@@ -806,75 +806,55 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 	Clear_Sky_Land_Swir.Update();
 	double Lower_Level_Swir = Clear_Sky_Land_Swir.Get_Percentile(17.5);
 
-	bool FloodFillNir  = false;
-	bool FloodFillSwir = false;
-	
-	#pragma omp parallel 
+	Get_Flood_Fill( Lower_Level_NIR, NIR, RESULT_FFN );
+			
+	if( m_Algorithm == FMASK_3_2 )
 	{
-		#pragma omp single 
+		Get_Flood_Fill( Lower_Level_Swir, SSWIR, RESULT_FFS );
+	}
+			
+	#pragma omp parallel for
+	for( int y=0; y<m_pSystem.Get_NY(); y++ )
+	{
+		for( int x=0; x<m_pSystem.Get_NX(); x++ )
 		{
-			#pragma omp task
+			bool bSwir1 = true, bTir = true, bCir = true;
+			double Swir1= Get_Brightness( x, y, SWIR1, bSwir1 ); 
+			double Tir 	= Get_Brightness( x, y, TIR,   bTir   ); 
+			double Cir 	= Get_Brightness( x, y, CIR,   bCir   ); 
+
+			double Cirrus_Prob = 0.;
+			if( bCir && m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
 			{
-				FloodFillNir = Get_Flood_Fill( Lower_Level_NIR, NIR, RESULT_FFN );
+				Cirrus_Prob = Cir / 0.04;
 			}
-			
-			#pragma omp task
+
+			if( bTir && bSwir1 )
 			{
-				if( m_Algorithm == FMASK_3_2 )
+				if( m_pResults[RESULT_WATER]->asInt(x,y) == 1 )
 				{
-					FloodFillSwir = Get_Flood_Fill( Lower_Level_Swir, SSWIR, RESULT_FFS );
+					// Eq. 9
+					double wTemp_Prob = (T_Water - Tir) / 4.;
+
+					// Eq. 10
+					double Brightness_Prob = std::min( Swir1, 0.11 ) / 0.11;
+
+					// Eq. 11	
+					m_pResults[RESULT_WCP]->Set_Value( x, y, (wTemp_Prob * Brightness_Prob) + Cirrus_Prob );
+				}
+				if( !m_pResults[RESULT_LCP]->is_NoData(x,y) )
+				{
+					// Eq. 14
+					double lTemp_Prob = ( T_High + 4.0 - Tir ) / ( T_High + 4.0 - ( T_Low - 4.0 )); 
+					// The Variability_Prob is actually calculated in pass one and stored in the lCloud_Prop Grid.
+					// Now recover the value and overwrite with lCloud_Prop after calculation.
+					double Variability_Prob = m_pResults[RESULT_LCP]->asDouble( x, y);
+					// Eq. 16
+					m_pResults[RESULT_LCP]->Set_Value( x, y, (lTemp_Prob * Variability_Prob) + Cirrus_Prob );
 				}
 			}
-			
-			#pragma omp task 
-			{
-				#pragma omp parallel for
-				for( int y=0; y<m_pSystem.Get_NY(); y++ )
-				{
-					for( int x=0; x<m_pSystem.Get_NX(); x++ )
-					{
-						bool bSwir1 = true, bTir = true, bCir = true;
-						double Swir1= Get_Brightness( x, y, SWIR1, bSwir1 ); 
-						double Tir 	= Get_Brightness( x, y, TIR,   bTir   ); 
-						double Cir 	= Get_Brightness( x, y, CIR,   bCir   ); 
-
-						double Cirrus_Prob = 0.;
-						if( bCir && m_Algorithm == FMASK_3_2 && m_Sensor == OLI_TIRS )
-						{
-							Cirrus_Prob = Cir / 0.04;
-						}
-
-						if( bTir && bSwir1 )
-						{
-							if( m_pResults[RESULT_WATER]->asInt(x,y) == 1 )
-							{
-								// Eq. 9
-								double wTemp_Prob = (T_Water - Tir) / 4.;
-
-								// Eq. 10
-								double Brightness_Prob = std::min( Swir1, 0.11 ) / 0.11;
-
-								// Eq. 11	
-								m_pResults[RESULT_WCP]->Set_Value( x, y, (wTemp_Prob * Brightness_Prob) + Cirrus_Prob );
-							}
-							if( !m_pResults[RESULT_LCP]->is_NoData(x,y) )
-							{
-								// Eq. 14
-								double lTemp_Prob = ( T_High + 4.0 - Tir ) / ( T_High + 4.0 - ( T_Low - 4.0 )); 
-								// The Variability_Prob is actually calculated in pass one and stored in the lCloud_Prop Grid.
-								// Now recover the value and overwrite with lCloud_Prop after calculation.
-								double Variability_Prob = m_pResults[RESULT_LCP]->asDouble( x, y);
-								// Eq. 16
-								m_pResults[RESULT_LCP]->Set_Value( x, y, (lTemp_Prob * Variability_Prob) + Cirrus_Prob );
-							}
-						}
-					}
-				}
-			}
-			#pragma omp taskwait
 		}
 	}
-
 
 	// Eq. 17
 	double Land_threshold = m_pResults[RESULT_LCP]->Get_Percentile(82.5) + 0.2;
@@ -917,10 +897,62 @@ bool CFmask::Set_Fmask_Pass_One_Two(void)
 			}
 	 	}
 	}
-	
-	Get_Segmentation( m_pResults[RESULT_PCL], T_Low, T_High );
 
-	return true;
+	std::vector<std::pair<int,int>> Threads( SG_OMP_Get_Max_Num_Threads() );
+
+	int 	Pixel_Thread = m_pResults[RESULT_PCP]->Get_Data_Count() / SG_OMP_Get_Max_Num_Threads();
+	int 	Thread_Num = 0;
+	sLong 	Pixel_Count = 0;
+
+	Threads[Thread_Num].first = 0;
+	for( int y=0; y<m_pSystem.Get_NY(); y++ )
+	{
+		for( int x=0; x<m_pSystem.Get_NX(); x++ )
+		{
+			if( m_pResults[RESULT_PCP]->is_NoData(x,y) )
+			{
+				Pixel_Count++;
+			}
+
+			if( Pixel_Thread * Thread_Num > Pixel_Count )
+			{
+				Thread_Num++;
+				Threads[Thread_Num-1].second = y;
+				Threads[Thread_Num  ].first = y;
+			}
+	 	}
+	}
+
+
+
+
+	std::vector<CSG_Cloud_Stack> Leftovers;
+
+	int Chunk = 3473;
+	
+	Get_Segmentation( m_pResults[RESULT_PCL], &Leftovers, T_Low, T_High, 0, m_pSystem.Get_NX(), 0, Chunk );
+	
+	Get_Segmentation( m_pResults[RESULT_PCL], &Leftovers, T_Low, T_High, 0, m_pSystem.Get_NX(), Chunk, m_pSystem.Get_NY() );
+
+	for( int i=0; i<Leftovers.size(); i++ )
+	{
+		for( int j=0; j<Leftovers.size(); j++ )
+		{
+			if( i != j && Leftovers[i].Get_Size() && Leftovers[j].Get_Size() )
+			{
+				if( Leftovers[i].Overlap(Leftovers[j]) )
+				{
+					Leftovers[i].Merge(Leftovers[j]);
+					Leftovers[j].Destroy();
+				}
+
+			}
+		}
+	}
+
+
+
+	return Leftovers.size();
 }
 
 bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
@@ -933,7 +965,9 @@ bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
 	
 	bool	bResult	=
 		  	pTool->Set_Parameter("DEM", 	m_pBand[Band_Input])
-		&&  pTool->Set_Parameter("BOUNDARY", (int) Boundary )
+		&&  pTool->Set_Parameter("BOUNDARY", true )
+		&&  pTool->Set_Parameter("METHOD", 1 )
+		&&  pTool->Set_Parameter("BOUNDARY_VALUE", Boundary )
 		&&  pTool->Execute();
 		
 	if( bResult )
@@ -946,6 +980,8 @@ bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
 
 
 
+static int	xnb[] = { -1, 0, 1, 1, 1, 0,-1,-1};
+static int	ynb[] = {  1, 1, 1, 0,-1,-1,-1, 0};
 
 
 
@@ -953,7 +989,7 @@ bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
 
 
 //---------------------------------------------------------
-bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
+bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, std::vector<CSG_Cloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd)
 {
 
 	#ifdef _DEBUG
@@ -966,17 +1002,10 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 	pCloudSegments->Assign_NoData();
 	#endif
 
-	//struct pixel{
-	//	int x = 0;
-	//	int y = 0;
-	//};
 
-	CSG_Grid Tick_Off( m_pSystem, SG_DATATYPE_Byte);
-	for(sLong i=0; i<pCloudMask->Get_NCells(); i++)
-	{
-		Tick_Off.Set_Value( i, pCloudMask->is_NoData(i) ? 2. : 1.);
-	}
-
+	CSG_Grid Tick_Off( m_pSystem, SG_DATATYPE_Bit);
+	Tick_Off.Set_NoData_Value(0);
+	Tick_Off.Assign_NoData();
 
 	double dx = sin(Parameters("SUN_AZIMUTH")->asDouble() * M_DEG_TO_RAD + M_PI_180);
 	double dy = cos(Parameters("SUN_AZIMUTH")->asDouble() * M_DEG_TO_RAD + M_PI_180);
@@ -984,54 +1013,66 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 	dz *= m_pSystem.Get_Cellsize();
 
 	
-	CSG_Grid_Radius Kernel; Kernel.Create(4);
+	CSG_Grid_Radius Kernel; Kernel.Create(1);
 
-	for(int y=0; y<pCloudMask->Get_NY() && Set_Progress(y, pCloudMask->Get_NY()); y++)
+	bool Merge = false;
+
+	for(int y=yStart; y<yEnd; y++)
 	{
-		for(int x=0; x<pCloudMask->Get_NX(); x++)
+		for(int x=xStart; x<xEnd; x++)
 		{
-			if( Tick_Off.asInt(x, y) == 1 )
+			if( pCloudMask->is_NoData(x,y) )
+			{
+				Tick_Off.Set_Value(x, y, 1 );
+			}
+			else
 			{
 				CSG_Grid_Stack 			Stack;
-				CSG_Grid_Stack 			Cloud_Stack;
 	  			CSG_Simple_Statistics 	Cloud_Temps(true);
+				CSG_Cloud_Stack 		Cloud_Stack;
+				bool 					Eval; 
 
-				bool Eval; 
-	  			double Tir = Get_Brightness( x, y, TIR, Eval );
-
-	  			Cloud_Temps += Tir;
-
-
-				#ifdef _DEBUG
-				pCloudSegments->Set_Value( x, y, SegmentCount );
-				#endif
-
-				Stack.Push(x, y); 
-				Cloud_Stack.Push(x, y); 
-				//std::vector<pixel> Cloud = {{x,y}};
-				
-				Tick_Off.Set_NoData(x, y); 
-
-				while( Stack.Get_Size() > 0 && Process_Get_Okay() )
+				if( Tick_Off.is_NoData(x, y) )
 				{
-					Stack.Pop(x, y);
+					Tick_Off.Set_Value(x, y, 1 );
+					
+					Stack.Push(x, y); 
+					Cloud_Stack.Push(x,y);
+					
+					double Tir = Get_Brightness( x, y, TIR, Eval );
+					Cloud_Temps += Tir;
 
-					for(int i=1; i<Kernel.Get_nPoints(); i++)
+					#ifdef _DEBUG
+					SegmentCount++;
+					pCloudSegments->Set_Value( x, y, SegmentCount );
+					#endif
+				}
+				
+
+				while( Stack.Get_Size() > 0 ) //&& Process_Get_Okay() )
+				{
+					int nx, ny;
+					Stack.Pop(nx, ny);
+
+					for(int i=0; i<8; i++)
 					{
-						int ix, iy;
-						Kernel.Get_Point(i, ix, iy);
-						ix += x; iy += y;
+						int ix = nx + xnb[i];
+						int iy = ny + ynb[i];
 
-						if(	m_pSystem.is_InGrid(ix, iy) && !Tick_Off.is_NoData(ix, iy) )
+						if(	pCloudMask->is_InGrid(ix, iy, true) && Tick_Off.is_NoData(ix, iy) 
+						&& 	iy >= yStart-1 && iy <= yEnd )
 						{
-							if( Tick_Off.asInt(ix, iy) == 1 && i < 9 )
+							if( iy == yStart-1 || iy == yEnd )
 							{
-								Stack.Push(ix, iy); 
+								Merge = true;
 							}
+
+							Stack.Push(ix, iy); 
 							
 	  						Cloud_Temps += Get_Brightness( ix, iy, TIR, Eval );
 							Cloud_Stack.Push(ix, iy); 
-							Tick_Off.Set_NoData(ix, iy); 
+
+							Tick_Off.Set_Value(ix, iy, 1);
 							
 							#ifdef _DEBUG
 							pCloudSegments->Set_Value( ix, iy, SegmentCount );
@@ -1039,11 +1080,22 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 						}
 					}
 				}
-				#ifdef _DEBUG
-				SegmentCount++;
-				#endif
 
-				CSG_Grid_Stack 	Cloud_3D;
+				CSG_Grid_Stack Cloud_Shape;
+				if( Merge )
+				{
+					#pragma omp critical
+	 				{
+						Array->push_back(Cloud_Stack);
+						Merge = false;
+	 				}
+				}
+	 		}
+		}
+	}
+
+	return true;
+				/*
 				if( Cloud_Stack.Get_Size() > 2 )
 				{
 				
@@ -1052,24 +1104,18 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 					double T_Cloud_base = Cloud_Temps.Get_Minimum();
 					if( R >= 8 )
 					{
-	  					T_Cloud_base = Cloud_Temps.Get_Percentile( 100. * pow((R-8.),2) / pow(8.0,2) ); 
+	  					T_Cloud_base = Cloud_Temps.Get_Percentile( 100. * pow((R-8.),2) / pow(R,2) ); 
 					}
 
 					// Eq. 21 
-					double H_Cloud_base_max = std::min( 12., (T_High + 4. - T_Cloud_base) )	    * 1000.;	
 					double H_Cloud_base_min = std::max( 0.2, (T_Low  - 4. - T_Cloud_base)/9.8 ) * 1000.; 
+					double H_Cloud_base_max = std::min( 12., (T_High + 4. - T_Cloud_base) )	    * 1000.;	
 
-					// Eq. 23
-					double* Values = Cloud_Temps.Get_Values();
+					double* Temps = Cloud_Temps.Get_Values();
 					for( sLong i=0; i<Cloud_Temps.Get_Count(); i++ )
 					{
-						if( Values[i] > T_Cloud_base )
-							Values[i] = T_Cloud_base;
-					}
-
-					for( sLong i=0; i<Cloud_Temps.Get_Count(); i++ )
-					{
-						double H_Top_relative = ((Values[i] - T_Cloud_base) / 6.5) * 1000;
+						// Eq. 23 (Condensed) & 24
+						double H_Top_relative = ((std::min(Temps[i], T_Cloud_base) - T_Cloud_base) / 6.5) * 1000;
 						//int Height = (int) H_Top_relative * 10.;
 						
 						double ax = dx * H_Top_relative / dz; 
@@ -1077,7 +1123,8 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 
 						int cast_x = (int)(ax + Cloud_Stack[i].x);
 		 				int cast_y = (int)(ay + Cloud_Stack[i].y);
-						Cloud_3D.Push( cast_x, cast_y );
+
+						Cloud_Shape.Push(cast_x, cast_y);
 							
 						#ifdef _DEBUG
 						if( pShadowCasting->is_InGrid(cast_x, cast_y, false) )
@@ -1086,6 +1133,7 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 						}
 						#endif
 					}
+					*/
 					
 
 
@@ -1152,12 +1200,7 @@ bool CFmask::Get_Segmentation(CSG_Grid *pCloudMask, double T_Low, double T_High)
 					//Info.Set_Value(INFO_ID   , m_pInfo->Get_Count());
 					//Info.Set_Value(INFO_CELLS, Cloud.Get_Size());
 					//Info.Set_Value(INFO_AREA , Cloud.Get_Size() *  Get_Cellarea());
-				}
-	 		}
-		}
-	}
-
-	return true;
+				//}
 }
 
 
