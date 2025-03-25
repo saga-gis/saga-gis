@@ -1355,6 +1355,8 @@ void			SG_Flip_Decimal_Separators(CSG_String &String)
   * If Precision is -99 (the default) it will simply use %f format.
   * If 'Precision' is -98 the string will always be formatted
   * with the %e format specification (i.e. scientific: d.dddd e dd).
+  * If 'Precision' is -97 the string will be formatted with the
+  * %e or %f format specification depended on which produces the shorter string.
   * If Precision is zero (= 0) no decimals will be printed
   * If Precision is positive (> 0) it specifies the fix number
   * of decimals ("%.*f", Precision, Value),
@@ -1364,7 +1366,7 @@ void			SG_Flip_Decimal_Separators(CSG_String &String)
 //---------------------------------------------------------
 CSG_String		SG_Get_String(double Value, int Precision)
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if     ( Precision == -99 )
 	{
@@ -1373,6 +1375,10 @@ CSG_String		SG_Get_String(double Value, int Precision)
 	else if( Precision == -98 )
 	{
 		s.Printf("%e", Value);
+	}
+	else if( Precision == -97 )
+	{
+		s.Printf("%g", Value);
 	}
 	else if( Precision ==   0 )
 	{
@@ -1384,24 +1390,28 @@ CSG_String		SG_Get_String(double Value, int Precision)
 	}
 	else // if( Precision < 0 )
 	{
-		Precision	= SG_Get_Significant_Decimals(Value, abs(Precision));
+		int Decimals = SG_Get_Significant_Decimals(Value, 18); Precision = abs(Precision);
 
-		if( Precision == 0 )
+		if( Decimals == 0 )
 		{
-			s.Printf("%.0f", Value);
+			s.Printf("%d", (int)Value);
 		}
-		else // if( Precision > 0 )
+		else if( Decimals > Precision )
 		{
-			s.Printf("%.*f", Precision, Value);
+			s.Printf("%g", Value);
+		}
+		else // if( Decimals <= Precision )
+		{
+			s.Printf("%.*f", Decimals, Value);
 
 			while( s.Length() > 1 && s[s.Length() - 1] == '0' )
 			{
-				s	= s.Left(s.Length() - 1);
+				s = s.Left(s.Length() - 1);
 			}
 
 			if( s.Length() > 1 && (s[s.Length() - 1] == '.' || s[s.Length() - 1] == ',') )
 			{
-				s	= s.Left(s.Length() - 1);
+				s = s.Left(s.Length() - 1);
 			}
 		}
 	}
