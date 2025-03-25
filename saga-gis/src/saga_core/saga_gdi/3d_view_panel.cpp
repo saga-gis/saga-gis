@@ -1350,6 +1350,68 @@ bool CSG_3DView_Panel::_Play(void)
 
 
 ///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "saga_gdi/sgdi_helper.h"
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CSG_3DView_Legend, wxPanel)
+	EVT_PAINT(CSG_3DView_Legend::On_Paint)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_3DView_Legend::CSG_3DView_Legend(wxWindow *pParent, CSG_Parameter *pColors, CSG_Parameter *pRange, const wxSize &Size)
+	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, Size, wxNO_FULL_REPAINT_ON_RESIZE)
+{
+	m_pColors = pColors;
+	m_pRange  = pRange;
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Legend::On_Paint(wxPaintEvent &WXUNUSED(event))
+{
+	if( IsShown() )
+	{
+		wxPaintDC dc(this); Draw(dc, GetClientSize());
+	}
+}
+
+//---------------------------------------------------------
+void CSG_3DView_Legend::Draw(wxDC &dc, const wxRect &r)
+{
+	if( IsShown() )
+	{
+		CSG_Colors Colors(*m_pColors->asColors());
+
+		int y = r.GetBottom() - 4 - dc.GetFont().GetPixelSize().y;
+
+		for(int x=0; x<r.GetWidth(); x++)
+		{
+			wxColour Color((unsigned long)Colors.Get_Interpolated(x * (Colors.Get_Count() - 1.) / (double)r.GetWidth()));
+			dc.SetPen(wxPen(Color)); dc.DrawLine(r.GetLeft() + x, y, r.GetLeft() + x, r.GetTop());
+		}
+
+		Draw_Edge(dc, EDGE_STYLE_SUNKEN, r.GetLeft(), r.GetTop(), r.GetRight(), y);
+
+		CSG_String Minimum = SG_Get_String(m_pRange->asRange()->Get_Min(), -6);
+		CSG_String Maximum = SG_Get_String(m_pRange->asRange()->Get_Max(), -6);
+
+		Draw_Text(dc, TEXTALIGN_BOTTOMLEFT , r.GetLeft (), r.GetBottom(), Minimum.c_str());
+		Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, r.GetRight(), r.GetBottom(), Maximum.c_str());
+	}
+}
+
+
+///////////////////////////////////////////////////////////
 //                                                       //
 //                                                       //
 //                                                       //

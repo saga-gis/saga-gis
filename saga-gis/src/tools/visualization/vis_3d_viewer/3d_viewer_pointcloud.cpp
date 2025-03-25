@@ -657,14 +657,13 @@ private:
 			m_pPanel->Set_Extent(m_Selection);
 		}
 
-		Refresh(false);
+		Refresh(false); ((CSG_3DView_Dialog *)m_pPanel->GetParent())->Update_Controls();
 	}
 
 	//---------------------------------------------------------
 	void						On_Mouse_MDown	(wxMouseEvent &event)
 	{
-		m_pPanel->Parameter_Value_Toggle("OVERVIEW_ATTR");
-		Set_Mode();
+		m_pPanel->Parameter_Value_Toggle("OVERVIEW_ATTR"); Set_Mode();
 	}
 
 	//---------------------------------------------------------
@@ -674,7 +673,7 @@ private:
 
 		m_pPanel->Set_Extent(m_Selection);
 
-		Refresh(false);
+		Refresh(false); ((CSG_3DView_Dialog *)m_pPanel->GetParent())->Update_Controls();
 	}
 
 	//---------------------------------------------------------
@@ -799,7 +798,7 @@ private:
 
 		if( bRefresh )
 		{
-			Refresh(false);
+			Refresh(false); ((CSG_3DView_Dialog *)m_pPanel->GetParent())->Update_Controls();
 		}
 	}
 
@@ -861,6 +860,13 @@ public:
 	#else
 		m_pOverview_Check = Add_CheckBox(_TL("Overview"), false);
 	#endif
+
+		//-------------------------------------------------
+		Add_Spacer();
+
+		m_pLegend = new CSG_3DView_Legend(this, m_pPanel->m_Parameters("COLORS"), m_pPanel->m_Parameters("COLORS_RANGE"));
+
+		Add_CustomCtrl("", m_pLegend);
 	}
 
 #ifndef OVERVIEW_AS_PANEL
@@ -882,6 +888,9 @@ protected:
 	CSGDI_Slider				*m_pDetail;
 
 	CPointCloud_Overview		*m_pOverview;
+
+	CSG_3DView_Legend			*m_pLegend;
+
 
 #ifndef OVERVIEW_AS_PANEL
 	wxCheckBox					*m_pOverview_Check;
@@ -925,6 +934,7 @@ void C3D_Viewer_PointCloud_Dialog::On_Update_Choices(wxCommandEvent &event)
 	{
 		m_pPanel->m_Parameters.Set_Parameter("COLORS_ATTR", m_pField_C->GetSelection());
 		m_pPanel->Update_View(true);
+		m_pLegend->Refresh();
 	}
 
 	CSG_3DView_Dialog::On_Update_Choices(event);
@@ -963,6 +973,10 @@ void C3D_Viewer_PointCloud_Dialog::Update_Controls(void)
 #endif
 
 	m_pOverview->Set_Mode();
+
+	int Coloring = m_pPanel->m_Parameters["COLORING"].asInt();
+	m_pLegend->Show(Coloring == 1 || Coloring == 2);
+	m_pLegend->Refresh();
 
 	CSG_3DView_Dialog::Update_Controls();
 }

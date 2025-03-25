@@ -190,7 +190,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 
 	m_Parameters.Add_Colors("GENERAL", "COLORS"       , _TL("Colors"           ), _TL(""), &m_Colors);
 	m_Parameters.Add_Bool  ("COLORS" , "COLORS_GRAD"  , _TL("Graduated"        ), _TL(""), true);
-	m_Parameters.Add_Range ("COLORS" , "COLOR_STRETCH", _TL("Histogram Stretch"), _TL(""),
+	m_Parameters.Add_Range ("COLORS" , "COLORS_RANGE" , _TL("Histogram Stretch"), _TL(""),
 		m_pGrids->Get_Mean() - 2. * m_pGrids->Get_StdDev(),
 		m_pGrids->Get_Mean() + 2. * m_pGrids->Get_StdDev()
 	);
@@ -425,8 +425,8 @@ bool C3D_Viewer_Grids_Panel::On_Draw(void)
 	m_Colors      =*m_Parameters("COLORS")->asColors();
 	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
 
-	m_Color_Min   = m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-	double  Range = m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - m_Color_Min;
+	m_Color_Min   = m_Parameters("COLORS_RANGE.MIN")->asDouble();
+	double  Range = m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
 	m_Color_Scale = Range > 0. ? (m_Colors.Get_Count() - 1) / Range : 0.;
 
 	//-----------------------------------------------------
@@ -735,7 +735,7 @@ public:
 	{
 		m_pPanel      = pPanel;
 		m_pGrids      = pGrids;
-		m_nClasses    = 100;
+		m_nClasses    = 50;
 		m_bCumulative = false;
 
 		Set_Histogram(false);
@@ -799,10 +799,10 @@ private:
 			}
 			else
 			{
-				double Minimum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-				double Range   = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - Minimum;
+				double Minimum = m_pPanel->m_Parameters("COLORS_RANGE.MIN")->asDouble();
+				double Range   = m_pPanel->m_Parameters("COLORS_RANGE.MAX")->asDouble() - Minimum;
 
-				m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Set_Range(
+				m_pPanel->m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 					Minimum + (m_Mouse_Down.x * Range / GetClientSize().GetWidth()),
 					Minimum + (m_Mouse_Move.x * Range / GetClientSize().GetWidth())
 				);
@@ -829,7 +829,7 @@ private:
 		}
 		else
 		{
-			m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Set_Range(m_pGrids->Get_Min(), m_pGrids->Get_Max());
+			m_pPanel->m_Parameters("COLORS_RANGE")->asRange()->Set_Range(m_pGrids->Get_Min(), m_pGrids->Get_Max());
 
 			Set_Histogram();
 		}
@@ -853,7 +853,7 @@ private:
 	//---------------------------------------------------------
 	void					On_Close		(wxCloseEvent &event)
 	{
-		Hide();	((CSG_3DView_Dialog *)GetParent())->Update_Controls();
+		Hide();	((CSG_3DView_Dialog *)m_pPanel->GetParent())->Update_Controls();
 	}
 
 	//---------------------------------------------------------
@@ -866,18 +866,22 @@ private:
 	}
 
 	//---------------------------------------------------------
-	void					Set_Histogram	(bool bRefresh = true)
+	void					Set_Histogram	(bool bFullRefresh = true)
 	{
-		double Minimum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
-		double Maximum = m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max();
+		double Minimum = m_pPanel->m_Parameters("COLORS_RANGE.MIN")->asDouble();
+		double Maximum = m_pPanel->m_Parameters("COLORS_RANGE.MAX")->asDouble();
 
 		m_Histogram.Create(m_nClasses, Minimum, Maximum, m_pGrids, m_pGrids->Get_Max_Samples());
 
-		Refresh();
-
-		if( bRefresh )
+		if( bFullRefresh )
 		{
 			m_pPanel->Update_View();
+
+			((CSG_3DView_Dialog *)m_pPanel->GetParent())->Update_Controls();
+		}
+		else
+		{
+			Refresh();
 		}
 	}
 
@@ -1002,6 +1006,13 @@ public:
 		//-------------------------------------------------
 		Add_Spacer();
 
+		m_pLegend = new CSG_3DView_Legend(this, pPanel->m_Parameters("COLORS"), pPanel->m_Parameters("COLORS_RANGE"));
+
+		Add_CustomCtrl("", m_pLegend);
+
+		//-------------------------------------------------
+		Add_Spacer();
+
 		const wxString Choices[] = { _TL("None"), _TL("Linear"), _TL("Spline") };
 
 		m_pResampling = Add_Choice(_TL("Resampling"), wxArrayString(3, Choices), 1); // Linear
@@ -1035,6 +1046,8 @@ protected:
 	wxChoice					*m_pResampling;
 
 	C3D_Viewer_Grids_Histogram	*m_pHistogram;
+
+	CSG_3DView_Legend			*m_pLegend;
 
 #ifndef HISTOGRAM_AS_PANEL
 	wxCheckBox					*m_pHistogram_Check;
@@ -1204,6 +1217,7 @@ protected:
 		m_pShade[1]->Set_Value(m_pPanel->m_Parameters("SHADE_AZI")->asDouble());
 
 		m_pHistogram->Refresh();
+		m_pLegend   ->Refresh();
 
 	#ifndef HISTOGRAM_AS_PANEL
 		m_pHistogram_Check->SetValue(m_pHistogram->IsShown());

@@ -168,13 +168,40 @@ protected:
 
 private:
 
-	class CSG_3DView_Twin		*m_pTwin { NULL };
+	class CSG_3DView_Twin		*m_pTwin = NULL;
 
 
 	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
 
 	bool						_Play					(void);
 
+
+	DECLARE_EVENT_TABLE()
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGDI_API_DLL_EXPORT CSG_3DView_Legend : public wxPanel
+{
+public:
+	CSG_3DView_Legend(wxWindow *pParent, CSG_Parameter *pColors, CSG_Parameter *pRange, const wxSize &Size = wxSize(200, 40));
+
+
+protected:
+
+	CSG_Parameter				*m_pColors = NULL, *m_pRange = NULL;
+
+
+	void						On_Paint				(wxPaintEvent &event);
+
+	void						Draw					(wxDC &dc, const wxRect &r);
+
+
+private:
 
 	DECLARE_EVENT_TABLE()
 };
