@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define LEGEND_SPACE	10
+#define LEGEND_SPACE 10
 
 
 ///////////////////////////////////////////////////////////
@@ -98,13 +98,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Rect	CWKSP_Map_Extents::m_Dummy	= CSG_Rect(0, 0, 1, 1);
+CSG_Rect CWKSP_Map_Extents::m_Dummy = CSG_Rect(0, 0, 1, 1);
 
 //---------------------------------------------------------
 CWKSP_Map_Extents::CWKSP_Map_Extents(void)
 {
-	m_iExtent	= -1;
-	m_nExtents	= 0;
+	m_iExtent  = -1;
+	m_nExtents =  0;
 }
 
 //---------------------------------------------------------
@@ -2236,9 +2236,12 @@ void CWKSP_Map::Draw_Map(CSG_Map_DC &dc, int Flags)
 	}
 
 	//-----------------------------------------------------
-	Draw_Extent     (dc);
-	Draw_ScaleBar   (dc);
-	Draw_North_Arrow(dc);
+	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
+	{
+		Draw_Extent     (dc);
+		Draw_ScaleBar   (dc);
+		Draw_North_Arrow(dc);
+	}
 }
 
 //---------------------------------------------------------
@@ -2463,23 +2466,30 @@ bool CWKSP_Map::Draw_Extent(CSG_Map_DC &dc)
 
 	if( dc.Draw_Image_Begin(m_Parameters("SEL_TRANSP")->asDouble() / 100.) )
 	{
-		int Color = m_Parameters("SEL_COLOUR")->asColor();
+		int Color = m_Parameters("SEL_COLOUR")->asColor(); wxRect r(dc.rDC()); r.Inflate(1);
 
-		wxRect r(dc.rDC()); r.Inflate(1);
+		double dx = dc.rWorld().Get_XRange() - Get_Extent().Get_XRange();
+		double dy = dc.rWorld().Get_YRange() - Get_Extent().Get_YRange();
 
-		if( dc.rWorld().Get_XRange() > Get_Extent().Get_XRange() )
+		if( dx > dy )
 		{
-			int d = (int)(0.5 + dc.World2DC() * (dc.rWorld().Get_XRange() - Get_Extent().Get_XRange()) / 2.);
+			int d = (int)(dx * dc.World2DC() / 2.);
 
-			dc.Draw_Image_Pixels(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Color);
-			dc.Draw_Image_Pixels(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Color);
+			if( d > 0 )
+			{
+				dc.Draw_Image_Pixels(r.GetLeft (), r.GetTop(), r.GetLeft () + d, r.GetBottom(), Color);
+				dc.Draw_Image_Pixels(r.GetRight(), r.GetTop(), r.GetRight() - d, r.GetBottom(), Color);
+			}
 		}
-		else
+		else // if( dx < dy )
 		{
-			int d = (int)(0.5 + dc.World2DC() * (dc.rWorld().Get_YRange() - Get_Extent().Get_YRange()) / 2.);
+			int d = (int)(dy * dc.World2DC() / 2.);
 
-			dc.Draw_Image_Pixels(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Color);
-			dc.Draw_Image_Pixels(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Color);
+			if( d > 0 )
+			{
+				dc.Draw_Image_Pixels(r.GetLeft(), r.GetTop   (), r.GetRight(), r.GetTop   () + d, Color);
+				dc.Draw_Image_Pixels(r.GetLeft(), r.GetBottom(), r.GetRight(), r.GetBottom() - d, Color);
+			}
 		}
 
 		dc.Draw_Image_End();
