@@ -99,7 +99,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case  1: return( new CSRTM_CGIAR );
 //	case  2: return( new CSRTM_USGS );
-	case  3: return( new CCopernicus_DEM );
+//	case  3: return( new CCopernicus_DEM );
 	case  4: return( new COpenTopography );
 	case  5: return( new CUSGS_Earthquakes );
 
