@@ -407,7 +407,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 
 	m_Target_Area.Destroy();
 
-	DataObject_Add(pTarget); DataObject_Set_Parameters(pTarget, pGrid);
+	DataObject_Update(pTarget); DataObject_Set_Parameters(pTarget, pGrid);
 
 	return( true );
 }
