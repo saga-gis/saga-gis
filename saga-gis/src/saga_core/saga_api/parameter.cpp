@@ -1980,12 +1980,12 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 		return( NULL );
 	}
 
-//	CSG_Parameter *pSystem = (*m_pParameters)(m_Prefix + "SYSTEM");
-//
-//	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
-//	{
-//		pSystem->asGrid_System()->Assign(System);
-//	}
+	CSG_Parameter *pSystem = pParameter->Get_Parent();
+
+	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
+	{
+		pSystem->asGrid_System()->Create(System);
+	}
 
 	CSG_Grid *pGrid = NULL;
 
@@ -2011,18 +2011,21 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 		}
 	}
 
-	if( pGrid && pGrid != pParameter->asGrid() )
+	if( pGrid )
 	{
-		pParameter->Set_Value(pGrid);
-	}
-
-	if( m_pParameters->Get_Manager() )
-	{
-		m_pParameters->Get_Manager()->Add(pGrid);
-
-		if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() ) // prevent that local data manager send their data objects to gui
+		if( pGrid != pParameter->asGrid() )
 		{
-			SG_UI_DataObject_Add(pGrid, SG_UI_DATAOBJECT_UPDATE);
+			pParameter->Set_Value(pGrid);
+		}
+
+		if( m_pParameters->Get_Manager() )
+		{
+			m_pParameters->Get_Manager()->Add(pGrid);
+
+			if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() ) // prevent that local data manager send their data objects to gui
+			{
+				SG_UI_DataObject_Add(pGrid, SG_UI_DATAOBJECT_UPDATE);
+			}
 		}
 	}
 
@@ -2062,6 +2065,13 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 		return( NULL );
 	}
 
+	CSG_Parameter *pSystem = pParameter->Get_Parent();
+
+	if( pSystem->asGrid_System() && !pSystem->asGrid_System()->is_Equal(System) )
+	{
+		pSystem->asGrid_System()->Create(System);
+	}
+
 	CSG_Grids *pGrids = NULL;
 
 	if( (*m_pParameters)(m_Prefix + "DEFINITION")->asInt() == 0 && m_pParameters->Get_Tool()->has_GUI() )
@@ -2089,6 +2099,16 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 	if( pGrids && pGrids != pParameter->asGrids() )
 	{
 		pParameter->Set_Value(pGrids);
+
+		if( m_pParameters->Get_Manager() )
+		{
+			m_pParameters->Get_Manager()->Add(pGrids);
+
+			if( m_pParameters->Get_Manager() == &SG_Get_Data_Manager() ) // prevent that local data manager send their data objects to gui
+			{
+				SG_UI_DataObject_Add(pGrids, SG_UI_DATAOBJECT_UPDATE);
+			}
+		}
 	}
 
 	//-----------------------------------------------------
