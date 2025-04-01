@@ -1094,12 +1094,6 @@ bool CWKSP_Layer::Show(int Flags)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Update(CWKSP_Layer *pChanged)
-{
-	return( pChanged == this );
-}
-
-//---------------------------------------------------------
 void CWKSP_Layer::On_Update_Views(bool bAll)
 {
 	_Set_Thumbnail(true);
