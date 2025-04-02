@@ -402,7 +402,14 @@ CSG_Data_Object * CGeoref_Grid::Get_Target(CSG_Data_Object *pSource, TSG_Data_Ty
 			Type = pSource->asGrid()->Get_Type();
 		}
 
-		pTarget = m_Grid_Target.Get_Grid("TARGET_GRID", Type != SG_DATATYPE_Undefined ? Type : pSource->asGrid()->Get_Type());
+		if( m_bList )
+		{
+			pTarget = SG_Create_Grid(m_Grid_Target.Get_System(), Type);
+		}
+		else
+		{
+			pTarget = m_Grid_Target.Get_Grid("TARGET_GRID", Type);
+		}
 
 		if( pTarget )
 		{
