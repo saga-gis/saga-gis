@@ -473,14 +473,14 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 
 		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
-	else if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+	else if( m_Parameters("COLORS_TYPE")->asInt() == 4 ) // CLASSIFY_RGB
 	{
 		m_pClassify->Set_Mode(CLASSIFY_RGB);
 	}
 
+	//-----------------------------------------------------
 	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
 
-	//-----------------------------------------------------
 	long DefColor = m_Parameters("SINGLE_COLOR")->asColor();
 	m_Color_Pen   = wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
@@ -512,6 +512,20 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
+		}
+
+		if(	pParameter->Cmp_Identifier("LUT_ATTRIB") || (pParameter->Cmp_Identifier("COLORS_TYPE") && pParameter->asInt() == 1) ) // CLASSIFY_LUT
+		{
+			int Field = (*pParameters)("LUT_ATTRIB")->asInt();
+
+			if(	Field >= 0 && Field < Get_PointCloud()->Get_Field_Count() )
+			{
+				TSG_Data_Type Type = SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field))
+					? SG_DATATYPE_Double : SG_DATATYPE_String;
+		
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+			}
 		}
 	}
 

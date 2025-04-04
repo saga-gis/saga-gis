@@ -547,9 +547,6 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		_TL("snap distance in screen units (pixels)"),
 		10, 0, true
 	);
-
-	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, SG_DATATYPE_String);
-	m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, SG_DATATYPE_String);
 }
 
 
@@ -591,13 +588,6 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	case  1:	// CLASSIFY_LUT
 		m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	if( m_fValue >= Get_Shapes()->Get_Field_Count() )	{	m_fValue	= -1;	}
 		m_fNormal	= -1;
-
-		{
-			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_Parameters("LUT_ATTRIB")->asInt())) ? SG_DATATYPE_Double : SG_DATATYPE_String;
-
-			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
-			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
-		}
 		break;
 
 	case  2:	// CLASSIFY_DISCRETE
@@ -741,25 +731,29 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		||	pParameter->Cmp_Identifier("METRIC_NORFMT") )
 		{
 			Set_Metrics(
-				pParameters->Get_Parameter("METRIC_ATTRIB")->asInt(),
-				pParameters->Get_Parameter("METRIC_NORMAL")->asInt(),
-				pParameters->Get_Parameter("METRIC_NORFMT")->asInt()
+				(*pParameters)("METRIC_ATTRIB")->asInt(),
+				(*pParameters)("METRIC_NORMAL")->asInt(),
+				(*pParameters)("METRIC_NORFMT")->asInt()
 			);
 
-			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
+			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(
 				m_Metrics.Get_Minimum(),
 				m_Metrics.Get_Maximum()
 			);
 		}
 
-		if(	pParameter->Cmp_Identifier("LUT_ATTRIB")
-		&&  pParameter->asInt() >= 0 && pParameter->asInt() < Get_Shapes()->Get_Field_Count() )
+		if(	pParameter->Cmp_Identifier("LUT_ATTRIB") || (pParameter->Cmp_Identifier("COLORS_TYPE") && pParameter->asInt() == 1) ) // CLASSIFY_LUT
 		{
-			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(pParameter->asInt()))
-									? SG_DATATYPE_Double : SG_DATATYPE_String;
+			int Field = (*pParameters)("LUT_ATTRIB")->asInt();
 
-			pParameters->Get_Parameter("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
-			pParameters->Get_Parameter("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+			if(	Field >= 0 && Field < Get_Shapes()->Get_Field_Count() )
+			{
+				TSG_Data_Type Type = SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field))
+					? SG_DATATYPE_Double : SG_DATATYPE_String;
+
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+			}
 		}
 	}
 
