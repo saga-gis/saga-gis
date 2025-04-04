@@ -118,8 +118,7 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 {
 	m_pGrids = pGrids;
 
-	m_Parameters.Add_Colors("GENERAL", "COLORS"     , _TL("Colours"     ), _TL(""));
-	m_Parameters.Add_Bool  ("COLORS" , "COLORS_GRAD", _TL("Graduated"   ), _TL(""), true);
+	m_Parameters.Add_Bool  ("GENERAL", "COLORS_GRAD", _TL("Graduated"   ), _TL(""), true);
 
 	m_Parameters.Add_Choice("GENERAL", "SHADING"    , _TL("Light Source"), _TL(""), CSG_String::Format("%s|%s", _TL("no"), _TL("yes")), 1);
 	m_Parameters.Add_Double("SHADING", "SHADE_DEC"  , _TL("Height"      ), _TL(""), 45., -180., true, 180., true);
@@ -216,7 +215,7 @@ int C3D_Viewer_Multiple_Grids_Panel::Get_Color(double Value)
 
 	double c = m_Color_Scale * (Value - m_Color_Min);
 
-	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors[(int)c] );
+	return( m_Color_bGrad ? m_Colors.Get_Interpolated(c) : m_Colors.Get_Color((int)(0.5 + c)) );
 }
 
 
@@ -266,16 +265,15 @@ inline bool C3D_Viewer_Multiple_Grids_Panel::Get_Node(CSG_Grid *pGrid, int x, in
 //---------------------------------------------------------
 void C3D_Viewer_Multiple_Grids_Panel::Draw_Grid(CSG_Grid *pGrid)
 {
-	//-----------------------------------------------------
 	if( !SG_UI_DataObject_Colors_Get(pGrid, &m_Colors) )
 	{
-		m_Colors  = *m_Parameters("COLORS")->asColors();
+		m_Colors.Set_Default();
 	}
 
 	m_Color_bGrad = m_Parameters("COLORS_GRAD")->asBool();
 
 	m_Color_Min   = pGrid->Get_Min();
-	m_Color_Scale = pGrid->Get_Range() > 0. ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.;
+	m_Color_Scale = pGrid->Get_Range() > 0. ? (m_Colors.Get_Count() - 1) / pGrid->Get_Range() : 0.;
 
 	//-----------------------------------------------------
 	CSG_Vector LightSource;
