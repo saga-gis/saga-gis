@@ -639,10 +639,14 @@ bool CSG_Table::Set_Field_Type(int Field, TSG_Data_Type Type)
 		}
 		else if( pValue->Get_Type() == SG_TABLE_VALUE_TYPE_String && SG_Data_Type_is_Numeric(Type) )
 		{
-			if( !pRecord->m_Values[Field]->Set_Value(pValue->asString()) )
+			CSG_String String(pValue->asString()); double Value;
+
+			if( !String.asDouble(Value) )
 			{
-				pRecord->m_Values[Field]->Set_Value(Get_NoData_Value());
+				Value = Get_NoData_Value();
 			}
+
+			pRecord->m_Values[Field]->Set_Value(Value);
 		}
 		else
 		{
