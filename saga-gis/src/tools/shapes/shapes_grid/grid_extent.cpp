@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -67,36 +67,42 @@ CGrid_Extent::CGrid_Extent(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_System(
-		"", "GRID_SYSTEM", _TL("Grid System"),
+	Parameters.Add_Grid_System("",
+		"GRID_SYSTEM", _TL("Grid System"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		"", "EXTENT"     , _TL("Extent"),
+	Parameters.Add_Grid("GRID_SYSTEM",
+		"GRID"       , _TL("Grid"),
+		_TL("Select a grid for extent's CRS definition."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Shapes("",
+		"EXTENT"     , _TL("Extent"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		"", "BORDER"     , _TL("Border"),
+	Parameters.Add_Choice("",
+		"BORDER"     , _TL("Border"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
-			_TL("grid cells"),
-			_TL("grid nodes")
+			_TL("cells"),
+			_TL("nodes")
 		), 0
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Extent::On_Execute(void)
 {
-	const CSG_Grid_System	&System	= *Parameters("GRID_SYSTEM")->asGrid_System();
+	const CSG_Grid_System &System = *Parameters("GRID_SYSTEM")->asGrid_System();
 
 	if(	!System.is_Valid() )
 	{
@@ -106,7 +112,7 @@ bool CGrid_Extent::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	&Extents = *Parameters("EXTENT")->asShapes();
+	CSG_Shapes &Extents = *Parameters("EXTENT")->asShapes();
 
 	Extents.Create(SHAPE_TYPE_Polygon, _TL("Grid System Extent"));
 
@@ -114,13 +120,13 @@ bool CGrid_Extent::On_Execute(void)
 	Extents.Add_Field("NY"      , SG_DATATYPE_Int   );
 	Extents.Add_Field("CELLSIZE", SG_DATATYPE_Double);
 
-	CSG_Shape	&Extent  = *Extents.Add_Shape();
+	CSG_Shape &Extent = *Extents.Add_Shape();
 
 	Extent.Set_Value(0, System.Get_NX      ());
 	Extent.Set_Value(1, System.Get_NY      ());
 	Extent.Set_Value(2, System.Get_Cellsize());
 
-	bool	bCells	= Parameters("BORDER")->asInt() == 0;
+	bool bCells = Parameters("BORDER")->asInt() == 0;
 
 	Extent.Add_Point(System.Get_XMin(bCells), System.Get_YMin(bCells));
 	Extent.Add_Point(System.Get_XMin(bCells), System.Get_YMax(bCells));
@@ -128,14 +134,19 @@ bool CGrid_Extent::On_Execute(void)
 	Extent.Add_Point(System.Get_XMax(bCells), System.Get_YMin(bCells));
 	Extent.Add_Point(System.Get_XMin(bCells), System.Get_YMin(bCells));
 
+	if( Parameters("GRID")->asGrid() && Parameters("GRID")->asGrid()->Get_Projection().is_Okay() )
+	{
+		Extents.Get_Projection() = Parameters("GRID")->asGrid()->Get_Projection();
+	}
+
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
