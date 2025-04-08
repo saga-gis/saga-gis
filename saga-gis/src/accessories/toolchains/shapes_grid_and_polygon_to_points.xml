@@ -3,7 +3,7 @@
 	<group>shapes_grid</group>
 	<identifier>grid_and_polygon_to_points</identifier>
 	<name>Grid Values and Polygon Attributes to Points</name>
-	<menu absolute="true">Shapes|Shapes-Grid Tools|Vectorization</menu>
+	<menu absolute="true">Shapes|Grid|Vectorization</menu>
 	<description>Converts a grid to a points table with additional polygon attribute.</description>
 
 	<parameters>

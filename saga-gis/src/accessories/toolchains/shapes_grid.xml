@@ -3,7 +3,7 @@
 	<group>shapes_grid</group>
 	<identifier>shapes_grid</identifier>
 	<name>Shapes-Grid Tools</name>
-	<menu>Shapes|Shapes-Grid Tools</menu>
+	<menu>Shapes|Grid</menu>
 	<description>
 		Tools related to gridded and vector data (conversions, combinations, etc.).
 	</description>

@@ -65,7 +65,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case TLB_INFO_Author:
-		return( "O. Conrad, V.Wichmann (c) 2002-23" );
+		return( "O.Conrad, V.Wichmann (c) 2002-25" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
@@ -74,7 +74,7 @@ CSG_String Get_Info(int i)
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Shapes-Grid Tools") );
+		return( _TL("Shapes|Grid") );
 	}
 }
 
@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "Grid_Class_Statistics_For_Polygons.h"
 #include "boundary_cells_to_polygons.h"
 #include "grid_line_direction.h"
+#include "grid_values_to_table.h"
 
 
 //---------------------------------------------------------
@@ -130,8 +131,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 19: return( new CBoundary_Cells_to_Polygons );
 	case 20: return( new CGridLineDirection );
 
+	case 21: return( new CGrid_Values_to_Table_for_Points );
+
 	//-----------------------------------------------------
-	case 21: return( NULL );
+	case 22: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
