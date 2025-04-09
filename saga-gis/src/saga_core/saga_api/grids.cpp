@@ -56,9 +56,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -70,17 +70,27 @@ CSG_Grids * SG_Create_Grids(void)
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grids &Grids)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(Grids);
+	CSG_Grids *pGrids = new CSG_Grids(Grids);
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( !pGrids->is_Valid() )
+	{
+		delete(pGrids); pGrids = NULL;
+	}
+
+	return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grids *_pGrids, bool bCopyData)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(_pGrids, bCopyData);
+	CSG_Grids *pGrids = new CSG_Grids(_pGrids, bCopyData);
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( !pGrids->is_Valid() )
+	{
+		delete(pGrids); pGrids = NULL;
+	}
+
+	return( pGrids );
 }
 
 //---------------------------------------------------------
@@ -90,43 +100,64 @@ CSG_Grids * SG_Create_Grids(const CSG_String &File, bool bLoadData)
 {
 	CSG_Grids *pGrids = new CSG_Grids();
 
-	if( pGrids->Create(File, bLoadData) )
+	if( !pGrids->Create(File, bLoadData) )
 	{
-		return( pGrids );
+		delete(pGrids); pGrids = NULL;
 	}
 
-	delete(pGrids); return( NULL );
+	return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(System, NZ, zMin, Type);
+	CSG_Grids *pGrids = new CSG_Grids(System, NZ, zMin, Type);
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( !pGrids->is_Valid() )
+	{
+		delete(pGrids); pGrids = NULL;
+	}
+
+	return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type, bool bCreateGrids)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(System, Attributes, zAttribute, Type, bCreateGrids);
+	CSG_Grids *pGrids = new CSG_Grids(System, Attributes, zAttribute, Type, bCreateGrids);
 
-	if( bCreateGrids && !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( bCreateGrids && !pGrids->is_Valid() )
+	{
+		delete(pGrids); pGrids = NULL;
+	}
+
+	return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
 {
-	CSG_Grids	*pGrids	= new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type);
+	CSG_Grids *pGrids = new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type);
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( !pGrids->is_Valid() )
+	{
+		delete(pGrids); pGrids = NULL;
+	}
+
+	return( pGrids );
+}
+
+//---------------------------------------------------------
+CSG_Grids * SG_Create_Grids(const CSG_Table &Attributes, int zAttribute)
+{
+	return( new CSG_Grids(Attributes, zAttribute) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -191,18 +222,6 @@ CSG_Grids::CSG_Grids(const CSG_String &File, bool bLoadData) { _On_Construction(
   * Create a grid collection with specified dimensions'.
 */
 //---------------------------------------------------------
-CSG_Grids::CSG_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
-{
-	_On_Construction();
-
-	Create(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type);
-}
-
-//---------------------------------------------------------
-/**
-  * Create a grid collection with specified dimensions'.
-*/
-//---------------------------------------------------------
 CSG_Grids::CSG_Grids(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
 {
 	_On_Construction();
@@ -222,21 +241,45 @@ CSG_Grids::CSG_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes,
 	Create(System, Attributes, zAttribute, Type, bCreateGrids);
 }
 
+//---------------------------------------------------------
+/**
+  * Create a grid collection with specified dimensions'.
+*/
+//---------------------------------------------------------
+CSG_Grids::CSG_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
+{
+	_On_Construction();
+
+	Create(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type);
+}
+
+//---------------------------------------------------------
+/**
+  * Create an empty grid collection with defined attributes table and Z-attribute'.
+*/
+//---------------------------------------------------------
+CSG_Grids::CSG_Grids(const CSG_Table &Attributes, int zAttribute)
+{
+	_On_Construction();
+
+	Create(Attributes, zAttribute);
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_Grids::_On_Construction(void)
 {
-	m_pGrids	= (CSG_Grid **)m_Grids.Create(1);
-	m_pGrids[0]	= SG_Create_Grid();	// The Dummy
+	m_pGrids    = (CSG_Grid **)m_Grids.Create(1);
+	m_pGrids[0] = SG_Create_Grid(); // The Dummy
 	m_pGrids[0]->Set_Owner(this);
 
 	m_Attributes.Set_Owner(this);
 
-	m_Index		= NULL;
+	m_Index     = NULL;
 
 	Destroy();
 
@@ -251,10 +294,10 @@ bool CSG_Grids::Destroy(void)
 {
 	for(size_t i=1; i<m_Grids.Get_uSize(); i++)
 	{
-		delete(m_pGrids[i]);	// do not delete the dummy before deconstruction
+		delete(m_pGrids[i]); // do not delete the dummy before deconstruction
 	}
 
-	m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(1);
+	m_pGrids = (CSG_Grid **)m_Grids.Get_Array(1);
 
 	m_pGrids[0]->Destroy();	// The Dummy
 
@@ -262,14 +305,14 @@ bool CSG_Grids::Destroy(void)
 
 	m_Attributes.Destroy();
 	m_Attributes.Add_Field("Z", SG_DATATYPE_Double);
-	m_Z_Attribute	= m_Z_Name	= 0;
+	m_Z_Attribute = m_Z_Name = 0;
 
 	return( CSG_Data_Object::Destroy() );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -343,7 +386,7 @@ bool CSG_Grids::Create(const CSG_Grid_System &System, const CSG_Table &Attribute
 
 	if( m_Attributes.Create(&Attributes) && m_pGrids[0]->Create(System, Type) )
 	{
-		Set_Z_Attribute(zAttribute);
+		Set_Z_Attribute(zAttribute, true);
 
 		if( bCreateGrids )
 		{
@@ -368,11 +411,26 @@ bool CSG_Grids::Create(int NX, int NY, int NZ, double Cellsize, double xMin, dou
 	return( Create(CSG_Grid_System(Cellsize, xMin, yMin, NX, NY), NZ, zMin, Type) );
 }
 
+//---------------------------------------------------------
+bool CSG_Grids::Create(const CSG_Table &Attributes, int zAttribute)
+{
+	Destroy();
+
+	if( m_Attributes.Create(&Attributes) )
+	{
+		Set_Z_Attribute(zAttribute, true);
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Header							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -436,9 +494,9 @@ void CSG_Grids::_Synchronize(CSG_Grid *pGrid)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Checks							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -470,17 +528,22 @@ bool CSG_Grids::is_Compatible(int NX, int NY, double Cellsize, double xMin, doub
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Attributes						 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grids::Set_Z_Attribute(int i)
+bool CSG_Grids::Set_Z_Attribute(int i, bool bSetNameField)
 {
 	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
 	{
 		m_Z_Attribute = i;
+
+		if( bSetNameField )
+		{
+			m_Z_Name = i;
+		}
 
 		return( Update_Z_Order() );
 	}
@@ -530,7 +593,7 @@ bool CSG_Grids::Del_Attribute(int i)
 		}
 		else if( m_Z_Name == i )
 		{
-			m_Z_Name	= -1;	// same as m_Z_Attribute
+			m_Z_Name = -1;	// same as m_Z_Attribute
 		}
 
 		return( true );
@@ -580,7 +643,7 @@ bool CSG_Grids::Update_Z_Order(void)
 
 			if( Index != i )
 			{
-				bChanged    = true;
+				bChanged = true;
 
 				m_pGrids[i] = pGrids[Index];
 
@@ -599,9 +662,9 @@ bool CSG_Grids::Update_Z_Order(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -632,7 +695,7 @@ bool CSG_Grids::Set_Grid_Count(int Count)
 			delete(m_pGrids[i]);
 		}
 
-		m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(Count);
+		m_pGrids = (CSG_Grid **)m_Grids.Get_Array(Count);
 
 		m_Attributes.Set_Count(Count);
 	}
@@ -640,7 +703,7 @@ bool CSG_Grids::Set_Grid_Count(int Count)
 	//-----------------------------------------------------
 	else if( Count > Get_NZ() )
 	{
-		double	z	= Get_ZMax();
+		double z = Get_ZMax();
 
 		for(int i=Get_NZ(); i<=Count; i++, z+=Get_Cellsize())
 		{
@@ -656,13 +719,13 @@ bool CSG_Grids::Set_Grid_Count(int Count)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Grids::Add_Grid(double Z)
 {
-	CSG_Table	Attributes(&m_Attributes);
+	CSG_Table Attributes(&m_Attributes);
 
 	Attributes.Add_Record();
 
@@ -674,7 +737,7 @@ bool CSG_Grids::Add_Grid(double Z)
 //---------------------------------------------------------
 bool CSG_Grids::Add_Grid(double Z, CSG_Grid *pGrid, bool bAttach)
 {
-	CSG_Table	Attributes(&m_Attributes);
+	CSG_Table Attributes(&m_Attributes);
 
 	Attributes.Add_Record();
 
@@ -692,7 +755,7 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 	}
 
 	//-----------------------------------------------------
-	int	n	= Get_NZ();
+	int n = Get_NZ();
 
 	if( n < 1 )	// do some initializations
 	{
@@ -700,15 +763,15 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 	}
 	else // use dummy grid (m_pGrids[0] is always present)
 	{
-		CSG_Grid	*pGrid	= SG_Create_Grid(Get_System(), Get_Type());
+		CSG_Grid *pGrid = SG_Create_Grid(Get_System(), Get_Type());
 
 		if( !pGrid )
 		{
 			return( false );
 		}
 
-		m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(n + 1);
-		m_pGrids[n]	= pGrid;
+		m_pGrids    = (CSG_Grid **)m_Grids.Get_Array((sLong)n + 1);
+		m_pGrids[n] = pGrid;
 
 		_Synchronize(pGrid);
 	}
@@ -716,7 +779,7 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 	//-----------------------------------------------------
 	m_Attributes.Add_Record(&Attributes);
 
-	SG_FREE_SAFE(m_Index);	// invalidate index
+	SG_FREE_SAFE(m_Index); // invalidate index
 
 	Update_Z_Order();
 
@@ -737,27 +800,27 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes, CSG_Grid *pGrid, bool bAt
 	}
 
 	//-----------------------------------------------------
-	int	n	= Get_NZ();
+	int n = Get_NZ();
 
 	if( n > 0 )
 	{
-		if( !bAttach && (pGrid = SG_Create_Grid(*pGrid)) == NULL )	// get a copy
+		if( !bAttach && (pGrid = SG_Create_Grid(*pGrid)) == NULL ) // get a copy
 		{
 			return( false );
 		}
 
-		m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(n + 1);
-		m_pGrids[n]	= pGrid;
+		m_pGrids    = (CSG_Grid **)m_Grids.Get_Array((sLong)n + 1);
+		m_pGrids[n] = pGrid;
 	}
 	else if( bAttach ) // if( n == 0 )
 	{
 		delete(m_pGrids[0]);
 			
-		m_pGrids[0]	= pGrid;	// simply replace dummy
+		m_pGrids[0] = pGrid; // simply replace dummy
 	}
-	else if( m_pGrids[0]->Create(*pGrid) )	// make dummy a copy of grid
+	else if( m_pGrids[0]->Create(*pGrid) ) // make dummy a copy of grid
 	{
-		pGrid	= m_pGrids[0];
+		pGrid = m_pGrids[0];
 	}
 	else
 	{
@@ -771,10 +834,10 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes, CSG_Grid *pGrid, bool bAt
 
 	if( !Get_Projection().is_Okay() && pGrid->Get_Projection().is_Okay() )
 	{
-		Get_Projection()	= pGrid->Get_Projection();
+		Get_Projection() = pGrid->Get_Projection();
 	}
 
-	SG_FREE_SAFE(m_Index);	// invalidate index
+	SG_FREE_SAFE(m_Index); // invalidate index
 
 	Update_Z_Order();
 
@@ -783,15 +846,15 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes, CSG_Grid *pGrid, bool bAt
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Grids::Del_Grid(int i, bool bDetach)
 {
-	if( m_Attributes.Del_Record(i) )	// Get_NZ() is now decreased by one
+	if( m_Attributes.Del_Record(i) ) // Get_NZ() is now decreased by one
 	{
-		SG_FREE_SAFE(m_Index);	// invalidate index
+		SG_FREE_SAFE(m_Index); // invalidate index
 
 		if( Get_NZ() > 0 )
 		{
@@ -806,15 +869,15 @@ bool CSG_Grids::Del_Grid(int i, bool bDetach)
 
 			for( ; i<Get_NZ(); i++)
 			{
-				m_pGrids[i]	= m_pGrids[i + 1];
+				m_pGrids[i] = m_pGrids[i + 1];
 			}
 
-			m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(Get_NZ());
+			m_pGrids = (CSG_Grid **)m_Grids.Get_Array(Get_NZ());
 		}
 		else if( bDetach ) // if( Get_NZ() == 0 )
 		{
 			m_pGrids[0]->Set_Owner(NULL);
-			m_pGrids[0]	= SG_Create_Grid(*m_pGrids[0]);	// needs a new dummy
+			m_pGrids[0] = SG_Create_Grid(*m_pGrids[0]);	// needs a new dummy
 			m_pGrids[0]->Set_Owner(this);
 		}
 
@@ -827,7 +890,7 @@ bool CSG_Grids::Del_Grid(int i, bool bDetach)
 //---------------------------------------------------------
 bool CSG_Grids::Del_Grids(bool bDetach)
 {
-	SG_FREE_SAFE(m_Index);	// invalidate index
+	SG_FREE_SAFE(m_Index); // invalidate index
 
 	if( bDetach )
 	{
@@ -846,11 +909,11 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 	{
 		for(size_t i=1; i<m_Grids.Get_uSize(); i++)
 		{
-			delete(m_pGrids[i]);	// do not delete the dummy before deconstruction
+			delete(m_pGrids[i]); // do not delete the dummy before deconstruction
 		}
 	}
 
-	m_pGrids	= (CSG_Grid **)m_Grids.Get_Array(1);
+	m_pGrids = (CSG_Grid **)m_Grids.Get_Array(1);
 
 	m_Attributes.Del_Records();
 
@@ -859,45 +922,45 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CSG_Grids::Get_Grid_Name(int i, int Style) const
 {
-	CSG_String	s;
+	CSG_String s;
 
 	if( i >= 0 && i < Get_Grid_Count() )
 	{
 		if( Style == 0 )
 		{
-			Style	= SG_GRIDS_NAME_OWNER|SG_GRIDS_NAME_GRID;
+			Style = SG_GRIDS_NAME_OWNER|SG_GRIDS_NAME_GRID;
 		}
 
 		if( (Style & SG_GRIDS_NAME_OWNER) != 0 )
 		{
-			s	= CSG_String(Get_Name());
+			s = CSG_String(Get_Name());
 		}
 
 		if( (Style & SG_GRIDS_NAME_INDEX) != 0 )
 		{
-			if( !s.is_Empty() )	s	+= ".";
+			if( !s.is_Empty() ) { s += "."; }
 
 			s.Printf("%s %d", _TL("Band"), i + 1);
 		}
 
 		if( (Style & SG_GRIDS_NAME_VALUE) != 0 )
 		{
-			if( !s.is_Empty() )	s	+= ".";
+			if( !s.is_Empty() ) { s += "."; }
 
-			s	+= SG_Get_String(Get_Z(i), -10);
+			s += SG_Get_String(Get_Z(i), -10);
 		}
 
 		if( (Style & SG_GRIDS_NAME_GRID ) != 0 )
 		{
-			if( !s.is_Empty() )	s	+= ".";
+			if( !s.is_Empty() ) { s += "."; }
 
-			s	+= m_Attributes[i].asString(Get_Z_Name_Field());
+			s += m_Attributes[i].asString(Get_Z_Name_Field());
 		}
 	}
 
@@ -906,9 +969,9 @@ CSG_String CSG_Grids::Get_Grid_Name(int i, int Style) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -983,7 +1046,7 @@ bool CSG_Grids::Assign(CSG_Grids *pGrids, TSG_Grid_Resampling Interpolation, boo
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1063,24 +1126,20 @@ CSG_Grids & CSG_Grids::Divide(double Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //		Value access by Position (-> Interpolation)		 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 double CSG_Grids::Get_Value(const TSG_Point_3D &p, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
-	double	Value;
-
-	return( Get_Value(p.x, p.y, p.z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
+	double Value; return( Get_Value(p.x, p.y, p.z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
 }
 
 double CSG_Grids::Get_Value(double x, double y, double z, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
-	double	Value;
-
-	return( Get_Value(x, y, z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
+	double Value; return( Get_Value(  x,   y,   z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
 }
 
 bool CSG_Grids::Get_Value(const TSG_Point_3D &p, double &Value, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
@@ -1096,7 +1155,7 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 		return( false );
 	}
 
-	int	iz;	double	dz;
+	int iz; double dz;
 
 	if( !_Get_Z(z, iz, dz) )
 	{
@@ -1110,13 +1169,13 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 
 	if( ZResampling == GRID_RESAMPLING_Undefined )
 	{
-		ZResampling	= Resampling;
+		ZResampling = Resampling;
 	}
 
 	if( (ZResampling == GRID_RESAMPLING_BicubicSpline || ZResampling == GRID_RESAMPLING_BSpline)
 	&&  (iz < 1 || iz >= m_Attributes.Get_Count() - 2) )
 	{
-		ZResampling	= GRID_RESAMPLING_Bilinear;
+		ZResampling = GRID_RESAMPLING_Bilinear;
 	}
 
 	switch( ZResampling )
@@ -1126,12 +1185,12 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 
 	case GRID_RESAMPLING_Bilinear:
 		{
-			double	v[2];
+			double v[2];
 
 			if( m_pGrids[iz    ]->Get_Value(x, y, v[0], Resampling)
 			&&  m_pGrids[iz + 1]->Get_Value(x, y, v[1], Resampling) )
 			{
-				Value	= v[0] + dz * (v[1] - v[0]);
+				Value = v[0] + dz * (v[1] - v[0]);
 
 				return( true );
 			}
@@ -1142,9 +1201,9 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 	case GRID_RESAMPLING_BicubicSpline:
 	case GRID_RESAMPLING_BSpline:
 		{
-			CSG_Spline	s;
+			CSG_Spline s;
 
-			#define ADD_TO_SPLINE(i)	if( i < 0 || i >= Get_NZ() || !m_pGrids[i]->Get_Value(x, y, Value, Resampling) ) return( false ); s.Add(Get_Z(i), Value);
+			#define ADD_TO_SPLINE(i) if( i < 0 || i >= Get_NZ() || !m_pGrids[i]->Get_Value(x, y, Value, Resampling) ) { return( false ); } s.Add(Get_Z(i), Value);
 
 			ADD_TO_SPLINE(iz - 1);
 			ADD_TO_SPLINE(iz    );
@@ -1168,15 +1227,15 @@ bool CSG_Grids::_Get_Z(double z, int &iz, double &dz) const
 		return( false );
 	}
 
-	double	z0, z1	= m_Attributes[0].asDouble(m_Z_Attribute);
+	double z0, z1 = m_Attributes[0].asDouble(m_Z_Attribute);
 
 	for(iz=0; iz<m_Attributes.Get_Count()-1; iz++)
 	{
-		z0 = z1; z1	= m_Attributes[iz + 1].asDouble(m_Z_Attribute);
+		z0 = z1; z1 = m_Attributes[((sLong)iz) + 1].asDouble(m_Z_Attribute);
 
 		if( z < z1 )
 		{
-			dz	= z0 < z1 ? (z - z0) / (z1 - z0) : 0.;
+			dz = z0 < z1 ? (z - z0) / (z1 - z0) : 0.;
 
 			return( true );
 		}
@@ -1187,9 +1246,9 @@ bool CSG_Grids::_Get_Z(double z, int &iz, double &dz) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Index							 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1347,9 +1406,9 @@ bool CSG_Grids::_Set_Index(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Statistics						 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1472,7 +1531,7 @@ double CSG_Grids::Get_Percentile(double Percentile, bool bFromHistogram)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1669,9 +1728,9 @@ bool CSG_Grids::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1703,7 +1762,7 @@ bool CSG_Grids::On_Delete(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1794,7 +1853,7 @@ bool CSG_Grids::Save(const CSG_String &File, int Format)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1914,7 +1973,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &File)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2003,7 +2062,7 @@ bool CSG_Grids::_Save_Normal(const CSG_String &_File)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2098,7 +2157,7 @@ bool CSG_Grids::_Save_Compressed(const CSG_String &_File)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2305,7 +2364,7 @@ bool CSG_Grids::_Save_Header(CSG_File &Stream)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2355,7 +2414,7 @@ bool CSG_Grids::_Save_Attributes(CSG_File &Stream)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2437,7 +2496,7 @@ bool CSG_Grids::_Save_Data(CSG_File &Stream, CSG_Grid *pGrid)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //-----------------------------------------------------
@@ -2448,7 +2507,7 @@ bool CSG_Grids::_Assign_Majority		(CSG_Grids *pSource                           
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //-----------------------------------------------------
@@ -2457,9 +2516,9 @@ CSG_Grids & CSG_Grids::_Operation_Arithmetic(double Value          , TSG_Grid_Op
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

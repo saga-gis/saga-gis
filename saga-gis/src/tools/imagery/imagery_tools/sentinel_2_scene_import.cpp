@@ -432,8 +432,7 @@ bool CSentinel_2_Scene_Import::On_Execute(void)
 			pBands[i]->Get_MetaData().Add_Child(Info_General)->Set_Name("SENTINEL-2");
 			pBands[i]->Get_MetaData().Add_Child(Info_Image  )->Set_Name("BANDS");
 			pBands[i]->Set_Description(Info_General.asText());
-			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE);
-			pBands[i]->Set_Z_Name_Field(INFO_FIELD_NAME);
+			pBands[i]->Set_Z_Attribute (INFO_FIELD_WAVE, true);
 			pBands[i]->Set_Scaling(Scaling, Offset);
 
 			DataObject_Add(pBands[i]);

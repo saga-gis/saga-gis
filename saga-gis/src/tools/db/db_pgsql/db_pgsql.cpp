@@ -1934,7 +1934,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 				CSG_Grids *_pGrids = SG_Create_Grids(); CSG_String rids;
 
 				_pGrids->Get_Attributes_Ptr()->Create(&Info);
-				_pGrids->Set_Z_Attribute(0);
+				_pGrids->Set_Z_Attribute(0, true);
 
 				for(size_t i=System.Grid().Count(); i>0; i--)
 				{

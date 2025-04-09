@@ -326,8 +326,7 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 
 		pBands->Del_Items();
 
-		pCollection->Set_Z_Attribute (INFO_FIELD_CENTRE);
-		pCollection->Set_Z_Name_Field(INFO_FIELD_CENTRE);
+		pCollection->Set_Z_Attribute(INFO_FIELD_CENTRE, true);
 
 		pBands->Add_Item(pCollection);
 

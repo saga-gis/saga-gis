@@ -196,8 +196,7 @@ bool CGridding_Spline_MBA_3D::On_Execute(void)
 	{
 		int	zField	= m_pGrids->Get_Z_Attribute();
 
-		m_pGrids->Set_Z_Attribute (m_zField);
-		m_pGrids->Set_Z_Name_Field(m_zField);
+		m_pGrids->Set_Z_Attribute(m_zField, true);
 
 		m_pGrids->Del_Attribute(zField);
 	}
@@ -250,7 +249,7 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 			m_pGrids->Get_Attributes(iz).Set_Value("Z_Scaled", m_pGrids->Get_Z(iz) * zScale);
 		}
 
-		m_pGrids->Set_Z_Attribute(m_pGrids->Get_Attributes().Get_Field_Count() - 1);
+		m_pGrids->Set_Z_Attribute(m_pGrids->Get_Attributes().Get_Field_Count() - 1, true);
 
 		m_zCellsize *= zScale;
 	}

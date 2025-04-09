@@ -54,9 +54,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -71,9 +71,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -81,9 +81,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						CSG_Grids						 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -104,9 +104,9 @@ TSG_Grids_File_Format;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						CSG_Grids						 //
-//														 //
+//                                                       //
+//                      CSG_Grids                        //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -145,6 +145,9 @@ public:		///////////////////////////////////////////////
 
 									CSG_Grids			(int NX, int NY, int NZ = 0, double Cellsize = 0., double xMin = 0., double yMin = 0., double zMin = 0., TSG_Data_Type Type = SG_DATATYPE_Undefined);
 	virtual bool					Create				(int NX, int NY, int NZ = 0, double Cellsize = 0., double xMin = 0., double yMin = 0., double zMin = 0., TSG_Data_Type Type = SG_DATATYPE_Undefined);
+
+									CSG_Grids			(const CSG_Table &Attributes, int zAttribute = 0);
+	virtual bool					Create				(const CSG_Table &Attributes, int zAttribute = 0);
 
 	virtual bool					Destroy				(void);
 
@@ -210,7 +213,7 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Attributes...
 
-	bool							Set_Z_Attribute		(int Field);
+	bool							Set_Z_Attribute		(int Field, bool bSetNameField = false);
 	int								Get_Z_Attribute		(void)	const	{	return( m_Z_Attribute );	}
 
 	bool							Set_Z_Name_Field	(int Field);
@@ -564,9 +567,9 @@ private:	///////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //						Functions						 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -599,11 +602,14 @@ SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grid_System &System
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(int NX, int NY, int NZ = 0, double Cellsize = 0., double xMin = 0., double yMin = 0., double zMin = 0., TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
+/** Safe construction of a grid collection */
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Table &Attributes, int zAttribute = 0);
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
