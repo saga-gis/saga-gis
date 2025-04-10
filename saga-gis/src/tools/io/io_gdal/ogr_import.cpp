@@ -120,8 +120,7 @@ COGR_Import::COGR_Import(void)
 
 	Set_Description(Description);
 
-	Filter.Prepend(CSG_String::Format("%s|%s", _TL("All Recognized Files"), Filter_All.c_str()));
-	Filter.Append (CSG_String::Format("|%s|*.*", _TL("All Files")));
+	Filter.Prepend(CSG_String::Format("%s|%s|%s|*.*", _TL("All Recognized Files"), Filter_All.c_str(), _TL("All Files")));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes_List("",
