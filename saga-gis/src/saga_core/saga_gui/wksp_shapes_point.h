@@ -97,7 +97,7 @@ protected:
 
 	struct SSize                { int Unit, Field, Adjust; double Minimum, Offset, Scale;    } m_Size;
 
-	struct SLabel               { int Align, Angle_Field; double Offset, Angle;              } m_Label;
+	struct SLabel               { int Align, Angle_Field; double Angle; CSG_Point Offset;    } m_Label;
 
 	struct SSymbol              { int Type; wxImage Image;                                   } m_Symbol;
 

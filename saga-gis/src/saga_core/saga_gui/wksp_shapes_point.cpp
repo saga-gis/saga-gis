@@ -249,8 +249,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		0.0, -360.0, true, 360.0, true
 	);
 
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_ALIGN_X"		, _TL("Horizontal Align"),
+	m_Parameters.Add_Node("LABEL_ATTRIB",
+		"LABEL_PLACEMENT"	, _TL("Placement"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Choice("LABEL_PLACEMENT",
+		"LABEL_PLACEMENT_X"	, _TL("Horizontal"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("left"),
@@ -259,18 +264,24 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_ALIGN_Y"		, _TL("Vertical Align"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("top"),
-			_TL("center"),
-			_TL("bottom")
-		), 0
+	m_Parameters.Add_Double("LABEL_PLACEMENT_X",
+		"LABEL_OFFSET_X"	, _TL("Offset"),
+		_TL("Offset distance to symbol (either screen or map units)."),
+		0., 0., true
 	);
 
-	m_Parameters.Add_Double("LABEL_ATTRIB",
-		"LABEL_OFFSET"		, _TL("Offset"),
+	m_Parameters.Add_Choice("LABEL_PLACEMENT",
+		"LABEL_PLACEMENT_Y"	, _TL("Vertical"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("above"),
+			_TL("center"),
+			_TL("below")
+		), 2
+	);
+
+	m_Parameters.Add_Double("LABEL_PLACEMENT_Y",
+		"LABEL_OFFSET_Y"	, _TL("Offset"),
 		_TL("Offset distance to symbol (either screen or map units)."),
 		0., 0., true
 	);
@@ -279,13 +290,10 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_TYPE"			, _TL("Size relates to..."),
+	m_Parameters.Add_Double("NODE_SIZE",
+		"SIZE_DEFAULT"		, _TL("Size"),
 		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("Screen"),
-			_TL("Map Units")
-		), 0
+		5., 0., true
 	);
 
 	m_Parameters.Add_Choice("NODE_SIZE",
@@ -309,10 +317,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		2., 10., 0., true
 	);
 
-	m_Parameters.Add_Double("SIZE_ATTRIB",
-		"SIZE_DEFAULT"		, _TL("Default Size"),
+	m_Parameters.Add_Choice("NODE_SIZE",
+		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
-		5., 0., true
+		CSG_String::Format("%s|%s",
+			_TL("Screen"),
+			_TL("Map Units")
+		), 0
 	);
 
 
@@ -433,18 +444,18 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	switch( m_Parameters("LABEL_ALIGN_X")->asInt() )
+	switch( m_Parameters("LABEL_PLACEMENT_X")->asInt() )
 	{
 	default: m_Label.Align  = TEXTALIGN_LEFT   ; break;
 	case  1: m_Label.Align  = TEXTALIGN_XCENTER; break;
-	case  2: m_Label.Align  = TEXTALIGN_RIGHT  ; break;
+	case  0: m_Label.Align  = TEXTALIGN_RIGHT  ; break;
 	}
 
-	switch( m_Parameters("LABEL_ALIGN_Y")->asInt() )
+	switch( m_Parameters("LABEL_PLACEMENT_Y")->asInt() )
 	{
 	default: m_Label.Align |= TEXTALIGN_TOP    ; break;
 	case  1: m_Label.Align |= TEXTALIGN_YCENTER; break;
-	case  2: m_Label.Align |= TEXTALIGN_BOTTOM ; break;
+	case  0: m_Label.Align |= TEXTALIGN_BOTTOM ; break;
 	}
 
 	m_Label.Angle = m_Parameters("LABEL_ANGLE")->asDouble();
@@ -506,8 +517,17 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 			pParameters->Set_Enabled("LABEL_ANGLE_ATTRIB"  , Value);
 			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
-			pParameters->Set_Enabled("LABEL_ALIGN_X"       , Value);
-			pParameters->Set_Enabled("LABEL_ALIGN_Y"       , Value);
+			pParameters->Set_Enabled("LABEL_PLACEMENT"     , Value);
+		}
+
+		if(	pParameter->Cmp_Identifier("LABEL_PLACEMENT_X") )
+		{
+			pParameters->Set_Enabled("LABEL_OFFSET_X"      , pParameter->asInt() != 1);
+		}
+
+		if(	pParameter->Cmp_Identifier("LABEL_PLACEMENT_Y") )
+		{
+			pParameters->Set_Enabled("LABEL_OFFSET_Y"      , pParameter->asInt() != 1);
 		}
 
 		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
@@ -638,15 +658,13 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, C
 	}
 
 	//-----------------------------------------------------
-	m_Label.Offset = m_Parameters("LABEL_OFFSET")->asDouble();
+	m_Label.Offset.x = m_Parameters("LABEL_OFFSET_X")->asDouble();
+	m_Label.Offset.y = m_Parameters("LABEL_OFFSET_Y")->asDouble();
 
-	if( m_Label.Offset > 0. )
+	switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
 	{
-		switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
-		{
-		default: m_Label.Offset *= dc_Map.Scale   (); break;
-		case  1: m_Label.Offset *= dc_Map.World2DC(); break;
-		}
+	default: m_Label.Offset *= dc_Map.Scale   (); break;
+	case  1: m_Label.Offset *= dc_Map.World2DC(); break;
 	}
 
 	//-----------------------------------------------------
@@ -754,13 +772,16 @@ void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const
 {
 	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Point()));
 
-	if( m_Label.Offset > 0. )
+	if( m_Label.Offset.x > 0. )
 	{
-		if( (m_Label.Align & TEXTALIGN_LEFT  ) != 0 ) p.x += m_Label.Offset; else
-		if( (m_Label.Align & TEXTALIGN_RIGHT ) != 0 ) p.x -= m_Label.Offset;
+		if( (m_Label.Align & TEXTALIGN_LEFT  ) != 0 ) p.x += m_Label.Offset.x; else
+		if( (m_Label.Align & TEXTALIGN_RIGHT ) != 0 ) p.x -= m_Label.Offset.x;
+	}
 
-		if( (m_Label.Align & TEXTALIGN_TOP   ) != 0 ) p.y += m_Label.Offset; else
-		if( (m_Label.Align & TEXTALIGN_BOTTOM) != 0 ) p.y -= m_Label.Offset;
+	if( m_Label.Offset.y > 0. )
+	{
+		if( (m_Label.Align & TEXTALIGN_TOP   ) != 0 ) p.y += m_Label.Offset.y; else
+		if( (m_Label.Align & TEXTALIGN_BOTTOM) != 0 ) p.y -= m_Label.Offset.y;
 	}
 
 	double Angle = m_Label.Angle_Field < 0 ? m_Label.Angle : pShape->asDouble(m_Label.Angle_Field);

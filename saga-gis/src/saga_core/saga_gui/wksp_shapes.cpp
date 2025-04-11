@@ -452,24 +452,13 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_ATTRIB_PREC"	, _TL("Numerical Precision"),
+	#ifndef _SAGA_MSW
+	m_Parameters.Add_Color("LABEL_ATTRIB_FONT",
+		"LABEL_COLOR"		, _TL("Color"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("fit to value"),
-			_TL("standard"),
-			SG_T("0|0.1|0.12|0.123|0.1234|0.12345|0.1234567|0.12345678|0.123456789|0.1234567890|0.12345678901|0.123456789012|0.1234567890123|0.12345678901234|0.123456789012345|0.1234567890123456|0.12345678901234567|0.123456789012345678|0.1234567890123456789|0.12345678901234567890")
-		), 0
+		Get_Color_asInt(SYS_Get_Color_Foreground())
 	);
-
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_ATTRIB_SIZE_TYPE", _TL("Size relates to..."),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("Screen"),
-			_TL("Map Units")
-		), 0
-	);
+	#endif
 
 	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ATTRIB_EFFECT"	, _TL("Boundary Effect"),
@@ -491,13 +480,32 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Color("LABEL_ATTRIB_EFFECT",
 		"LABEL_ATTRIB_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
-		SG_GET_RGB(255, 255, 255)
+		Get_Color_asInt(SYS_Get_Color_Background())
 	);
 
 	m_Parameters.Add_Int("LABEL_ATTRIB_EFFECT",
 		"LABEL_ATTRIB_EFFECT_SIZE"	, _TL("Size"),
 		_TL(""),
 		1, 1, true
+	);
+
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
+		"LABEL_ATTRIB_PREC"	, _TL("Numerical Precision"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("fit to value"),
+			_TL("standard"),
+			SG_T("0|0.1|0.12|0.123|0.1234|0.12345|0.1234567|0.12345678|0.123456789|0.1234567890|0.12345678901|0.123456789012|0.1234567890123|0.12345678901234|0.123456789012345|0.1234567890123456|0.12345678901234567|0.123456789012345678|0.1234567890123456789|0.12345678901234567890")
+		), 0
+	);
+
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
+		"LABEL_ATTRIB_SIZE_TYPE", _TL("Size relates to..."),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Screen"),
+			_TL("Map Units")
+		), 0
 	);
 
 	m_Parameters.Add_Choice("LABEL_ATTRIB",
@@ -803,9 +811,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB_EFFECT") )
 		{
-			bool	Value	= pParameter->asInt() > 0;
-
-			pParameters->Set_Enabled("LABEL_ATTRIB_EFFECT_COLOR", Value);
+			pParameter->Set_Children_Enabled(pParameter->asInt() != 0);
 		}
 
 		if(	pParameter->Cmp_Identifier("EDIT_SNAP_LIST") )
@@ -1297,7 +1303,7 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 			dc_Map.World2DC() * m_Parameters("LABEL_ATTRIB_SIZE")->asDouble() : 1.;
 
 		dc_Map.SetFont(Get_Font(m_Parameters("LABEL_ATTRIB_FONT")));
-		dc_Map.Get_DC().SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
+		dc_Map.Get_DC().SetTextForeground(m_Parameters(m_Parameters("LABEL_COLOR") ? "LABEL_COLOR" : "LABEL_ATTRIB_FONT")->asColor());
 
 		if( iSize >= 0 && iSize < Get_Shapes()->Get_Field_Count() )	// size by attribute
 		{
