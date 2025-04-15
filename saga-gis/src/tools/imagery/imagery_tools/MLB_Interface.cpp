@@ -98,6 +98,7 @@ CSG_String Get_Info(int i)
 #include "textural_features.h"
 #include "local_statistical_measures.h"
 #include "image_quality_index.h"
+#include "sentinel_1_scene_import.h"
 #include "sentinel_2_scene_import.h"
 #include "sentinel_3_scene_import.h"
 
@@ -137,6 +138,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 12: return( new CLocal_Statistical_Measures );
 	case 13: return( new CImage_Quality_Index );
 
+	case 25: return( new CSentinel_1_Scene_Import );
 	case 15: return( new CSentinel_2_Scene_Import );
 	case 16: return( new CSentinel_3_Scene_Import );
 
@@ -151,7 +153,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 22: return( new CSPOT_Scene_Import );
 
 	//-----------------------------------------------------
-	case 25: return( NULL );
+	case 26: return( NULL );
 	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
