@@ -89,11 +89,13 @@ private:
 
 	CSG_Parameters_CRSPicker	m_CRS;
 
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
 
 	bool						Get_Files				(const CSG_String &File, CSG_Strings Files[2]);
 	bool						Get_MetaData			(const CSG_String &File, CSG_Grid &Band);
 	static bool					Get_Geolocations		(const CSG_String &File, CSG_Shapes &Points, const CSG_Projection &CRS, CSG_String &Error);
-	static double				Get_Resolution			(const CSG_String &File, const CSG_Projection &CRS);
+	static CSG_Grid_System		Get_System				(const CSG_String &File, const CSG_Projection &CRS);
 
 };
 

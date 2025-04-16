@@ -82,13 +82,9 @@ CSentinel_1_Scene_Import::CSentinel_1_Scene_Import(void)
 		CSG_String::Format("%s (*.safe)|manifest.safe|%s|*.*", _TL("Sentinel-1 Metadata"), _TL("All Files"))
 	);
 
-	Parameters.Add_Double("",
-		"RESOLUTION", _TL("Target Resolution"),
-		_TL(""),
-		0.01, 0.00001, true
-	);
-
 	m_CRS.Create(Parameters); Parameters.Set_Parameter("CRS_STRING", "epsg:4326"); m_CRS.On_Parameter_Changed(&Parameters, Parameters("CRS_STRING"));
+
+	m_Grid_Target.Create(&Parameters, false, "TARGET_NODE", "TARGET_");
 }
 
 
@@ -115,15 +111,22 @@ bool CSentinel_1_Scene_Import::On_After_Execution(void)
 //---------------------------------------------------------
 int CSentinel_1_Scene_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_CRS.On_Parameter_Changed(pParameters, pParameter);
+	m_CRS        .On_Parameter_Changed(pParameters, pParameter);
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
 	if( pParameter->Cmp_Identifier("FILE") || pParameter->Cmp_Identifier("CRS_PICKER") )
 	{
-		double Resolution = Get_Resolution((*pParameters)("FILE")->asString(), (*pParameters)("CRS_STRING")->asString());
+		CSG_Grid_System System = Get_System((*pParameters)("FILE")->asString(), (*pParameters)("CRS_STRING")->asString());
 
-		if( Resolution > 0. )
+		if( System.is_Valid() )
 		{
-			pParameters->Set_Parameter("RESOLUTION", Resolution);
+			pParameters->Set_Parameter("TARGET_USER_XMIN", System.Get_XMin    ());
+			pParameters->Set_Parameter("TARGET_USER_XMAX", System.Get_XMax    ());
+			pParameters->Set_Parameter("TARGET_USER_YMIN", System.Get_YMin    ());
+			pParameters->Set_Parameter("TARGET_USER_YMAX", System.Get_YMax    ());
+			pParameters->Set_Parameter("TARGET_USER_SIZE", System.Get_Cellsize());
+
+			m_Grid_Target.On_Parameter_Changed(pParameters, (*pParameters)("TARGET_USER_SIZE"));
 		}
 	}
 
@@ -133,6 +136,8 @@ int CSentinel_1_Scene_Import::On_Parameter_Changed(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 int CSentinel_1_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -194,9 +199,12 @@ bool CSentinel_1_Scene_Import::On_Execute(void)
 
 	Process_Set_Text(_TL("projecting..."));
 
+	CSG_Grid_System System(m_Grid_Target.Get_System());
+
 	SG_UI_Msg_Lock(true);
 
 	if( !pTool->Settings_Push()
+	||  !pTool->Set_Parameter("GRIDS"            , pGrids)
 	||  !pTool->Set_Parameter("REF_SOURCE"       , pPoints)
 	||  !pTool->Set_Parameter("XFIELD"           , "x")
 	||  !pTool->Set_Parameter("YFIELD"           , "y")
@@ -204,9 +212,13 @@ bool CSentinel_1_Scene_Import::On_Execute(void)
 	||  !pTool->Set_Parameter("RESAMPLING"       , 3) // "B-Spline Interpolation"
 	||  !pTool->Set_Parameter("DATA_TYPE"        , 10) // "Preserve"
 	||  !pTool->Set_Parameter("CRS_STRING"       , CRS.Get_WKT())
-	||  !pTool->Set_Parameter("GRIDS"            , pGrids)
-	||  !pTool->Set_Parameter("TARGET_DEFINITION", 0) // "user defined"
-	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , Parameters("RESOLUTION")->asDouble())
+	||  !pTool->Set_Parameter("TARGET_DEFINITION", 1) // "user defined"
+	||  !pTool->Set_Parameter("TARGET_SYSTEM"    , &System)
+	||  !pTool->Set_Parameter("TARGET_USER_XMIN" , m_Grid_Target.Get_System().Get_XMin    ())
+	||  !pTool->Set_Parameter("TARGET_USER_XMAX" , m_Grid_Target.Get_System().Get_XMax    ())
+	||  !pTool->Set_Parameter("TARGET_USER_YMIN" , m_Grid_Target.Get_System().Get_YMin    ())
+	||  !pTool->Set_Parameter("TARGET_USER_YMAX" , m_Grid_Target.Get_System().Get_YMax    ())
+	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , m_Grid_Target.Get_System().Get_Cellsize())
 	||  !pTool->Execute() )
 	{
 		SG_UI_Msg_Lock(false);
@@ -484,44 +496,48 @@ bool CSentinel_1_Scene_Import::Get_Geolocations(const CSG_String &File, CSG_Shap
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSentinel_1_Scene_Import::Get_Resolution(const CSG_String &File, const CSG_Projection &CRS)
+CSG_Grid_System CSentinel_1_Scene_Import::Get_System(const CSG_String &File, const CSG_Projection &CRS)
 {
-	CSG_MetaData Manifest;
+	CSG_Grid_System System; CSG_MetaData Manifest;
 
-	if( !Manifest.Load(File) || !Manifest("dataObjectSection") )
+	if( Manifest.Load(File) && Manifest("dataObjectSection") )
 	{
-		return( 0. );
-	}
+		const CSG_MetaData &Objects = Manifest["dataObjectSection"]; CSG_String Annotation;
 
-	const CSG_MetaData &Objects = Manifest["dataObjectSection"]; CSG_String Annotation;
-
-	for(int i=0; Annotation.is_Empty() && i<Objects.Get_Count(); i++)
-	{
-		if( Objects[i].Cmp_Property("repID", "s1Level1ProductSchema") && Objects[i]("byteStream.fileLocation") && Objects[i]["byteStream.fileLocation"].Get_Property("href") )
+		for(int i=0; Annotation.is_Empty() && i<Objects.Get_Count(); i++)
 		{
-			Annotation = SG_File_Get_Path(File) + Objects[i]["byteStream.fileLocation"].Get_Property("href");
+			if( Objects[i].Cmp_Property("repID", "s1Level1ProductSchema") && Objects[i]("byteStream.fileLocation") && Objects[i]["byteStream.fileLocation"].Get_Property("href") )
+			{
+				Annotation = SG_File_Get_Path(File) + Objects[i]["byteStream.fileLocation"].Get_Property("href");
+			}
+		}
+
+		CSG_Shapes Points; CSG_String Error;
+
+		if( Get_Geolocations(Annotation, Points, CRS, Error) && Points.Get_Count() > 1 )
+		{
+			CSG_Shape &A = *Points.Get_Shape(0), &B = *Points.Get_Shape(Points.Get_Count() - 1);
+
+			double dImg = SG_Get_Distance(A.Get_Point(), B.Get_Point()), dCRS = SG_Get_Distance(A.asDouble("x"), A.asDouble("y"), B.asDouble("x"), B.asDouble("y"));
+
+			if( dImg > 0. && dCRS > 0. )
+			{
+				double Cellsize = dCRS / dImg;
+
+				if( Cellsize > 0. && CRS.is_Projection() )
+				{
+					Cellsize = (int)(0.5 + Cellsize);
+				}
+
+				System.Create(Cellsize,
+					Points.Get_Minimum(Points.Get_Field("x")), Points.Get_Minimum(Points.Get_Field("y")),
+					Points.Get_Maximum(Points.Get_Field("x")), Points.Get_Maximum(Points.Get_Field("y"))
+				);
+			}
 		}
 	}
 
-	CSG_Shapes Points; CSG_String Error;
-
-	if( !Get_Geolocations(Annotation, Points, CRS, Error) || Points.Get_Count() <= 2 )
-	{
-		return( 0. );
-	}
-
-	CSG_Shape &A = *Points.Get_Shape(0), &B = *Points.Get_Shape(Points.Get_Count() - 1);
-
-	double dImg = SG_Get_Distance(A.Get_Point(), B.Get_Point()), dCRS = SG_Get_Distance(A.asDouble("x"), A.asDouble("y"), B.asDouble("x"), B.asDouble("y"));
-
-	double Resolution = dImg > 0. ? dCRS / dImg : 0.;
-
-	if( Resolution > 0. && CRS.is_Projection() )
-	{
-		Resolution = (int)(0.5 + Resolution);
-	}
-
-	return( Resolution );
+	return( System );
 }
 
 
