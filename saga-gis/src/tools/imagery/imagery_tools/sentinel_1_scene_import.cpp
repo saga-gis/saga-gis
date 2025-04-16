@@ -214,11 +214,6 @@ bool CSentinel_1_Scene_Import::On_Execute(void)
 	||  !pTool->Set_Parameter("CRS_STRING"       , CRS.Get_WKT())
 	||  !pTool->Set_Parameter("TARGET_DEFINITION", 1) // "user defined"
 	||  !pTool->Set_Parameter("TARGET_SYSTEM"    , &System)
-	||  !pTool->Set_Parameter("TARGET_USER_XMIN" , m_Grid_Target.Get_System().Get_XMin    ())
-	||  !pTool->Set_Parameter("TARGET_USER_XMAX" , m_Grid_Target.Get_System().Get_XMax    ())
-	||  !pTool->Set_Parameter("TARGET_USER_YMIN" , m_Grid_Target.Get_System().Get_YMin    ())
-	||  !pTool->Set_Parameter("TARGET_USER_YMAX" , m_Grid_Target.Get_System().Get_YMax    ())
-	||  !pTool->Set_Parameter("TARGET_USER_SIZE" , m_Grid_Target.Get_System().Get_Cellsize())
 	||  !pTool->Execute() )
 	{
 		SG_UI_Msg_Lock(false);
