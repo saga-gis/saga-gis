@@ -332,8 +332,6 @@ bool CWKSP_Tool::Execute(bool bDialog)
 
 			SG_UI_ProgressAndMsg_Reset();
 
-			g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
-
 			if( g_pTools && g_pTools->Do_Beep() )
 			{
 				Do_Beep();
@@ -341,6 +339,8 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		}
 
 		m_pTool->On_After_Execution();
+
+		g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 	}
 
 	if( !bResult || !m_pTool->is_Interactive() )
