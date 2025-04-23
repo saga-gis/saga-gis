@@ -277,6 +277,6 @@ if(MSVC)
 		COMMAND XCOPY /C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\toolchains\\*.xml" "$(OutDir)tools\\toolchains"
 		COMMAND IF EXIST "$(OutDir)resources" RMDIR /S/Q "$(OutDir)resources"
 		COMMAND MKDIR    "$(OutDir)resources"
-		COMMAND XCOPY /S/E/C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\resources\\" "$(OutDir)resources"
+		COMMAND XCOPY /S/E/C/Q/Y/H "${SOURCE_DIR}..\\..\\accessories\\resources" "$(OutDir)resources"
 	)
 endif()
