@@ -824,17 +824,17 @@ void CWKSP_Grid::_LUT_Create(void)
 				Colors.Set_Count(Get_Grid()->Get_NCells());
 			}
 
-			double	Minimum, Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(0.);
+			double Minimum, Maximum = Get_Grid()->Get_Min();
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
-				Minimum	= Maximum;
-				Maximum	= Get_Grid()->Get_Histogram().Get_Quantile((1. + iClass) / Colors.Get_Count());
+				Minimum	= Maximum; double Quantile = (1. + iClass) / (double)Colors.Get_Count();
+				Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(Quantile);
 
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
+				CSG_String Name = SG_Get_String(Minimum, -2)
+				        + " - " + SG_Get_String(Maximum, -2);
 
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
+				CSG_Table_Record *pClass = Classes.Add_Record();
 
 				pClass->Set_Value(0, Colors[iClass]);	// Color
 				pClass->Set_Value(1, Name          );	// Name

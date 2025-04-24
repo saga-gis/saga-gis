@@ -731,10 +731,11 @@ void CWKSP_PointCloud::_LUT_Create(void)
 			{
 				CSG_Table_Record &Class = *Classes.Add_Record();
 
-				sLong i = (sLong)(0.5 + iClass * Step);
+				sLong i = (sLong)(Step * (1 + iClass));
 
-				double Minimum = Maximum;
-				Maximum	= i < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Value(Index[i], Field) : Get_PointCloud()->Get_Maximum(Field) + 1.;
+				double Minimum = Maximum; Maximum = i < Get_PointCloud()->Get_Count()
+					? Get_PointCloud()->Get_Value(Index[i], Field)
+					: Get_PointCloud()->Get_Maximum(Field) + 1.;
 
 				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
 
