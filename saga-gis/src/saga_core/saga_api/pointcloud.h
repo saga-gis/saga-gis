@@ -183,6 +183,9 @@ public:
 	bool							Set_NoData			(sLong Index, int Field)				{	return( Set_Value(Index, Field, Get_NoData_Value()) );}
 	bool							is_NoData			(sLong Index, int Field)	const		{	return( is_NoData_Value(Get_Value(Index, Field)) );	}
 
+	virtual bool					Get_Value			(sLong Index, int Field, double        &Value)	const	{	Value = _Get_Field_Value(m_Points[Index], Field); return( Index >= 0 && Index < m_nRecords ); }
+	virtual bool					Get_Attribute		(sLong Index, int Field, double        &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
+
 	virtual bool					Set_Value			(             int Field, const SG_Char *Value)			{	return( _Set_Field_Value(m_Cursor, Field, Value) );	}
 	virtual bool					Get_Value			(             int Field, CSG_String    &Value)	const	{	return( _Get_Field_Value(m_Cursor, Field, Value) );	}
 	virtual bool					Set_Value			(sLong Index, int Field, const SG_Char *Value)			{	return( _Set_Field_Value(Index >= 0 && Index < m_nRecords ? m_Points[Index] : NULL, Field, Value) );	}
