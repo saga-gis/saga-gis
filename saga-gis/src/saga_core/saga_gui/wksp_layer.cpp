@@ -965,7 +965,8 @@ bool CWKSP_Layer::Set_Colors(CSG_Colors *pColors)
 //---------------------------------------------------------
 bool CWKSP_Layer::Set_Color_Range(double Minimum, double Maximum)
 {
-	m_Parameters.Set_Parameter("STRETCH_DEFAULT"  , 3);	// manual
+	m_Parameters.Set_Parameter("COLORS_TYPE"      , CLASSIFY_GRADUATED);
+	m_Parameters.Set_Parameter("STRETCH_DEFAULT"  , _TL("Manual"));	// manual
 	m_Parameters.Set_Parameter("METRIC_ZRANGE.MIN", Minimum < Maximum ? Minimum : Maximum);
 	m_Parameters.Set_Parameter("METRIC_ZRANGE.MAX", Minimum < Maximum ? Maximum : Minimum);
 
