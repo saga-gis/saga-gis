@@ -230,6 +230,8 @@ public:
 
 	bool						Destroy				(void);
 
+	bool						Invert				(void);
+
 	void						Show_Progress		(bool bProgress = true);
 
 	bool						Add_Entry			(sLong Position = -1);

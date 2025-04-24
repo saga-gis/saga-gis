@@ -99,6 +99,27 @@ bool CSG_Index::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Index::Invert(void)
+{
+	if( m_nValues > 0 )
+	{
+		for(sLong a=0, b=m_nValues-1; a<b; a++, b--)
+		{
+			sLong i = m_Index[a]; m_Index[a] = m_Index[b]; m_Index[b] = i;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Index::CSG_Index(sLong nValues, CSG_Index_Compare &Compare)
 {
 	_On_Construction();
