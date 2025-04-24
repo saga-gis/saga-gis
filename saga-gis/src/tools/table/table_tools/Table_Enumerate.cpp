@@ -69,7 +69,8 @@ CTable_Enumerate::CTable_Enumerate(void)
 		"is assigned to identical values of the chosen attribute field. "
 		"If no attribute is chosen, a simple enumeration is done for "
 		"all records, and this with respect to the sorting order "
-		"if the dataset has been indexed."
+		"if the dataset has been indexed.\n"
+		"The tool can be used with tables, shapes or point clouds."
 	));
 
 	Parameters.Add_Table("",
@@ -86,13 +87,13 @@ CTable_Enumerate::CTable_Enumerate(void)
 
 	Parameters.Add_Table_Field("INPUT",
 		"ENUM"	, _TL("Enumeration"),
-		_TL(""),
+		_TL("Field to which the enumeration is written. If not set, a new attribute field is created."),
 		true
 	);
 
-	Parameters.Add_String("ENUM",
+	Parameters.Add_String("",
 		"NAME"	, _TL("Enumeration Field Name"),
-		_TL(""),
+		_TL("The field name of the created attribute. If an attribute is chosen, the name is used as prefix."),
 		"ENUM"
 	);
 
@@ -105,8 +106,9 @@ CTable_Enumerate::CTable_Enumerate(void)
 		), 0
 	);
 
-	Parameters.Add_Table ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Shapes("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table     ("", "RESULT_TABLE" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes    ("", "RESULT_SHAPES", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_PointCloud("", "RESULT_PC"    , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 }
 
 
@@ -119,23 +121,16 @@ int CTable_Enumerate::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if(	pParameter->Cmp_Identifier("INPUT") )
 	{
-		if( pParameter->asDataObject() )
-		{
-			pParameters->Set_Enabled("RESULT_TABLE" , pParameter->asDataObject()->asShapes() == NULL);
-			pParameters->Set_Enabled("RESULT_SHAPES", pParameter->asDataObject()->asShapes() != NULL);
-		}
-		else
-		{
-			pParameters->Set_Enabled("RESULT_TABLE" , false);
-			pParameters->Set_Enabled("RESULT_SHAPES", false);
-		}
+		CSG_Data_Object *pTable = pParameter->asDataObject();
+
+		pParameters->Set_Enabled("RESULT_TABLE" , pTable && pTable->asTable     ());
+		pParameters->Set_Enabled("RESULT_SHAPES", pTable && pTable->asShapes    ());
+		pParameters->Set_Enabled("RESULT_PC"	, pTable && pTable->asPointCloud());
 	}
 
 	if( pParameter->Cmp_Identifier("ENUM") )
 	{
-		CSG_Table *pTable = (*pParameters)("INPUT")->asTable();
-
-		pParameters->Set_Enabled("NAME", pTable && pParameter->asInt() >= pTable->Get_Field_Count());
+		pParameters->Set_Enabled("NAME", pParameter->asInt() < 0);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -159,22 +154,45 @@ bool CTable_Enumerate::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table *pResult = Parameters(pTable->asShapes() ? "RESULT_SHAPES" : "RESULT_TABLE")->asTable();
+	CSG_String	TableName = pTable->Get_Name();
+	bool		bSetName  = false;
 
-	if( pResult && pResult != pTable )
+	switch( pTable->Get_ObjectType() )
 	{
-		if( pResult->asShapes() )
-		{
-			pResult->Create(*pTable->asShapes());
-		}
-		else
-		{
-			pResult->Create(*pTable);
-		}
+	case SG_DATAOBJECT_TYPE_Table     : {
+		CSG_Table *pResult = Parameters("RESULT_TABLE")->asTable();
 
-		pTable = pResult;
+		if( pResult && pResult != pTable )
+		{
+			pResult->Create(*pTable->asTable()); pTable = pResult;
+			bSetName = true;
+		}
+		break; }
 
-		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Enumerated"));
+	case SG_DATAOBJECT_TYPE_Shapes    : {
+		CSG_Shapes *pResult = Parameters("RESULT_SHAPES")->asShapes();
+
+		if( pResult && pResult != pTable )
+		{
+			pResult->Create(*pTable->asShapes()); pTable = pResult;
+			bSetName = true;
+		}
+		break; }
+
+	case SG_DATAOBJECT_TYPE_PointCloud: {
+		CSG_PointCloud *pResult = Parameters("RESULT_PC")->asPointCloud();
+
+		if( pResult && pResult != pTable )
+		{
+			pResult->Create(*pTable->asPointCloud()); pTable = pResult;
+			bSetName = true;
+		}
+		break; }
+	}
+
+	if( bSetName )
+	{
+		pTable->Fmt_Name("%s [%s]", TableName.c_str(), _TL("Enumerated"));
 	}
 
 	//-----------------------------------------------------
