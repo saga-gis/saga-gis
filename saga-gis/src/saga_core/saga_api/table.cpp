@@ -1410,21 +1410,25 @@ bool CSG_Table::Del_Index(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Toggle_Index(int iField)
+bool CSG_Table::Toggle_Index(int Field)
 {
-	if( iField < 0 || iField >= m_nFields )
+	if( Field < 0 || Field >= m_nFields )
 	{
 		return( false );
 	}
 
-	if( iField != Get_Index_Field(0) )
+	if( Field != Get_Index_Field(0) )
 	{
-		return( Set_Index(iField, TABLE_INDEX_Ascending) );
+		Del_Index();
+
+		return( Set_Index(Field, TABLE_INDEX_Ascending) );
 	}
 
 	if( Get_Index_Order(0) == TABLE_INDEX_Ascending )
 	{
-		return( Set_Index(iField, TABLE_INDEX_Descending) );
+		m_Index_Fields[0] = -m_Index_Fields[0]; m_Index.Invert();
+
+		return( true );
 	}
 
 	return( Del_Index() );
@@ -1460,20 +1464,16 @@ public:
 
 		switch( m_pTable->Get_Field_Type(m_Field) )
 		{
-		default: {
-			double d =
-				m_pTable->Get_Record(a)->asDouble(m_Field) -
-				m_pTable->Get_Record(b)->asDouble(m_Field);
-
-			return( d < 0. ? -1 : d > 0. ? 1 : 0 );
-		}
+		default: { double Value[2] = { 0., 0. };
+			m_pTable->Get_Value(a, m_Field, Value[0]);
+			m_pTable->Get_Value(b, m_Field, Value[1]);
+			return( Value[0] < Value[1] ? -1 : Value[0] > Value[1] ? 1 : 0 ); }
 
 		case SG_DATATYPE_String:
-		case SG_DATATYPE_Date  :
-			return( SG_STR_CMP(
-				m_pTable->Get_Record(a)->asString(m_Field),
-				m_pTable->Get_Record(b)->asString(m_Field))
-			);
+		case SG_DATATYPE_Date  : { CSG_String Value[2];
+			m_pTable->Get_Value(a, m_Field, Value[0]);
+			m_pTable->Get_Value(b, m_Field, Value[1]);
+			return( Value[0].Cmp(Value[1]) ); }
 		}
 	}
 
@@ -1541,28 +1541,29 @@ public:
 
 	virtual int			Compare		(const sLong _a, const sLong _b)
 	{
-		int	Difference	= 0;
+		int Difference = 0;
 
 		for(int i=0; !Difference && i<m_nFields; i++)
 		{
-			int	Field = m_Fields[i];
+			int Field = m_Fields[i];
 
 			sLong a = m_Ascending[i] ? _a : _b;
 			sLong b = m_Ascending[i] ? _b : _a;
 
 			switch( m_pTable->Get_Field_Type(Field) )
 			{
-			default: {
-				double d = m_pTable->Get_Record(a)->asDouble(Field);
-				d       -= m_pTable->Get_Record(b)->asDouble(Field);
-				Difference = d < 0. ? -1 : d > 0. ? 1 : 0;
-			}	break;
+			default: { double Value[2] = { 0., 0. };
+				m_pTable->Get_Value(a, Field, Value[0]);
+				m_pTable->Get_Value(b, Field, Value[1]);
+				Difference = Value[0] < Value[1] ? -1 : Value[0] > Value[1] ? 1 : 0;
+				break; }
 
 			case SG_DATATYPE_String:
-			case SG_DATATYPE_Date  :
-				CSG_String   s    (m_pTable->Get_Record(a)->asString(Field));
-				Difference = s.Cmp(m_pTable->Get_Record(b)->asString(Field));
-				break;
+			case SG_DATATYPE_Date  : { CSG_String Value[2];
+				m_pTable->Get_Value(a, Field, Value[0]);
+				m_pTable->Get_Value(b, Field, Value[1]);
+				Difference = Value[0].Cmp(Value[1]);
+				break; }
 			}
 		}
 
