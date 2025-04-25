@@ -133,6 +133,8 @@ wxString CWKSP_PointCloud::Get_Description(void)
 	//-----------------------------------------------------
 	s += wxString::Format("<h4>%s</h4>", _TL("Point Cloud"));
 
+	s += g_pData->Set_Description_Image(this);
+
 	s += "<table border=\"0\">";
 
 	DESC_ADD_STR  (_TL("Name"            ), m_pObject->Get_Name());
@@ -608,9 +610,10 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	if( Parameters.Get_Count() == 0 )
 	{
 		Parameters.Create(_TL("Classify"));
-		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"     ), _TL(""), "");
-		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
-		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
+		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"        ), _TL(""), "");
+		Parameters.Add_Colors("", "COLOR" , _TL("Colors"           ), _TL(""));
+		Parameters.Add_Int   ("", "COUNT" , _TL("Number of Classes"), _TL(""), 10, 1, true);
+		Parameters.Add_Choice("", "METHOD", _TL("Classification"   ), _TL(""),
 			CSG_String::Format("%s|%s|%s|%s",
 				_TL("unique values"),
 				_TL("equal intervals"),
@@ -641,7 +644,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 	int Field = Parameters("FIELD")->asInt();
 
-	CSG_Colors Colors(*Parameters("COLOR")->asColors());
+	CSG_Colors Colors(*Parameters("COLOR")->asColors()); Colors.Set_Count(Parameters("COUNT")->asInt());
 
 	CSG_Table Classes(m_Parameters("LUT")->asTable());
 

@@ -129,6 +129,8 @@ public:
 	bool							Clipboard_Paste_Table	(void);
 	bool							Clipboard_Paste_Image	(void);
 
+	wxString						Set_Description_Image	(class CWKSP_Layer *pLayer);
+
 	bool							Update					(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Update_Views			(class CSG_Data_Object *pObject);
 	bool							Show					(class CSG_Data_Object *pObject, int Flags = 0);

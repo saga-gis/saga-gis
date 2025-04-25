@@ -54,6 +54,7 @@
 
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
+#include <wx/fs_mem.h>
 
 #include <saga_api/saga_api.h>
 
@@ -109,6 +110,11 @@ CWKSP_Data_Manager	*g_pData	= NULL;
 //---------------------------------------------------------
 CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 {
+	wxFileSystem::AddHandler(new wxMemoryFSHandler);
+
+	wxMemoryFSHandler::AddFile("thumbnail.png", "dummy");
+
+	//-----------------------------------------------------
 	g_pData        = this;
 
 	m_pTables      = NULL;
@@ -121,10 +127,11 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pMenu_Files  = new CWKSP_Data_Menu_Files;
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
-	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"           ), _TL(""), 50, 10, true);
-	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
-	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"), _TL(""), true);
+	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"         ), _TL(""), true);
+	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"               ), _TL(""), 50, 10, true);
+	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"    ), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
+	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"    ), _TL(""), true);
+	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_IN_DESC" , _TL("Show in Description"), _TL(""), true);
 
 	m_Parameters.Add_Bool("",
 		"SHOW_FILE_SOURCES"     , _TL("Show Data File Source Browser"),
@@ -485,6 +492,28 @@ bool CWKSP_Data_Manager::Finalise(void)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CWKSP_Data_Manager::Set_Description_Image(CWKSP_Layer *pLayer)
+{
+	wxString s;
+
+	if( m_Parameters["THUMBNAIL_IN_DESC"].asBool() )
+	{
+		wxMemoryFSHandler::RemoveFile("thumbnail.png");
+
+		wxMemoryFSHandler::AddFile("thumbnail.png", pLayer->Get_Thumbnail(100, 100), wxBITMAP_TYPE_PNG);
+	
+		s = "<img src=\"memory:thumbnail.png\">";
+	}
+
+	return( s );
 }
 
 
