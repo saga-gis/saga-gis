@@ -62,7 +62,7 @@ CVertexInspector::CVertexInspector(void)
 {
 	Set_Name 	(_TL("Vertex Inspector"));
 
-	Set_Author 	("J. Spitzm\u00FCller \u00A9 scilands GmbH 2024");
+	Set_Author 	(SG_T("J. Spitzm\u00FCller \u00A9 scilands GmbH 2024"));
 
 	Set_Version ("1.3");
 
