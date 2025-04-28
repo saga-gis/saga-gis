@@ -887,7 +887,7 @@ CViGrA_RF_Presence::CViGrA_RF_Presence(void)
 	Parameters.Add_Grid("",
 		"PROBABILITY"	, _TL("Presence Probability"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes("",
