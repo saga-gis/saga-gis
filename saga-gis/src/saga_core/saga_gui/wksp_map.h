@@ -197,7 +197,7 @@ public:
 	bool						Draw_ScaleBar			(class CSG_Map_DC &dc);
 	bool						Draw_Extent				(class CSG_Map_DC &dc);
 
-	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
+	const wxBitmap &			Get_Thumbnail			(int nx, int ny);
 
 	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0);
 
@@ -246,7 +246,9 @@ private:
 	void						_Img_Save				(wxString file, int type);
 	void						_Img_Save_On_Change		(void);
 
-	bool						_Set_Thumbnail			(void);
+	wxString					_Set_Description_Image	(void);
+	bool						_Get_Thumbnail			(wxBitmap &Thumbnail, int nx, int ny);
+	bool						_Set_Thumbnail			(wxBitmap &Thumbnail);
 
 };
 

@@ -110,9 +110,7 @@ CWKSP_Data_Manager	*g_pData	= NULL;
 //---------------------------------------------------------
 CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 {
-	wxFileSystem::AddHandler(new wxMemoryFSHandler);
-
-	wxMemoryFSHandler::AddFile("thumbnail.png", "dummy");
+	wxMemoryFSHandler::AddFile("preview_data.png", "dummy");
 
 	//-----------------------------------------------------
 	g_pData        = this;
@@ -131,7 +129,10 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"               ), _TL(""), 50, 10, true);
 	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"    ), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
 	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_CATEGORY", _TL("Show Categories"    ), _TL(""), true);
-	m_Parameters.Add_Bool ("THUMBNAILS", "THUMBNAIL_IN_DESC" , _TL("Show in Description"), _TL(""), true);
+
+	m_Parameters.Add_Node (""          , "NODE_DESC"         , _TL("Description"        ), _TL(""));
+	m_Parameters.Add_Bool ("NODE_DESC" , "PREVIEW"           , _TL("Preview"            ), _TL("Show a preview in description."), false);
+	m_Parameters.Add_Int  ("PREVIEW"   , "PREVIEW_SIZE"      , _TL("Size"               ), _TL(""), 200, 10, true);
 
 	m_Parameters.Add_Bool("",
 		"SHOW_FILE_SOURCES"     , _TL("Show Data File Source Browser"),
@@ -504,13 +505,20 @@ wxString CWKSP_Data_Manager::Set_Description_Image(CWKSP_Layer *pLayer)
 {
 	wxString s;
 
-	if( m_Parameters["THUMBNAIL_IN_DESC"].asBool() )
+	if( m_Parameters["PREVIEW"].asBool() )
 	{
-		wxMemoryFSHandler::RemoveFile("thumbnail.png");
+		int nx, ny; double x2y = pLayer->Get_Extent().Get_XRange() / pLayer->Get_Extent().Get_YRange();
 
-		wxMemoryFSHandler::AddFile("thumbnail.png", pLayer->Get_Thumbnail(100, 100), wxBITMAP_TYPE_PNG);
+		if( x2y > 1. ) { nx = m_Parameters["PREVIEW_SIZE"].asInt(); ny = (int)(nx / x2y); }
+		else           { ny = m_Parameters["PREVIEW_SIZE"].asInt(); nx = (int)(ny * x2y); }
+
+		wxMemoryFSHandler::RemoveFile("preview_data.png");
+
+		wxMemoryFSHandler::AddFile("preview_data.png", pLayer->Get_Thumbnail(nx, ny), wxBITMAP_TYPE_PNG);
 	
-		s = "<img src=\"memory:thumbnail.png\">";
+		s = "<img src=\"memory:preview_data.png\">";
+
+		s = "<table border=\"1\"><th><tr>" + s + "</tr></th></table><hr>";
 	}
 
 	return( s );
@@ -832,6 +840,11 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	pParameter->Cmp_Identifier("THUMBNAILS") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("PREVIEW") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
 		}

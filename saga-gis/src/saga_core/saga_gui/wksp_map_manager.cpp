@@ -50,6 +50,8 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <wx/fs_mem.h>
+
 #include "res_commands.h"
 #include "res_controls.h"
 #include "res_dialogs.h"
@@ -87,14 +89,20 @@ CWKSP_Map_Manager *g_pMaps = NULL;
 //---------------------------------------------------------
 CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
+	wxMemoryFSHandler::AddFile("preview_map.png", "dummy");
+
 	g_pMaps = this; m_Numbering = 0; m_Parameters.Set_Name(_TL("Maps"));
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"     ), _TL(""), true);
-	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"           ), _TL(""), 75, 10, true);
-	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
+	m_Parameters.Add_Bool (""          , "THUMBNAILS"        , _TL("Thumbnails"         ), _TL(""), true);
+	m_Parameters.Add_Int  ("THUMBNAILS", "THUMBNAIL_SIZE"    , _TL("Size"               ), _TL(""), 75, 10, true);
+	m_Parameters.Add_Color("THUMBNAILS", "THUMBNAIL_SELCOLOR", _TL("Selection Color"    ), _TL(""), Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW)));
 
-	m_Parameters.Add_Int  (""          , "NUMBERING"         , _TL("Map Numeration" ),
+	m_Parameters.Add_Node (""          , "NODE_DESC"         , _TL("Description"        ), _TL(""));
+	m_Parameters.Add_Bool ("NODE_DESC" , "PREVIEW"           , _TL("Preview"            ), _TL("Show a preview in description."), false);
+	m_Parameters.Add_Int  ("PREVIEW"   , "PREVIEW_SIZE"      , _TL("Size"               ), _TL(""), 200, 10, true);
+
+	m_Parameters.Add_Int  (""          , "NUMBERING"         , _TL("Map Numeration"     ),
 		_TL("Minimum width of map numbering. If set to 0 no numbering is applied at all. Negative values will prepend zeros. Having many maps numbering helps in unambiguos map identification."),
 		2
 	);
@@ -352,6 +360,11 @@ int CWKSP_Map_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	pParameter->Cmp_Identifier("THUMBNAILS") )
+		{
+			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("PREVIEW") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
 		}

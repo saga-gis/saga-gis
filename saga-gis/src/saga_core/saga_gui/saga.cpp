@@ -49,6 +49,7 @@
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <wx/image.h>
+#include <wx/fs_mem.h>
 #include <wx/splash.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
@@ -115,6 +116,8 @@ bool CSAGA::OnInit(void)
 	SetAppName   ("saga_gui");
 
 	wxInitAllImageHandlers();
+
+	wxFileSystem::AddHandler(new wxMemoryFSHandler);
 
 	wxFileName App_Path(argv[0]); App_Path.MakeAbsolute();
 

@@ -51,6 +51,7 @@
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/fs_mem.h>
 
 #include <saga_gdi/sgdi_helper.h>
 
@@ -216,12 +217,43 @@ wxString CWKSP_Map::Get_Name(void)
 }
 
 //---------------------------------------------------------
+wxString CWKSP_Map::_Set_Description_Image(void)
+{
+	wxString s;
+
+	if( Get_Manager()->Get_Parameter("PREVIEW")->asBool() )
+	{
+		int nx, ny; double x2y = Get_Extent().Get_XRange() / Get_Extent().Get_YRange();
+
+		if( x2y > 1. ) { nx = Get_Manager()->Get_Parameter("PREVIEW_SIZE")->asInt(); ny = (int)(nx / x2y); }
+		else           { ny = Get_Manager()->Get_Parameter("PREVIEW_SIZE")->asInt(); nx = (int)(ny * x2y); }
+
+		wxBitmap Thumbnail;
+
+		if( _Get_Thumbnail(Thumbnail, nx, ny) )
+		{
+			wxMemoryFSHandler::RemoveFile("preview_map.png");
+
+			wxMemoryFSHandler::AddFile("preview_map.png", Thumbnail, wxBITMAP_TYPE_PNG);
+
+			s = "<img src=\"memory:preview_map.png\" border=\"5\">";
+
+			s = "<table border=\"1\"><th><tr>" + s + "</tr></th></table><hr>";
+		}
+	}
+
+	return( s );
+}
+
+//---------------------------------------------------------
 wxString CWKSP_Map::Get_Description(void)
 {
 	wxString s;
 
 	//-----------------------------------------------------
 	s += wxString::Format("<h4>%s</h4>", _TL("Map"));
+
+	s += _Set_Description_Image();
 
 	s += "<table border=\"0\">";
 
@@ -1480,7 +1512,7 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 		}
 	}
 
-	_Set_Thumbnail();
+	_Set_Thumbnail(m_Thumbnail);
 
 	if( g_pMap_Buttons ) { g_pMap_Buttons->Refresh(); }
 }
@@ -2123,28 +2155,37 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const wxBitmap & CWKSP_Map::Get_Thumbnail(int dx, int dy)
+const wxBitmap & CWKSP_Map::Get_Thumbnail(int nx, int ny)
 {
-	if( dx > 0 && dy > 0 && (!m_Thumbnail.IsOk() || m_Thumbnail.GetWidth() != dx || m_Thumbnail.GetHeight() != dy) )
-	{
-		m_Thumbnail.Create(dx, dy);
-
-		_Set_Thumbnail();
-	}
+	_Get_Thumbnail(m_Thumbnail, nx, ny);
 
 	return( m_Thumbnail );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::_Set_Thumbnail(void)
+bool CWKSP_Map::_Get_Thumbnail(wxBitmap &Thumbnail, int nx, int ny)
 {
-	if( m_Thumbnail.IsOk() && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
+	if( nx > 0 && ny > 0 )
 	{
-		wxMemoryDC dc; wxRect r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
+		if( !Thumbnail.IsOk() || Thumbnail.GetWidth() != nx || Thumbnail.GetHeight() != ny )
+		{
+			Thumbnail.Create(nx, ny);
+		}
 
-		dc.SelectObject(m_Thumbnail);
-		dc.SetBackground(*wxWHITE_BRUSH);
-		dc.Clear();
+		return( _Set_Thumbnail(Thumbnail) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::_Set_Thumbnail(wxBitmap &Thumbnail)
+{
+	if( Thumbnail.IsOk() && Thumbnail.GetWidth() > 0 && Thumbnail.GetHeight() > 0 )
+	{
+		wxMemoryDC dc; wxRect r(0, 0, Thumbnail.GetWidth(), Thumbnail.GetHeight());
+
+		dc.SelectObject(Thumbnail); dc.SetBackground(Get_Background()); dc.Clear();
 
 		Draw_Map(dc, Get_Extent(), 1., r, LAYER_DRAW_FLAG_NOEDITS|LAYER_DRAW_FLAG_NOLABELS|LAYER_DRAW_FLAG_THUMBNAIL);
 
