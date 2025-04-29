@@ -210,7 +210,7 @@ void CWKSP_Data_Menu_File::Update(void)
 	//-----------------------------------------------------
 	else
 	{
-		if( m_pMenu->GetMenuItemCount() == m_Offset )
+		if( m_pMenu->GetMenuItemCount() == m_Offset && m_Offset > 0 )
 		{
 			m_pMenu->AppendSeparator();
 		}
