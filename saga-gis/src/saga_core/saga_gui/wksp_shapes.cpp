@@ -114,7 +114,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 	wxString s;
 
 	//-----------------------------------------------------
-	s += wxString::Format("<h4>%s</h4>", _TL("Shapes"));
+	s += "<h4>" + Get_Manager()->Get_Name() + "</h4>";
 
 	s += g_pData->Set_Description_Image(this);
 

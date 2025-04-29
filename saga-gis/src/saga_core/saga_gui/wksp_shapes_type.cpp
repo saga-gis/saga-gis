@@ -83,7 +83,14 @@ CWKSP_Shapes_Type::CWKSP_Shapes_Type(TSG_Shape_Type Type)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Type::Get_Name(void)
 {
-	return( SG_Get_ShapeType_Name(m_Shape_Type).c_str() );
+	switch( m_Shape_Type )
+	{
+	case SHAPE_TYPE_Point  : return( _TL("Points"         ) );
+	case SHAPE_TYPE_Points : return( _TL("Multiple Points") );
+	case SHAPE_TYPE_Line   : return( _TL("Lines"          ) );
+	case SHAPE_TYPE_Polygon: return( _TL("Polygons"       ) );
+	default                : return( _TL("Features"       ) );
+	}
 }
 
 //---------------------------------------------------------
