@@ -1249,12 +1249,20 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	//-----------------------------------------------------
 	wxMenuBar *pMenuBar = new wxMenuBar;
 
-	pMenuBar->Append(g_pData ->Get_Menu_Files()->Get_Menu(), _TL("File"         ));	// 0
-	pMenuBar->Append(g_pTools->Get_Menu_Tools()            , _TL("Geoprocessing"));	// 1
-	pMenuBar->Append(pMenu_Window                          , _TL("Window"       ));	// 2
-	pMenuBar->Append(pMenu_Help                            , _TL("?"            ));	// 3
+#if defined(__WXMAC__)
+	wxMenu *OSX_pMenu_Window = pMenu_Window; pMenu_Window = new wxMenu;
+#endif
+
+	pMenuBar->Append(g_pData ->Get_Menu_Files()->Get_Menu(), _TL("File"         )); // 0
+	pMenuBar->Append(g_pTools->Get_Menu_Tools()            , _TL("Geoprocessing")); // 1
+	pMenuBar->Append(pMenu_Window                          , _TL("Window"       )); // 2
+	pMenuBar->Append(pMenu_Help                            , _TL("?"            )); // 3
 
 	SetMenuBar(pMenuBar);
+
+#if defined(__WXMAC__)
+	pMenuBar->Replace(2, OSX_pMenu_Window                  , _TL("Window"       )); // 2
+#endif
 
 	return( pMenuBar );
 }
