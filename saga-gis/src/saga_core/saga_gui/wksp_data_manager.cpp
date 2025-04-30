@@ -505,7 +505,7 @@ wxString CWKSP_Data_Manager::Set_Description_Image(CWKSP_Layer *pLayer)
 {
 	wxString s;
 
-	if( m_Parameters["PREVIEW"].asBool() )
+	if( m_Parameters["PREVIEW"].asBool() && pLayer->Get_Extent().Get_Area() > 0. )
 	{
 		int nx, ny; double x2y = pLayer->Get_Extent().Get_XRange() / pLayer->Get_Extent().Get_YRange();
 
