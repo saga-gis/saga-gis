@@ -437,9 +437,9 @@ CSG_Parameter * CSG_Parameters::Add_Parameter(CSG_Parameter *pParameter)
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Node(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Node(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bCollapsed)
 {
-	return( _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Node, PARAMETER_INFORMATION) );
+	return( _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Node, bCollapsed ? PARAMETER_GUI_COLLAPSED|PARAMETER_INFORMATION : PARAMETER_INFORMATION) );
 }
 
 //---------------------------------------------------------

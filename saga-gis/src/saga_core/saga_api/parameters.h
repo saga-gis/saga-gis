@@ -98,6 +98,7 @@
 #define PARAMETER_IGNORE_PROJECTION			0x10
 #define PARAMETER_NOT_FOR_GUI				0x20
 #define PARAMETER_NOT_FOR_CMD				0x40
+#define PARAMETER_GUI_COLLAPSED				0x80
 
 #define PARAMETER_INPUT_OPTIONAL			(PARAMETER_INPUT  | PARAMETER_OPTIONAL)
 #define PARAMETER_OUTPUT_OPTIONAL			(PARAMETER_OUTPUT | PARAMETER_OPTIONAL)
@@ -228,6 +229,9 @@ public:	///////////////////////////////////////////////////
 	bool							Set_Enabled				(bool bEnabled  = true);
 	bool							is_Enabled				(bool bCheckEnv = true)	const;
 
+	bool							Set_Collapsed			(bool bOn = true);
+	bool							is_Collapsed			(void)	const	{	return( !!(m_Constraint & PARAMETER_GUI_COLLAPSED ) );	}
+
 	virtual bool					is_Valid				(void)	const	{	return( true );	}
 	bool							is_Input				(void)	const	{	return( !!(m_Constraint & PARAMETER_INPUT      ) );	}
 	bool							is_Output				(void)	const	{	return( !!(m_Constraint & PARAMETER_OUTPUT     ) );	}
@@ -241,8 +245,8 @@ public:	///////////////////////////////////////////////////
 	bool							is_Compatible			(CSG_Parameter *pParameter)	const;
 	bool							is_Value_Equal			(CSG_Parameter *pParameter)	const;
 
-	void							Set_UseInGUI			(bool bDoUse = false);
-	void							Set_UseInCMD			(bool bDoUse = false);
+	void							Set_UseInGUI			(bool bOn = false);
+	void							Set_UseInCMD			(bool bOn = false);
 
 	bool							do_UseInGUI				(void)	const;
 	bool							do_UseInCMD				(void)	const;
@@ -1775,7 +1779,7 @@ public:
 	//-----------------------------------------------------
 	CSG_Parameter *				Add_Parameter			(CSG_Parameter *pParameter);
 
-	CSG_Parameter *				Add_Node				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description);
+	CSG_Parameter *				Add_Node				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bCollapsed = false);
 
 	CSG_Parameter *				Add_Value				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Info_Value			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value = 0.0);

@@ -137,28 +137,43 @@ CSG_String CSG_Parameter::Get_Type_Name(void)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Parameter::Set_UseInGUI(bool bDoUse)
+bool CSG_Parameter::Set_Collapsed(bool bOn)
 {
-	if( bDoUse )
+	if( bOn )
 	{
-		m_Constraint	&= ~PARAMETER_NOT_FOR_GUI;
+		m_Constraint |=  PARAMETER_GUI_COLLAPSED;
 	}
 	else
 	{
-		m_Constraint	|=  PARAMETER_NOT_FOR_GUI;
+		m_Constraint &= ~PARAMETER_GUI_COLLAPSED;
+	}
+
+	return( is_Collapsed() );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter::Set_UseInGUI(bool bOn)
+{
+	if( bOn )
+	{
+		m_Constraint &= ~PARAMETER_NOT_FOR_GUI;
+	}
+	else
+	{
+		m_Constraint |=  PARAMETER_NOT_FOR_GUI;
 	}
 }
 
 //---------------------------------------------------------
-void CSG_Parameter::Set_UseInCMD(bool bDoUse)
+void CSG_Parameter::Set_UseInCMD(bool bOn)
 {
-	if( bDoUse )
+	if( bOn )
 	{
-		m_Constraint	&= ~PARAMETER_NOT_FOR_CMD;
+		m_Constraint &= ~PARAMETER_NOT_FOR_CMD;
 	}
 	else
 	{
-		m_Constraint	|=  PARAMETER_NOT_FOR_CMD;
+		m_Constraint |=  PARAMETER_NOT_FOR_CMD;
 	}
 }
 

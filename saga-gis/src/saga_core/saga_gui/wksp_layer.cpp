@@ -188,8 +188,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	m_Parameters.Add_Node("", "NODE_COLORS"   , _TL("Colors"   ), _TL(""));
 	m_Parameters.Add_Node("", "NODE_SIZE"     , _TL("Size"     ), _TL(""));
 	m_Parameters.Add_Node("", "NODE_LABEL"    , _TL("Labels"   ), _TL(""));
-	m_Parameters.Add_Node("", "NODE_SELECTION", _TL("Selection"), _TL(""));
-	m_Parameters.Add_Node("", "NODE_EDIT"     , _TL("Edit"     ), _TL(""));
+	m_Parameters.Add_Node("", "NODE_SELECTION", _TL("Selection"), _TL(""), true);
+	m_Parameters.Add_Node("", "NODE_EDIT"     , _TL("Edit"     ), _TL(""), true);
 
 	//-----------------------------------------------------
 	// General...

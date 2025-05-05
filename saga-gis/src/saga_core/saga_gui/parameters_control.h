@@ -81,6 +81,8 @@ public:
 	void							On_Key				(wxKeyEvent          &event);
 	void							On_PG_Selected		(wxPropertyGridEvent &event);
 	void							On_PG_Changed		(wxPropertyGridEvent &event);
+	void							On_PG_Collapsed		(wxPropertyGridEvent &event);
+	void							On_PG_Expanded		(wxPropertyGridEvent &event);
 
 	bool							Update_DataObjects	(void);
 

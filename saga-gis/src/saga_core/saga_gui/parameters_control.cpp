@@ -153,11 +153,14 @@ IMPLEMENT_CLASS(CParameters_Control, wxPanel)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CParameters_Control, wxPanel)
-	EVT_SIZE			(CParameters_Control::On_Size)
-	EVT_KEY_DOWN		(CParameters_Control::On_Key)
+	EVT_SIZE     (CParameters_Control::On_Size)
+	EVT_KEY_DOWN (CParameters_Control::On_Key)
 
-	EVT_PG_SELECTED		(ID_WND_PARM, CParameters_Control::On_PG_Selected)
-	EVT_PG_CHANGED		(ID_WND_PARM, CParameters_Control::On_PG_Changed)
+	EVT_PG_SELECTED      (ID_WND_PARM, CParameters_Control::On_PG_Selected)
+	EVT_PG_CHANGED       (ID_WND_PARM, CParameters_Control::On_PG_Changed)
+
+	EVT_PG_ITEM_COLLAPSED(ID_WND_PARM, CParameters_Control::On_PG_Collapsed)
+	EVT_PG_ITEM_EXPANDED (ID_WND_PARM, CParameters_Control::On_PG_Expanded)
 END_EVENT_TABLE()
 
 
@@ -242,6 +245,46 @@ void CParameters_Control::On_PG_Selected(wxPropertyGridEvent &event)
 void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 {
 	_Set_Parameter(event.GetProperty());
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CParameters_Control::On_PG_Collapsed(wxPropertyGridEvent &event)
+{
+	CSG_Parameter *pParameter = _Get_Parameter(event.GetProperty());
+
+	if( pParameter )
+	{
+		pParameter->Set_Collapsed(true);
+
+		pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier());
+
+		if( pParameter )
+		{
+			pParameter->Set_Collapsed(true);
+		}
+	}
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CParameters_Control::On_PG_Expanded(wxPropertyGridEvent &event)
+{
+	CSG_Parameter *pParameter = _Get_Parameter(event.GetProperty());
+
+	if( pParameter )
+	{
+		pParameter->Set_Collapsed(false);
+
+		pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier());
+
+		if( pParameter )
+		{
+			pParameter->Set_Collapsed(false);
+		}
+	}
 
 	event.Skip();
 }
@@ -979,7 +1022,19 @@ void CParameters_Control::_Init_Pararameters(void)
 	{
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			m_pParameters->Get_Parameter(i)->has_Changed(PARAMETER_CHECK_ENABLE);
+			CSG_Parameter *pParameter = m_pParameters->Get_Parameter(i);
+
+			pParameter->has_Changed(PARAMETER_CHECK_ENABLE);
+
+			if( pParameter->is_Collapsed() )
+			{
+				wxPGProperty *pProperty = m_pPG->GetProperty(_Get_Identifier(pParameter));
+
+				if( pProperty )
+				{
+					m_pPG->Collapse(pProperty);
+				}
+			}
 		}
 	}
 }
