@@ -171,8 +171,8 @@ CSG_String	SG_Color_To_Text	(long Color, bool bHexadecimal)
 //---------------------------------------------------------
 CSG_Colors::CSG_Colors(void)
 {
-	m_Colors	= NULL;
-	m_nColors	= 0;
+	m_Colors  = NULL;
+	m_nColors = 0;
 
 	Create();
 }
@@ -180,8 +180,8 @@ CSG_Colors::CSG_Colors(void)
 //---------------------------------------------------------
 CSG_Colors::CSG_Colors(const CSG_Colors &Colors)
 {
-	m_Colors	= NULL;
-	m_nColors	= 0;
+	m_Colors  = NULL;
+	m_nColors = 0;
 
 	Create(Colors);
 }
@@ -189,8 +189,8 @@ CSG_Colors::CSG_Colors(const CSG_Colors &Colors)
 //---------------------------------------------------------
 CSG_Colors::CSG_Colors(int nColors, int Palette, bool bRevert)
 {
-	m_Colors	= NULL;
-	m_nColors	= 0;
+	m_Colors  = NULL;
+	m_nColors = 0;
 
 	Create(nColors, Palette, bRevert);
 }
@@ -217,8 +217,8 @@ bool CSG_Colors::Create(const CSG_Colors &Colors)
 {
 	if( Colors.m_nColors > 0 )
 	{
-		m_nColors	= Colors.m_nColors;
-		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
+		m_nColors = Colors.m_nColors;
+		m_Colors  = (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
 		memcpy(m_Colors, Colors.m_Colors, m_nColors * sizeof(long));
 
@@ -231,16 +231,7 @@ bool CSG_Colors::Create(const CSG_Colors &Colors)
 //---------------------------------------------------------
 bool CSG_Colors::Create(int nColors, int Palette, bool bRevert)
 {
-	if( nColors <= 1 )
-	{
-		nColors	= 11;
-	}
-
-	Set_Count(nColors);
-
-	Set_Palette(Palette, bRevert, nColors);
-
-	return( true );
+	return( Set_Palette(Palette, bRevert, nColors) || Set_Palette(SG_COLORS_DEFAULT, bRevert, nColors) );
 }
 
 //---------------------------------------------------------
@@ -250,8 +241,8 @@ void CSG_Colors::Destroy(void)
 	{
 		SG_Free(m_Colors);
 
-		m_Colors	= NULL;
-		m_nColors	= 0;
+		m_Colors  = NULL;
+		m_nColors = 0;
 	}
 }
 
@@ -281,10 +272,10 @@ bool CSG_Colors::Set_Count(int nColors)
 	//-----------------------------------------------------
 	CSG_Colors	Colors(*this);
 
-	m_nColors	= nColors;
-	m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
+	m_nColors = nColors;
+	m_Colors  = (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
-	double	dStep	= Get_Count() > 1 ? (Colors.Get_Count() - 1.0) / (Get_Count() - 1.0) : 0.0;
+	double dStep = Get_Count() > 1 ? (Colors.Get_Count() - 1.0) / (Get_Count() - 1.0) : 0.0;
 
 	for(int i=0; i<Get_Count(); i++)
 	{
