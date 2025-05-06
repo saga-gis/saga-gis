@@ -254,16 +254,9 @@ void CParameters_Control::On_PG_Collapsed(wxPropertyGridEvent &event)
 {
 	CSG_Parameter *pParameter = _Get_Parameter(event.GetProperty());
 
-	if( pParameter )
+	if( pParameter && (pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier())) )
 	{
 		pParameter->Set_Collapsed(true);
-
-		pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier());
-
-		if( pParameter )
-		{
-			pParameter->Set_Collapsed(true);
-		}
 	}
 
 	event.Skip();
@@ -274,16 +267,9 @@ void CParameters_Control::On_PG_Expanded(wxPropertyGridEvent &event)
 {
 	CSG_Parameter *pParameter = _Get_Parameter(event.GetProperty());
 
-	if( pParameter )
+	if( pParameter && (pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier())) )
 	{
 		pParameter->Set_Collapsed(false);
-
-		pParameter = m_pOriginal->Get_Parameter(pParameter->Get_Identifier());
-
-		if( pParameter )
-		{
-			pParameter->Set_Collapsed(false);
-		}
 	}
 
 	event.Skip();
@@ -641,11 +627,11 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		break;
 
 	case PARAMETER_TYPE_Degree          :
-		ADD_PROPERTY(new CParameters_PG_Degree(Name, ID, pParameter            ), false);
+		ADD_PROPERTY(new CParameters_PG_Degree(Name, ID, pParameter             ), false);
 		break;
 
 	case PARAMETER_TYPE_Date            :
-		ADD_PROPERTY(new wxDateProperty       (Name, ID, pParameter->asDouble()), false);	// from JDN
+		ADD_PROPERTY(new wxDateProperty       (Name, ID, pParameter->asDouble() ), false);	// from JDN
 		pProperty->SetAttribute(wxPG_DATE_PICKER_STYLE, wxDP_DROPDOWN|wxDP_SHOWCENTURY);
 		break;
 
@@ -1026,13 +1012,17 @@ void CParameters_Control::_Init_Pararameters(void)
 
 			pParameter->has_Changed(PARAMETER_CHECK_ENABLE);
 
-			if( pParameter->is_Collapsed() )
-			{
-				wxPGProperty *pProperty = m_pPG->GetProperty(_Get_Identifier(pParameter));
+			wxPGProperty *pProperty = m_pPG->GetProperty(_Get_Identifier(pParameter));
 
-				if( pProperty )
+			if( pProperty )
+			{
+				if( pParameter->is_Collapsed() )
 				{
 					m_pPG->Collapse(pProperty);
+				}
+				else
+				{
+					m_pPG->Expand  (pProperty);
 				}
 			}
 		}

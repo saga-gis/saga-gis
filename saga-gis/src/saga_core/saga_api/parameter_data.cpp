@@ -608,7 +608,7 @@ bool CSG_Parameter_Double::_Serialize(CSG_MetaData &Entry, bool bSave)
 CSG_Parameter_Degree::CSG_Parameter_Degree(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter_Double(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	// nop
+	Set_Collapsed();
 }
 
 //---------------------------------------------------------
@@ -620,7 +620,7 @@ int CSG_Parameter_Degree::_Set_Value(const CSG_String &Value)
 //---------------------------------------------------------
 void CSG_Parameter_Degree::_Set_String(void)
 {
-	m_String	= SG_Double_To_Degree(asDouble());
+	m_String = SG_Double_To_Degree(asDouble());
 }
 
 
@@ -758,6 +758,8 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameters *pOwner, CSG_Parameter *
 		m_pMin = (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MIN", "Minimum", Description);
 		m_pMax = (CSG_Parameter_Double *)m_pRange->Add_Double    (ID, "MAX", "Maximum", Description);
 	}
+
+	Set_Collapsed();
 }
 
 CSG_Parameter_Range::~CSG_Parameter_Range(void)

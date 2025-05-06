@@ -1157,8 +1157,10 @@ bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 {
 	if( pSource && Get_Type() == pSource->Get_Type() )
 	{
-		m_bEnabled	= pSource->m_bEnabled;
-		m_Default	= pSource->m_Default;
+		m_bEnabled = pSource->m_bEnabled;
+		m_Default  = pSource->m_Default;
+
+		Set_Collapsed(pSource->is_Collapsed());
 
 		if( _Assign(pSource) )
 		{
