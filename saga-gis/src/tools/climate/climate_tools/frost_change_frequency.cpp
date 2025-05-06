@@ -269,7 +269,7 @@ bool CFrost_Change_Frequency::On_Execute(void)
 	CSG_Grid	*pTmin_Mean	= Parameters("TMIN_MEAN")->asGrid();
 	CSG_Grid	*pTmin_Min	= Parameters("TMIN_MIN" )->asGrid();
 
-	DataObject_Set_Colors(pFrequency, 11, SG_COLORS_GREEN_RED);
+	DataObject_Set_Colors(pFrequency, 0, SG_COLORS_GREEN_YELLOW_RED);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)

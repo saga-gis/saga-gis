@@ -190,10 +190,10 @@ bool CSAGA_Wetness_Index::On_Execute(void)
 	m_pAmod  = Parameters("AREA_MOD")->asGrid(); CSG_Grid Amod ; if( !m_pAmod  ) { m_pAmod  = &Amod ; Amod .Create(Get_System()); }
 	m_pTWI   = Parameters("TWI"     )->asGrid();
 
-	DataObject_Set_Colors(m_pArea , 11, SG_COLORS_WHITE_BLUE   );
-	DataObject_Set_Colors(m_pAmod , 11, SG_COLORS_WHITE_BLUE   );
-	DataObject_Set_Colors(m_pSlope, 11, SG_COLORS_GREEN_RED    );
-	DataObject_Set_Colors(m_pTWI  , 11, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(m_pArea , 0, SG_COLORS_WHITE_BLUE       );
+	DataObject_Set_Colors(m_pAmod , 0, SG_COLORS_WHITE_BLUE       );
+	DataObject_Set_Colors(m_pSlope, 0, SG_COLORS_GREEN_YELLOW_RED );
+	DataObject_Set_Colors(m_pTWI  , 0, SG_COLORS_RED_GREY_BLUE    );
 
 	m_pSlope->Set_Unit(_TL("radians"));
 

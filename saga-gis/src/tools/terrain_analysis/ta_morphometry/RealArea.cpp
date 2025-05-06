@@ -60,7 +60,7 @@ bool CRealArea::On_Execute(void)
 	CSG_Grid *pDEM  = Parameters("DEM" )->asGrid(); 
 	CSG_Grid *pArea = Parameters("AREA")->asGrid();
 
-	DataObject_Set_Colors(pArea, 5, SG_COLORS_GREEN_RED, false);
+	DataObject_Set_Colors(pArea, 0, SG_COLORS_GREEN_YELLOW_RED, false);
 
     for(int y=0; y<Get_NY() && Set_Progress_Rows(y); y++)
 	{

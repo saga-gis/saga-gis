@@ -135,24 +135,24 @@ bool CDistance_Gradient::On_Execute(void)
 		switch( Output )
 		{
 		case 0:	// distance
-			DataObject_Set_Colors(pGradient, 11, SG_COLORS_YELLOW_BLUE, false);
+			DataObject_Set_Colors(pGradient, 0, SG_COLORS_YELLOW_BLUE     , false);
 			pGradient->Set_Unit(_TL("m"));
 			break;
 
 		case 1:	// gradient (ratio)
-			DataObject_Set_Colors(pGradient, 11, SG_COLORS_YELLOW_BLUE,  true);
+			DataObject_Set_Colors(pGradient, 0, SG_COLORS_YELLOW_BLUE     ,  true);
 			pGradient->Set_Unit(_TL(""));
 			break;
 
 		case 2:	// gradient (degree)
-			DataObject_Set_Colors(pGradient, 11, SG_COLORS_GREEN_RED  , false);
+			DataObject_Set_Colors(pGradient, 0, SG_COLORS_GREEN_YELLOW_RED, false);
 			pGradient->Set_Unit(_TL("radians"));
 			break;
 		}
 
 		if( pDifference )
 		{
-			DataObject_Set_Colors(pDifference, 11, SG_COLORS_RED_GREY_BLUE, false);
+			DataObject_Set_Colors(pDifference, 0, SG_COLORS_RED_GREY_BLUE , false);
 			pDifference->Set_Unit(_TL("radians"));
 		}
 

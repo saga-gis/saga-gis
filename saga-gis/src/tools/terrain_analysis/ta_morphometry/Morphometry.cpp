@@ -329,20 +329,20 @@ bool CMorphometry::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Set_Colors(m_pSlope    , 5, SG_COLORS_GREEN_RED    , false);
-	DataObject_Set_Colors(m_pAspect   , 5, SG_COLORS_ASPECT_3     , false);
-	DataObject_Set_Colors(m_pNorthness, 5, SG_COLORS_BLACK_WHITE  , false);
-	DataObject_Set_Colors(m_pEastness , 5, SG_COLORS_BLACK_WHITE  , false);
-	DataObject_Set_Colors(m_pC_Gene   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Prof   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Plan   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Tang   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Long   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Cros   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Mini   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Maxi   , 5, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(m_pC_Tota   , 5, SG_COLORS_YELLOW_RED   , false);
-	DataObject_Set_Colors(m_pC_Roto   , 5, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pSlope    , 0, SG_COLORS_GREEN_YELLOW_RED, false);
+	DataObject_Set_Colors(m_pAspect   , 0, SG_COLORS_ASPECT_3        , false);
+	DataObject_Set_Colors(m_pNorthness, 0, SG_COLORS_BLACK_WHITE     , false);
+	DataObject_Set_Colors(m_pEastness , 0, SG_COLORS_BLACK_WHITE     , false);
+	DataObject_Set_Colors(m_pC_Gene   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Prof   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Plan   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Tang   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Long   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Cros   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Mini   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Maxi   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
+	DataObject_Set_Colors(m_pC_Tota   , 0, SG_COLORS_GREEN_YELLOW_RED, false);
+	DataObject_Set_Colors(m_pC_Roto   , 0, SG_COLORS_RED_GREY_BLUE   ,  true);
 
 	//-----------------------------------------------------
 	m_Unit_Slope = Parameters("UNIT_SLOPE")->asInt();
