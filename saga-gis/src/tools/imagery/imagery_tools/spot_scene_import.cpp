@@ -399,6 +399,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	{
 		int  UTM_Zone  = Parameters("UTM_ZONE" )->asInt();
 		bool UTM_South = Parameters("UTM_SOUTH")->asBool();
+
 		Set_Reference_UTM(Frame, UTM_Zone, UTM_South);
 
 		xField = 4; yField = 5; Projection.Set_UTM_WGS84(UTM_Zone, UTM_South);
@@ -469,8 +470,7 @@ bool CSPOT_Scene_Import::Georeference(const CSG_MetaData &Metadata, CSG_Grids &B
 	&&  pTool->Set_Parameter("XFIELD"          , xField)
 	&&  pTool->Set_Parameter("YFIELD"          , yField)
 	&&  pTool->Set_Parameter("METHOD"          , 0) // automatic
-	&&  pTool->Set_Parameter("CRS_WKT"         , Projection.Get_WKT2())
-	&&  pTool->Set_Parameter("CRS_PROJ"        , Projection.Get_PROJ())
+	&&  pTool->Set_Parameter("CRS_STRING"      , Projection.Get_WKT())
 	&&  pTool->Set_Parameter("TARGET_USER_SIZE", Cellsize)
 	&&  pTool->Set_Parameter("TARGET_USER_XMIN", Extent.xMin)
 	&&  pTool->Set_Parameter("TARGET_USER_XMAX", Extent.xMax)
@@ -559,9 +559,7 @@ bool CSPOT_Scene_Import::Set_Reference_UTM(CSG_Shapes &Frame, int UTM_Zone, bool
 	&&  pTool->Set_Parameter("SOURCE_Y", "FRAME_LAT")
 	&&  pTool->Set_Parameter("TARGET_X", "FRAME_X"  )
 	&&  pTool->Set_Parameter("TARGET_Y", "FRAME_Y"  )
-	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_METHOD", 0) // Definition String
 	&&  pTool->Set_Parameter("SOURCE_CRS.CRS_STRING", GCS.Get_WKT())
-	&&  pTool->Set_Parameter("TARGET_CRS.CRS_METHOD", 0) // Definition String
 	&&  pTool->Set_Parameter("TARGET_CRS.CRS_STRING", UTM.Get_WKT())
 	&&  pTool->Execute() )
 	{
