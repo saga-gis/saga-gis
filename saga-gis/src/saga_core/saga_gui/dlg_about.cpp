@@ -178,22 +178,22 @@ wxString CDLG_About::_Get_Version(void)
 	#if defined(COMPILER)
 		if( *COMPILER )
 		{
-			s	+= "<hr><i>Compiled with</i><br>[ " COMPILER " ]<br>";
+			s += "<hr><i>Compiled with</i><br>[ " COMPILER " ]<br>";
 
 			#if defined(_SAGA_MSW) && defined(_MSC_VER) && _MSC_VER >= 1900
-				s	+= "[ Microsoft Visual Studio "
+				s += "[ Microsoft Visual Studio ";
 				#if   _MSC_VER == 1900
-					"2015 (14)"
-				#elif _MSC_VER <= 1920
-					"2017 (15)"
-				#elif _MSC_VER <= 1930
-					"2019 (16)"
-				#elif _MSC_VER <= 1940
-					"2022 (17)"
+					s += "2015 (14)";
+				#elif _MSC_VER >= 1910 && _MSC_VER < 1920
+					s += "2017 (15)";
+				#elif _MSC_VER >= 1920 && _MSC_VER < 1930
+					s += wxString::Format("2019 (16.%d)", _MSC_VER - 1920);
+				#elif _MSC_VER >= 1930 && _MSC_VER < 1950
+					s += wxString::Format("2022 (17.%d)", _MSC_VER - 1930);
 				#else
-					"(unknown version)"
+					s += "(unknown version)";
 				#endif
-				" ]<br>";
+				s += " ]<br>";
 			#endif
 		}
 	#endif
