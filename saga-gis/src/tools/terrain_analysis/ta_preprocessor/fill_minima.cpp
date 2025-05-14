@@ -103,7 +103,7 @@ CFillMinima::CFillMinima(void)
 	Set_Description(_TW(
 		"This tool performs basic sink filling on Digital Elevation Models (DEMs). It identifies and "
 		"fills local depressions (sinks) to ensure continuous flow paths across the terrain surface. "
-		"Note: this tool does not carry out a full hydrological correction — it only addresses "
+		"Note: this tool does not carry out a full hydrological correction \u2013 it only addresses "
 		"depressions and does not modify flat areas, resolve flow directions, or enforce hydrological "
 		"consistency beyond sink removal.\n\n"
 		"The tool accepts a DEM as input and returns a version with filled depressions. Optionally, "
