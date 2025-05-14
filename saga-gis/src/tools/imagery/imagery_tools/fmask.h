@@ -59,8 +59,6 @@
 //---------------------------------------------------------
 #include "saga_api/grid.h"
 #include <saga_api/saga_api.h>
-#include <bitset>
-#include <functional>
 #include <algorithm>
 #include <vector>
 
@@ -70,15 +68,6 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-typedef enum SpectralBand
-{
-	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, CIR, QARAD_G, QARAD_R, SAA, SZA, VAA, VZA, TIR
-} SpectralBand;
-
-typedef enum Algorithm
-{
-	FMASK_1_6 = 0, FMASK_3_2
-} Algorithm;
 
 inline int CompareCoords(const TSG_Point_Int& a, const TSG_Point_Int& b) {
     if (a.y < b.y) return -1;
@@ -264,6 +253,20 @@ private:
 
 };
 
+typedef enum Sensor
+{
+	TM = 0, ETM = 1, OLI_TIRS = 2, MSI = 3
+} Sensor;
+
+typedef enum SpectralBand
+{
+	RED = 0, GREEN, BLUE, NIR, SWIR1, SWIR2, CIR, TIR, QARAD_G, QARAD_R, SAA, SZA, VAA, VZA
+} SpectralBand;
+
+typedef enum Algorithm
+{
+	FMASK_1_6 = 0, FMASK_3_2
+} Algorithm;
 
 //---------------------------------------------------------
 class CFmask : public CSG_Tool
@@ -288,29 +291,61 @@ private:
 	int 						m_Algorithm;
 	int 						m_Sensor;
 
+	size_t						m_Bin_Count;
+	double 						m_Temp_Off;
+	double 						m_Temp_Min;
+	double 						m_Temp_Max;
+
+	double 						m_Snow_Temp_Threshold;
+	double 						m_dx;
+	double 						m_dy;
+	double 						m_dz;
+
+	double 						m_Similarity_Threshold = 0.3;
+	double 						m_Decrease_Threshold;
+
 	CSG_Grid					*m_pBand[14];
-	CSG_Grid					*m_pResults[9];
+	CSG_Grid					*m_pResults[10];
 
-	CSG_Grid_System 			m_pSystem;
-
-
-	bool						Get_Brightness			(int x, int y, int Band, double &Value);
-	double 						Get_Brightness			(int x, int y, int Band, bool &Eval );
-	bool 						Is_Saturated			(int x, int y, SpectralBand Band);
-	bool 						Initialize				(void);
-
-	bool 						Get_Flood_Fill			(double Boundary);
-	bool 						Get_Flood_Fill			(double Boundary, int Band_Input, int Band_Output );
+	CSG_Grid_System 			*m_pSystem;
+	
+	CSG_Array_Int 				m_xKernel_Dilation_Cloud;
+	CSG_Array_Int 				m_yKernel_Dilation_Cloud;
+	CSG_Array_Int 				m_xKernel_Improve_Cloud;
+	CSG_Array_Int 				m_yKernel_Improve_Cloud;
+	CSG_Array_Int 				m_xKernel_Fill_Shadow;
+	CSG_Array_Int 				m_yKernel_Fill_Shadow;
+	
+	int 						m_Min_Cloud_Size;
+	int 						m_Improve_Cloud_Count;
+	double 						m_Shadow_Radius;
 
 	bool 						Get_Sun_Position		(CSG_Grid *pGrid, double &Azimuth, double &Height);
+	bool 						Get_Sensor				(CSG_Grid *pGrid, Sensor &Sensor);
 
-//	int							Get_Fmask				(int x, int y);
-//	bool						Set_Fmask				(CSG_Grid *pClouds);
-	bool						Set_Fmask_Pass_One_Two	();
+	double 						Get_Brightness			(int x, int y, int Band, bool &Eval );
+	bool 						Is_Saturated			(int x, int y, SpectralBand Band);
 
-//	bool						Set_ACCA				(CSG_Grid *pClouds);
+	bool 						Get_Flood_Fill			(double Boundary, int Band_Input, int Band_Output );
 
-	bool 						Get_Segmentation		(CSG_Grid *pCloudMask, std::vector<CSG_Cloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
+
+	bool 						Initialize				(void);
+	bool 						Set_Fmask_Pass_One		( double &T_Water, double &T_Low, double &T_High, double &Lower_Level_NIR, double &Lower_Level_Swir);
+	bool 						Set_Fmask_Pass_Two		( const double T_Water, const double T_Low, const double T_High, double &Land_threshold, double &Water_threshold );
+	
+	bool 						Set_Cloud_Mask			( const double T_Low, const double Land_threshold, const double Water_threshold );
+	bool 						Set_Final_Fmask			( void );
+
+	bool 						Set_Shadow_Mask			( const double T_Low, const double T_High );
+
+	bool 						Get_Segmentation		( std::vector<CSG_Cloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
+	
+	bool 						Get_3D_Shadow			( CSG_Cloud_Stack *pInputStack, CSG_Cloud_Stack *pOutputStack, const double T_Cloud_base );
+
+	bool 						Get_Shadow_Match		( CSG_Grid_Stack *pCloud_Shape, const double H_Cloud_base_min, const double H_Cloud_base_max);
+	
+	bool 						Create_Kernel			( CSG_Array_Int *X_Kernel, CSG_Array_Int *Y_Kernel, int Cells, bool Round );
+	
 
 };
 
