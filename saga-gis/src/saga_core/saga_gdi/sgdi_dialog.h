@@ -105,7 +105,7 @@ protected:
 	void					Add_CustomCtrl		(const wxString &Name, wxWindow *pControl);
 
 	bool					Add_Output			(wxWindow *pOutput, bool bReparent = false);
-	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0, bool bReparent = false);
+	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0, bool bReparent = false, int Orientation = wxVERTICAL);
 
 
 private:
