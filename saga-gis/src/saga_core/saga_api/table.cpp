@@ -1305,12 +1305,12 @@ bool CSG_Table::_Histogram_Update(int Field, size_t nClasses) const
 
 	CSG_Histogram &Histogram = m_Field_Info[Field]->m_Histogram;
 
-	if( Histogram.is_Okay() && (nClasses <= 1 || nClasses == Histogram.Get_Class_Count()) )
+	if( Histogram.is_Okay() && (!nClasses || nClasses == Histogram.Get_Class_Count()) )
 	{
 		return( true );
 	}
 
-	return( Histogram.Create(nClasses, (CSG_Table *)this, Field, 0., 0., Get_Max_Samples()) );
+	return( Histogram.Create(nClasses ? nClasses : 256, (CSG_Table *)this, Field, 0., 0., Get_Max_Samples()) );
 }
 
 
