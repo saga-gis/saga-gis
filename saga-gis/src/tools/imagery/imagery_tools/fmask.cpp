@@ -62,6 +62,7 @@ enum
 	RESULT_PCP = 0, RESULT_WATER, RESULT_LCP, RESULT_PCL, RESULT_PCSL, RESULT_WCP, RESULT_FFN, RESULT_FFS, RESULT_SEG, RESULT_CAST
 };
 
+#undef _DEBUG
 
 //enum 
 //{	
@@ -71,9 +72,6 @@ enum
 static int	xnb[] = { -1,  0,  1, -1,  1, -1,  0,  1 };
 static int	ynb[] = { -1, -1, -1,  0,  0,  1,  1,  1 };
 
-
-static int	xnnb[] = { -2, -1,  0,  1,  2, -2, -1,  0,  1,  2, -2, -1,  1,  2, -2, -1,  0,  1,  2, -2, -1,  0,  1,  2 };
-static int	ynnb[] = { -2, -2, -2, -2, -2, -1, -1, -1, -1, -1,  0,  0,  0,  0,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2 };
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -174,18 +172,18 @@ bool CFmask::Get_Sensor(CSG_Grid *pGrid, Sensor &Sensor)
 //---------------------------------------------------------
 CFmask::CFmask(void)
 {
-	Set_Name		(_TL("Fmask"));
+	Set_Name		(_TL("Fmask Cloud and Cloud Shadow Detection"));
 
 	Set_Author		(SG_T("J.Spitzmüller, O.Conrad (c) 2025"));
 
 	Set_Description	(_TW(
-		"This tool implements pass one of the Function of mask (Fmask) algorithm "
-		"for cloud and cloud shadow detection in Landsat imagery. Landsat Top of "
-		"Atmosphere (TOA) reflectance and Brightness Temperature (BT) are used "
-		"as input.\n"
-		"Alternatively you can choose the scene-average automated cloud-cover assessment "
-		"(ACCA) algorithm as proposed by Irish (2000) and Irish et al. (2006).\n"
-		"This tool can optionally pass the cloud mask to the \"Cloud Shadow Detection\" tool as well."
+		"This tool implements the Function of mask (Fmask) algorithm "
+		"for cloud and cloud shadow detection in Landsat and Sentinel-2 imagery. "
+		"Input is Top-of-Atmosphere (TAO) reflectance obtained from processing Level-1C (both programs)."
+
+
+
+
 	));
 
 	Add_Reference("Zhu, Z., Woodcock, C.E.", "2012",
@@ -254,7 +252,7 @@ CFmask::CFmask(void)
 	Parameters.Add_Choice("",
 		"SENSOR", _TL("Sensor (Spacecraft)"),
 		_TL(""),
-		"TM (Landsat 4,5)|ETM+ (Landsat 7)|OLI/TIRS (Landsat 8)|MSI (Sentinel-2)", 2 
+		"TM (Landsat 4,5)|ETM+ (Landsat 7)|OLI/TIRS (Landsat 8,9)|MSI (Sentinel-2)", 2 
 	);
 	
 	//-----------------------------------------------------
@@ -343,6 +341,7 @@ int CFmask::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPa
 	pParameters->Set_Enabled("CIRRUS_MSI" 	, Sensor == MSI );
 
 
+	/*
 	if( Sensor == TM || Sensor == ETM )
 	{
 		pParameters->Get_Parameter("BLUE"   	)->Set_Name(_TL("Blue (Band 1)"                	));
@@ -376,6 +375,7 @@ int CFmask::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPa
 		pParameters->Get_Parameter("SWIR2_MSI"  )->Set_Name(_TL("Shortwave Infrared 2 (Band 12)"));
 		pParameters->Get_Parameter("CIRRUS_MSI" )->Set_Name(_TL("Cirrus (Band 10)"				));
 	}
+	*/
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -434,6 +434,23 @@ bool CFmask::Initialize(void)
 	m_pSystem = Parameters("BANDS")->asGrid_System();
 	
 	m_pResults[RESULT_PCL] 		= Parameters("CLOUDS")->asGrid();
+	CSG_Parameter *pLUT = DataObject_Get_Parameter(m_pResults[RESULT_PCL], "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		#define LUT_ADD_CLASS(id, name, color) { CSG_Table_Record &r = *pLUT->asTable()->Add_Record(); r.Set_Value(0, color); r.Set_Value(1, name); r.Set_Value(3, id); r.Set_Value(3, id); }
+
+		LUT_ADD_CLASS( ID_CLOUD, 			"Cloud", 			SG_COLOR_YELLOW 	);
+		LUT_ADD_CLASS( ID_CLOUD_DILATED, 	"Dilated Cloud", 	SG_COLOR_YELLOW 	);
+		LUT_ADD_CLASS( ID_SHADOW, 			"Cloud Shadow", 	SG_COLOR_GREEN 		);
+		LUT_ADD_CLASS( ID_SNOW, 			"Snow", 			SG_COLOR_BLUE_LIGHT );
+		//LUT_ADD_CLASS( ID_CLOUD, "Cirrus", SG_COLOR_YELLOW )
+		//LUT_ADD_CLASS( ID_WATER, "Cloud", SG_COLOR_BLUE )
+
+		DataObject_Set_Parameter(m_pResults[RESULT_PCL], pLUT);
+		DataObject_Set_Parameter(m_pResults[RESULT_PCL], "COLORS_TYPE", 1); // Color Classification Type: Lookup Table
+	}
+
 	
 	#ifdef _DEBUG
 	m_pResults[RESULT_PCP] 		= Parameters("D_PCP")->asGrid();
@@ -445,12 +462,12 @@ bool CFmask::Initialize(void)
 	m_pResults[RESULT_SEG] 		= Parameters("D_SEG")->asGrid();
 	m_pResults[RESULT_CAST] 	= Parameters("D_CAST")->asGrid();
 	#else	
-	m_pResults[RESULT_PCP] 		= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Bit );	//PCP
-	m_pResults[RESULT_WATER] 	= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Bit );	//Water
+	m_pResults[RESULT_PCP] 		= SG_Create_Grid( *m_pSystem, m_Bool_Type );	//PCP
+	m_pResults[RESULT_WATER] 	= SG_Create_Grid( *m_pSystem, m_Bool_Type );	//Water
 	//m_pResults[RESULT_SNOW] 	= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Bit );	//Snow 
 	m_pResults[RESULT_LCP] 		= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Float );
 	m_pResults[RESULT_WCP] 		= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Float );
-	m_pResults[RESULT_PCSL] 	= SG_Create_Grid( *m_pSystem, SG_DATATYPE_Bit );	//Snow 
+	m_pResults[RESULT_PCSL] 	= SG_Create_Grid( *m_pSystem, m_Bool_Type );	//Snow 
 	#endif
 
 	m_pResults[RESULT_WCP]->Assign_NoData();
@@ -1102,7 +1119,7 @@ bool CFmask::Get_Segmentation(std::vector<CSG_Cloud_Stack> *Array, const double 
 	#endif
 
 
-	CSG_Grid Tick_Off( *m_pSystem, SG_DATATYPE_Bit);
+	CSG_Grid Tick_Off( *m_pSystem, m_Bool_Type);
 	Tick_Off.Set_NoData_Value(0);
 	Tick_Off.Assign_NoData();
 

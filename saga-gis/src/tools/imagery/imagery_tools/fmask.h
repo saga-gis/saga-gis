@@ -287,6 +287,8 @@ protected:
 
 private:
 
+	TSG_Data_Type 				m_Bool_Type = SG_DATATYPE_Bit;
+
 	bool						m_bCelsius { false };
 	int 						m_Algorithm;
 	int 						m_Sensor;
