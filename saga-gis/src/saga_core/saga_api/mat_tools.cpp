@@ -61,9 +61,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -74,9 +74,9 @@ double			SG_Get_Square(double Value)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -150,9 +150,9 @@ int				SG_Get_Digit_Count(int Number)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -178,9 +178,9 @@ CSG_String		SG_Get_Double_asString(double Number, int Width, int Precision, bool
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -215,9 +215,9 @@ int SG_Compare_Char_Ptr(const void *a, const void *b)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -245,9 +245,9 @@ void	SG_Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -315,9 +315,9 @@ double CSG_Random::Get_Gaussian(double mean, double stddev)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -796,9 +796,9 @@ sLong CSG_Simple_Statistics::Get_nValues_Below(double Threshold, bool bEquals)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -859,7 +859,7 @@ int CSG_Unique_Value_Statistics::Get_Minority(bool bWeighted) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -914,7 +914,7 @@ int CSG_Unique_Number_Statistics::Get_Class_Index(double Value) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -969,9 +969,9 @@ int CSG_Unique_String_Statistics::Get_Class_Index(const CSG_String &Value) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1011,7 +1011,7 @@ TSG_Data_Type CSG_Category_Statistics::Get_Category_Type(void)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1040,7 +1040,7 @@ int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1112,7 +1112,7 @@ bool CSG_Category_Statistics::Sort(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1157,7 +1157,7 @@ CSG_String CSG_Category_Statistics::asString(int i)	const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1206,9 +1206,9 @@ int CSG_Category_Statistics::Get_Minority(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1234,35 +1234,35 @@ CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum)
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values, size_t maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, const CSG_Vector &Values, double Minimum, double Maximum, size_t maxSamples)
 {
 	_On_Construction();
 
-	Create(nClasses, Minimum, Maximum, Values, maxSamples);
+	Create(nClasses, Values, Minimum, Maximum, maxSamples);
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, size_t maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, CSG_Table *pTable, int Field, double Minimum, double Maximum, size_t maxSamples)
 {
 	_On_Construction();
 
-	Create(nClasses, Minimum, Maximum, pTable, Field, maxSamples);
+	Create(nClasses, pTable, Field, Minimum, Maximum, maxSamples);
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, class CSG_Grid *pGrid, size_t maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, class CSG_Grid *pGrid, double Minimum, double Maximum, size_t maxSamples)
 {
 	_On_Construction();
 
-	Create(nClasses, Minimum, Maximum, pGrid, maxSamples);
+	Create(nClasses, pGrid, Minimum, Maximum, maxSamples);
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, size_t maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, CSG_Grids *pGrids, double Minimum, double Maximum, size_t maxSamples)
 {
 	_On_Construction();
 
-	Create(nClasses, Minimum, Maximum, pGrids, maxSamples);
+	Create(nClasses, pGrids, Minimum, Maximum, maxSamples);
 }
 
 //---------------------------------------------------------
@@ -1286,18 +1286,18 @@ bool CSG_Histogram::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_Histogram::_On_Construction(void)
 {
-	m_nClasses		= 0;
-	m_Elements		= NULL;
-	m_Cumulative	= NULL;
-	m_Minimum		= 0.;
-	m_Maximum		= 0.;
-	m_ClassWidth	= 1.;
+	m_nClasses   = 0;
+	m_Elements   = NULL;
+	m_Cumulative = NULL;
+	m_Minimum    = 0.;
+	m_Maximum    = 0.;
+	m_ClassWidth = 1.;
 }
 
 //---------------------------------------------------------
@@ -1307,15 +1307,15 @@ bool CSG_Histogram::_Create(size_t nClasses, double Minimum, double Maximum)
 	{
 		Destroy();
 
-		m_Elements		= (size_t *)SG_Calloc(nClasses, sizeof(size_t));
-		m_Cumulative	= (size_t *)SG_Calloc(nClasses, sizeof(size_t));
+		m_Elements   = (size_t *)SG_Calloc(nClasses, sizeof(size_t));
+		m_Cumulative = (size_t *)SG_Calloc(nClasses, sizeof(size_t));
 
 		if( m_Elements && m_Cumulative )
 		{
-			m_nClasses		= nClasses;
-			m_Minimum		= Minimum;
-			m_Maximum		= Maximum;
-			m_ClassWidth	= (Maximum - Minimum) / (double)m_nClasses;
+			m_nClasses   = nClasses;
+			m_Minimum    = Minimum;
+			m_Maximum    = Maximum;
+			m_ClassWidth = (Maximum - Minimum) / (double)m_nClasses;
 
 			return( true );
 		}
@@ -1329,15 +1329,15 @@ bool CSG_Histogram::_Create(size_t nClasses, double Minimum, double Maximum)
 //---------------------------------------------------------
 void CSG_Histogram::Add_Value(double Value)
 {
-	m_Statistics	+= Value;
+	m_Statistics += Value;
 
 	if( m_nClasses > 0 && m_Minimum <= Value && Value <= m_Maximum )
 	{
-		size_t	Class	= (size_t)((Value - m_Minimum) / m_ClassWidth);
+		size_t Class = (size_t)((Value - m_Minimum) / m_ClassWidth);
 
 		if( Class >= m_nClasses )
 		{
-			Class	= m_nClasses - 1;
+			Class = m_nClasses - 1;
 		}
 
 		m_Elements[Class]++;
@@ -1367,17 +1367,17 @@ bool CSG_Histogram::Update(void)
 {
 	if( m_nClasses > 0 )
 	{
-		m_Statistics.Get_Mean();	// _Evaluate()
+		m_Statistics.Get_Mean(); // _Evaluate()
 
-		m_nMaximum	= m_Cumulative[0]	= m_Elements[0];
+		m_nMaximum = m_Cumulative[0] = m_Elements[0];
 
 		for(size_t i=1; i<m_nClasses; i++)
 		{
-			m_Cumulative[i]	= m_Cumulative[i - 1] + m_Elements[i];
+			m_Cumulative[i] = m_Cumulative[i - 1] + m_Elements[i];
 
 			if( m_nMaximum < m_Elements[i] )
 			{
-				m_nMaximum	= m_Elements[i];
+				m_nMaximum = m_Elements[i];
 			}
 		}
 
@@ -1392,13 +1392,13 @@ bool CSG_Histogram::_Update(sLong nElements)
 {
 	if( nElements > 0 && m_Statistics.Get_Count() > 0 )
 	{
-		double	Scale	= (double)nElements / (double)m_Statistics.Get_Count();
+		double Scale = (double)nElements / (double)m_Statistics.Get_Count();
 
 		m_Statistics.Create(m_Statistics.Get_Mean(), m_Statistics.Get_StdDev(), nElements);
 
 		for(size_t i=1; i<m_nClasses; i++)
 		{
-			m_Elements[i]	= (size_t)(0.5 + Scale * m_Elements[i]);
+			m_Elements[i] = (size_t)(0.5 + Scale * m_Elements[i]);
 		}
 	}
 
@@ -1416,7 +1416,7 @@ double CSG_Histogram::Get_Quantile(double Quantile)	const
 	if( Quantile <= 0. ) { return( m_Minimum ); }
 	if( Quantile >= 1. ) { return( m_Maximum ); }
 
-	size_t	n = (size_t)(Quantile * Get_Element_Count());	// number of elements
+	size_t n = (size_t)(Quantile * Get_Element_Count()); // number of elements
 
 	for(size_t i=0, n0=0; i<m_nClasses; n0=m_Cumulative[i++])
 	{
@@ -1427,7 +1427,7 @@ double CSG_Histogram::Get_Quantile(double Quantile)	const
 				return( Get_Center(i) );
 			}
 
-			double	d	= (n - n0) / (double)(m_Cumulative[i] - n0);
+			double d = (n - n0) / (double)(m_Cumulative[i] - n0);
 
 			return( Get_Break(i) + d * m_ClassWidth );
 		}
@@ -1460,7 +1460,7 @@ double CSG_Histogram::Get_Quantile_Value(double Value) const
 	if( Value <= m_Minimum ) { return( 0. ); }
 	if( Value >= m_Maximum ) { return( 1. ); }
 
-	size_t	Class	= (size_t)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
+	size_t Class = (size_t)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
 
 	if( Class >= m_nClasses )
 	{
@@ -1469,13 +1469,13 @@ double CSG_Histogram::Get_Quantile_Value(double Value) const
 
 	if( Class < 1 )
 	{
-		double	dq	= m_Cumulative[Class] / (double)Get_Element_Count();
+		double dq = m_Cumulative[Class] / (double)Get_Element_Count();
 
 		return( dq * (Value - m_Minimum) / m_ClassWidth );
 	}
 
-	double	q0	=  m_Cumulative[Class - 1] / (double)Get_Element_Count();
-	double	dq	= (m_Cumulative[Class    ] / (double)Get_Element_Count()) - q0;
+	double q0 =  m_Cumulative[Class - 1] / (double)Get_Element_Count();
+	double dq = (m_Cumulative[Class    ] / (double)Get_Element_Count()) - q0;
 
 	return( q0 + dq * (Value - Get_Break(Class)) / m_ClassWidth );
 }
@@ -1491,7 +1491,7 @@ double CSG_Histogram::Get_Percentile_Value(double Value) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1522,14 +1522,14 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum)
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values, size_t maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, const CSG_Vector &Values, double Minimum, double Maximum, size_t maxSamples)
 {
 	if( Minimum >= Maximum )
 	{
-		CSG_Simple_Statistics	s(Values);
+		CSG_Simple_Statistics Statistics(Values);
 
-		Minimum	= s.Get_Minimum();
-		Maximum	= s.Get_Maximum();
+		Minimum	= Statistics.Get_Minimum();
+		Maximum	= Statistics.Get_Maximum();
 	}
 
 	if( !_Create(nClasses, Minimum, Maximum) )
@@ -1540,14 +1540,14 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, cons
 	//-----------------------------------------------------
 	if( maxSamples > 0 && maxSamples < (size_t)Values.Get_N() )
 	{
-		double	d	= (double)Values.Get_N() / (double)maxSamples;
+		double d = (double)Values.Get_N() / (double)maxSamples;
 
 		for(double i=0; i<(double)Values.Get_N(); i+=d)
 		{
 			Add_Value(Values[(sLong)i]);
 		}
 
-		d	= (double)m_Statistics.Get_Count() / (double)maxSamples;
+		d = (double)m_Statistics.Get_Count() / (double)maxSamples;
 
 		return( _Update(d < 1. ? (int)(d * (double)Values.Get_N()) : Values.Get_N()) );
 	}
@@ -1562,7 +1562,7 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, cons
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, size_t maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, CSG_Table *pTable, int Field, double Minimum, double Maximum, size_t maxSamples)
 {
 	if( !pTable || Field < 0 || Field >= pTable->Get_Field_Count() || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pTable->Get_Minimum(Field),
@@ -1574,19 +1574,17 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 	//-----------------------------------------------------
 	if( maxSamples > 0 && maxSamples < (size_t)pTable->Get_Count() )
 	{
-		double	d	= (double)pTable->Get_Count() / (double)maxSamples;
+		double Value, d = (double)pTable->Get_Count() / (double)maxSamples;
 
 		for(double i=0; i<(double)pTable->Get_Count(); i+=d)
 		{
-			double	Value	= pTable->Get_Record((int)i)->asDouble(Field);
-
-			if( !pTable->is_NoData_Value(Value) )
+			if( pTable->Get_Value((sLong)i, Field, Value) )
 			{
 				Add_Value(Value);
 			}
 		}
 
-		d	= (double)m_Statistics.Get_Count() / (double)maxSamples;
+		d = (double)m_Statistics.Get_Count() / (double)maxSamples;
 
 		return( _Update(d < 1. ? (int)(d * pTable->Get_Count()) : pTable->Get_Count()) );
 	}
@@ -1594,9 +1592,9 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 	//-----------------------------------------------------
 	for(sLong i=0; i<pTable->Get_Count(); i++)
 	{
-		double	Value	= pTable->Get_Record(i)->asDouble(Field);
+		double Value;
 
-		if( !pTable->is_NoData_Value(Value) )
+		if( pTable->Get_Value(i, Field, Value) )
 		{
 			Add_Value(Value);
 		}
@@ -1606,7 +1604,7 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Grid *pGrid, size_t maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, CSG_Grid *pGrid, double Minimum, double Maximum, size_t maxSamples)
 {
 	if( !pGrid || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pGrid->Get_Min(),
@@ -1618,19 +1616,17 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 	//-----------------------------------------------------
 	if( maxSamples > 0 && (sLong)maxSamples < pGrid->Get_NCells() )
 	{
-		double	d	= (double)pGrid->Get_NCells() / (double)maxSamples;
+		double d = (double)pGrid->Get_NCells() / (double)maxSamples;
 
 		for(double i=0; i<(double)pGrid->Get_NCells(); i+=d)
 		{
-			double	Value	= pGrid->asDouble((sLong)i);
-
-			if( !pGrid->is_NoData_Value(Value) )
+			if( !pGrid->is_NoData((sLong)i) )
 			{
-				Add_Value(Value);
+				Add_Value(pGrid->asDouble((sLong)i));
 			}
 		}
 
-		d	= (double)m_Statistics.Get_Count() / (double)maxSamples;
+		d = (double)m_Statistics.Get_Count() / (double)maxSamples;
 
 		return( _Update(d < 1. ? (sLong)(d * (double)pGrid->Get_NCells()) : pGrid->Get_NCells()) );
 	}
@@ -1648,7 +1644,7 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, size_t maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, CSG_Grids *pGrids, double Minimum, double Maximum, size_t maxSamples)
 {
 	if( !pGrids || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pGrids->Get_Min(),
@@ -1660,19 +1656,17 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 	//-----------------------------------------------------
 	if( maxSamples > 0 && (sLong)maxSamples < pGrids->Get_NCells() )
 	{
-		double	d	= (double)pGrids->Get_NCells() / (double)maxSamples;
+		double d = (double)pGrids->Get_NCells() / (double)maxSamples;
 
 		for(double i=0; i<(double)pGrids->Get_NCells(); i+=d)
 		{
-			double	Value	= pGrids->asDouble((sLong)i);
-
-			if( !pGrids->is_NoData_Value(Value) )
+			if( !pGrids->is_NoData((sLong)i) )
 			{
-				Add_Value(Value);
+				Add_Value(pGrids->asDouble((sLong)i));
 			}
 		}
 
-		d	= (double)m_Statistics.Get_Count() / (double)maxSamples;
+		d = (double)m_Statistics.Get_Count() / (double)maxSamples;
 
 		return( _Update(d < 1. ? (sLong)(d * (double)pGrids->Get_NCells()) : pGrids->Get_NCells()) );
 	}
@@ -1691,7 +1685,7 @@ bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1704,9 +1698,9 @@ CSG_Histogram & CSG_Histogram::operator = (const CSG_Histogram &Histogram)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1743,31 +1737,31 @@ CSG_Natural_Breaks::CSG_Natural_Breaks(const CSG_Vector &Values, int nClasses, i
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::Create(CSG_Table *pTable, int Field, int nClasses, int Histogram)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( Histogram > 0 )
 	{
-		bResult	= m_Histogram.Create(Histogram, 0, 0, pTable, Field) && _Histogram(nClasses);
+		bResult = m_Histogram.Create(Histogram, pTable, Field) && _Histogram(nClasses);
 	}
 	else if( Field >= 0 && Field < pTable->Get_Field_Count() )
 	{
 		for(sLong i=0; i<pTable->Get_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+			double Value;
 
-			if( !pRecord->is_NoData(Field) )
+			if( pTable->Get_Value(i, Field, Value) )
 			{
-				m_Values.Add_Row(pRecord->asDouble(Field));
+				m_Values.Add_Row(Value);
 			}
 		}
 
-		bResult	= m_Values.Sort() && _Calculate(nClasses);
+		bResult = m_Values.Sort() && _Calculate(nClasses);
 
 		m_Values.Destroy();
 	}
@@ -1778,11 +1772,11 @@ bool CSG_Natural_Breaks::Create(CSG_Table *pTable, int Field, int nClasses, int 
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::Create(CSG_Grid *pGrid, int nClasses, int Histogram)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( Histogram > 0 )
 	{
-		bResult	= m_Histogram.Create(Histogram, 0, 0, pGrid) && _Histogram(nClasses);
+		bResult	= m_Histogram.Create(Histogram, pGrid) && _Histogram(nClasses);
 	}
 	else
 	{
@@ -1805,11 +1799,11 @@ bool CSG_Natural_Breaks::Create(CSG_Grid *pGrid, int nClasses, int Histogram)
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::Create(CSG_Grids *pGrids, int nClasses, int Histogram)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( Histogram > 0 )
 	{
-		bResult	= m_Histogram.Create(Histogram, 0, 0, pGrids) && _Histogram(nClasses);
+		bResult = m_Histogram.Create(Histogram, pGrids) && _Histogram(nClasses);
 	}
 	else
 	{
@@ -1821,7 +1815,7 @@ bool CSG_Natural_Breaks::Create(CSG_Grids *pGrids, int nClasses, int Histogram)
 			}
 		}
 
-		bResult	= m_Values.Sort() && _Calculate(nClasses);
+		bResult = m_Values.Sort() && _Calculate(nClasses);
 
 		m_Values.Destroy();
 	}
@@ -1832,15 +1826,15 @@ bool CSG_Natural_Breaks::Create(CSG_Grids *pGrids, int nClasses, int Histogram)
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::Create(const CSG_Vector &Values, int nClasses, int Histogram)
 {
-	bool	bResult	= false;
+	bool bResult = false;
 
 	if( Histogram > 0 )
 	{
-		bResult	= m_Histogram.Create(Histogram, 0, 0, Values) && _Histogram(nClasses);
+		bResult = m_Histogram.Create(Histogram, Values) && _Histogram(nClasses);
 	}
 	else
 	{
-		bResult	= m_Values.Create(Values) && m_Values.Sort() && _Calculate(nClasses);
+		bResult = m_Values.Create(Values) && m_Values.Sort() && _Calculate(nClasses);
 
 		m_Values.Destroy();
 	}
@@ -1850,7 +1844,7 @@ bool CSG_Natural_Breaks::Create(const CSG_Vector &Values, int nClasses, int Hist
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1858,16 +1852,16 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 {
 	if( _Calculate(nClasses) )
 	{
-		double	d	= (double)m_Histogram.Get_Class_Count() / m_Histogram.Get_Cumulative((int)(m_Histogram.Get_Class_Count() - 1));
+		double d = (double)m_Histogram.Get_Class_Count() / m_Histogram.Get_Cumulative((int)(m_Histogram.Get_Class_Count() - 1));
 
-		m_Breaks[0]	= m_Histogram.Get_Break(0);
+		m_Breaks[0] = m_Histogram.Get_Break(0);
 
 		for(int i=1; i<Get_Count(); i++)
 		{
-			m_Breaks[i]	= m_Histogram.Get_Value(m_Breaks[i] * d);
+			m_Breaks[i] = m_Histogram.Get_Value(m_Breaks[i] * d);
 		}
 
-		m_Breaks[nClasses]	= m_Histogram.Get_Break((int)m_Histogram.Get_Class_Count());
+		m_Breaks[nClasses] = m_Histogram.Get_Break((int)m_Histogram.Get_Class_Count());
 
 		m_Histogram.Destroy();
 
@@ -1975,9 +1969,9 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2350,9 +2344,9 @@ bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2411,7 +2405,7 @@ void CSG_Classifier_Supervised::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2446,7 +2440,7 @@ bool CSG_Classifier_Supervised::Get_WTA(int Method)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2556,7 +2550,7 @@ bool CSG_Classifier_Supervised::Save(const CSG_String &File, const SG_Char *Feat
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2592,7 +2586,7 @@ CSG_String CSG_Classifier_Supervised::Print(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2629,7 +2623,7 @@ bool CSG_Classifier_Supervised::Add_Class(const CSG_String &Class_ID, const CSG_
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2697,7 +2691,7 @@ bool CSG_Classifier_Supervised::Train(bool bClear_Samples)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2761,7 +2755,7 @@ bool CSG_Classifier_Supervised::CClass::Train(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2808,7 +2802,7 @@ bool CSG_Classifier_Supervised::Get_Class(const CSG_Vector &Features, int &Class
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2851,7 +2845,7 @@ CSG_String CSG_Classifier_Supervised::Get_Name_of_Quality(int Method)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -3045,9 +3039,9 @@ void CSG_Classifier_Supervised::_Get_Winner_Takes_All(const CSG_Vector &Features
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -3441,9 +3435,9 @@ double CSG_Test_Distribution::Get_Log_Gamma(double a)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -3501,9 +3495,9 @@ CSG_Matrix	SG_Get_Correlation_Matrix	(const CSG_Matrix &Values, bool bCovariance
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

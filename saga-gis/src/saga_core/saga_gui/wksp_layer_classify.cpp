@@ -673,7 +673,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	//-----------------------------------------------------
 	STATUSBAR_Set_Text(_TL("Build Histogram..."));
 
-	m_Histogram.Create(Get_Class_Count(), 0, Get_Class_Count() - 1);
+	m_Histogram.Create(Get_Class_Count(), 0., Get_Class_Count() - 1.);
 
 	switch( m_pLayer->Get_Type() )
 	{
@@ -722,7 +722,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 {
 	if( pGrid->Get_Max_Samples() > 0 && pGrid->Get_Max_Samples() < pGrid->Get_NCells() )
 	{
-		double	d	= (double)pGrid->Get_NCells() / (double)pGrid->Get_Max_Samples();
+		double d = (double)pGrid->Get_NCells() / (double)pGrid->Get_Max_Samples();
 
 		for(double i=0; i<(double)pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, (double)pGrid->Get_NCells()); i+=d)
 		{
@@ -734,7 +734,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 
 		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pGrid->Get_Max_Samples() )	// any no-data cells ?
 		{
-			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrid->Get_Max_Samples();
+			d *= (double)m_Histogram.Get_Element_Count() / (double)pGrid->Get_Max_Samples();
 		}
 
 		m_Histogram.Scale_Element_Count(d);
@@ -762,24 +762,24 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 {
 	if( pGrids->Get_Max_Samples() > 0 && pGrids->Get_Max_Samples() < pGrids->Get_NCells() )
 	{
-		double	d	= (double)pGrids->Get_NCells() / (double)pGrids->Get_Max_Samples();
+		double d = (double)pGrids->Get_NCells() / (double)pGrids->Get_Max_Samples();
 
 		for(double i=0; i<(double)pGrids->Get_NCells() && PROGRESSBAR_Set_Position(i, (double)pGrids->Get_NCells()); i+=d)
 		{
 			if( !pGrids->is_NoData((sLong)i) )
 			{
-				m_Histogram	+= Get_Class(pGrids->asDouble((sLong)i));
+				m_Histogram += Get_Class(pGrids->asDouble((sLong)i));
 			}
 		}
 
 		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pGrids->Get_Max_Samples() )	// any no-data cells ?
 		{
-			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrids->Get_Max_Samples();
+			d *= (double)m_Histogram.Get_Element_Count() / (double)pGrids->Get_Max_Samples();
 		}
 
 		m_Histogram.Scale_Element_Count(d);
 
-		m_Statistics	= pGrids->Get_Statistics();
+		m_Statistics = pGrids->Get_Statistics();
 
 		return( true );
 	}
@@ -788,11 +788,11 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 	{
 		if( !pGrids->is_NoData(i) )
 		{
-			m_Histogram	+= Get_Class(pGrids->asDouble(i));
+			m_Histogram += Get_Class(pGrids->asDouble(i));
 		}
 	}
 
-	m_Statistics	= pGrids->Get_Statistics();
+	m_Statistics = pGrids->Get_Statistics();
 
 	return( true );
 }

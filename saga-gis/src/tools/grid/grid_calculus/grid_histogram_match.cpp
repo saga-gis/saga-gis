@@ -50,9 +50,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -113,7 +113,7 @@ CGrid_Histogram_Match::CGrid_Histogram_Match(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -130,7 +130,7 @@ int CGrid_Histogram_Match::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -180,16 +180,14 @@ bool CGrid_Histogram_Match::On_Execute(void)
 		break;
 
 	default:
-		if( !Histogram[0].Create(Parameters("NCLASSES")->asInt(),
-			pReference->Get_Min(), pReference->Get_Max(), pReference, (size_t)Parameters("MAXSAMPLES")->asInt()) )
+		if( !Histogram[0].Create(Parameters("NCLASSES")->asInt(), pReference, 0., 0., (size_t)Parameters("MAXSAMPLES")->asInt()) )
 		{
 			Error_Fmt("%s [%s]", _TL("failed to create histogram"), pReference->Get_Name());
 
 			return( false );
 		}
 
-		if( !Histogram[1].Create(Parameters("NCLASSES")->asInt(),
-			pGrid->Get_Min(), pGrid->Get_Max(), pGrid, (size_t)Parameters("MAXSAMPLES")->asInt()) )
+		if( !Histogram[1].Create(Parameters("NCLASSES")->asInt(), pGrid, 0., 0., (size_t)Parameters("MAXSAMPLES")->asInt()) )
 		{
 			Error_Fmt("%s [%s]", _TL("failed to create histogram"), pGrid->Get_Name());
 
@@ -237,9 +235,9 @@ bool CGrid_Histogram_Match::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

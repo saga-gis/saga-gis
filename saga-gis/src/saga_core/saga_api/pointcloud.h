@@ -151,8 +151,8 @@ public:
 
 	//-----------------------------------------------------
 	int								Get_Attribute_Count	(void)      const { return( m_nFields - 3 ); }
-	const SG_Char *					Get_Attribute_Name	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Name[Field]->c_str() : NULL         ); }
-	TSG_Data_Type					Get_Attribute_Type	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Type[Field] : SG_DATATYPE_Undefined ); }
+	const SG_Char *					Get_Attribute_Name	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Info[Field]->m_Name.c_str() : NULL          ); }
+	TSG_Data_Type					Get_Attribute_Type	(int Field) const { Field += 3; return( Field >= 3 && Field < m_nFields ? m_Field_Info[Field]->m_Type : SG_DATATYPE_Undefined ); }
 	int								Get_Attribute_Length(int Field, int Encoding = SG_FILE_ENCODING_UNDEFINED) const { return( Get_Field_Length(Field + 3) ); }
 
 	//-----------------------------------------------------
@@ -183,7 +183,7 @@ public:
 	bool							Set_NoData			(sLong Index, int Field)				{	return( Set_Value(Index, Field, Get_NoData_Value()) );}
 	bool							is_NoData			(sLong Index, int Field)	const		{	return( is_NoData_Value(Get_Value(Index, Field)) );	}
 
-	virtual bool					Get_Value			(sLong Index, int Field, double        &Value)	const	{	Value = _Get_Field_Value(m_Points[Index], Field); return( Index >= 0 && Index < m_nRecords ); }
+	virtual bool					Get_Value			(sLong Index, int Field, double        &Value)	const	{	if( Index >= 0 && Index < m_nRecords ) { Value = _Get_Field_Value(m_Points[Index], Field); return( is_NoData_Value(Value) ); } return( false ); }
 	virtual bool					Get_Attribute		(sLong Index, int Field, double        &Value)	const	{	return( Get_Value(Index, Field + 3, Value) );	}
 
 	virtual bool					Set_Value			(             int Field, const SG_Char *Value)			{	return( _Set_Field_Value(m_Cursor, Field, Value) );	}
@@ -249,11 +249,11 @@ protected:
 
 private:
 
-	bool							m_bXYZPrecDbl;
+	bool							m_bXYZPrecDbl = true;
 
-	char							**m_Points, *m_Cursor;
+	char							**m_Points = NULL, *m_Cursor = NULL;
 
-	int								m_nPointBytes, *m_Field_Offset;
+	int								m_nPointBytes = 0, *m_Field_Offset = NULL;
 	
 	CSG_Array						m_Array_Points;
 

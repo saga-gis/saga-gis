@@ -53,9 +53,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -63,9 +63,9 @@ BYTE CSG_Grid::m_Bitmask[8] = { 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -123,9 +123,9 @@ CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, d
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -201,7 +201,7 @@ CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double x
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -228,7 +228,7 @@ void CSG_Grid::_On_Construction(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -359,9 +359,9 @@ bool CSG_Grid::Create(TSG_Data_Type Type, int NX, int NY, double Cellsize, doubl
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//					Destruction							 //
-//														 //
+//                                                       //
+//                    Destruction                        //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -393,7 +393,7 @@ bool CSG_Grid::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -432,9 +432,9 @@ double CSG_Grid::Get_Offset(void) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Checks							 //
-//														 //
+//                                                       //
+//                       Checks                          //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -482,9 +482,9 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//					value access by row					 //
-//														 //
+//                                                       //
+//                value access by row                    //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -523,9 +523,9 @@ bool CSG_Grid::Set_Row(int y, const CSG_Vector &Values)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //		Value access by Position (-> Interpolation)		 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -575,7 +575,7 @@ bool CSG_Grid::Get_Value(double x, double y, double &Value, TSG_Grid_Resampling 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -593,7 +593,7 @@ inline bool CSG_Grid::_Get_ValAtPos_NearestNeighbour(double &Value, int x, int y
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -656,7 +656,7 @@ inline bool CSG_Grid::_Get_ValAtPos_BiLinear(double &Value, int x, int y, double
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -710,7 +710,7 @@ inline bool CSG_Grid::_Get_ValAtPos_BiCubicSpline(double &Value, int x, int y, d
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -788,7 +788,7 @@ inline bool CSG_Grid::_Get_ValAtPos_BSpline(double &Value, int x, int y, double 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -948,9 +948,9 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Statistics						 //
-//														 //
+//                                                       //
+//                      Statistics                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1080,7 +1080,7 @@ double CSG_Grid::Get_Percentile(double Percentile, bool bFromHistogram)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1159,7 +1159,7 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 }
 
 //---------------------------------------------------------
-#define SG_GRID_HISTOGRAM_CLASSES_DEFAULT	255
+#define SG_GRID_HISTOGRAM_CLASSES_DEFAULT 256
 
 //---------------------------------------------------------
 /**
@@ -1177,7 +1177,7 @@ const CSG_Histogram & CSG_Grid::Get_Histogram(size_t nClasses)
 
 	if( m_Histogram.Get_Statistics().Get_Count() < 1 )
 	{
-		m_Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Get_Min(), Get_Max(), this, (size_t)Get_Max_Samples());
+		m_Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, this, 0., 0., (size_t)Get_Max_Samples());
 	}
 
 	return( m_Histogram );
@@ -1186,60 +1186,57 @@ const CSG_Histogram & CSG_Grid::Get_Histogram(size_t nClasses)
 //---------------------------------------------------------
 bool CSG_Grid::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, size_t nClasses)	const
 {
-	CSG_Simple_Statistics	Statistics;
+	CSG_Simple_Statistics Statistics;
 
 	if( !Get_Statistics(rWorld, Statistics) )
 	{
 		return( false );
 	}
 
-	int	xMin	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) xMin = 0;
-	int	yMin	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) yMin = 0;
-	int	xMax	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMax	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int xMin = Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) { xMin =            0; }
+	int yMin = Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) { yMin =            0; }
+	int xMax = Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
+	int yMax = Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
 
 	if( xMin > xMax || yMin > yMax )
 	{
-		return( false );	// no overlap
+		return( false ); // no overlap
 	}
 
 	Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Statistics.Get_Minimum(), Statistics.Get_Maximum());
 
-	int		nx		= 1 + (xMax - xMin);
-	int		ny		= 1 + (yMax - yMin);
-	sLong	nCells	= nx * ny;
+	int        nx = 1 + (xMax - xMin);
+	int        ny = 1 + (yMax - yMin);
+	sLong  nCells = (sLong)nx * (sLong)ny;
 
-	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
+	double Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
 
 	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{
-		double	d = (double)nCells / (double)Get_Max_Samples();
+		double d = (double)nCells / (double)Get_Max_Samples();
 
 		for(double i=0; i<(double)nCells; i+=d)
 		{
-			int	y	= yMin + (int)i / nx;
-			int	x	= xMin + (int)i % nx;
+			int y = yMin + (int)i / nx;
+			int x = xMin + (int)i % nx;
 
-			double	Value	= asDouble(x, y, false);
+			double Value = asDouble(x, y, false);
 
 			if( !is_NoData_Value(Value) )
 			{
-				Histogram	+= Scaling ? Offset + Scaling * Value : Value;
+				Histogram += Scaling ? Offset + Scaling * Value : Value;
 			}
 		}
 	}
 	else
 	{
-		for(int y=yMin; y<=yMax; y++)
+		for(int y=yMin; y<=yMax; y++) for(int x=xMin; x<=xMax; x++)
 		{
-			for(int x=xMin; x<=xMax; x++)
-			{
-				double	Value	= asDouble(x, y, false);
+			double Value = asDouble(x, y, false);
 
-				if( !is_NoData_Value(Value) )
-				{
-					Histogram	+= Scaling ? Offset + Scaling * Value : Value;
-				}
+			if( !is_NoData_Value(Value) )
+			{
+				Histogram += Scaling ? Offset + Scaling * Value : Value;
 			}
 		}
 	}
@@ -1249,15 +1246,14 @@ bool CSG_Grid::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, s
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Index							 //
-//														 //
+//                                                       //
+//                        Index                          //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Grid::_Set_Index(void)
 {
-	//-----------------------------------------------------
 	if( m_Index == NULL && (m_Index = (sLong *)SG_Malloc((size_t)Get_NCells() * sizeof(sLong))) == NULL )
 	{
 		SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
@@ -1417,9 +1413,9 @@ bool CSG_Grid::_Set_Index(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

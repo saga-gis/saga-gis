@@ -871,7 +871,7 @@ private:
 		double Minimum = m_pPanel->m_Parameters("COLORS_RANGE.MIN")->asDouble();
 		double Maximum = m_pPanel->m_Parameters("COLORS_RANGE.MAX")->asDouble();
 
-		m_Histogram.Create(m_nClasses, Minimum, Maximum, m_pGrids, m_pGrids->Get_Max_Samples());
+		m_Histogram.Create(m_nClasses, m_pGrids, Minimum, Maximum, m_pGrids->Get_Max_Samples());
 
 		if( bFullRefresh )
 		{

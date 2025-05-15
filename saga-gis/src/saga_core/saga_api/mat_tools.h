@@ -55,9 +55,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -78,7 +78,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -86,9 +86,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -159,9 +159,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -187,9 +187,9 @@ SAGA_API_DLL_EXPORT	void		SG_Decimal_To_Degree	(double Value, double &Deg, doubl
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -267,9 +267,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -352,9 +352,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -470,9 +470,9 @@ SAGA_API_DLL_EXPORT bool	SG_VectorR3_Rotate		(CSG_Vector &Vector  , size_t Axis,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -601,9 +601,9 @@ SAGA_API_DLL_EXPORT bool		SG_Matrix_Eigen_Reduction	(const CSG_Matrix &Matrix, C
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -692,9 +692,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -715,9 +715,9 @@ public:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -802,9 +802,9 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -916,9 +916,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1003,9 +1003,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1023,17 +1023,17 @@ public:
 	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum);
 	bool			Create				(size_t nClasses, double Minimum, double Maximum);
 
-	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , size_t maxSamples = 0);
-	bool			Create				(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , size_t maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, const CSG_Vector &Values          , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, const CSG_Vector &Values          , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
 
-	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, size_t maxSamples = 0);
-	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, size_t maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, class CSG_Table *pTable, int Field, double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, class CSG_Table *pTable, int Field, double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
 
-	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , size_t maxSamples = 0);
-	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , size_t maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, class CSG_Grid  *pGrid            , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, class CSG_Grid  *pGrid            , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
 
-	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , size_t maxSamples = 0);
-	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , size_t maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, class CSG_Grids *pGrids           , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, class CSG_Grids *pGrids           , double Minimum = 0., double Maximum = 0., size_t maxSamples = 0);
 
 	//-----------------------------------------------------
 	void			Add_Value			(double Value);
@@ -1042,47 +1042,49 @@ public:
 
 	bool			Update				(void);
 
-	size_t			Get_Class_Count		(void)		const	{	return( m_nClasses );	}
+	bool			is_Okay				(void)              const { return( m_nClasses && Get_Element_Count() ); }
 
-	size_t			Get_Element_Count	(void)		const	{	return( m_nClasses > 0 ? m_Cumulative[m_nClasses - 1] : 0 );	}
-	size_t			Get_Element_Maximum	(void)		const	{	return( m_nMaximum );	}
+	size_t			Get_Class_Count		(void)              const { return( m_nClasses ); }
 
-	size_t			Get_Elements		(int    i)	const	{	return( Get_Elements((size_t)i) );	}
-	size_t			Get_Elements		(size_t i)	const	{	return( i < m_nClasses ? m_Elements[i] : 0 );	}
+	size_t			Get_Element_Count	(void)              const { return( m_nClasses ? m_Cumulative[m_nClasses - 1] : 0 ); }
+	size_t			Get_Element_Maximum	(void)              const { return( m_nMaximum ); }
 
-	size_t			Get_Cumulative		(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
-	size_t			Get_Cumulative		(size_t i)	const	{	return( i < m_nClasses ? m_Cumulative[i] : 0 );	}
+	size_t			Get_Elements		(int    i)          const { return( Get_Elements  ((size_t)i) ); }
+	size_t			Get_Elements		(size_t i)          const { return( i < m_nClasses ? m_Elements  [i] : 0 ); }
 
-	double			Get_Value			(double i)	const	{	return( m_nClasses < 1 ? m_Minimum : m_Minimum + i * m_ClassWidth );	}
+	size_t			Get_Cumulative		(int    i)          const { return( Get_Cumulative((size_t)i) ); }
+	size_t			Get_Cumulative		(size_t i)          const { return( i < m_nClasses ? m_Cumulative[i] : 0 ); }
 
-	double			Get_Break			(int    i)	const	{	return( Get_Value((double)(i)) );	}
-	double			Get_Break			(size_t i)	const	{	return( Get_Value((double)(i)) );	}
+	double			Get_Value			(double i)          const { return( m_nClasses < 1 ? m_Minimum : m_Minimum + i * m_ClassWidth ); }
 
-	double			Get_Center			(int    i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
-	double			Get_Center			(size_t i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
+	double			Get_Break			(int    i)          const { return( Get_Value((double)(i)) ); }
+	double			Get_Break			(size_t i)          const { return( Get_Value((double)(i)) ); }
+
+	double			Get_Center			(int    i)          const { return( Get_Value((double)(i + 0.5)) ); }
+	double			Get_Center			(size_t i)          const { return( Get_Value((double)(i + 0.5)) ); }
 
 	//-----------------------------------------------------
 	CSG_Histogram &	operator =			(const CSG_Histogram &Histogram);
 
-	void			operator +=			(double Value)		{	Add_Value(Value);	}
+	void			operator +=			(double Value)            { Add_Value(Value); }
 
-	size_t			operator []			(int    i)	const	{	return( Get_Elements(i) );	}
-	size_t			operator []			(size_t i)	const	{	return( Get_Elements(i) );	}
+	size_t			operator []			(int    i)          const { return( Get_Elements(i) ); }
+	size_t			operator []			(size_t i)          const { return( Get_Elements(i) ); }
 
-	double			Get_Quantile		(double   Quantile)	const;
-	double			Get_Quantile_Value	(double      Value)	const;
+	double			Get_Quantile		(double   Quantile) const;
+	double			Get_Quantile_Value	(double      Value) const;
 
-	double			Get_Percentile		(double Percentile)	const;
-	double			Get_Percentile_Value(double      Value)	const;
+	double			Get_Percentile		(double Percentile) const;
+	double			Get_Percentile_Value(double      Value) const;
 
-	const CSG_Simple_Statistics &	Get_Statistics	(void)	const	{	return( m_Statistics );	}
+	const CSG_Simple_Statistics &	Get_Statistics	(void)  const { return( m_Statistics ); }
 
 
 private:
 
-	size_t					m_nClasses, m_nMaximum, *m_Elements, *m_Cumulative;
+	size_t					m_nClasses = 0, m_nMaximum = 0, *m_Elements = NULL, *m_Cumulative = NULL;
 
-	double					m_Minimum, m_Maximum, m_ClassWidth;
+	double					m_Minimum = 0., m_Maximum = 0., m_ClassWidth = 1.;
 
 	CSG_Simple_Statistics	m_Statistics;
 
@@ -1097,9 +1099,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1144,9 +1146,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1210,9 +1212,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1416,9 +1418,9 @@ private: ///// private members and functions: /////////////
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1511,9 +1513,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1558,9 +1560,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1569,9 +1571,9 @@ SAGA_API_DLL_EXPORT CSG_Matrix	SG_Get_Correlation_Matrix		(const CSG_Matrix &Val
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1592,7 +1594,7 @@ SAGA_API_DLL_EXPORT double		SG_Regression_Get_Adjusted_R2	(double R2, int nSampl
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1682,7 +1684,7 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1796,7 +1798,7 @@ protected:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1861,9 +1863,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //				Formula Parser (A. Ringeler)			 //
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1968,9 +1970,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2077,9 +2079,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2121,9 +2123,9 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

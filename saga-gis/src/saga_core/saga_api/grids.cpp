@@ -429,7 +429,7 @@ bool CSG_Grids::Create(const CSG_Table &Attributes, int zAttribute)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//						Header							 //
+//                       Header                          //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -495,7 +495,7 @@ void CSG_Grids::_Synchronize(CSG_Grid *pGrid)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//						Checks							 //
+//                       Checks                          //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -529,7 +529,7 @@ bool CSG_Grids::is_Compatible(int NX, int NY, double Cellsize, double xMin, doub
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//						Attributes						 //
+//                     Attributes                        //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -1247,7 +1247,7 @@ bool CSG_Grids::_Get_Z(double z, int &iz, double &dz) const
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//						Index							 //
+//                       Index                           //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -1407,7 +1407,7 @@ bool CSG_Grids::_Set_Index(void)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//						Statistics						 //
+//                     Statistics                        //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -1650,7 +1650,7 @@ const CSG_Histogram & CSG_Grids::Get_Histogram(size_t nClasses)
 
 	if( m_Histogram.Get_Statistics().Get_Count() < 1 )
 	{
-		m_Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Get_Min(), Get_Max(), this, (size_t)Get_Max_Samples());
+		m_Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, this, 0., 0., (size_t)Get_Max_Samples());
 	}
 
 	return( m_Histogram );
@@ -1659,66 +1659,60 @@ const CSG_Histogram & CSG_Grids::Get_Histogram(size_t nClasses)
 //---------------------------------------------------------
 bool CSG_Grids::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, size_t nClasses)	const
 {
-	CSG_Simple_Statistics	Statistics;
+	CSG_Simple_Statistics Statistics;
 
 	if( !Get_Statistics(rWorld, Statistics) )
 	{
 		return( false );
 	}
 
-	int	xMin	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) xMin = 0;
-	int	yMin	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) yMin = 0;
-	int	xMax	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMax	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int xMin = Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) { xMin =            0; }
+	int yMin = Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) { yMin =            0; }
+	int xMax = Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) { xMax = Get_NX() - 1; }
+	int yMax = Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) { yMax = Get_NY() - 1; }
 
 	if( xMin > xMax || yMin > yMax )
 	{
-		return( false );	// no overlap
+		return( false ); // no overlap
 	}
 
 	Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Statistics.Get_Minimum(), Statistics.Get_Maximum());
 
-	int		nx		= 1 + (xMax - xMin);
-	int		ny		= 1 + (yMax - yMin);
-	sLong	nCells	= nx * ny;
+	int        nx = 1 + (xMax - xMin);
+	int        ny = 1 + (yMax - yMin);
+	sLong  nCells = (sLong)nx * (sLong)ny;
 
-	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
+	double Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
 
 	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{
-		double	d = (double)nCells / (double)Get_Max_Samples();
+		double d = (double)nCells / (double)Get_Max_Samples();
 
 		for(double i=0; i<(double)nCells; i+=d)
 		{
-			int	y	= yMin + (int)i / nx;
-			int	x	= xMin + (int)i % nx;
+			int y = yMin + (int)i / nx;
+			int x = xMin + (int)i % nx;
 
 			for(int z=0; z<Get_NZ(); z++)
 			{
-				double	Value	= asDouble(x, y, z, false);
+				double Value = asDouble(x, y, z, false);
 
 				if( !is_NoData_Value(Value) )
 				{
-					Histogram	+= Scaling ? Offset + Scaling * Value : Value;
+					Histogram += Scaling ? Offset + Scaling * Value : Value;
 				}
 			}
 		}
 	}
 	else
 	{
-		for(int x=xMin; x<=xMax; x++)
+		for(int x=xMin; x<=xMax; x++) for(int y=yMin; y<=yMax; y++) for(int z=0; z<Get_NZ(); z++)
 		{
-			for(int y=yMin; y<=yMax; y++)
-			{
-				for(int z=0; z<Get_NZ(); z++)
-				{
-					double	Value	= asDouble(x, y, z, false);
+			double Value = asDouble(x, y, z, false);
 
-					if( !is_NoData_Value(Value) )
-					{
-						Histogram	+= Scaling ? Offset + Scaling * Value : Value;
-					}
-				}
+			if( !is_NoData_Value(Value) )
+			{
+				Histogram += Scaling ? Offset + Scaling * Value : Value;
 			}
 		}
 	}
