@@ -1516,15 +1516,15 @@ std::vector<Flag_Info> MSS_C2_L1_QA_Sat =
 //---------------------------------------------------------
 std::vector<Flag_Info> TM_ETM_C2_L1_QA_Sat =
 {
-	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6L_Sat", 		"Band 6L", 			"Band 6L Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "8", 8, 1, "B6H_Sat", 		"Band 6H", 			"Band 6H Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 	"Dropped Pixel", 	"Dropped Pixel"}
+	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1 (Blue)", 			"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2 (Green)", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3 (Red)", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4 (NIR)", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5 (SWIR1)", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6L_Sat", 		"Band 6L (Thermal Low)", 	"Band 6L Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7 (SWIR2)", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "8", 8, 1, "B6H_Sat", 		"Band 6H (Thermal High)", 	"Band 6H Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 		"Dropped Pixel", 			"Dropped Pixel"}
 };
 
 //---------------------------------------------------------
@@ -1545,14 +1545,14 @@ std::vector<Flag_Info> TM_ETM_C2_L1_QA_Pix =
 //---------------------------------------------------------
 std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Sat =
 {
-	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "2", 	2, 	1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "3", 	3, 	1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "4", 	4, 	1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "5", 	5, 	1, "B6_Sat", 		"Band 6", 			"Band 6 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "6", 	6, 	1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "8", 	8, 	1, "B9_Sat", 		"Band 9", 			"Band 9 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1 (Coastal)", 		"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2 (Blue)", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "2", 	2, 	1, "B3_Sat", 		"Band 3 (Green)", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "3", 	3, 	1, "B4_Sat", 		"Band 4 (Red)", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "4", 	4, 	1, "B5_Sat", 		"Band 5 (NIR)", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "5", 	5, 	1, "B6_Sat", 		"Band 6 (SWIR1)", 			"Band 6 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "6", 	6, 	1, "B7_Sat", 		"Band 7 (SWIR2)", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "8", 	8, 	1, "B9_Sat", 		"Band 9 (Cirrus)", 			"Band 9 Data Saturation"},
 	{NULL, SG_DATATYPE_Bit, "11", 	11,	1, "Terrain_occlusion", 	"Terrain occlusion","Terrain occlusion"}
 };
 
