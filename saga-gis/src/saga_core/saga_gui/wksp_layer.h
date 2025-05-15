@@ -171,6 +171,11 @@ private:
 
 	void							_Set_Projection			(void);
 
+
+	CSG_Parameters					m_Classify;
+
+	bool							_Classify				(void);
+
 };
 
 

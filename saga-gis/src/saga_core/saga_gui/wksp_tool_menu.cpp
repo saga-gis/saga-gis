@@ -54,6 +54,8 @@
 
 #include "res_commands.h"
 
+#include "saga_frame.h"
+
 #include "wksp_tool_manager.h"
 #include "wksp_tool_library.h"
 #include "wksp_tool_menu.h"
@@ -100,10 +102,13 @@ void CWKSP_Tool_Menu::Update(void)
 
 	if( pMenuBar )
 	{
-		pMenuBar->Replace(1, new wxMenu, _TL("Geoprocessing"));
+		pMenuBar->Freeze();
 	}
 
-	delete(m_pMenu); m_pMenu = new wxMenu;
+	while( m_pMenu->GetMenuItemCount() )
+	{
+		m_pMenu->Destroy(m_pMenu->GetMenuItems()[0]);
+	}
 
 	//-----------------------------------------------------
 	if( g_pTools->Get_Count() > 0 )
@@ -155,7 +160,7 @@ void CWKSP_Tool_Menu::Update(void)
 
 	if( pMenuBar )
 	{
-		delete(pMenuBar->Replace(1, m_pMenu, _TL("Geoprocessing")));
+		pMenuBar->Thaw();
 	}
 }
 

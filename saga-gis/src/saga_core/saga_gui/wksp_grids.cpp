@@ -75,9 +75,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -91,7 +91,7 @@ CWKSP_Grids::CWKSP_Grids(CSG_Grids *pGrids)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -233,7 +233,7 @@ wxMenu * CWKSP_Grids::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -245,8 +245,6 @@ bool CWKSP_Grids::On_Command(int Cmd_ID)
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
 	case ID_CMD_DATA_SAVEAS_IMAGE  : _Save_Image(); break;
-
-	case ID_CMD_DATA_CLASSIFY      : _LUT_Create(); break;
 
 	case ID_CMD_DATA_HISTOGRAM     : Histogram_Toggle(); break;
 	case ID_CMD_DATA_SCATTERPLOT   : Add_ScatterPlot (); break;
@@ -282,7 +280,7 @@ bool CWKSP_Grids::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -351,7 +349,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -410,7 +408,7 @@ CSG_Grid * CWKSP_Grids::Get_Grid(int i)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -446,7 +444,7 @@ CSG_String CWKSP_Grids::_Get_List_Bands(int Attribute)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -580,13 +578,13 @@ bool CWKSP_Grids::Edit_Set_Attributes(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
+	int Classify = (*pParameters)("COLORS_TYPE")->asInt();
 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
@@ -594,13 +592,13 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if( pParameter->Cmp_Identifier("OBJECT_Z_FACTOR")
 		||  pParameter->Cmp_Identifier("OBJECT_Z_OFFSET") )
 		{
-			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
-			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
+			double newFactor = (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
+			double newOffset = (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
 			if( newFactor != 0. && oldFactor != 0. )
 			{
-				CSG_Parameter_Range	*newRange	= (*pParameters)("METRIC_ZRANGE")->asRange();
-				CSG_Parameter_Range	*oldRange	=  m_Parameters ("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range *newRange = (*pParameters)("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range *oldRange =  m_Parameters ("METRIC_ZRANGE")->asRange();
 
 				newRange->Set_Min(((oldRange->Get_Min() - oldOffset) / oldFactor) * newFactor + newOffset);
 				newRange->Set_Max(((oldRange->Get_Max() - oldOffset) / oldFactor) * newFactor + newOffset);
@@ -612,7 +610,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			Set_Grid_Choices(pParameters);
 		}
 
-		if( Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1
+		if( Classify == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1
 		&& (pParameter->Cmp_Identifier("STRETCH_DEFAULT")
 		||  pParameter->Cmp_Identifier("STRETCH_LINEAR" )
 		||  pParameter->Cmp_Identifier("STRETCH_STDDEV" )
@@ -623,7 +621,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  pParameter->Cmp_Identifier("BAND_G")
 		||  pParameter->Cmp_Identifier("BAND_B") ) )
 		{
-			int	i;
+			int i;
 			
 			if( (i = (*pParameters)("BAND_R")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
 			{
@@ -649,25 +647,21 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  pParameter->Cmp_Identifier("OVERLAY_FIT")
 		||  pParameter->Cmp_Identifier("DISPLAY_TRANSPARENCY") )
 		{
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_SINGLE);
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Classify != CLASSIFY_LUT && Classify != CLASSIFY_SINGLE);
 
-			pParameters->Set_Enabled("NODE_SINGLE"       , Type == CLASSIFY_SINGLE);
-			pParameters->Set_Enabled("NODE_LUT"          , Type == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"       , Type != CLASSIFY_SINGLE && Type != CLASSIFY_LUT);
+			pParameters->Set_Enabled("BAND"              , Classify == CLASSIFY_DISCRETE || Classify == CLASSIFY_GRADUATED || Classify == CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("BAND"              , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED || Type == CLASSIFY_LUT);
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Classify == CLASSIFY_DISCRETE || Classify == CLASSIFY_GRADUATED || (Classify == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 0));
+			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Classify == CLASSIFY_DISCRETE || Classify == CLASSIFY_GRADUATED ||  Classify == CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 0));
-			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == CLASSIFY_DISCRETE || Type == CLASSIFY_GRADUATED ||  Type == CLASSIFY_OVERLAY);
-
-			pParameters->Set_Enabled("BAND_R"            , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("BAND_G"            , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("BAND_B"            , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("BAND_A"            , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("OVERLAY_FIT"       , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("METRIC_ZRANGE_R"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
-			pParameters->Set_Enabled("METRIC_ZRANGE_G"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
-			pParameters->Set_Enabled("METRIC_ZRANGE_B"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+			pParameters->Set_Enabled("BAND_R"            , Classify == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("BAND_G"            , Classify == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("BAND_B"            , Classify == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("BAND_A"            , Classify == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("OVERLAY_FIT"       , Classify == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("METRIC_ZRANGE_R"   , Classify == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+			pParameters->Set_Enabled("METRIC_ZRANGE_G"   , Classify == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+			pParameters->Set_Enabled("METRIC_ZRANGE_B"   , Classify == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
 		}
 
 		if( pParameter->Cmp_Identifier("BAND_A") )
@@ -681,175 +675,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Grids::_LUT_Create(void)
-{
-	//-----------------------------------------------------
-	static CSG_Parameters	Parameters;
-
-	if( Parameters.Get_Count() == 0 )
-	{
-		Parameters.Create(_TL("Classify"));
-		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
-		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s",
-				_TL("unique values"),
-				_TL("equal intervals"),
-				_TL("quantiles"),
-				_TL("natural breaks")
-			), 1
-		);
-	}
-
-	if( !DLG_Parameters(&Parameters) )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	CSG_Colors	Colors(*Parameters("COLOR")->asColors());
-
-	CSG_Table	Classes(m_Parameters("LUT")->asTable());
-
-	switch( Parameters("METHOD")->asInt() )
-	{
-	//-----------------------------------------------------
-	case 0:	// unique values
-	{
-		CSG_Unique_Number_Statistics	s;
-
-		#define MAX_CLASSES	1024
-
-		for(sLong iCell = 0; iCell<Get_Grids()->Get_NCells() && s.Get_Count()<MAX_CLASSES && PROGRESSBAR_Set_Position(iCell, Get_Grids()->Get_NCells()); iCell++)
-		{
-			if( !Get_Grids()->is_NoData(iCell) )
-			{
-				s	+= Get_Grids()->asDouble(iCell);
-			}
-		}
-
-		Colors.Set_Count(s.Get_Count());
-
-		for(int iClass=0; iClass<s.Get_Count(); iClass++)
-		{
-			double		Value	= s.Get_Value(iClass);
-
-			CSG_String	Name	= SG_Get_String(Value, -2);
-
-			CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-			pClass->Set_Value(0, Colors[iClass]);	// Color
-			pClass->Set_Value(1, Name          );	// Name
-			pClass->Set_Value(2, Name          );	// Description
-			pClass->Set_Value(3, Value         );	// Minimum
-			pClass->Set_Value(4, Value         );	// Maximum
-		}
-
-		break;
-	}
-
-	//-----------------------------------------------------
-	case 1:	// equal intervals
-		if( Get_Grids()->Get_Range() && Colors.Get_Count() > 0 )
-		{
-			double	Minimum, Maximum, Interval;
-
-			Interval	= Get_Grids()->Get_Range() / (double)Colors.Get_Count();
-			Minimum		= Get_Grids()->Get_Min  ();
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
-			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grids()->Get_Max() + 1.;
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 2:	// quantiles
-		{
-			if( Get_Grids()->Get_NCells() < Colors.Get_Count() )
-			{
-				Colors.Set_Count(Get_Grids()->Get_NCells());
-			}
-
-			double	Minimum, Maximum	= Get_Grids()->Get_Histogram().Get_Quantile(0.);
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
-			{
-				Minimum	= Maximum;
-				Maximum	= Get_Grids()->Get_Histogram().Get_Quantile((1. + iClass) / Colors.Get_Count());
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 3:	// natural breaks
-		{
-			CSG_Natural_Breaks	Breaks(Get_Grids(), Colors.Get_Count(), 255);
-
-			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
-			{
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				double	Minimum	= Breaks[iClass    ];
-				double	Maximum	= Breaks[iClass + 1];
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	PROGRESSBAR_Set_Ready();
-
-	if( Classes.Get_Count() > 0 )
-	{
-		m_Parameters("LUT")->asTable()->Assign(&Classes);
-
-		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
-
-		Parameters_Changed();
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -915,7 +741,7 @@ double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -997,7 +823,7 @@ bool CWKSP_Grids::_Fit_Colors(const CSG_Rect &rWorld, CSG_Data_Object *pObject, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1181,7 +1007,7 @@ bool CWKSP_Grids::Get_Bitmap_Legend(wxBitmap &Bitmap, double Zoom)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1429,9 +1255,9 @@ void CWKSP_Grids::_Draw_Grid_Cells(CSG_Map_DC &dc_Map)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

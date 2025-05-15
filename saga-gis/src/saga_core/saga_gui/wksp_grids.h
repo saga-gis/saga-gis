@@ -135,8 +135,6 @@ private:
 
 	bool						_Fit_Colors				(const CSG_Rect &rWorld, CSG_Data_Object *pObject, CWKSP_Layer_Classify *pClassify, const CSG_String &Suffix = "");
 
-	void						_LUT_Create				(void);
-
 	bool						_Save_Image				(void);
 	bool						_Save_Image_Clipboard	(void);
 

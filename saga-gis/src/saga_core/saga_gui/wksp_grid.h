@@ -128,7 +128,6 @@ private:
 	CSG_Grid					*m_pAlpha;
 
 
-	void						_LUT_Create				(void);
 	void						_LUT_Import				(void);
 
 	bool						_Edit_Clr_Selection		(void);

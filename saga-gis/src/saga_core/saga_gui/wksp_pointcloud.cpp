@@ -67,9 +67,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -122,7 +122,7 @@ CWKSP_PointCloud::~CWKSP_PointCloud(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -247,7 +247,7 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -259,10 +259,6 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
 	case ID_CMD_POINTCLOUD_LAST:
-		break;
-
-	case ID_CMD_DATA_CLASSIFY:
-		_LUT_Create();
 		break;
 
 	case ID_CMD_DATA_RANGE_MINMAX:
@@ -378,7 +374,7 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -425,7 +421,7 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -497,7 +493,7 @@ void CWKSP_PointCloud::On_Update_Views(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -534,17 +530,6 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
-		{
-			int Value = pParameter->asInt();
-
-			pParameters->Set_Enabled("NODE_SINGLE", Value == CLASSIFY_SINGLE);
-			pParameters->Set_Enabled("NODE_LUT"   , Value == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC", Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("NODE_RGB"	  , Value == 4);
-
-			return( 1 );
-		}
 	}
 
 	//-----------------------------------------------------
@@ -553,7 +538,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -591,210 +576,7 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_PointCloud::_LUT_Create(void)
-{
-	if( Get_PointCloud()->Get_Field_Count() <= 0 || Get_PointCloud()->Get_Count() < 1 )
-	{
-		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
-
-		return;
-	}
-
-	//-----------------------------------------------------
-	static CSG_Parameters Parameters;
-
-	if( Parameters.Get_Count() == 0 )
-	{
-		Parameters.Create(_TL("Classify"));
-		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"        ), _TL(""), "");
-		Parameters.Add_Colors("", "COLOR" , _TL("Colors"           ), _TL(""));
-		Parameters.Add_Int   ("", "COUNT" , _TL("Number of Classes"), _TL(""), 10, 1, true);
-		Parameters.Add_Choice("", "METHOD", _TL("Classification"   ), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s",
-				_TL("unique values"),
-				_TL("equal intervals"),
-				_TL("quantiles"),
-				_TL("natural breaks")
-			), 0
-		);
-	}
-
-	{
-		CSG_String Fields;
-
-		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
-		{
-			Fields += CSG_String(Get_PointCloud()->Get_Field_Name(i)) + "|";
-		}
-
-		Parameters("FIELD")->asChoice()->Set_Items(Fields);
-	}
-
-	if( !DLG_Parameters(&Parameters) )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	DataObject_Changed();
-
-	int Field = Parameters("FIELD")->asInt();
-
-	CSG_Colors Colors(*Parameters("COLOR")->asColors()); Colors.Set_Count(Parameters("COUNT")->asInt());
-
-	CSG_Table Classes(m_Parameters("LUT")->asTable());
-
-	switch( SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0 )
-	{
-	//-----------------------------------------------------
-	case 0:	// unique values
-		{
-			TSG_Data_Type Type = SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field))
-				? SG_DATATYPE_Double
-				: SG_DATATYPE_String;
-
-			Classes.Set_Field_Type(LUT_MIN, Type);
-			Classes.Set_Field_Type(LUT_MAX, Type);
-
-			CSG_Unique_String_Statistics Values; CSG_String Value;
-
-			#define MAX_CLASSES	1024
-
-			for(sLong iPoint=0; iPoint<Get_PointCloud()->Get_Count() && Values.Get_Count()<MAX_CLASSES; iPoint++)
-			{
-				if( Get_PointCloud()->Get_Value(iPoint, Field, Value) )
-				{
-					Values += Value;
-				}
-			}
-
-			Colors.Set_Count(Values.Get_Count());
-
-			for(int iClass=0; iClass<Values.Get_Count(); iClass++)
-			{
-				CSG_Table_Record &Class = *Classes.Add_Record(); Value = Values.Get_Value(iClass);
-
-				Class.Set_Value(0, Colors[iClass]); // Color
-				Class.Set_Value(1, Value         ); // Name
-				Class.Set_Value(2, ""            ); // Description
-				Class.Set_Value(3, Value         ); // Minimum
-				Class.Set_Value(4, Value         ); // Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 1:	// equal intervals
-		{
-			double Interval = Get_PointCloud()->Get_Range  (Field) / (double)Colors.Get_Count();
-			double Minimum  = Get_PointCloud()->Get_Minimum(Field);
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
-			{
-				CSG_Table_Record &Class = *Classes.Add_Record();
-
-				double Maximum = iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_PointCloud()->Get_Maximum(Field) + 1.;
-
-				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
-
-				Class.Set_Value(0, Colors[iClass]); // Color
-				Class.Set_Value(1, Name          ); // Name
-				Class.Set_Value(2, ""            ); // Description
-				Class.Set_Value(3, Minimum       ); // Minimum
-				Class.Set_Value(4, Maximum       ); // Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 2:	// quantiles
-		{
-			CSG_Index Index; Get_PointCloud()->Set_Index(Index, Field, true);
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			if( Get_PointCloud()->Get_Count() < Colors.Get_Count() )
-			{
-				Colors.Set_Count(Get_PointCloud()->Get_Count());
-			}
-
-			double Maximum = Get_PointCloud()->Get_Minimum(Field);
-
-			double Step	= Get_PointCloud()->Get_Count() / (double)Colors.Get_Count();
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
-			{
-				CSG_Table_Record &Class = *Classes.Add_Record();
-
-				sLong i = (sLong)(Step * (1 + iClass));
-
-				double Minimum = Maximum; Maximum = i < Get_PointCloud()->Get_Count()
-					? Get_PointCloud()->Get_Value(Index[i], Field)
-					: Get_PointCloud()->Get_Maximum(Field) + 1.;
-
-				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
-
-				Class.Set_Value(0, Colors[iClass]); // Color
-				Class.Set_Value(1, Name          ); // Name
-				Class.Set_Value(2, ""            ); // Description
-				Class.Set_Value(3, Minimum       ); // Minimum
-				Class.Set_Value(4, Maximum       ); // Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 3:	// natural breaks
-		{
-			CSG_Natural_Breaks Breaks(Get_PointCloud(), Field, Colors.Get_Count(), Get_PointCloud()->Get_Count() > 4096 ? 256 : 0);
-
-			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
-			{
-				CSG_Table_Record &Class = *Classes.Add_Record();
-
-				double Minimum = Breaks[iClass    ];
-				double Maximum = Breaks[iClass + 1];
-
-				CSG_String Name(SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
-
-				Class.Set_Value(0, Colors[iClass]); // Color
-				Class.Set_Value(1, Name          ); // Name
-				Class.Set_Value(2, ""            ); // Description
-				Class.Set_Value(3, Minimum       ); // Minimum
-				Class.Set_Value(4, Maximum       ); // Maximum
-			}
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( Classes.Get_Count() > 0 )
-	{
-		m_Parameters("LUT")->asTable()->Assign(&Classes);
-
-		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
-		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
-
-		Parameters_Changed();
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -838,7 +620,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -850,7 +632,7 @@ double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0. : G
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -861,7 +643,7 @@ bool CWKSP_PointCloud::asImage(CSG_Grid *pImage)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -993,7 +775,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1016,7 +798,7 @@ void CWKSP_PointCloud::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1167,9 +949,9 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

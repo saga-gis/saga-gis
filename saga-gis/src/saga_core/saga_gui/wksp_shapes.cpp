@@ -275,11 +275,10 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	//-----------------------------------------------------
 	case ID_CMD_TABLE_SHOW          : m_pTable->Toggle_View   (); break;
 
-	case ID_CMD_DATA_CLASSIFY       : _LUT_Create     (); break;
-	case ID_CMD_DATA_CLASSIFY_IMPORT: _LUT_Import     (); break;
+	case ID_CMD_DATA_CLASSIFY_IMPORT: _LUT_Import             (); break;
 
-	case ID_CMD_DATA_HISTOGRAM      : Histogram_Toggle(); break;
-	case ID_CMD_DATA_SCATTERPLOT    : Add_ScatterPlot (); break;
+	case ID_CMD_DATA_HISTOGRAM      : Histogram_Toggle        (); break;
+	case ID_CMD_DATA_SCATTERPLOT    : Add_ScatterPlot         (); break;
 	case ID_CMD_DATA_DIAGRAM        : m_pTable->Toggle_Diagram(); break;
 
 	//-----------------------------------------------------
@@ -870,229 +869,15 @@ bool CWKSP_Shapes::Set_Diagram(bool bShow, CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_LUT_Create(void)
-{
-	//-----------------------------------------------------
-	if( Get_Shapes()->Get_Field_Count() <= 0 || Get_Shapes()->Get_Count() < 1 )
-	{
-		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
-
-		return;
-	}
-
-	//-----------------------------------------------------
-	static CSG_Parameters	PStatic;
-
-	if( PStatic.Get_Count() == 0 )
-	{
-		PStatic.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
-		PStatic.Add_Choice("", "FIELD"   , _TL("Attribute"                ), _TL(""), "");
-		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
-		PStatic.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
-		PStatic.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
-		PStatic.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s",
-				_TL("unique values"),
-				_TL("equal intervals"),
-				_TL("quantiles"),
-				_TL("natural breaks")
-			), 0
-		);
-	}
-
-	AttributeList_Set(PStatic("FIELD"), false);
-
-	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
-
-	Parameters.Assign_Parameters(&PStatic);
-
-	Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
-
-	if( !DLG_Parameters(&Parameters) )
-	{
-		return;
-	}
-
-	PStatic.Assign_Values(&Parameters);
-
-	//-----------------------------------------------------
-	DataObject_Changed();
-
-	int	Field	= Parameters("FIELD")->asInt();
-
-	int	Method	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0;
-
-	CSG_Colors	Colors(*Parameters("COLORS")->asColors());
-
-	if( Method != 0 )
-	{
-		Colors.Set_Count(Parameters("COUNT")->asInt());
-	}
-
-	CSG_Table	Classes(m_Parameters("LUT")->asTable());
-
-	switch( Method )
-	{
-	//-----------------------------------------------------
-	case 0:	// unique values
-		{
-			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field))
-				? SG_DATATYPE_Double : SG_DATATYPE_String;
-
-			Classes.Set_Field_Type(LUT_MIN, Type);
-			Classes.Set_Field_Type(LUT_MAX, Type);
-
-			CSG_Unique_String_Statistics	s;
-
-			int	maxClasses	= Parameters("COUNTMAX")->asInt();
-
-			for(sLong iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<maxClasses; iShape++)
-			{
-				s	+= Get_Shapes()->Get_Shape(iShape)->asString(Field);
-			}
-
-			Colors.Set_Count(s.Get_Count());
-
-			for(int iClass=0; iClass<s.Get_Count(); iClass++)
-			{
-				CSG_String	Value	= s.Get_Value(iClass);
-
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Value         );	// Name
-				pClass->Set_Value(2, Value         );	// Description
-				pClass->Set_Value(3, Value         );	// Minimum
-				pClass->Set_Value(4, Value         );	// Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 1:	// equal intervals
-		{
-			double	Minimum, Maximum, Interval;
-
-			Interval	= Get_Shapes()->Get_Range  (Field) / (double)Colors.Get_Count();
-			Minimum		= Get_Shapes()->Get_Minimum(Field);
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
-			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Shapes()->Get_Maximum(Field) + 1.;
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 2:	// quantiles
-		{
-			TSG_Table_Index_Order	old_Order	= Get_Shapes()->Get_Index_Order(0);
-			int						old_Field	= Get_Shapes()->Get_Index_Field(0);
-
-			Get_Shapes()->Set_Index(Field, TABLE_INDEX_Ascending);
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			if( Get_Shapes()->Get_Count() < Colors.Get_Count() )
-			{
-				Colors.Set_Count(Get_Shapes()->Get_Count());
-			}
-
-			double	Minimum, Maximum, Count, iRecord;
-
-			Maximum	= Get_Shapes()->Get_Minimum(Field);
-			iRecord	= Count	= Get_Shapes()->Get_Count() / (double)Colors.Get_Count();
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iRecord+=Count)
-			{
-				Minimum	= Maximum;
-				Maximum	= iRecord < Get_Shapes()->Get_Count() ? Get_Shapes()->Get_Record_byIndex((int)iRecord)->asDouble(Field) : Get_Shapes()->Get_Maximum(Field) + 1.;
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-
-			Get_Shapes()->Set_Index(old_Field, old_Order);
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 3:	// natural breaks
-		{
-			CSG_Natural_Breaks	Breaks(Get_Shapes(), Field, Colors.Get_Count(), Get_Shapes()->Get_Count() > 4096 ? 256 : 0);
-
-			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
-
-			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
-			{
-				CSG_Table_Record	*pClass	= Classes.Add_Record();
-
-				double	Minimum	= Breaks[iClass    ];
-				double	Maximum	= Breaks[iClass + 1];
-
-				CSG_String	Name	= SG_Get_String(Minimum, -2)
-							+ " - " + SG_Get_String(Maximum, -2);
-
-				pClass->Set_Value(0, Colors[iClass]);	// Color
-				pClass->Set_Value(1, Name          );	// Name
-				pClass->Set_Value(2, Name          );	// Description
-				pClass->Set_Value(3, Minimum       );	// Minimum
-				pClass->Set_Value(4, Maximum       );	// Maximum
-			}
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( Classes.Get_Count() > 0 )
-	{
-		m_Parameters("LUT")->asTable()->Assign(&Classes);
-		m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
-
-		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
-		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
-
-		Parameters_Changed();
-	}
-}
-
-//---------------------------------------------------------
 void CWKSP_Shapes::_LUT_Import(void)
 {
-	wxString	File, Filter;
+	wxString File, Filter;
 
 	Filter.Printf("%s (*.qml)|*.qml|%s|*.*", _TL("QGIS Layer Style File"), _TL("All Files"));
 
 	if( DLG_Open(File, _TL("Import Classification"), SG_T("QGIS Layer Style File (*.qml)|*.qml|All Files|*.*|")) )
 	{
-		CSG_Table	Classes;
-		CSG_String	Attribute;
+		CSG_Table Classes; CSG_String Attribute;
 
 		if( QGIS_Styles_Import(&File, Classes, Attribute) )
 		{
@@ -1101,7 +886,7 @@ void CWKSP_Shapes::_LUT_Import(void)
 			m_Parameters("LUT")->asTable()->Assign(&Classes);
 			m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
 
-			m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
+			m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
 
 			Parameters_Changed();
 		}

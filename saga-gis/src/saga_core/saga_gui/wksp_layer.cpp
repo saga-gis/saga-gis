@@ -75,6 +75,18 @@
 #include "view_map.h"
 #include "view_histogram.h"
 
+//---------------------------------------------------------
+#include <saga_gdi/sgdi_classify.h>
+
+#define CLASSIFY_UNIQUE    0
+#define CLASSIFY_EQUAL     1
+#define CLASSIFY_DEFINED   2
+#define CLASSIFY_QUANTILE  3
+#define CLASSIFY_GEOMETRIC 4
+#define CLASSIFY_NATURAL   5
+#define CLASSIFY_STDDEV    6
+#define CLASSIFY_MANUAL    7
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -159,6 +171,10 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 
 	case ID_CMD_DATA_PROJECTION :
 		_Set_Projection();
+		break;
+
+	case ID_CMD_DATA_CLASSIFY   :
+		_Classify();
 		break;
 	}
 
@@ -260,7 +276,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
-			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Classification"  ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors") 	// CLASSIFY_GRADUATED
 		), 0);
@@ -269,7 +285,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
-			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Classification"  ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Coded Values")		// CLASSIFY_OVERLAY !!!
@@ -279,7 +295,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
-			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Classification"  ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Composite"   )		// CLASSIFY_OVERLAY
@@ -295,7 +311,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	{
 		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_SINGLE
-			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Classification"  ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_DISCRETE
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("RGB Composite"   ),	// CLASSIFY_OVERLAY
@@ -307,7 +323,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification: Single Symbol...
 
-	static	BYTE	s_Def_Layer_Colour	= 0;
+	static BYTE s_Def_Layer_Colour = 0;
 
 	m_Parameters.Add_Node("NODE_COLORS",
 		"NODE_SINGLE"	, _TL("Single Symbol"),
@@ -323,22 +339,17 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification: Classified...
 
-	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_LUT"		, _TL("Classified"),
-		_TL("")
-	);
+	m_Parameters.Add_Node("NODE_COLORS", "NODE_LUT", _TL("Classification"), _TL(""));
 
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB"   , _TL("Field"        ), _TL(""), _TL("<default>"));
+	//	m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMALIZE", _TL("Normalization"), _TL(""), _TL("<default>"));
 	}
 
-	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT",
-		"LUT"			, _TL("Table"),
-		_TL("")
-	)->asTable();
+	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT", "LUT", _TL("Table"), _TL(""))->asTable();
 
 	pLUT->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
 
@@ -765,12 +776,19 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
-			int		Value	= pParameter->asInt();
+			int Value = pParameter->asInt();
 
-			pParameters->Set_Enabled("METRIC_COLORS", Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("NODE_SINGLE"  , Value == CLASSIFY_SINGLE);
-			pParameters->Set_Enabled("NODE_LUT"     , Value == CLASSIFY_LUT);
-		
+			pParameters->Set_Enabled("NODE_SINGLE"    , Value == CLASSIFY_SINGLE);
+			pParameters->Set_Enabled("NODE_LUT"       , Value == CLASSIFY_LUT);
+
+			pParameters->Set_Enabled("NODE_METRIC"    , Value != CLASSIFY_SINGLE && Value != CLASSIFY_LUT);
+			pParameters->Set_Enabled("METRIC_COLORS"  , Value == CLASSIFY_DISCRETE || Value == CLASSIFY_GRADUATED);
+
+			if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
+			{
+				pParameters->Set_Enabled("NODE_RGB"	  , Value == 4); // RGB Coded Values
+			}
+
 			if( m_pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grids )
 			{
 				pParameters->Set_Enabled("NODE_METRIC", Value != CLASSIFY_SINGLE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
@@ -1147,7 +1165,6 @@ void CWKSP_Layer::Histogram_Toggle(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
-
 //---------------------------------------------------------
 wxMenu * CWKSP_Layer::Edit_Get_Menu(void)
 {
@@ -1208,6 +1225,121 @@ int CWKSP_Layer::Edit_Get_Index(void)
 CSG_Table * CWKSP_Layer::Edit_Get_Attributes(void)
 {
 	return( &m_Edit_Attributes );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Layer::_Classify(void)
+{
+	//-----------------------------------------------------
+	if( m_pObject->asTable(true) && (m_pObject->asTable(true)->Get_Field_Count() < 1 || m_pObject->asTable(true)->Get_Count() < 1) )
+	{
+		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( m_Classify.Get_Count() == 0 )
+	{
+		m_Classify.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+		if( m_pObject->asTable(true) )
+		{
+			m_Classify.Add_Choice("", "FIELD"   , _TL("Attribute"                ), _TL(""), "");
+		}
+		m_Classify.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
+		m_Classify.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
+		m_Classify.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
+		m_Classify.Add_Double("", "INTERVAL", _TL("Defined Interval"         ), _TL(""), 1. , 0. , true);
+		m_Classify.Add_Double("", "STDDEV"  , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.1, true);
+		m_Classify.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
+				_TL("unique values"),
+				_TL("equal interval"),
+				_TL("defined interval"),
+				_TL("quantile"),
+				_TL("geometric interval"),
+				_TL("natural breaks"),
+				_TL("standard deviation")
+			), 0
+		);
+	}
+
+	if( m_pObject->asTable(true) )
+	{
+		CSG_String Fields;
+
+		for(int i=0; i<m_pObject->asTable(true)->Get_Field_Count(); i++)
+		{
+			Fields += CSG_String(m_pObject->asTable(true)->Get_Field_Name(i)) + "|";
+		}
+
+		m_Classify("FIELD")->asChoice()->Set_Items(Fields);
+	}
+
+	CSG_Parameters _Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+
+	_Parameters.Assign_Parameters(&m_Classify); _Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
+
+	if( !DLG_Parameters(&_Parameters) )
+	{
+		return( false );
+	}
+
+	m_Classify.Assign_Values(&_Parameters);
+
+	//-----------------------------------------------------
+	DataObject_Changed();
+
+	CSGDI_Classify Classify;
+
+	if( m_pObject->asTable(true) )
+	{
+		Classify.Create(m_pObject->asTable(true), m_Classify("FIELD")->asInt());
+	}
+	else
+	{
+		Classify.Create(m_pObject);
+	}
+
+	switch( m_Classify("METHOD")->asInt() )
+	{
+	case  0: Classify.Classify_Unique   (m_Classify("COUNTMAX")->asInt   ()); break;
+	case  1: Classify.Classify_Equal    (m_Classify("COUNT"   )->asInt   ()); break;
+	case  2: Classify.Classify_Defined  (m_Classify("INTERVAL")->asDouble()); break;
+	case  3: Classify.Classify_Quantile (m_Classify("COUNT"   )->asInt   (), false); break;
+	case  4: Classify.Classify_Geometric(m_Classify("COUNT"   )->asInt   ()); break;
+	case  5: Classify.Classify_Natural  (m_Classify("COUNT"   )->asInt   ()); break;
+	case  6: Classify.Classify_StdDev   (m_Classify("STDDEV"  )->asDouble()); break;
+	}
+
+	//-----------------------------------------------------
+	CSG_Table Classes(m_Parameters("LUT")->asTable());
+
+	if( Classify.Set_LUT(Classes, *m_Classify("COLORS")->asColors()) )
+	{
+		m_Parameters("LUT")->asTable()->Assign(&Classes);
+
+		if( m_Parameters("LUT")->asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
+		{
+			m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
+		}
+
+		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
+
+		if( m_pObject->asTable(true) )
+		{
+			m_Parameters("LUT_ATTRIB" )->Set_Value(m_Classify("FIELD")->asInt());
+		}
+
+		Parameters_Changed();
+	}
+
+	return( true );
 }
 
 

@@ -128,8 +128,6 @@ private:
 	class CWKSP_Table			*m_pTable;
 
 
-	void						_LUT_Create				(void);
-
 	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color);
 	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);
 	void						_Draw_Points			(CSG_Map_DC &dc_Map);
