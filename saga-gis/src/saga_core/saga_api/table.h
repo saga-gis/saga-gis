@@ -361,6 +361,7 @@ public:
 	int								Get_Field_Count		(void)      const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int Field) const	{	return( Field >= 0 && Field < m_nFields ? m_Field_Info[Field]->m_Name.c_str() : NULL );			}
 	TSG_Data_Type					Get_Field_Type		(int Field) const	{	return( Field >= 0 && Field < m_nFields ? m_Field_Info[Field]->m_Type : SG_DATATYPE_Undefined );	}
+	bool							 is_Field_Numeric	(int Field) const	{	return( SG_Data_Type_is_Numeric(Get_Field_Type(Field)) );	}
 	virtual int						Get_Field_Length	(int Field, int Encoding = SG_FILE_ENCODING_UNDEFINED)	const;
 	int								Get_Field			(const CSG_String &Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
 	int								Get_Field			(const char       *Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
