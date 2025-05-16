@@ -105,7 +105,7 @@ public:
 	bool						Classify_Equal			(int Count);
 	bool						Classify_Defined		(double Interval);
 	bool						Classify_Quantile		(int Count, bool bHistogram = true);
-	bool						Classify_Geometric		(int Count);
+	bool						Classify_Geometric		(int Count, bool bIncreasing = true);
 	bool						Classify_Natural		(int Count);
 	bool						Classify_StdDev			(double StdDev);
 

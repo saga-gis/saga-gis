@@ -429,7 +429,7 @@ bool CTable_Regression_Multiple_Base::Set_Classification(CSG_Shapes *pShapes, in
 
 		DataObject_Set_Parameter(pShapes, pLUT);
 		DataObject_Set_Parameter(pShapes, "COLORS_TYPE",     1);	// Color Classification Type: Lookup Table
-		DataObject_Set_Parameter(pShapes, "LUT_ATTRIB" , Field);	// Lookup Table Attribute   : StdResid
+		DataObject_Set_Parameter(pShapes, "LUT_FIELD"  , Field);	// Lookup Table Attribute   : StdResid
 	}
 
 	return( true );

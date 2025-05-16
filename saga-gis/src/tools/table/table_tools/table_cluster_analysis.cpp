@@ -370,7 +370,7 @@ bool CTable_Cluster_Analysis::Set_Classification(CSG_Table *pTable, int Cluster,
 		pLUT->asTable()->Set_Count(nClusters);
 
 		DataObject_Set_Parameter(pTable, pLUT                  ); // Lookup Table
-		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , Cluster); // Lookup Table Attribute
+		DataObject_Set_Parameter(pTable, "LUT_FIELD"  , Cluster); // Lookup Table Attribute
 		DataObject_Set_Parameter(pTable, "COLORS_TYPE", 1      ); // Color Classification Type: Lookup Table
 	}
 

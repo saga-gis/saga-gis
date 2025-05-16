@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 #include "res_controls.h"
@@ -66,18 +54,18 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define dlg_choices_BTN_WIDTH	40
-#define dlg_choices_BTN_DIST	4
+#define dlg_choices_BTN_WIDTH 40
+#define dlg_choices_BTN_DIST   4
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -85,46 +73,46 @@ IMPLEMENT_CLASS(CDLG_Choices, CDLG_Base)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Choices, CDLG_Base)
-	EVT_BUTTON			(ID_BTN_ADD			, CDLG_Choices::On_Add)
-	EVT_BUTTON			(ID_BTN_ADD_ALL		, CDLG_Choices::On_Add_All)
-	EVT_BUTTON			(ID_BTN_DELETE		, CDLG_Choices::On_Del)
-	EVT_BUTTON			(ID_BTN_DELETE_ALL	, CDLG_Choices::On_Del_All)
-	EVT_BUTTON			(ID_BTN_UP			, CDLG_Choices::On_Up)
-	EVT_BUTTON			(ID_BTN_DOWN		, CDLG_Choices::On_Down)
+	EVT_BUTTON(ID_BTN_ADD       , CDLG_Choices::On_Add)
+	EVT_BUTTON(ID_BTN_ADD_ALL   , CDLG_Choices::On_Add_All)
+	EVT_BUTTON(ID_BTN_DELETE    , CDLG_Choices::On_Del)
+	EVT_BUTTON(ID_BTN_DELETE_ALL, CDLG_Choices::On_Del_All)
+	EVT_BUTTON(ID_BTN_UP        , CDLG_Choices::On_Up)
+	EVT_BUTTON(ID_BTN_DOWN      , CDLG_Choices::On_Down)
 
-	EVT_LISTBOX_DCLICK	(ID_LISTBOX_SELECT	, CDLG_Choices::On_DClick_Add)
-	EVT_LISTBOX_DCLICK	(ID_LISTBOX_ADD		, CDLG_Choices::On_DClick_Del)
+	EVT_LISTBOX_DCLICK(ID_LISTBOX_SELECT, CDLG_Choices::On_DClick_Add)
+	EVT_LISTBOX_DCLICK(ID_LISTBOX_ADD   , CDLG_Choices::On_DClick_Del)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CDLG_Choices::CDLG_Choices(CSG_Parameter_Choices *Parameter, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
-	m_pParameter	= Parameter;
+	m_pParameter   = Parameter;
 
-	m_pChoices		= new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
-	m_pSelection	= new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pChoices     = new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pSelection   = new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
 
-	m_pBtn_Add_All	= new wxButton (this, ID_BTN_ADD_ALL   , ">>");
-	m_pBtn_Add		= new wxButton (this, ID_BTN_ADD       , ">" );
-	m_pBtn_Del		= new wxButton (this, ID_BTN_DELETE    , "<" );
-	m_pBtn_Del_All	= new wxButton (this, ID_BTN_DELETE_ALL, "<<");
-	m_pBtn_Up		= new wxButton (this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
-	m_pBtn_Down		= new wxButton (this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
+	m_pBtn_Add_All = new wxButton (this, ID_BTN_ADD_ALL   , ">>");
+	m_pBtn_Add     = new wxButton (this, ID_BTN_ADD       , ">" );
+	m_pBtn_Del     = new wxButton (this, ID_BTN_DELETE    , "<" );
+	m_pBtn_Del_All = new wxButton (this, ID_BTN_DELETE_ALL, "<<");
+	m_pBtn_Up      = new wxButton (this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
+	m_pBtn_Down    = new wxButton (this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
 
-	m_Btn_Height	= m_pBtn_Add->GetDefaultSize().y;
+	m_Btn_Height   = m_pBtn_Add->GetDefaultSize().y;
 
 	//-----------------------------------------------------
-	int		*Index	= (int *)m_Index.Get_Array(m_pParameter->Get_Item_Count());
+	int *Index = (int *)m_Index.Get_Array(m_pParameter->Get_Item_Count());
 
 	for(int i=0; i<m_pParameter->Get_Item_Count(); i++)
 	{
-		Index[i]	= i;
+		Index[i] = i;
 
 		if( m_pParameter->is_Selected(i) )
 		{
@@ -142,7 +130,7 @@ CDLG_Choices::CDLG_Choices(CSG_Parameter_Choices *Parameter, wxString Caption)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -190,7 +178,7 @@ void CDLG_Choices::Save_Changes(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -209,7 +197,7 @@ int CDLG_Choices::_Compare_Down(int *first, int *second)
 void CDLG_Choices::On_DClick_Del(wxCommandEvent &event)
 {
 	_Del();
-}
+}//														 //
 
 void CDLG_Choices::On_Del(wxCommandEvent &event)
 {
@@ -218,7 +206,7 @@ void CDLG_Choices::On_Del(wxCommandEvent &event)
 
 void CDLG_Choices::_Del(void)
 {
-	wxArrayInt	Selections;
+	wxArrayInt Selections;
 
 	if( m_pSelection->GetSelections(Selections) > 0 )
 	{
@@ -226,7 +214,7 @@ void CDLG_Choices::_Del(void)
 
 		for(size_t i=0; i<Selections.GetCount(); i++)
 		{
-			size_t	j	= Selections.Item(i);
+			size_t j = Selections.Item(i);
 
 			m_pChoices->Append(m_pSelection->GetString(j), m_pSelection->GetClientData(j));
 			m_pSelection->Delete(j);
@@ -285,7 +273,7 @@ void CDLG_Choices::On_Add_All(wxCommandEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -327,7 +315,7 @@ void CDLG_Choices::On_Down(wxCommandEvent &event)
 	{
 		Selections.Sort(_Compare_Down);
 
-		if( (int)Selections.Item(0) < m_pSelection->GetCount() - 1 )
+		if( Selections.Item(0) < (int)m_pSelection->GetCount() - 1 )
 		{
 			for(size_t i=0; i<Selections.GetCount(); i++)
 			{
@@ -350,9 +338,9 @@ void CDLG_Choices::On_Down(wxCommandEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

@@ -602,7 +602,7 @@ bool CSoil_Texture::On_Execute(void)
 
 		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), pLUT            );	// Lookup Table
 		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
-		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "LUT_ATTRIB" , 0);	// Lookup Table Attribute
+		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "LUT_FIELD"  , 0);	// Lookup Table Attribute
 	}
 
 	//-----------------------------------------------------
@@ -859,7 +859,7 @@ bool CSoil_Texture_Table::On_Execute(void)
 
 		DataObject_Set_Parameter(pTable, pLUT                   );	// Lookup Table
 		DataObject_Set_Parameter(pTable, "COLORS_TYPE", 1       );	// Color Classification Type: Lookup Table
-		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , iTexture);	// Lookup Table Attribute
+		DataObject_Set_Parameter(pTable, "LUT_FIELD"  , iTexture);	// Lookup Table Attribute
 	}
 
 	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt(), Parameters("TRIANGLE")->asInt() == 1)
@@ -869,7 +869,7 @@ bool CSoil_Texture_Table::On_Execute(void)
 
 		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), pLUT            );	// Lookup Table
 		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
-		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "LUT_ATTRIB" , 0);	// Lookup Table Attribute
+		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "LUT_FIELD"  , 0);	// Lookup Table Attribute
 	}
 
 	//-----------------------------------------------------

@@ -172,7 +172,10 @@ private:
 	void							_Set_Projection			(void);
 
 
+	//-----------------------------------------------------
 	CSG_Parameters					m_Classify;
+
+	static int						_Classify_Callback		(CSG_Parameter *pParameter, int Flags);
 
 	bool							_Classify				(void);
 

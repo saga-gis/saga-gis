@@ -239,7 +239,7 @@ bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 		}
 	}
 
-	if( false && bNumeric )
+	if( bNumeric )
 	{
 		double Minimum = m_Classes[                        0].asDouble(0);
 		double Maximum = m_Classes[m_Classes.Get_Count() - 1].asDouble(1);
@@ -485,7 +485,7 @@ bool CSGDI_Classify::Classify_Equal(int Count)
 
 	for(int i=0; i<Count; i++)
 	{
-		double Minimum = Maximum; Maximum += Interval;
+		double Minimum = Maximum; Maximum = Statistics.Get_Minimum() + (i * Interval);
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 
@@ -587,7 +587,7 @@ bool CSGDI_Classify::Classify_Quantile(int Count, bool bHistogram)
 }
 
 //---------------------------------------------------------
-bool CSGDI_Classify::Classify_Geometric(int Count)
+bool CSGDI_Classify::Classify_Geometric(int Count, bool bIncreasing)
 {
 	CSG_Simple_Statistics Statistics;
 
@@ -598,14 +598,15 @@ bool CSGDI_Classify::Classify_Geometric(int Count)
 
 	_Create_Classes();
 
-	double k = log(Statistics.Get_Range()) / Count;
+	double k = log(Statistics.Get_Range()) / (double)Count;
 
 	double Minimum, Maximum = Statistics.Get_Minimum();
 
-	for(int i=0; i<Count; i++)
+	for(int i=0, j=1; i<Count; i++, j++)
 	{
-		Minimum = Maximum;
-		Maximum = Statistics.Get_Minimum() + exp(k * (i + 1.));
+		Minimum = Maximum; Maximum = bIncreasing
+			? (Statistics.Get_Minimum() + exp(k * j))
+			: (Statistics.Get_Maximum() - exp(k * j));
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 

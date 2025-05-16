@@ -121,6 +121,8 @@ public:
 
 	void						Add_Toolbar					(class wxToolBarBase *pToolBar, const wxString &Name);
 
+	void						Show_Toolbar_Data			(bool bShow);
+
 
 private: //------------------------------------------------
 
@@ -134,7 +136,7 @@ private: //------------------------------------------------
 
 	class wxMenu				*m_pMN_Table, *m_pMN_Diagram, *m_pMN_Map, *m_pMN_Map_3D, *m_pMN_Histogram, *m_pMN_ScatterPlot, *m_pMN_Layout;
 
-	class wxToolBarBase			*m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout, *m_pTB_Main;
+	class wxToolBarBase			*m_pTB_Data, *m_pTB_Table, *m_pTB_Diagram, *m_pTB_Map, *m_pTB_Map_3D, *m_pTB_Histogram, *m_pTB_ScatterPlot, *m_pTB_Layout, *m_pTB_Main;
 
 	class CINFO					*m_pINFO;
 
@@ -150,6 +152,7 @@ private: //------------------------------------------------
 	//-----------------------------------------------------
 	class wxMenuBar *			_Create_MenuBar				(void);
 	class wxToolBarBase *		_Create_ToolBar				(void);
+	class wxToolBarBase *		_Create_ToolBar_Data		(void);
 
 	void						_Bar_Add					(wxWindow *pWindow, int Position, int Row);
 	void						_Bar_Toggle					(wxWindow *pWindow);

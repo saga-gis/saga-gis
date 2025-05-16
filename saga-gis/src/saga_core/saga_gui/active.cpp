@@ -83,9 +83,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -93,9 +93,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -111,9 +111,9 @@ enum
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -121,9 +121,9 @@ CActive	*g_pActive	= NULL;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -132,7 +132,7 @@ END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -192,7 +192,7 @@ CActive::~CActive(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -262,7 +262,7 @@ CWKSP_Map * CActive::Get_Active_Map(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -287,12 +287,16 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	//-----------------------------------------------------
 	if( m_pItem == NULL )
 	{
-		if( g_pSAGA_Frame   )	g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+		if( g_pSAGA_Frame   )
+		{
+			g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
+			g_pSAGA_Frame->Show_Toolbar_Data(false);
+		}
 
-		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
-		if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh();
+		if( g_pData_Buttons ) { g_pData_Buttons->Refresh(); }
+		if( g_pMap_Buttons  ) { g_pMap_Buttons ->Refresh(); }
 
-		size_t	nPages	= GetPageCount();
+		size_t nPages = GetPageCount();
 
 		_Hide_Page(m_pHistory   );
 		_Hide_Page(m_pLegend    );
@@ -308,10 +312,14 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
+	if( g_pSAGA_Frame )
+	{
+		g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
+		g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Data_Item() != NULL);
+	}
 
 	//-----------------------------------------------------
-	size_t	nPages	= GetPageCount();
+	size_t nPages = GetPageCount();
 
 	_Show_Page(m_pHistory   , Get_Active_Data_Item () != NULL);
 	_Show_Page(m_pLegend    , Get_Active_Layer     () != NULL || Get_Active_Map() != NULL);
@@ -324,13 +332,13 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	if( g_pData_Buttons )	g_pData_Buttons->Refresh(false);
-	if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh(false);
+	if( g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
+	if( g_pMap_Buttons  ) { g_pMap_Buttons ->Refresh(false); }
 
-	if( g_pData_Source  )	g_pData_Source->Set_Data_Source(m_pItem);
+	if( g_pData_Source  ) { g_pData_Source->Set_Data_Source(m_pItem); }
 
 	//-----------------------------------------------------
-	CSG_Data_Object	*pObject	= Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
+	CSG_Data_Object *pObject = Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
 
 	if( SG_Get_Data_Manager().Exists(pObject) &&
 	(	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
@@ -346,7 +354,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -427,7 +435,7 @@ bool CActive::_Hide_Page(wxWindow *pPage)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -526,9 +534,9 @@ bool CActive::Update_Info(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

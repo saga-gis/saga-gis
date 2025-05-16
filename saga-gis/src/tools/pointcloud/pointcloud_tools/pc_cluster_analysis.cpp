@@ -711,7 +711,7 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 	{
 		CSG_Parameters	Parms;
 
-		if( DataObject_Get_Parameters(pPC_out, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_ATTRIB") )
+		if( DataObject_Get_Parameters(pPC_out, Parms) && Parms("COLORS_TYPE") && Parms("LUT") && Parms("LUT_FIELD") )
 		{
 			CSG_Table_Record	*pClass;
 			CSG_Table			*pLUT	= Parms("LUT")->asTable();
@@ -735,8 +735,8 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 				pLUT->Del_Record(pLUT->Get_Count() - 1);
 			}
 
-			Parms("COLORS_TYPE")	->Set_Value(1);	// Color Classification Type: Lookup Table
-			Parms("LUT_ATTRIB")		->Set_Value(clustField);
+			Parms("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
+			Parms("LUT_FIELD"  )->Set_Value(clustField);
 
 			DataObject_Set_Parameters(pPC_out, Parms);
 		}

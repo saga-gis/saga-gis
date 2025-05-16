@@ -294,7 +294,7 @@ bool CGround_Filter::On_After_Execution(void)
 
 		DataObject_Set_Parameter(pPC_out, pLUT);
 		DataObject_Set_Parameter(pPC_out, "COLORS_TYPE", 1);	// lookup table
-		DataObject_Set_Parameter(pPC_out, "LUT_ATTRIB", pPC_out->Get_Field_Count() - 1);
+		DataObject_Set_Parameter(pPC_out, "LUT_FIELD", pPC_out->Get_Field_Count() - 1);
 	}
 
 	if( pPC_out == Parameters("PC_IN")->asPointCloud() )

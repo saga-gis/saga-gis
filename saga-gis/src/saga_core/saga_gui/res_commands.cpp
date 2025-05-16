@@ -407,6 +407,10 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_DATA_OPEN                    : return( ID_IMG_TB_OPEN );
 	case ID_CMD_DATA_PROJECT_SAVE            : return( ID_IMG_TB_SAVE );
 	case ID_CMD_DATA_PROJECT_NEW             : return( ID_IMG_TB_NEW_PROJECT );
+	case ID_CMD_DATA_CLASSIFY                : return( ID_IMG_NB_ACTIVE_LEGEND );
+	case ID_CMD_DATA_PROJECTION              : return( ID_IMG_TB_MAP_LEGEND_VERTICAL );
+	case ID_CMD_DATA_FORCE_UPDATE            : break;
+	case ID_CMD_DATA_HISTOGRAM               : return( ID_IMG_WND_HISTOGRAM );
 
 	case ID_CMD_TOOL_OPEN                    : return( ID_IMG_TB_OPEN_TOOL );
 	case ID_CMD_TOOL_SEARCH                  : return( ID_IMG_NB_WKSP_TOOLS );

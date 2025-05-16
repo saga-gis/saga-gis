@@ -285,7 +285,7 @@ bool CGW_Multi_Regression_Points::Set_Classification(void)
 
 		DataObject_Set_Parameter(m_pShapes, pLUT);
 		DataObject_Set_Parameter(m_pShapes, "COLORS_TYPE",                 1);	// Color Classification Type: Lookup Table
-		DataObject_Set_Parameter(m_pShapes, "LUT_ATTRIB" , m_nPredictors + 3);	// Lookup Table Attribute   : Std.Residual
+		DataObject_Set_Parameter(m_pShapes, "LUT_FIELD"  , m_nPredictors + 3);	// Lookup Table Attribute   : Std.Residual
 	}
 
 	return( true );

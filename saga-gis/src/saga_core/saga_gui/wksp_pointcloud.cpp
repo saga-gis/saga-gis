@@ -437,7 +437,7 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
 
 	//-----------------------------------------------------
-	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
+	_AttributeList_Set(m_Parameters("LUT_FIELD"    ), false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
 	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
 
@@ -459,7 +459,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
 	default: m_fValue = -1                                    ; break; // CLASSIFY_SINGLE
-	case  1: m_fValue = m_Parameters("LUT_ATTRIB"   )->asInt(); break; // CLASSIFY_LUT
+	case  1: m_fValue = m_Parameters("LUT_FIELD"   )->asInt(); break; // CLASSIFY_LUT
 	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break; // CLASSIFY_DISCRETE
 	case  3: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break; // CLASSIFY_GRADUATED
 	case  4: m_fValue = m_Parameters("RGB_ATTRIB"   )->asInt(); break; // CLASSIFY_RGB
@@ -510,20 +510,6 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
-		}
-
-		if(	pParameter->Cmp_Identifier("LUT_ATTRIB") || (pParameter->Cmp_Identifier("COLORS_TYPE") && pParameter->asInt() == 1) ) // CLASSIFY_LUT
-		{
-			int Field = (*pParameters)("LUT_ATTRIB")->asInt();
-
-			if(	Field >= 0 && Field < Get_PointCloud()->Get_Field_Count() )
-			{
-				TSG_Data_Type Type = SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(Field))
-					? SG_DATATYPE_Double : SG_DATATYPE_String;
-		
-				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
-				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
-			}
 		}
 	}
 

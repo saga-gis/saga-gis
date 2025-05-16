@@ -345,8 +345,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB"   , _TL("Field"        ), _TL(""), _TL("<default>"));
-	//	m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMALIZE", _TL("Normalization"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_FIELD"    , _TL("Field"        ), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMALIZE", _TL("Normalization"), _TL(""), _TL("<default>"));
 	}
 
 	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT", "LUT", _TL("Table"), _TL(""))->asTable();
@@ -738,7 +738,6 @@ void CWKSP_Layer::On_DataObject_Changed(void)
 //---------------------------------------------------------
 int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
 		if( pParameter->Cmp_Identifier("STRETCH_DEFAULT")
@@ -749,6 +748,20 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  pParameter->Cmp_Identifier("BAND"           ) )
 		{
 			ColorsParms_Adjust(*pParameters);
+		}
+
+		if(	pParameter->Cmp_Identifier("LUT_FIELD") || (pParameter->Cmp_Identifier("COLORS_TYPE") && pParameter->asInt() == 1 && m_pObject->asTable(true)) ) // CLASSIFY_LUT
+		{
+			int Field = (*pParameters)("LUT_FIELD")->asInt();
+
+			if(	Field >= 0 && Field < m_pObject->asTable(true)->Get_Field_Count() )
+			{
+				TSG_Data_Type Type = m_pObject->asTable(true)->is_Field_Numeric(Field)
+					? SG_DATATYPE_Double : SG_DATATYPE_String;
+		
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+				(*pParameters)("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+			}
 		}
 	}
 
@@ -810,7 +823,6 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 void CWKSP_Layer::On_Parameters_Changed(void)
 {
-	//-----------------------------------------------------
 	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
 
 	m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
@@ -1233,107 +1245,190 @@ CSG_Table * CWKSP_Layer::Edit_Get_Attributes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
+{
+	CSG_Parameters *pParameters = pParameter ? pParameter->Get_Parameters() : NULL;
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+		if( pParameter->Cmp_Identifier("NUM_FIELDS") )
+		{
+			int Field; pParameter->asChoice()->Get_Data(Field);
+
+			pParameters->Set_Parameter("INTERVAL", (*pParameters)("TABLE")->asTable()->Get_Range(Field) / (*pParameters)("CLASSES")->asInt());
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if( pParameter->Cmp_Identifier("METHOD") )
+		{
+			pParameters->Set_Enabled("ALL_FIELDS" , pParameter->asInt() == 0);
+			pParameters->Set_Enabled("NUM_FIELDS" , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("CLASSES_MAX", pParameter->asInt() == 0);
+			pParameters->Set_Enabled("INTERVAL"   , pParameter->asInt() == 2);
+			pParameters->Set_Enabled("INCREASING" , pParameter->asInt() == 4);
+			pParameters->Set_Enabled("STDDEV"     , pParameter->asInt() == 6);
+		}
+	}
+
+	return( 1 );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Layer::_Classify(void)
 {
-	//-----------------------------------------------------
-	if( m_pObject->asTable(true) && (m_pObject->asTable(true)->Get_Field_Count() < 1 || m_pObject->asTable(true)->Get_Count() < 1) )
-	{
-		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
+	const CSG_String Methods = CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
+		_TL("unique values"     ), // 0
+		_TL("equal interval"    ), // 1
+		_TL("defined interval"  ), // 2
+		_TL("quantile"          ), // 3
+		_TL("geometric interval"), // 4
+		_TL("natural breaks"    ), // 5
+		_TL("standard deviation")  // 6
+	);
 
-		return( false );
+	CSG_Table *pTable = m_pObject->asTable(true);
+
+	if( pTable )
+	{
+		if( pTable->Get_Field_Count() < 1 )
+		{
+			DLG_Message_Show(_TL("failed because there are no attributes"), _TL("Classify"));
+
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
 	if( m_Classify.Get_Count() == 0 )
 	{
 		m_Classify.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
-		if( m_pObject->asTable(true) )
+
+		if( pTable )
 		{
-			m_Classify.Add_Choice("", "FIELD"   , _TL("Attribute"                ), _TL(""), "");
+			m_Classify.Add_Table ("", "TABLE", _TL("Table"), _TL(""), PARAMETER_INPUT)->Set_Enabled(false); m_Classify["TABLE"].Set_Value(pTable);
+
+			m_Classify.Add_Choice("", "ALL_FIELDS", _TL("Field"        ), _TL(""), "");
+			m_Classify.Add_Choice("", "NUM_FIELDS", _TL("Field"        ), _TL(""), "");
+			m_Classify.Add_Choice("", "NUM_NORMAL", _TL("Normalization"), _TL(""), "");
 		}
-		m_Classify.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
-		m_Classify.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
-		m_Classify.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
-		m_Classify.Add_Double("", "INTERVAL", _TL("Defined Interval"         ), _TL(""), 1. , 0. , true);
-		m_Classify.Add_Double("", "STDDEV"  , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.1, true);
-		m_Classify.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
-				_TL("unique values"),
-				_TL("equal interval"),
-				_TL("defined interval"),
-				_TL("quantile"),
-				_TL("geometric interval"),
-				_TL("natural breaks"),
-				_TL("standard deviation")
-			), 0
-		);
+
+		m_Classify.Add_Colors("", "COLORS"     , _TL("Colors"                   ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
+		m_Classify.Add_Int   ("", "CLASSES"    , _TL("Number of Classes"        ), _TL(""),   10,  1, true);
+		m_Classify.Add_Choice("", "METHOD"     , _TL("Classification"           ), _TL(""), Methods, 1);
+		m_Classify.Add_Int   ("", "CLASSES_MAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
+		m_Classify.Add_Double("", "INTERVAL"   , _TL("Defined Interval"         ), _TL(""), 1. , 0. , true);
+		m_Classify.Add_Bool  ("", "INCREASING" , _TL("Increasing Intervals"     ), _TL(""), true);
+		m_Classify.Add_Double("", "STDDEV"     , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.1, true);
+
+		if( m_pObject->asGrid () ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrid ()->Get_Range() / 10); }
+		if( m_pObject->asGrids() ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrids()->Get_Range() / 10); }
 	}
 
-	if( m_pObject->asTable(true) )
+	//-----------------------------------------------------
+	if( pTable )
 	{
-		CSG_String Fields;
+		CSG_String Fields[2];
 
-		for(int i=0; i<m_pObject->asTable(true)->Get_Field_Count(); i++)
+		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			Fields += CSG_String(m_pObject->asTable(true)->Get_Field_Name(i)) + "|";
+			Fields[0] += CSG_String::Format("%s|", pTable->Get_Field_Name(i));
+
+			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
+			{
+				Fields[1] += CSG_String::Format("{%d}%s|", i, pTable->Get_Field_Name(i));
+			}
 		}
 
-		m_Classify("FIELD")->asChoice()->Set_Items(Fields);
+		m_Classify["ALL_FIELDS"].asChoice()->Set_Items(Fields[0]);
+
+		if( Fields[1].is_Empty() )
+		{
+			m_Classify["METHODS"].asChoice()->Set_Items(Methods.BeforeFirst('|'));
+		}
+		else
+		{
+			m_Classify["NUM_FIELDS"].asChoice()->Set_Items(Fields[1]);
+			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("{-1}<%s>|%s", _TL("none"), Fields[1].c_str()));
+		}
 	}
 
-	CSG_Parameters _Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+	//-----------------------------------------------------
+	CSG_Parameters Parameters(m_Classify); Parameters.Set_Callback_On_Parameter_Changed(&_Classify_Callback);
 
-	_Parameters.Assign_Parameters(&m_Classify); _Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
-
-	if( !DLG_Parameters(&_Parameters) )
+	if( !DLG_Parameters(&Parameters) )
 	{
 		return( false );
 	}
 
-	m_Classify.Assign_Values(&_Parameters);
+	m_Classify.Assign_Values(&Parameters);
 
 	//-----------------------------------------------------
 	DataObject_Changed();
 
 	CSGDI_Classify Classify;
 
-	if( m_pObject->asTable(true) )
+	if( pTable )
 	{
-		Classify.Create(m_pObject->asTable(true), m_Classify("FIELD")->asInt());
+		int Field = m_Classify["ALL_FIELDS"].asInt(), Normalize = -1;
+
+		if( m_Classify["METHOD"].asInt() > 0 ) // not unique values, quantities!
+		{
+			m_Classify["NUM_FIELDS"].asChoice()->Get_Data(Field    );
+			m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Normalize);
+		}
+
+		Classify.Create(pTable, Field, Normalize);
 	}
 	else
 	{
 		Classify.Create(m_pObject);
 	}
 
-	switch( m_Classify("METHOD")->asInt() )
+	switch( m_Classify["METHOD"].asInt() )
 	{
-	case  0: Classify.Classify_Unique   (m_Classify("COUNTMAX")->asInt   ()); break;
-	case  1: Classify.Classify_Equal    (m_Classify("COUNT"   )->asInt   ()); break;
-	case  2: Classify.Classify_Defined  (m_Classify("INTERVAL")->asDouble()); break;
-	case  3: Classify.Classify_Quantile (m_Classify("COUNT"   )->asInt   (), false); break;
-	case  4: Classify.Classify_Geometric(m_Classify("COUNT"   )->asInt   ()); break;
-	case  5: Classify.Classify_Natural  (m_Classify("COUNT"   )->asInt   ()); break;
-	case  6: Classify.Classify_StdDev   (m_Classify("STDDEV"  )->asDouble()); break;
+	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()); break;
+	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()); break;
+	case  2: Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()); break;
+	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), false); break;
+	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"].asBool()); break;
+	case  5: Classify.Classify_Natural  (m_Classify["CLASSES"    ].asInt   ()); break;
+	case  6: Classify.Classify_StdDev   (m_Classify["STDDEV"     ].asDouble()); break;
 	}
 
 	//-----------------------------------------------------
-	CSG_Table Classes(m_Parameters("LUT")->asTable());
+	CSG_Table Classes(m_Parameters["LUT"].asTable());
 
-	if( Classify.Set_LUT(Classes, *m_Classify("COLORS")->asColors()) )
+	if( Classify.Set_LUT(Classes, *m_Classify["COLORS"].asColors()) )
 	{
-		m_Parameters("LUT")->asTable()->Assign(&Classes);
+		m_Parameters["LUT"].asTable()->Assign(&Classes);
 
-		if( m_Parameters("LUT")->asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
+		if( m_Parameters["LUT"].asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
 		{
-			m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
+			m_Parameters["LUT"].asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
 		}
 
-		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT); // Lookup Table
+		m_Parameters["COLORS_TYPE"].Set_Value(CLASSIFY_LUT); // Lookup Table
 
-		if( m_pObject->asTable(true) )
+		if( pTable )
 		{
-			m_Parameters("LUT_ATTRIB" )->Set_Value(m_Classify("FIELD")->asInt());
+			if( m_Classify["METHOD"].asInt() == 0 ) // unique values, qualities!
+			{
+				m_Parameters["LUT_FIELD"].Set_Value(m_Classify["ALL_FIELDS"].asInt());
+			}
+			else // numeric values, quantities!
+			{
+				int Field; m_Classify["NUM_FIELDS"].asChoice()->Get_Data(Field);
+
+				m_Parameters["LUT_FIELD"].Set_Value(Field);
+
+				m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Field);
+
+				m_Parameters["LUT_NORMALIZE"].Set_Value(Field);
+			}
 		}
 
 		Parameters_Changed();

@@ -498,7 +498,7 @@ bool CTable_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &C
 		pLUT->asTable()->Set_Count(Classifier.Get_Class_Count());
 
 		DataObject_Set_Parameter(pClasses, pLUT                 ); // Lookup Table
-		DataObject_Set_Parameter(pClasses, "LUT_ATTRIB" , Offset); // Lookup Table Attribute
+		DataObject_Set_Parameter(pClasses, "LUT_FIELD"  , Offset); // Lookup Table Attribute
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1     ); // Color Classification Type: Lookup Table
 	}
 
