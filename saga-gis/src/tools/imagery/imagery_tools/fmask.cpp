@@ -402,6 +402,7 @@ bool CFmask::Initialize(void)
 		m_pBand[TIR] 	= Parameters("THERMAL"		)->asGrid();
 		m_pBand[QARAD_G]= Parameters("QARAD_G"		)->asGrid();
 		m_pBand[QARAD_R]= Parameters("QARAD_R"		)->asGrid();
+		m_pBand[CIR]	= NULL;
 	}
 	
 	if( m_Sensor == OLI_TIRS )
@@ -949,10 +950,10 @@ bool CFmask::Set_Cloud_Mask( const double T_Low, const double Land_threshold, co
 	 	}
 	}
 
-	for( int y=1; y<m_pSystem->Get_NY()-1 && Set_Progress(y+m_pSystem->Get_NY(),m_pSystem->Get_NY()*2); y++ )
+	for( int y=0; y<m_pSystem->Get_NY() && Set_Progress(y+m_pSystem->Get_NY(),m_pSystem->Get_NY()*2); y++ )
 	{
 		#pragma omp parallel for
-		for( int x=1; x<m_pSystem->Get_NX()-1; x++ )
+		for( int x=0; x<m_pSystem->Get_NX(); x++ )
 		{
 			int count = 0;
 			for(int i=0; i<s_off; i++)
@@ -960,7 +961,7 @@ bool CFmask::Set_Cloud_Mask( const double T_Low, const double Land_threshold, co
 				int ix = x + x_off[i];
 				int iy = y + y_off[i];
 
-				if( m_pResults[RESULT_PCL]->asInt(ix,iy) == ID_CLOUD )
+				if( m_pSystem->is_InGrid(ix,iy) && m_pResults[RESULT_PCL]->asInt(ix,iy) == ID_CLOUD )
 	 			{
 					count++;
 				}
