@@ -47,6 +47,7 @@
 
 //---------------------------------------------------------
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -64,6 +65,16 @@
 #include "wksp_table.h"
 #include "view_table.h"
 #include "view_scatterplot.h"
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+static wxToolBarBase *static_pToolBar = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -112,6 +123,18 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
+
+	//-----------------------------------------------------
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_POINTCLOUD);
+
+		Add_ToolBar_Defaults(static_pToolBar);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Data Layer"));
+	}
+
+	m_pToolBar = static_pToolBar;
 }
 
 //---------------------------------------------------------

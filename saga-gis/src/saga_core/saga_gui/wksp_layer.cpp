@@ -158,6 +158,27 @@ CWKSP_Layer::~CWKSP_Layer(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Layer::Add_ToolBar_Defaults(class wxToolBarBase *pToolBar)
+{
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_SHOW_MAP);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_SAVEAS);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_RELOAD);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_FORCE_UPDATE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECTION);
+	pToolBar->AddSeparator();
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_CLASSIFY);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_DATA_HISTOGRAM);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWKSP_Layer::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
@@ -1352,7 +1373,7 @@ bool CWKSP_Layer::_Classify(void)
 		else
 		{
 			m_Classify["NUM_FIELDS"].asChoice()->Set_Items(Fields[1]);
-			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("{-1}<%s>|%s", _TL("none"), Fields[1].c_str()));
+			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("%s|{-1}<%s>", Fields[1].c_str(), _TL("none")));
 		}
 	}
 
@@ -1426,6 +1447,11 @@ bool CWKSP_Layer::_Classify(void)
 				m_Parameters["LUT_FIELD"].Set_Value(Field);
 
 				m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Field);
+
+				if( Field < 0 )
+				{
+					Field = m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1; // <none>
+				}
 
 				m_Parameters["LUT_NORMALIZE"].Set_Value(Field);
 			}

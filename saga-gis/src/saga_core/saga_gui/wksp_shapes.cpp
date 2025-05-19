@@ -51,6 +51,7 @@
 #include <saga_gdi/sgdi_helper.h>
 
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -65,6 +66,16 @@
 #include "wksp_table.h"
 
 #include "data_source_pgsql.h"
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+static wxToolBarBase *static_pToolBar = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -95,6 +106,24 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Sel_Color   = *wxRED;
 
 	m_bVertices   = 0;
+
+	//-----------------------------------------------------
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_SHAPES);
+
+		Add_ToolBar_Defaults(static_pToolBar);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_DATA_DIAGRAM);
+		static_pToolBar->AddSeparator();
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_TABLE_SHOW);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_TABLE_JOIN_DATA);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Data Layer"));
+	}
+
+	m_pToolBar = static_pToolBar;
 }
 
 //---------------------------------------------------------

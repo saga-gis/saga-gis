@@ -118,7 +118,12 @@ enum ID_CONTROLS
 	//-----------------------------------------------------
 	ID_TB_MAIN,
 
-	ID_TB_DATA,
+	ID_TB_DATA_TABLE,
+	ID_TB_DATA_SHAPES,
+	ID_TB_DATA_POINTCLOUD,
+	ID_TB_DATA_TIN,
+	ID_TB_DATA_GRID,
+	ID_TB_DATA_GRIDS,
 
 	ID_TB_VIEW_TABLE,
 	ID_TB_VIEW_TABLE_DIAGRAM,

@@ -53,9 +53,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -65,9 +65,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -155,19 +155,19 @@ private:
 
 	CSG_Parameters					m_Sel_Parms[2];
 
-	class CWKSP_Project				*m_pProject;
+	class CWKSP_Project				*m_pProject = NULL;
 
-	class CWKSP_Data_Menu_Files		*m_pMenu_Files;
+	class CWKSP_Data_Menu_Files		*m_pMenu_Files = NULL;
 
-	class CWKSP_Table_Manager		*m_pTables;
+	class CWKSP_Table_Manager		*m_pTables = NULL;
 
-	class CWKSP_Shapes_Manager		*m_pShapes;
+	class CWKSP_Shapes_Manager		*m_pShapes = NULL;
 
-	class CWKSP_TIN_Manager			*m_pTINs;
+	class CWKSP_TIN_Manager			*m_pTINs = NULL;
 
-	class CWKSP_PointCloud_Manager	*m_pPointClouds;
+	class CWKSP_PointCloud_Manager	*m_pPointClouds = NULL;
 
-	class CWKSP_Grid_Manager		*m_pGrids;
+	class CWKSP_Grid_Manager		*m_pGrids = NULL;
 
 
 	static int						_Modified_Changed		(class CSG_Parameter  *pParameter, int Flags);
@@ -184,9 +184,9 @@ extern CWKSP_Data_Manager			*g_pData;
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

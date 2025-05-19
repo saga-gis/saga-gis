@@ -598,15 +598,15 @@ bool CSGDI_Classify::Classify_Geometric(int Count, bool bIncreasing)
 
 	_Create_Classes();
 
-	double k = log(Statistics.Get_Range()) / (double)Count;
+	double k = (log(1. + Statistics.Get_Range())) / Count;
 
 	double Minimum, Maximum = Statistics.Get_Minimum();
 
-	for(int i=0, j=1; i<Count; i++, j++)
+	for(int i=0; i<Count; i++)
 	{
 		Minimum = Maximum; Maximum = bIncreasing
-			? (Statistics.Get_Minimum() + exp(k * j))
-			: (Statistics.Get_Maximum() - exp(k * j));
+			? (Statistics.Get_Minimum() + (exp(k * (        i + 1)) - 1.))
+			: (Statistics.Get_Maximum() - (exp(k * (Count - i - 1)) - 1.));
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 

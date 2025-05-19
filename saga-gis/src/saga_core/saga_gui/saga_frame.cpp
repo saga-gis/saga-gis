@@ -345,10 +345,9 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pTB_Diagram     = CVIEW_Table_Diagram::_Create_ToolBar();
 	m_pTB_Histogram   = CVIEW_Histogram    ::_Create_ToolBar();
 	m_pTB_ScatterPlot = CVIEW_ScatterPlot  ::_Create_ToolBar();
-	m_pTB_Data        =                      _Create_ToolBar_Data();
+	m_pTB_Data        = NULL;
 
 	_Bar_Show(m_pTB_Main, true);
-	_Bar_Show(m_pTB_Data, false);
 
 	m_pLayout->Update();
 
@@ -1300,36 +1299,37 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 }
 
 //---------------------------------------------------------
-wxToolBarBase * CSAGA_Frame::_Create_ToolBar_Data(void)
+void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
 {
-	wxToolBarBase *pToolBar = CMD_ToolBar_Create(ID_TB_DATA);
-
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_CLASSIFY);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECTION);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_FORCE_UPDATE);
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_DATA_HISTOGRAM);
-
-	CMD_ToolBar_Add(pToolBar, _TL("Data Layer"));
-
-	return( pToolBar );
-}
-
-//---------------------------------------------------------
-void CSAGA_Frame::Show_Toolbar_Data(bool bShow)
-{
-	wxAuiPaneInfo Pane(m_pLayout->GetPane(m_pTB_Data));
-
-	if( Pane.IsOk() && Pane.IsShown() != bShow )
+	if( m_pTB_Data != pToolBar )
 	{
-		Pane.Show(bShow);
-
-		if( bShow && Pane.IsDocked() )
+		if( m_pTB_Data ) // hide
 		{
-			Pane.Float();
+			_Bar_Show(m_pTB_Data, false);
 		}
 
-		m_pLayout->GetPane   (m_pTB_Data) = Pane;
-		m_pLayout->GetManager(m_pTB_Data)->Update();
+		m_pTB_Data = pToolBar;
+
+		if( m_pTB_Data )
+		{
+		//	_Bar_Show(m_pTB_Data, true);
+
+			wxAuiPaneInfo Pane(m_pLayout->GetPane(m_pTB_Data));
+
+			if( Pane.IsOk() )
+			{
+				Pane.Show(true);
+
+				if( Pane.IsToolbar() && Pane.IsDocked() )
+				{
+					Pane.Position(2);
+				}
+
+				m_pLayout->GetPane(m_pTB_Data) = Pane;
+
+				m_pLayout->GetManager(m_pTB_Data)->Update();
+			}
+		}
 	}
 }
 
@@ -1339,7 +1339,7 @@ void CSAGA_Frame::Add_Toolbar(wxToolBarBase *pToolBar, const wxString &Name)
 	pToolBar->Realize();
 
 	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
-		.Name         (wxString::Format("PANE_%d", pToolBar->GetId()))
+		.Name         (wxString::Format("TOOLBAR%d", pToolBar->GetId()))
 		.Caption      (Name)
 		.ToolbarPane  ()
 		.Top          ()

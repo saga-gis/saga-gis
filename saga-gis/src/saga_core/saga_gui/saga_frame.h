@@ -121,7 +121,7 @@ public:
 
 	void						Add_Toolbar					(class wxToolBarBase *pToolBar, const wxString &Name);
 
-	void						Show_Toolbar_Data			(bool bShow);
+	void						Show_Toolbar_Data			(class wxToolBarBase *pToolBar);
 
 
 private: //------------------------------------------------
@@ -152,7 +152,6 @@ private: //------------------------------------------------
 	//-----------------------------------------------------
 	class wxMenuBar *			_Create_MenuBar				(void);
 	class wxToolBarBase *		_Create_ToolBar				(void);
-	class wxToolBarBase *		_Create_ToolBar_Data		(void);
 
 	void						_Bar_Add					(wxWindow *pWindow, int Position, int Row);
 	void						_Bar_Toggle					(wxWindow *pWindow);

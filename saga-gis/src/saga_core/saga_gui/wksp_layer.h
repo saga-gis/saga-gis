@@ -149,6 +149,8 @@ protected:
 	wxBitmap						m_Thumbnail;
 
 
+	static bool						Add_ToolBar_Defaults	(class wxToolBarBase *pToolBar);
+
 	virtual void					On_Create_Parameters	(void);
 	virtual void					On_DataObject_Changed	(void);
 	virtual void					On_Parameters_Changed	(void);

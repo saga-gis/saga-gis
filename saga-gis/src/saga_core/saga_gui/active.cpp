@@ -274,7 +274,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	m_pItem		= pItem;
+	m_pItem = pItem;
 
 	if( m_pParameters )	m_pParameters->Set_Parameters(m_pItem);
 
@@ -290,7 +290,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 		if( g_pSAGA_Frame   )
 		{
 			g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
-			g_pSAGA_Frame->Show_Toolbar_Data(false);
+			g_pSAGA_Frame->Show_Toolbar_Data(NULL);
 		}
 
 		if( g_pData_Buttons ) { g_pData_Buttons->Refresh(); }
@@ -315,7 +315,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 	if( g_pSAGA_Frame )
 	{
 		g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
-		g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Data_Item() != NULL);
+		g_pSAGA_Frame->Show_Toolbar_Data(m_pItem->Get_ToolBar());
 	}
 
 	//-----------------------------------------------------

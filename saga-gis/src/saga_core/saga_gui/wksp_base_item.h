@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Base_Item_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Base_Item_H
 
@@ -86,9 +74,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define LAYER_DRAW_FLAG_NOEDITS		0x01
-#define LAYER_DRAW_FLAG_NOLABELS	0x02
-#define LAYER_DRAW_FLAG_THUMBNAIL	0x04
+#define LAYER_DRAW_FLAG_NOEDITS   0x01
+#define LAYER_DRAW_FLAG_NOLABELS  0x02
+#define LAYER_DRAW_FLAG_THUMBNAIL 0x04
 
 
 ///////////////////////////////////////////////////////////
@@ -156,6 +144,8 @@ public:
 	virtual wxString				Get_Name				(void)       { return( wxEmptyString ); }
 	virtual wxString				Get_Description			(void)       { return( wxEmptyString ); }
 
+	virtual class wxToolBarBase *	Get_ToolBar				(void) const {	return( m_pToolBar );	}
+
 	const wxString &				Get_Unique_ID			(void);
 	const wxString &				Set_Unique_ID			(const wxString &ID);
 	bool							Cmp_Unique_ID			(const wxString &ID);
@@ -188,6 +178,8 @@ protected:
 
 	CSG_Parameters					m_Parameters;
 
+	class wxToolBarBase				*m_pToolBar = NULL;
+
 
 	virtual void					On_Create_Parameters	(void);
 
@@ -199,11 +191,11 @@ protected:
 
 private:
 
-	int								m_ID;
+	int								m_ID = 0;
 
 	wxString						m_Unique_ID;
 
-	CWKSP_Base_Manager				*m_pManager;
+	CWKSP_Base_Manager				*m_pManager = NULL;
 
 
 	bool							_On_Data_Deletion		(CSG_Parameters &Parameters, CSG_Data_Object *pObject);

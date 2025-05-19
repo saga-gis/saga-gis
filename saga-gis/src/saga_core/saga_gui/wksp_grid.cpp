@@ -57,6 +57,7 @@
 #include <saga_gdi/sgdi_helper.h>
 
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -84,6 +85,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+static wxToolBarBase *static_pToolBar = NULL;
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
@@ -92,6 +103,19 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	On_Create_Parameters();
 
 	DataObject_Changed();
+
+	//-----------------------------------------------------
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_GRID);
+
+		Add_ToolBar_Defaults(static_pToolBar);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Data Layer"));
+	}
+
+	m_pToolBar = static_pToolBar;
 }
 
 
