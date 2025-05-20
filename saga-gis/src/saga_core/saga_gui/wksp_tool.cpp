@@ -320,12 +320,12 @@ bool CWKSP_Tool::Execute(bool bDialog)
 
 	if( m_pTool->On_Before_Execution() )
 	{
-		#ifndef __WXMAC__
-		g_pTools->Set_Recently_Used(this);
-		#endif
-
 		if( !bDialog || DLG_Parameters(m_pTool->Get_Parameters(), "", m_pTool->Get_Summary(false).c_str()) )
 		{
+			#ifndef __WXMAC__
+			g_pTools->Set_Recently_Used(this);
+			#endif
+
 			MSG_General_Add_Line(); MSG_Execution_Add_Line(); STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 
 			bResult	= m_pTool->Execute(true);
@@ -341,6 +341,13 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		m_pTool->On_After_Execution();
 
 		g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
+
+		#ifdef __WXMAC__
+		if( g_pTools->Get_Parameter("LIST_RECENT") && g_pTools->Get_Parameter("LIST_RECENT")->asBool() )
+		{
+			g_pTools->Set_Recently_Used(this);
+		}
+		#endif
 	}
 
 	if( !bResult || !m_pTool->is_Interactive() )
