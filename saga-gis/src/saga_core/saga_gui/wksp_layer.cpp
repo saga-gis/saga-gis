@@ -1288,7 +1288,9 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 		{
 			pParameters->Set_Enabled("ALL_FIELDS" , pParameter->asInt() == 0);
 			pParameters->Set_Enabled("NUM_FIELDS" , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("NUM_NORMAL" , pParameter->asInt() != 0);
 			pParameters->Set_Enabled("CLASSES_MAX", pParameter->asInt() == 0);
+			pParameters->Set_Enabled("CLASSES"    , pParameter->asInt() != 0 && pParameter->asInt() != 2 && pParameter->asInt() != 6);
 			pParameters->Set_Enabled("INTERVAL"   , pParameter->asInt() == 2);
 			pParameters->Set_Enabled("INCREASING" , pParameter->asInt() == 4);
 			pParameters->Set_Enabled("STDDEV"     , pParameter->asInt() == 6);
@@ -1324,7 +1326,9 @@ bool CWKSP_Layer::_Classify(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_Classify.Get_Count() == 0 )
+	bool bFirst = m_Classify.Get_Count() == 0;
+
+	if( bFirst )
 	{
 		m_Classify.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
@@ -1338,9 +1342,9 @@ bool CWKSP_Layer::_Classify(void)
 		}
 
 		m_Classify.Add_Colors("", "COLORS"     , _TL("Colors"                   ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
+		m_Classify.Add_Int   ("", "CLASSES_MAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
 		m_Classify.Add_Int   ("", "CLASSES"    , _TL("Number of Classes"        ), _TL(""),   10,  1, true);
 		m_Classify.Add_Choice("", "METHOD"     , _TL("Classification"           ), _TL(""), Methods, 1);
-		m_Classify.Add_Int   ("", "CLASSES_MAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
 		m_Classify.Add_Double("", "INTERVAL"   , _TL("Defined Interval"         ), _TL(""), 1. , 0. , true);
 		m_Classify.Add_Bool  ("", "INCREASING" , _TL("Increasing Intervals"     ), _TL(""), true);
 		m_Classify.Add_Double("", "STDDEV"     , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.1, true);
@@ -1375,8 +1379,11 @@ bool CWKSP_Layer::_Classify(void)
 			m_Classify["METHOD"].asChoice()->Set_Items(Methods);
 
 			m_Classify["NUM_FIELDS"].asChoice()->Set_Items(Fields[1]);
-			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("%s|{-1}<%s>", Fields[1].c_str(), _TL("none")));
-			m_Classify["NUM_NORMAL"].Set_Value(m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1);
+			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("%s{-1}<%s>", Fields[1].c_str(), _TL("none")));
+			if( bFirst )
+			{
+				m_Classify["NUM_NORMAL"].Set_Value(m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1);
+			}
 		}
 	}
 
@@ -1451,12 +1458,9 @@ bool CWKSP_Layer::_Classify(void)
 
 				m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Field);
 
-				if( Field < 0 )
-				{
-					Field = m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1; // <none>
-				}
-
-				m_Parameters["LUT_NORMALIZE"].Set_Value(Field);
+				m_Parameters["LUT_NORMALIZE"].Set_Value(Field >= 0 ? Field :
+					m_Parameters["LUT_NORMALIZE"].asChoice()->Get_Count() - 1
+				);
 			}
 		}
 
