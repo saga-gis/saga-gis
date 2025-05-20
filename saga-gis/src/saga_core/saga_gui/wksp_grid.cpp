@@ -85,16 +85,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static wxToolBarBase *static_pToolBar = NULL;
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
@@ -103,19 +93,6 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	On_Create_Parameters();
 
 	DataObject_Changed();
-
-	//-----------------------------------------------------
-	if( !static_pToolBar )
-	{
-		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_GRID);
-
-		Add_ToolBar_Defaults(static_pToolBar);
-		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
-
-		CMD_ToolBar_Add(static_pToolBar, _TL("Data Layer"));
-	}
-
-	m_pToolBar = static_pToolBar;
 }
 
 
@@ -227,6 +204,34 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	return( s );
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxToolBarBase * CWKSP_Grid::Get_ToolBar(void)
+{
+	static wxToolBarBase *static_pToolBar = NULL;
+
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_GRID);
+
+		Add_ToolBar_Defaults(static_pToolBar);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Grid"));
+	}
+
+	return( static_pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid::Get_Menu(void)

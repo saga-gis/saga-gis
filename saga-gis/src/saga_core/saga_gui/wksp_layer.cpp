@@ -160,13 +160,13 @@ CWKSP_Layer::~CWKSP_Layer(void)
 //---------------------------------------------------------
 bool CWKSP_Layer::Add_ToolBar_Defaults(class wxToolBarBase *pToolBar)
 {
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_SHOW_MAP);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_SAVEAS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_RELOAD);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_FORCE_UPDATE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_PROJECTION);
 	pToolBar->AddSeparator();
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_SHOW_MAP);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_DATA_CLASSIFY);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_DATA_HISTOGRAM);
 
@@ -1368,12 +1368,15 @@ bool CWKSP_Layer::_Classify(void)
 
 		if( Fields[1].is_Empty() )
 		{
-			m_Classify["METHODS"].asChoice()->Set_Items(Methods.BeforeFirst('|'));
+			m_Classify["METHOD"].asChoice()->Set_Items(Methods.BeforeFirst('|')); // only strings => unique values
 		}
 		else
 		{
+			m_Classify["METHOD"].asChoice()->Set_Items(Methods);
+
 			m_Classify["NUM_FIELDS"].asChoice()->Set_Items(Fields[1]);
 			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("%s|{-1}<%s>", Fields[1].c_str(), _TL("none")));
+			m_Classify["NUM_NORMAL"].Set_Value(m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1);
 		}
 	}
 

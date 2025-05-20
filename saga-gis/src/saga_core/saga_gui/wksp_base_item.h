@@ -144,12 +144,11 @@ public:
 	virtual wxString				Get_Name				(void)       { return( wxEmptyString ); }
 	virtual wxString				Get_Description			(void)       { return( wxEmptyString ); }
 
-	virtual class wxToolBarBase *	Get_ToolBar				(void) const {	return( m_pToolBar );	}
-
 	const wxString &				Get_Unique_ID			(void);
 	const wxString &				Set_Unique_ID			(const wxString &ID);
 	bool							Cmp_Unique_ID			(const wxString &ID);
 
+	virtual class wxToolBarBase *	Get_ToolBar				(void)       { return( NULL ); }
 	virtual wxMenu *				Get_Menu				(void)       { return( NULL ); }
 
 	virtual bool					On_Command				(int Cmd_ID);
@@ -177,8 +176,6 @@ public:
 protected:
 
 	CSG_Parameters					m_Parameters;
-
-	class wxToolBarBase				*m_pToolBar = NULL;
 
 
 	virtual void					On_Create_Parameters	(void);

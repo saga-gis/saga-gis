@@ -74,16 +74,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static wxToolBarBase *static_pToolBar = NULL;
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	: CWKSP_Layer(pPointCloud)
 {
@@ -123,18 +113,6 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
-
-	//-----------------------------------------------------
-	if( !static_pToolBar )
-	{
-		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_POINTCLOUD);
-
-		Add_ToolBar_Defaults(static_pToolBar);
-
-		CMD_ToolBar_Add(static_pToolBar, _TL("Data Layer"));
-	}
-
-	m_pToolBar = static_pToolBar;
 }
 
 //---------------------------------------------------------
@@ -201,6 +179,29 @@ wxString CWKSP_PointCloud::Get_Description(void)
 
 	//-----------------------------------------------------
 	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxToolBarBase * CWKSP_PointCloud::Get_ToolBar(void)
+{
+	static wxToolBarBase *static_pToolBar = NULL;
+
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_POINTCLOUD);
+
+		Add_ToolBar_Defaults(static_pToolBar);
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_TABLE_SHOW);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Point Cloud"));
+	}
+
+	return( static_pToolBar );
 }
 
 //---------------------------------------------------------

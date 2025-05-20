@@ -408,17 +408,17 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_SAVE            : return( ID_IMG_TB_SAVE );
 	case ID_CMD_DATA_PROJECT_NEW             : return( ID_IMG_TB_NEW_PROJECT );
 
-	case ID_CMD_DATA_SHOW_MAP                : return( ID_IMG_WND_MAP );
-	case ID_CMD_WKSP_ITEM_CLOSE              : return( ID_IMG_TB_DELETE );
-	case ID_CMD_DATA_SAVEAS                  : return( ID_IMG_TB_SAVE );
-	case ID_CMD_DATA_RELOAD                  : break;
-	case ID_CMD_DATA_FORCE_UPDATE            : break;
-	case ID_CMD_DATA_PROJECTION              : return( ID_IMG_WKSP_MAP_GRATICULE );
-	case ID_CMD_DATA_CLASSIFY                : return( ID_IMG_NB_ACTIVE_LEGEND );
-	case ID_CMD_DATA_HISTOGRAM               : return( ID_IMG_WND_HISTOGRAM );
-	case ID_CMD_DATA_SCATTERPLOT             : return( ID_IMG_WND_SCATTERPLOT );
-	case ID_CMD_DATA_DIAGRAM                 : return( ID_IMG_WND_DIAGRAM );
-	case ID_CMD_TABLE_SHOW                   : return( ID_IMG_WND_TABLE );
+	case ID_CMD_DATA_SHOW_MAP                : return( ID_IMG_TB_DATA_MAP_ADD );
+	case ID_CMD_WKSP_ITEM_CLOSE              : return( ID_IMG_TB_DATA_DELETE );
+	case ID_CMD_DATA_SAVEAS                  : return( ID_IMG_TB_DATA_SAVEAS );
+	case ID_CMD_DATA_RELOAD                  : return( ID_IMG_TB_DATA_RELOAD );
+	case ID_CMD_DATA_FORCE_UPDATE            : return( ID_IMG_TB_DATA_REFRESH );
+	case ID_CMD_DATA_PROJECTION              : return( ID_IMG_TB_DATA_CRS );
+	case ID_CMD_DATA_CLASSIFY                : return( ID_IMG_TB_DATA_CLASSIFY );
+	case ID_CMD_DATA_HISTOGRAM               : return( ID_IMG_TB_DATA_HISTOGRAM );
+	case ID_CMD_DATA_SCATTERPLOT             : return( ID_IMG_TB_DATA_SCATTERPLOT );
+	case ID_CMD_DATA_DIAGRAM                 : return( ID_IMG_TB_DATA_DIAGRAM );
+	case ID_CMD_TABLE_SHOW                   : return( ID_IMG_TB_DATA_TABLE_SHOW );
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES       : break;
 	case ID_CMD_TABLE_JOIN_DATA              : break;
 

@@ -480,6 +480,17 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/table.svg.h"
 
 #include "./res/svg/tb_active.svg.h"
+#include "./res/svg/tb_data_map_add.svg.h"
+#include "./res/svg/tb_data_delete.svg.h"
+#include "./res/svg/tb_data_saveas.svg.h"
+#include "./res/svg/tb_data_reload.svg.h"
+#include "./res/svg/tb_data_refresh.svg.h"
+#include "./res/svg/tb_data_crs.svg.h"
+#include "./res/svg/tb_data_classify.svg.h"
+#include "./res/svg/tb_data_histogram.svg.h"
+#include "./res/svg/tb_data_scatterplot.svg.h"
+#include "./res/svg/tb_data_diagram.svg.h"
+#include "./res/svg/tb_data_table_show.svg.h"
 #include "./res/svg/tb_datasource.svg.h"
 #include "./res/svg/tb_delete.svg.h"    // unused
 #include "./res/svg/tb_diagram_parameters.svg.h"
@@ -626,6 +637,17 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_CRS_SELECT               : return( svg_crs_select );
 
 	case ID_IMG_TB_ACTIVE                : return( svg_tb_active );
+	case ID_IMG_TB_DATA_DELETE           : return( svg_tb_data_delete );
+	case ID_IMG_TB_DATA_SAVEAS           : return( svg_tb_data_saveas );
+	case ID_IMG_TB_DATA_MAP_ADD          : return( svg_tb_data_map_add );
+	case ID_IMG_TB_DATA_RELOAD           : return( svg_tb_data_reload );
+	case ID_IMG_TB_DATA_REFRESH          : return( svg_tb_data_refresh );
+	case ID_IMG_TB_DATA_CRS              : return( svg_tb_data_crs );
+	case ID_IMG_TB_DATA_CLASSIFY         : return( svg_tb_data_classify );
+	case ID_IMG_TB_DATA_HISTOGRAM        : return( svg_tb_data_histogram );
+	case ID_IMG_TB_DATA_SCATTERPLOT      : return( svg_tb_data_scatterplot );
+	case ID_IMG_TB_DATA_DIAGRAM          : return( svg_tb_data_diagram );
+	case ID_IMG_TB_DATA_TABLE_SHOW       : return( svg_tb_data_table_show );
 	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
 	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );

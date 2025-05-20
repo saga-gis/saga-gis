@@ -331,7 +331,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 		m_pLayout->LoadPerspective(s, false);
 	}
 
-	Set_Pane_Caption(m_pINFO       , m_pINFO       ->GetName());	// captions might have been modified by perspective, so update again...
+	Set_Pane_Caption(m_pINFO       , m_pINFO       ->GetName()); // captions might have been modified by perspective, so update again...
 	Set_Pane_Caption(m_pWKSP       , m_pWKSP       ->GetName());
 	Set_Pane_Caption(m_pData_Source, m_pData_Source->GetName());
 	Set_Pane_Caption(m_pActive     , m_pActive     ->GetName());
@@ -345,7 +345,8 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pTB_Diagram     = CVIEW_Table_Diagram::_Create_ToolBar();
 	m_pTB_Histogram   = CVIEW_Histogram    ::_Create_ToolBar();
 	m_pTB_ScatterPlot = CVIEW_ScatterPlot  ::_Create_ToolBar();
-	m_pTB_Data        = NULL;
+
+	m_pTB_Child = m_pTB_Data = NULL;
 
 	_Bar_Show(m_pTB_Main, true);
 
@@ -1128,48 +1129,34 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 	}
 
 	//-----------------------------------------------------
-	wxMenu *pMenu = NULL; wxString Title;
+	wxMenu *pMenu = NULL; wxToolBarBase *pTB_Child = NULL; wxString Title;
 
 	switch( View_ID )
 	{
-	case ID_VIEW_TABLE        : pMenu = m_pMN_Table      ; Title = _TL("Table"      ); break;
-	case ID_VIEW_TABLE_DIAGRAM: pMenu = m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
-	case ID_VIEW_MAP          : pMenu = m_pMN_Map        ; Title = _TL("Map"        ); break;
-	case ID_VIEW_MAP_3D       : pMenu = m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
-	case ID_VIEW_HISTOGRAM    : pMenu = m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
-	case ID_VIEW_SCATTERPLOT  : pMenu = m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
-	case ID_VIEW_LAYOUT       : pMenu = m_pMN_Layout     ; Title = _TL("Layout"     ); break;
-	}
-
-	bool bChanged = false;
-
-	if( pMenu )
-	{
-		if( GetMenuBar()->GetMenuCount() < 5 )
-		{
-			bChanged = true; GetMenuBar()->Insert (2, pMenu, Title);
-		}
-		else if( GetMenuBar()->GetMenu(2) != pMenu )
-		{
-			bChanged = true; GetMenuBar()->Replace(2, pMenu, Title);
-		}
-	}
-	else if( GetMenuBar()->GetMenuCount() == 5 )
-	{
-		bChanged = true; GetMenuBar()->Remove(2);
+	case ID_VIEW_TABLE        : pMenu = m_pMN_Table      ; pTB_Child = m_pTB_Table      ; Title = _TL("Table"      ); break;
+	case ID_VIEW_TABLE_DIAGRAM: pMenu = m_pMN_Diagram    ; pTB_Child = m_pTB_Diagram    ; Title = _TL("Diagram"    ); break;
+	case ID_VIEW_MAP          : pMenu = m_pMN_Map        ; pTB_Child = m_pTB_Map        ; Title = _TL("Map"        ); break;
+	case ID_VIEW_MAP_3D       : pMenu = m_pMN_Map_3D     ; pTB_Child = m_pTB_Map_3D     ; Title = _TL("3D View"    ); break;
+	case ID_VIEW_HISTOGRAM    : pMenu = m_pMN_Histogram  ; pTB_Child = m_pTB_Histogram  ; Title = _TL("Histogram"  ); break;
+	case ID_VIEW_SCATTERPLOT  : pMenu = m_pMN_ScatterPlot; pTB_Child = m_pTB_ScatterPlot; Title = _TL("Scatterplot"); break;
+	case ID_VIEW_LAYOUT       : pMenu = m_pMN_Layout     ; pTB_Child = m_pTB_Layout     ; Title = _TL("Layout"     ); break;
 	}
 
 	//-----------------------------------------------------
-	if( bChanged )
+	if     ( pMenu != NULL && GetMenuBar()->GetMenuCount() < 5  ) { GetMenuBar()->Insert (2, pMenu, Title); }
+	else if( pMenu != NULL && GetMenuBar()->GetMenu(2) != pMenu ) { GetMenuBar()->Replace(2, pMenu, Title); }
+	else if( pMenu == NULL && GetMenuBar()->GetMenuCount() == 5 ) { GetMenuBar()->Remove (2              ); }
+
+	//-----------------------------------------------------
+	if( m_pTB_Child != pTB_Child )
 	{
-		_Bar_Show(m_pTB_Main       , true                            );
-		_Bar_Show(m_pTB_Table      , View_ID == ID_VIEW_TABLE        );
-		_Bar_Show(m_pTB_Diagram    , View_ID == ID_VIEW_TABLE_DIAGRAM);
-		_Bar_Show(m_pTB_Map        , View_ID == ID_VIEW_MAP          );
-		_Bar_Show(m_pTB_Map_3D     , View_ID == ID_VIEW_MAP_3D       );
-		_Bar_Show(m_pTB_Histogram  , View_ID == ID_VIEW_HISTOGRAM    );
-		_Bar_Show(m_pTB_ScatterPlot, View_ID == ID_VIEW_SCATTERPLOT  );
-		_Bar_Show(m_pTB_Layout     , View_ID == ID_VIEW_LAYOUT       );
+		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child, false); }
+
+		m_pTB_Child = pTB_Child;
+
+		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child,  true); }
+
+		_ToolBars_Arrange();
 	}
 }
 
@@ -1303,7 +1290,7 @@ void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
 {
 	if( m_pTB_Data != pToolBar )
 	{
-		if( m_pTB_Data ) // hide
+		if( m_pTB_Data )
 		{
 			_Bar_Show(m_pTB_Data, false);
 		}
@@ -1312,24 +1299,10 @@ void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
 
 		if( m_pTB_Data )
 		{
-		//	_Bar_Show(m_pTB_Data, true);
-
-			wxAuiPaneInfo Pane(m_pLayout->GetPane(m_pTB_Data));
-
-			if( Pane.IsOk() )
-			{
-				Pane.Show(true);
-
-				if( Pane.IsToolbar() && Pane.IsDocked() )
-				{
-					Pane.Position(2);
-				}
-
-				m_pLayout->GetPane(m_pTB_Data) = Pane;
-
-				m_pLayout->GetManager(m_pTB_Data)->Update();
-			}
+			_Bar_Show(m_pTB_Data, true);
 		}
+
+		_ToolBars_Arrange();
 	}
 }
 
@@ -1337,17 +1310,37 @@ void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
 void CSAGA_Frame::Add_Toolbar(wxToolBarBase *pToolBar, const wxString &Name)
 {
 	pToolBar->Realize();
+	pToolBar->Hide();
 
-	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
-		.Name         (wxString::Format("TOOLBAR%d", pToolBar->GetId()))
-		.Caption      (Name)
-		.ToolbarPane  ()
-		.Top          ()
-		.LeftDockable (false)
-		.RightDockable(false)
-		.Hide         ()
-		.BestSize     (pToolBar->GetBestSize())
-	);
+	wxAuiPaneInfo Pane;
+
+	Pane.Name         (wxString::Format("TOOLBAR%d", pToolBar->GetId()));
+	Pane.Caption      (Name);
+	Pane.ToolbarPane  ();
+	Pane.Top          ();
+	Pane.LeftDockable (false);
+	Pane.RightDockable(false);
+	Pane.Hide         ();
+	Pane.BestSize     (pToolBar->GetBestSize());
+
+	m_pLayout->AddPane(pToolBar, Pane);
+	m_pLayout->Update();
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::_ToolBars_Arrange(void)
+{
+	#define SET_TB_POSITION(pToolBar) if( pToolBar ) { wxAuiPaneInfo Pane(m_pLayout->GetPane(pToolBar)); if( Pane.IsOk() && Pane.IsDocked() ) {\
+		Pane.Position(Position++); m_pLayout->GetPane(pToolBar) = Pane; }\
+	}
+
+	int Position = 0;
+
+	SET_TB_POSITION(m_pTB_Main );
+	SET_TB_POSITION(m_pTB_Child);
+	SET_TB_POSITION(m_pTB_Data );
+
+	m_pLayout->GetManager(m_pTB_Main)->Update();
 }
 
 
@@ -1411,13 +1404,7 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 	{
 		Pane.Show(bShow);
 
-		if( bShow && Pane.IsToolbar() && Pane.IsDocked() )
-		{
-			Pane.Position(pWindow == m_pTB_Main ? 0 : 1);
-		}
-
-		m_pLayout->GetPane(pWindow)	= Pane;
-
+		m_pLayout->GetPane   (pWindow) = Pane;
 		m_pLayout->GetManager(pWindow)->Update();
 	}
 }
