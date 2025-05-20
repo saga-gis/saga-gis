@@ -139,7 +139,7 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_TOOLS", _TL("Tools"), _TL(""));
 
-	#ifndef __WXMAC__
+	#ifdef __WXMAC__
 	m_Parameters.Add_Bool("NODE_TOOLS",
 		"LIST_RECENT"    , _TL("Recent Tools"),
 		_TL("List recently used tools."),
