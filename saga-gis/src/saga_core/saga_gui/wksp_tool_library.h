@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Library_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Library_H
 
@@ -75,7 +63,7 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -101,9 +89,10 @@ public:
 
 	void							Update			(void);
 
-	class CWKSP_Tool *			Get_Tool		(int i)		{	return( (class CWKSP_Tool *)Get_Item(i) );	}
-	class CWKSP_Tool *			Get_Tool		(class CWKSP_Tool *pTool);
-	class CWKSP_Tool *			Get_Tool_byID	(int CMD_ID);
+	class CWKSP_Tool *				Get_Tool		(int i)		{	return( (class CWKSP_Tool *)Get_Item(i) );	}
+	class CWKSP_Tool *				Get_Tool		(class CWKSP_Tool *pTool);
+	class CWKSP_Tool *				Get_Tool		(const wxString &Tool);
+	class CWKSP_Tool *				Get_Tool_byID	(int CMD_ID);
 
 	bool							is_Valid		(void);
 

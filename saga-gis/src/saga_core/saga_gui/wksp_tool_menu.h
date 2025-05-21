@@ -75,28 +75,31 @@ public:
 	CWKSP_Tool_Menu(void);
 	virtual ~CWKSP_Tool_Menu(void);
 
-	void						Destroy				(void);
-
 	wxMenu *					Get_Menu			(void)	{	return( m_pMenu );	}
 
 	void						Update				(void);
 
-	void						Set_Recent			(class CWKSP_Tool *pTool);
+	void						Add_Recent			(class CWKSP_Tool *pTool);
+
+	bool						Load_Recent			(void);
+	bool						Save_Recent			(void);
 
 	int							Get_ID_Translated	(int ID);
 
 
 private:
 
-	wxMenu						*m_pMenu;
+	int							m_Recent_Start = -1;
 
-	class CWKSP_Tool			**m_Recent;
+	wxMenu						*m_pMenu = NULL;
+
+	class CWKSP_Tool			**m_Recent = NULL;
 
 
-	void						_Update				(wxMenu *pMenu);
 	bool						_Get_SubMenu		(class CWKSP_Tool *pTool, class CSG_MetaData *pUser);
 	wxMenu *					_Get_SubMenu		(wxMenu *pMenu, const wxString &Name);
-	void						_Set_Recent			(wxMenu *pMenu);
+
+	bool						_Set_Recent			(void);
 
 };
 

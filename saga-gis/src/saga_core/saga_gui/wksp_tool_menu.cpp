@@ -90,14 +90,6 @@ CWKSP_Tool_Menu::~CWKSP_Tool_Menu(void)
 //---------------------------------------------------------
 void CWKSP_Tool_Menu::Update(void)
 {
-	CSG_MetaData User;
-
-	if( !g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS") || !User.Load(g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS")->asString()) || !User.Cmp_Name("saga_gui_tool_menus") || SG_Compare_Version(User.Get_Property("saga-version"), "2.2.0") < 0 )
-	{
-		User.Destroy();
-	}
-
-	//-----------------------------------------------------
 	wxMenuBar *pMenuBar = m_pMenu->GetMenuBar();
 
 	if( pMenuBar )
@@ -110,9 +102,26 @@ void CWKSP_Tool_Menu::Update(void)
 		m_pMenu->Destroy(m_pMenu->GetMenuItems()[0]);
 	}
 
+	m_Recent_Start = -1;
+
 	//-----------------------------------------------------
-	if( g_pTools->Get_Count() > 0 )
+	if( g_pTools->Get_Count() < 1 )
 	{
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOL_OPEN  );
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOL_RELOAD);
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		CSG_MetaData User;
+
+		if( !g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS") || !User.Load(g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS")->asString()) || !User.Cmp_Name("saga_gui_tool_menus") || SG_Compare_Version(User.Get_Property("saga-version"), "2.2.0") < 0 )
+		{
+			User.Destroy();
+		}
+
+		//-------------------------------------------------
 		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_MENU_FIRST; iGroup<g_pTools->Get_Count(); iGroup++)
 		{
 			for(int iLibrary=0; iLibrary<g_pTools->Get_Group(iGroup)->Get_Count(); iLibrary++)
@@ -138,7 +147,7 @@ void CWKSP_Tool_Menu::Update(void)
 				{
 					pLibrary->Get_Tool(iTool)->Set_Menu_ID(ID_Menu);
 
-					if( User.Get_Children_Count() <= 0 || pUser )	// ignore if have user defined menus but no entries defined for this library...
+					if( User.Get_Children_Count() <= 0 || pUser ) // ignore if have user defined menus but no entries defined for this library...
 					{
 						_Get_SubMenu(pLibrary->Get_Tool(iTool), pUser);
 					}
@@ -148,21 +157,24 @@ void CWKSP_Tool_Menu::Update(void)
 
 		m_pMenu->InsertSeparator(0);
 
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_OPEN  , 0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_SEARCH, 1);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_SEARCH, 0);
 
-		_Set_Recent(m_pMenu);
-	}
-	else
-	{
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOL_OPEN);
+		m_Recent_Start = m_pMenu->GetMenuItemCount();
+
+		_Set_Recent();
 	}
 
+	//-----------------------------------------------------
 	if( pMenuBar )
 	{
 		pMenuBar->Thaw();
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
@@ -204,8 +216,7 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 
 		for(int i=0; i<SubMenus.Get_Count(); i++)
 		{
-			CSG_String SubMenu(SG_Translate(SubMenus[i]));
-			wxMenu *pSubMenu = _Get_SubMenu(pMenu, SubMenu.c_str());
+			CSG_String SubMenu(SG_Translate(SubMenus[i])); wxMenu *pSubMenu = _Get_SubMenu(pMenu, SubMenu.c_str());
 
 			if( !pSubMenu )
 			{
@@ -278,60 +289,6 @@ wxMenu * CWKSP_Tool_Menu::_Get_SubMenu(wxMenu *pMenu, const wxString &Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Tool_Menu::Set_Recent(CWKSP_Tool *pTool)
-{
-	CWKSP_Tool *pLast = pTool, *pNext = m_Recent[0];
-
-	for(int i=0; i<MAX_COUNT_RECENT_TOOLS && pNext!=pTool; i++)
-	{
-		pNext = m_Recent[i]; m_Recent[i] = pLast; pLast = pNext;
-	}
-
-	Update();
-}
-
-//---------------------------------------------------------
-void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
-{
-	bool bRecent = false;
-
-	for(int i=0, j=ID_CMD_TOOL_RECENT_FIRST; i<MAX_COUNT_RECENT_TOOLS; i++, j++)
-	{
-		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
-		{
-			if( !bRecent )
-			{
-				bRecent	= true;
-
-				pMenu->AppendSeparator();
-			}
-
-			pMenu->AppendCheckItem(j, m_Recent[i]->Get_Name(), m_Recent[i]->Get_Name());
-		}
-		else
-		{
-			m_Recent[i]	= NULL;
-		}
-	}
-
-	//-----------------------------------------------------
-	int i = 0;
-
-	for(int j=0; j<MAX_COUNT_RECENT_TOOLS; j++)
-	{
-		if( m_Recent[j] )
-		{
-			m_Recent[i++] = m_Recent[j];
-		}
-	}
-
-	for(; i<MAX_COUNT_RECENT_TOOLS; i++)
-	{
-		m_Recent[i] = NULL;
-	}
-}
-
-//---------------------------------------------------------
 int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 {
 	int i = ID - ID_CMD_TOOL_RECENT_FIRST;
@@ -342,6 +299,139 @@ int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 	}
 
 	return( ID );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Tool_Menu::Add_Recent(CWKSP_Tool *pTool)
+{
+	if( pTool )
+	{
+		CWKSP_Tool *pLast = pTool, *pNext = m_Recent[0];
+
+		for(int i=0; i<MAX_COUNT_RECENT_TOOLS && pNext!=pTool; i++)
+		{
+			pNext = m_Recent[i]; m_Recent[i] = pLast; pLast = pNext;
+		}
+
+		_Set_Recent();
+	}
+}
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Menu::_Set_Recent(void)
+{
+	int Listing = g_pTools->Get_Parameter("RECENT_LIST")->asInt();
+
+	if( Listing == 2 ) // do not list
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int nRecents = 0;
+
+	for(int i=0; m_Recent[i] && i<MAX_COUNT_RECENT_TOOLS; i++)
+	{
+		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
+		{
+			m_Recent[nRecents++] = m_Recent[i];
+		}
+		else
+		{
+			m_Recent[i] = NULL;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Listing == 0 ) // append to top-level menu
+	{
+		for(int i=m_pMenu->GetMenuItemCount()-1; i>=m_Recent_Start; i--)
+		{
+			m_pMenu->Destroy(m_pMenu->GetMenuItems()[i]);
+		}
+
+		if( nRecents > 0 )
+		{
+			m_pMenu->AppendSeparator();
+		}
+
+		for(int i=0, id=ID_CMD_TOOL_RECENT_FIRST; i<nRecents; i++, id++)
+		{
+			m_pMenu->AppendCheckItem(id, m_Recent[i]->Get_Name(), m_Recent[i]->Get_Name());
+		}
+	}
+
+	//-----------------------------------------------------
+	else // if( Listing == 1 ) // list in sub menu
+	{
+		wxMenu *pMenu = m_pMenu->GetMenuItemCount() > 1 && m_pMenu->GetMenuItems()[1]->IsSubMenu() ? m_pMenu->GetMenuItems()[1]->GetSubMenu() : NULL;
+		
+		if( !pMenu || m_pMenu->GetMenuItems()[1]->GetName().Cmp(_TL("Recent Tools")) )
+		{
+			m_pMenu->Insert(1, wxID_ANY, _TL("Recent Tools"), pMenu = new wxMenu);
+		}
+		else while( pMenu->GetMenuItemCount() )
+		{
+			pMenu->Destroy(pMenu->GetMenuItems()[0]);
+		}
+
+		m_pMenu->GetMenuItems()[1]->Enable(nRecents > 0);
+
+		for(int i=0, id=ID_CMD_TOOL_RECENT_FIRST; i<nRecents; i++, id++)
+		{
+			pMenu->AppendCheckItem(id, m_Recent[i]->Get_Name(), m_Recent[i]->Get_Name());
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Menu::Load_Recent(void)
+{
+	int i = 0; wxString Tool;
+
+	for(int i=0, j=0; i<=MAX_COUNT_RECENT_TOOLS; i++)
+	{
+		if( CONFIG_Read("RECENT_TOOLS", wxString::Format("TOOL_%02d", i), Tool) )
+		{
+			if( (m_Recent[j] = g_pTools->Get_Tool(Tool.BeforeFirst('|'), Tool.AfterFirst('|'))) != NULL )
+			{
+				j++;
+			}
+		}
+	}
+
+	return( _Set_Recent() );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Menu::Save_Recent(void)
+{
+	CONFIG_Delete("RECENT_TOOLS");
+
+	for(int i=0, j=0; i<=MAX_COUNT_RECENT_TOOLS; i++)
+	{
+		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
+		{
+			CSG_Tool *pTool = m_Recent[i]->Get_Tool();
+
+			CONFIG_Write("RECENT_TOOLS", wxString::Format("TOOL_%02d", j++), wxString::Format("%s|%s", pTool->Get_Library().c_str(), pTool->Get_ID().c_str()));
+		}
+	}
+
+	return( true );
 }
 
 

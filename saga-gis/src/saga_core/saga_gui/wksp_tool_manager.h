@@ -97,11 +97,13 @@ public:
 	class CWKSP_Tool_Group *		Get_Group			(const wxString &Group);
 
 	class CWKSP_Tool_Library *		Get_Library			(CSG_Tool_Library *pLibrary);
+	class CWKSP_Tool_Library *		Get_Library			(const wxString &Library, bool bChain);
+	class CWKSP_Tool *				Get_Tool			(const wxString &Library, const wxString &Tool);
 
 	bool							Update				(void);
 
 	wxMenu *						Get_Menu_Tools		(void);
-	void							Set_Recently_Used	(class CWKSP_Tool *pTool);
+	void							Add_Recent			(class CWKSP_Tool *pTool);
 
 	bool							Do_Beep				(void);
 

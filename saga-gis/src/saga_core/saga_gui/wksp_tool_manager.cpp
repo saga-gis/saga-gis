@@ -139,12 +139,24 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_TOOLS", _TL("Tools"), _TL(""));
 
-	#ifdef __WXMAC__
-	m_Parameters.Add_Bool("NODE_TOOLS",
-		"LIST_RECENT"    , _TL("Recent Tools"),
-		_TL("List recently used tools."),
-		false
+	m_Parameters.Add_Choice("NODE_TOOLS",
+		"RECENT_LIST"    , _TL("Recent Tools"),
+		_TL("Choose how to list recently used tools in geoprocessing menu."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("append to top-level menu"),
+			_TL("list in sub menu"),
+			_TL("do not list")
+		)
 	);
+
+	m_Parameters.Add_Bool("RECENT_LIST",
+		"RECENT_RESTORE" , _TL("Restore"),
+		_TL("Save list of recently used tools to configuration and restore it on next program start."),
+		true
+	);
+
+	#ifdef __WXMAC__
+	m_Parameters["RECENT_LIST"].Set_Value(2); // defaults not to list
 	#endif
 
 	m_Parameters.Add_Bool("NODE_TOOLS",
@@ -313,12 +325,17 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	}
 
 	//-----------------------------------------------------
-	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
+	bool bResult = SG_Get_Tool_Library_Manager().Get_Count() > 0 ? _Update(false) : _Reload();
+
+	if( bResult )
 	{
-		return( _Reload() );
+		if( m_Parameters("RECENT_RESTORE")->asBool() )
+		{
+			m_pMenu_Tools->Load_Recent();
+		}
 	}
 
-	return( _Update(false) );
+	return( bResult );
 }
 
 //---------------------------------------------------------
@@ -374,6 +391,8 @@ bool CWKSP_Tool_Manager::Finalise(void)
 			}
 		}
 	}
+
+	m_pMenu_Tools->Save_Recent();
 
 	return( true );
 }
@@ -619,6 +638,47 @@ CWKSP_Tool_Library * CWKSP_Tool_Manager::Get_Library(CSG_Tool_Library *pLibrary)
 }
 
 //---------------------------------------------------------
+CWKSP_Tool_Library * CWKSP_Tool_Manager::Get_Library(const wxString &Library, bool bChain)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CWKSP_Tool_Group *pGroup = Get_Group(i);
+
+		for(int j=0; j<pGroup->Get_Count(); j++)
+		{
+			CSG_Tool_Library *pLibrary = pGroup->Get_Library(j)->Get_Library();
+
+			if( Library == pLibrary->Get_Library_Name().c_str() && pLibrary->Get_Type() == (bChain ? ESG_Library_Type::Chain : ESG_Library_Type::Library) )
+			{
+				return( pGroup->Get_Library(j) );
+			}
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Tool * CWKSP_Tool_Manager::Get_Tool(const wxString &Library, const wxString &Tool)
+{
+	CWKSP_Tool_Library *pLibrary = Get_Library(Library, false);
+
+	CWKSP_Tool *pTool = pLibrary ? pLibrary->Get_Tool(Tool) : NULL;
+
+	if( !pTool && (pLibrary = Get_Library(Library, true)) )
+	{
+		pTool = pLibrary->Get_Tool(Tool);
+	}
+
+	return( pTool );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWKSP_Tool_Manager::_Reload(void)
 {
 	#ifdef _SAGA_MSW
@@ -707,9 +767,9 @@ wxMenu * CWKSP_Tool_Manager::Get_Menu_Tools(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Tool_Manager::Set_Recently_Used(CWKSP_Tool *pTool)
+void CWKSP_Tool_Manager::Add_Recent(CWKSP_Tool *pTool)
 {
-	m_pMenu_Tools->Set_Recent(pTool);
+	m_pMenu_Tools->Add_Recent(pTool);
 }
 
 
