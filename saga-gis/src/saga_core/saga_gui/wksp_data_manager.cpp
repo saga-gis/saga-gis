@@ -100,7 +100,6 @@
 //---------------------------------------------------------
 CWKSP_Data_Manager *g_pData = NULL;
 
-#include "res_controls.h"
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -134,6 +133,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Node (""          , "NODE_DESC"         , _TL("Description"        ), _TL(""));
 	m_Parameters.Add_Bool ("NODE_DESC" , "PREVIEW"           , _TL("Preview"            ), _TL("Show a preview in description."), false);
 	m_Parameters.Add_Int  ("PREVIEW"   , "PREVIEW_SIZE"      , _TL("Size"               ), _TL(""), 200, 10, true);
+
+	m_Parameters.Add_Bool("",
+		"SHOW_TOOLBAR"          , _TL("Show Toolbar"),
+		_TL("Show toolbar with data layer related commands."),
+		true
+	);
 
 	m_Parameters.Add_Bool("",
 		"SHOW_FILE_SOURCES"     , _TL("Show Data File Source Browser"),

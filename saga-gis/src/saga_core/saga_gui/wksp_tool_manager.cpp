@@ -517,7 +517,7 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_TOOL_SEARCH:
 		{
-			CWKSP_Base_Item	*pItem	= g_pTool_Ctrl->Search_Item(_TL("Run Tool"), WKSP_ITEM_Tool);
+			CWKSP_Base_Item	*pItem	= g_pTool_Ctrl->Search_Item(_TL("Find and Run Tool"), WKSP_ITEM_Tool);
 
 			if( pItem && pItem->GetId().IsOk() && pItem->Get_Type() == WKSP_ITEM_Tool )
 			{

@@ -348,9 +348,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	m_pTB_Child = m_pTB_Data = NULL;
 
-	_Bar_Show(m_pTB_Main, true);
-
-	m_pLayout->Update();
+	_Bar_Show(m_pTB_Main, true, true);
 
 	//-----------------------------------------------------
 	long l; wxRect r, rDefault = wxGetClientDisplayRect();
@@ -1150,11 +1148,11 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 	//-----------------------------------------------------
 	if( m_pTB_Child != pTB_Child )
 	{
-		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child, false); }
+		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child, false, false); }
 
 		m_pTB_Child = pTB_Child;
 
-		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child,  true); }
+		if( m_pTB_Child ) { _Bar_Show(m_pTB_Child,  true, false); }
 
 		_ToolBars_Arrange();
 	}
@@ -1286,33 +1284,9 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
-{
-	if( m_pTB_Data != pToolBar )
-	{
-		if( m_pTB_Data )
-		{
-			_Bar_Show(m_pTB_Data, false);
-		}
-
-		m_pTB_Data = pToolBar;
-
-		if( m_pTB_Data )
-		{
-			_Bar_Show(m_pTB_Data, true);
-		}
-
-		_ToolBars_Arrange();
-	}
-}
-
-//---------------------------------------------------------
 void CSAGA_Frame::Add_Toolbar(wxToolBarBase *pToolBar, const wxString &Name)
 {
-	pToolBar->Realize();
-	pToolBar->Hide();
-
-	wxAuiPaneInfo Pane;
+	wxAuiPaneInfo Pane; pToolBar->Realize(); pToolBar->Hide();
 
 	Pane.Name         (wxString::Format("TOOLBAR%d", pToolBar->GetId()));
 	Pane.Caption      (Name);
@@ -1324,7 +1298,32 @@ void CSAGA_Frame::Add_Toolbar(wxToolBarBase *pToolBar, const wxString &Name)
 	Pane.BestSize     (pToolBar->GetBestSize());
 
 	m_pLayout->AddPane(pToolBar, Pane);
-	m_pLayout->Update();
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Show_Toolbar_Data(wxToolBarBase *pToolBar)
+{
+	if( !g_pData->Get_Parameter("SHOW_TOOLBAR")->asBool() )
+	{
+		pToolBar = NULL;
+	}
+
+	if( m_pTB_Data != pToolBar )
+	{
+		if( m_pTB_Data )
+		{
+			_Bar_Show(m_pTB_Data, false, false);
+		}
+
+		m_pTB_Data = pToolBar;
+
+		if( m_pTB_Data )
+		{
+			_Bar_Show(m_pTB_Data,  true, false);
+		}
+
+		_ToolBars_Arrange();
+	}
 }
 
 //---------------------------------------------------------
@@ -1356,7 +1355,7 @@ void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, const wxString &Caption)
 	if( m_pLayout && pWindow )
 	{
 		m_pLayout->GetPane(pWindow).Caption(Caption);
-		m_pLayout->Update();
+		m_pLayout->GetManager(pWindow)->Update();
 	}
 }
 
@@ -1391,12 +1390,12 @@ void CSAGA_Frame::_Bar_Toggle(wxWindow *pWindow)
 {
 	if( m_pLayout->GetPane(pWindow).IsOk() )
 	{
-		_Bar_Show(pWindow, !m_pLayout->GetPane(pWindow).IsShown());
+		_Bar_Show(pWindow, !m_pLayout->GetPane(pWindow).IsShown(), true);
 	}
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
+void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow, bool bUpdate)
 {
 	wxAuiPaneInfo Pane(m_pLayout->GetPane(pWindow));
 
@@ -1404,8 +1403,12 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 	{
 		Pane.Show(bShow);
 
-		m_pLayout->GetPane   (pWindow) = Pane;
-		m_pLayout->GetManager(pWindow)->Update();
+		m_pLayout->GetPane(pWindow) = Pane;
+
+		if( bUpdate )
+		{
+			m_pLayout->GetManager(pWindow)->Update();
+		}
 	}
 }
 

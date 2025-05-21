@@ -371,61 +371,23 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Layer::On_Command_UI(event) );
+	default                          : return( CWKSP_Layer::On_Command_UI(event) );
 
-	case ID_CMD_SHAPES_EDIT_SHAPE:
-		event.Enable(Get_Shapes()->Get_Selection_Count() > 0 || m_Edit_pShape != NULL);
-		event.Check(m_Edit_pShape != NULL);
-		break;
+	case ID_CMD_SHAPES_EDIT_SHAPE    : event.Enable(m_Edit_pShape != NULL || Get_Shapes()->Get_Selection_Count() > 0); event.Check(m_Edit_pShape != NULL); break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE: event.Enable(m_Edit_pShape == NULL); break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE: event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART : event.Enable(m_Edit_pShape != NULL); break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART : event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0); break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT: event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0); break;
+	case ID_CMD_SHAPES_EDIT_MOVE     : event.Enable(m_Edit_pShape != NULL); event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move); break;
+	case ID_CMD_SHAPES_EDIT_SEL_COPY : event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
 
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
-		event.Enable(m_Edit_pShape == NULL);
-		break;
+	case ID_CMD_DATA_SELECTION_CLEAR : event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
+	case ID_CMD_DATA_SELECTION_INVERT: event.Enable(m_Edit_pShape == NULL); break;
 
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-		event.Enable(Get_Shapes()->Get_Selection_Count() > 0 && m_Edit_pShape == NULL);
-		break;
-
-	case ID_CMD_SHAPES_EDIT_ADD_PART:
-		event.Enable(m_Edit_pShape != NULL);
-		break;
-
-	case ID_CMD_SHAPES_EDIT_DEL_PART:
-		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0);
-		break;
-
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:
-		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0);
-		break;
-
-	case ID_CMD_DATA_SELECTION_CLEAR:
-		event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
-		break;
-
-	case ID_CMD_DATA_SELECTION_INVERT:
-		event.Enable(m_Edit_pShape == NULL);
-		break;
-
-    case ID_CMD_SHAPES_EDIT_SEL_COPY:
-        event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0);
-        break;
-
-	case ID_CMD_TABLE_SHOW:
-		event.Check(m_pTable->Get_View() != NULL);
-		break;
-
-	case ID_CMD_SHAPES_EDIT_MOVE:
-		event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move);
-		break;
-
-	case ID_CMD_DATA_DIAGRAM:
-		event.Check(m_pTable->Get_Diagram() != NULL);
-		break;
-
-	case ID_CMD_DATA_HISTOGRAM:
-		event.Check(m_pHistogram != NULL);
-		break;
+	case ID_CMD_TABLE_SHOW           : event.Check(m_pTable->Get_View   () != NULL); break;
+	case ID_CMD_DATA_DIAGRAM         : event.Check(m_pTable->Get_Diagram() != NULL); break;
+	case ID_CMD_DATA_HISTOGRAM       : event.Enable(m_Parameters["COLORS_TYPE"].asInt() > 0); event.Check(m_pHistogram != NULL); break;
 	}
 
 	return( true );

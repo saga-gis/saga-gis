@@ -268,87 +268,74 @@ CWKSP_Map * CActive::Get_Active_Map(void)
 //---------------------------------------------------------
 bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 {
-	if( pItem == m_pItem )
+	if( pItem != m_pItem )
 	{
-		return( true );
-	}
+		m_pItem = pItem;
 
-	//-----------------------------------------------------
-	m_pItem = pItem;
+		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
+		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
+		STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
-	if( m_pParameters )	m_pParameters->Set_Parameters(m_pItem);
+		Update_Description();
 
-	Update_Description();
+		if( m_pParameters   ) { m_pParameters ->Set_Parameters (m_pItem); }
 
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
+		if( g_pData_Source  ) { g_pData_Source->Set_Data_Source(m_pItem); }
 
-	//-----------------------------------------------------
-	if( m_pItem == NULL )
-	{
-		if( g_pSAGA_Frame   )
+		if( g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
+		if( g_pMap_Buttons  ) { g_pMap_Buttons ->Refresh(false); }
+
+		//-------------------------------------------------
+		if( m_pItem == NULL )
 		{
-			g_pSAGA_Frame->Set_Pane_Caption(this, _TL("Properties"));
-			g_pSAGA_Frame->Show_Toolbar_Data(NULL);
+			size_t nPages = GetPageCount();
+
+			_Hide_Page(m_pHistory   );
+			_Hide_Page(m_pLegend    );
+			_Hide_Page(m_pAttributes);
+			_Hide_Page(m_pInfo      );
+
+			if( nPages != GetPageCount() ) { SendSizeEvent(); }
+
+			if( g_pSAGA_Frame   )
+			{
+				g_pSAGA_Frame->Show_Toolbar_Data(NULL);
+				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")));
+			}
 		}
 
-		if( g_pData_Buttons ) { g_pData_Buttons->Refresh(); }
-		if( g_pMap_Buttons  ) { g_pMap_Buttons ->Refresh(); }
-
-		size_t nPages = GetPageCount();
-
-		_Hide_Page(m_pHistory   );
-		_Hide_Page(m_pLegend    );
-		_Hide_Page(m_pAttributes);
-		_Hide_Page(m_pInfo      );
-
-		if( nPages != GetPageCount() )
+		//-------------------------------------------------
+		else // if( m_pItem != NULL )
 		{
-			SendSizeEvent();
+			size_t nPages = GetPageCount();
+
+			_Show_Page(m_pHistory   , Get_Active_Data_Item () != NULL);
+			_Show_Page(m_pLegend    , Get_Active_Layer     () != NULL || Get_Active_Map() != NULL);
+			_Show_Page(m_pAttributes, Get_Active_Layer     () != NULL);
+			_Show_Page(m_pInfo      , Get_Active_Shapes(true) != NULL);
+
+			if( nPages != GetPageCount() ) { SendSizeEvent(); }
+
+			if( g_pSAGA_Frame )
+			{
+				g_pSAGA_Frame->Show_Toolbar_Data(m_pItem->Get_ToolBar());
+				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
+			}
+
+			CSG_Data_Object *pObject = Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
+
+			if( SG_Get_Data_Manager().Exists(pObject)
+			&& ( (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
+			  || (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN        && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)
+			  || (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud && ((CSG_PointCloud *)pObject)->Get_Selection_Count() > 0)
+			  || (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)) )
+			{
+				g_pData->Update_Views(pObject);
+			}
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	if( g_pSAGA_Frame )
-	{
-		g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
-		g_pSAGA_Frame->Show_Toolbar_Data(m_pItem->Get_ToolBar());
-	}
-
-	//-----------------------------------------------------
-	size_t nPages = GetPageCount();
-
-	_Show_Page(m_pHistory   , Get_Active_Data_Item () != NULL);
-	_Show_Page(m_pLegend    , Get_Active_Layer     () != NULL || Get_Active_Map() != NULL);
-	_Show_Page(m_pAttributes, Get_Active_Layer     () != NULL);
-	_Show_Page(m_pInfo      , Get_Active_Shapes(true) != NULL);
-
-	if( nPages != GetPageCount() )
-	{
-		SendSizeEvent();
-	}
-
-	//-----------------------------------------------------
-	if( g_pData_Buttons ) { g_pData_Buttons->Refresh(false); }
-	if( g_pMap_Buttons  ) { g_pMap_Buttons ->Refresh(false); }
-
-	if( g_pData_Source  ) { g_pData_Source->Set_Data_Source(m_pItem); }
-
-	//-----------------------------------------------------
-	CSG_Data_Object *pObject = Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
-
-	if( SG_Get_Data_Manager().Exists(pObject) &&
-	(	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN        && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud && ((CSG_PointCloud *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)) )
-	{
-		g_pData->Update_Views(pObject);
-	}
-
 	return( true );
 }
 
