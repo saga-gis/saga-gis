@@ -371,7 +371,7 @@ bool CWKSP_Tool_Menu::_Set_Recent(void)
 	{
 		wxMenu *pMenu = m_pMenu->GetMenuItemCount() > 1 && m_pMenu->GetMenuItems()[1]->IsSubMenu() ? m_pMenu->GetMenuItems()[1]->GetSubMenu() : NULL;
 		
-		if( !pMenu || m_pMenu->GetMenuItems()[1]->GetName().Cmp(_TL("Recent Tools")) )
+		if( !pMenu )
 		{
 			m_pMenu->Insert(1, wxID_ANY, _TL("Recent Tools"), pMenu = new wxMenu);
 		}
@@ -400,7 +400,7 @@ bool CWKSP_Tool_Menu::_Set_Recent(void)
 //---------------------------------------------------------
 bool CWKSP_Tool_Menu::Load_Recent(void)
 {
-	int i = 0; wxString Tool;
+	wxString Tool;
 
 	for(int i=0, j=0; i<=MAX_COUNT_RECENT_TOOLS; i++)
 	{
