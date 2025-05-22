@@ -200,6 +200,9 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_SCATTERPLOT_3D          : return( _TL("3D Scatterplot") );
 	case ID_CMD_DATA_DIAGRAM                 : return( _TL("Diagram") );
 
+	case ID_CMD_GRIDS_3DVIEW                 : return( _TL("3D Viewer") );
+	case ID_CMD_POINTCLOUD_3DVIEW            : return( _TL("3D Viewer") );
+
 	case ID_CMD_TABLE_SHOW                   : return( _TL("Show Table") );
 	case ID_CMD_TABLE_JOIN_DATA              : return( _TL("Join Data") );
 	case ID_CMD_TABLE_FIELD_ADD              : return( _TL("Add Field") );
@@ -420,6 +423,8 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_DATA_DIAGRAM                 : return( ID_IMG_TB_DATA_DIAGRAM );
 	case ID_CMD_TABLE_SHOW                   : return( ID_IMG_TB_DATA_TABLE_SHOW );
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES       : break;
+	case ID_CMD_GRIDS_3DVIEW                 : return( ID_IMG_TB_DATA_GRIDS_3DVIEW );
+	case ID_CMD_POINTCLOUD_3DVIEW            : return( ID_IMG_TB_DATA_POINTCLOUD_3DVIEW );
 	case ID_CMD_TABLE_JOIN_DATA              : break;
 
 	case ID_CMD_TOOL_OPEN                    : return( ID_IMG_TB_OPEN_TOOL );

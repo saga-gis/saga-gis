@@ -197,6 +197,7 @@ wxToolBarBase * CWKSP_PointCloud::Get_ToolBar(void)
 
 		Add_ToolBar_Defaults(static_pToolBar);
 		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_TABLE_SHOW);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_POINTCLOUD_3DVIEW);
 
 		CMD_ToolBar_Add(static_pToolBar, _TL("Point Cloud"));
 	}
@@ -323,6 +324,14 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 				pTool->Execute();
 			}
  		break; }
+
+	//-----------------------------------------------------
+	case ID_CMD_POINTCLOUD_3DVIEW    : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 1);
+		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("POINTS", m_pObject) )
+		{
+			pTool->Execute();
+		}
+		break; }
 
 	//-----------------------------------------------------
 	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
@@ -497,7 +506,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
 		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_ATTRIB"));
-		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
+		m_fNormal = -1; // Get_Fields_Choice(m_Parameters("METRIC_NORMAL")); // not yet implemented
 		break;
 
 	case  4: // CLASSIFY_RGB
@@ -926,7 +935,7 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 					}
 					else
 					{
-						double Value = pPoints->Get_Value(m_fValue); if( m_fNormal ) { Value /= pPoints->Get_Value(m_fNormal); }
+						double Value = pPoints->Get_Value(m_fValue); if( m_fNormal >= 0 ) { Value /= pPoints->Get_Value(m_fNormal); }
 						
 						if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 						{
@@ -950,16 +959,16 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 	{
 		pPoints->Set_Cursor(i);
 
-		if( !pPoints->is_NoData(m_fValue) )
+		if( !pPoints->is_NoData(m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(m_fNormal) && pPoints->Get_Value(m_fNormal) != 0.)) )
 		{
 			TSG_Point_3D Point = pPoints->Get_Point();
 
 			int x = (int)dc_Map.xWorld2DC(Point.x);
 			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int Color;
+			int Color; double Value = pPoints->Get_Value(m_fValue); if( m_fNormal >= 0 ) { Value /= pPoints->Get_Value(m_fNormal); }
 
-			if( m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color) )
+			if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 			{
 				dc_Map.Draw_Image_Pixel(x, y, Color);
 			}

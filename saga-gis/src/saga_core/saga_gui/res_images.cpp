@@ -491,6 +491,8 @@ wxCursor	IMG_Get_Cursor(int ID_IMG)
 #include "./res/svg/tb_data_scatterplot.svg.h"
 #include "./res/svg/tb_data_diagram.svg.h"
 #include "./res/svg/tb_data_table_show.svg.h"
+#include "./res/svg/tb_data_grids_3dview.svg.h"
+#include "./res/svg/tb_data_pointcloud_3dview.svg.h"
 #include "./res/svg/tb_datasource.svg.h"
 #include "./res/svg/tb_delete.svg.h"    // unused
 #include "./res/svg/tb_diagram_parameters.svg.h"
@@ -648,6 +650,8 @@ const char * _Get_SVG(int ID_IMG)
 	case ID_IMG_TB_DATA_SCATTERPLOT      : return( svg_tb_data_scatterplot );
 	case ID_IMG_TB_DATA_DIAGRAM          : return( svg_tb_data_diagram );
 	case ID_IMG_TB_DATA_TABLE_SHOW       : return( svg_tb_data_table_show );
+	case ID_IMG_TB_DATA_GRIDS_3DVIEW     : return( svg_tb_data_grids_3dview );
+	case ID_IMG_TB_DATA_POINTCLOUD_3DVIEW: return( svg_tb_data_pointcloud_3dview );
 	case ID_IMG_TB_DATASOURCE            : return( svg_tb_datasource );
 	case ID_IMG_TB_DIAGRAM_PARAMETERS    : return( svg_tb_diagram_parameters );
 	case ID_IMG_TB_EDIT_SHAPE_ADD        : return( svg_tb_edit_shape_add );
