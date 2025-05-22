@@ -54,9 +54,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -70,7 +70,7 @@ CWKSP_Shapes_Line::CWKSP_Shapes_Line(CSG_Shapes *pShapes)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -82,7 +82,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY",
-		"DISPLAY_POINTS"	, _TL("Show Vertices"),
+		"DISPLAY_POINTS"       , _TL("Show Vertices"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
@@ -92,7 +92,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	PenList_Add("NODE_DISPLAY",
-		"LINE_STYLE"		, _TL("Line Style"),
+		"LINE_STYLE"           , _TL("Line Style"),
 		_TL("")
 	);
 
@@ -101,7 +101,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Size...
 
 	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_TYPE"			, _TL("Size relates to..."),
+		"SIZE_TYPE"            , _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("Screen"),
@@ -110,19 +110,19 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_ATTRIB"		, _TL("Attribute"),
+		"SIZE_FIELD"           , _TL("Attribute"),
 		_TL(""),
 		_TL("<default>")
 	);
 
-	m_Parameters.Add_Range("SIZE_ATTRIB",
-		"SIZE_RANGE"		, _TL("Size Range"),
+	m_Parameters.Add_Range("SIZE_FIELD",
+		"SIZE_RANGE"           , _TL("Size Range"),
 		_TL(""),
 		0, 10, 0, true
 	);
 
-	m_Parameters.Add_Int("SIZE_ATTRIB",
-		"SIZE_DEFAULT"		, _TL("Default Size"),
+	m_Parameters.Add_Int("SIZE_FIELD",
+		"SIZE_DEFAULT"         , _TL("Default Size"),
 		_TL(""),
 		1, 1, true
 	);
@@ -131,8 +131,8 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Labeling...
 
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_STYLE"		, _TL("Style"),
+	m_Parameters.Add_Choice("LABEL_FIELD",
+		"LABEL_STYLE"          , _TL("Style"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("one label at the polyline centroid"),
@@ -143,7 +143,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice("LABEL_STYLE",
-		"LABEL_ALIGN"		, _TL("Align"),
+		"LABEL_ALIGN"          , _TL("Align"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("top"),
@@ -153,7 +153,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice("LABEL_STYLE",
-		"LABEL_ORIENT"		, _TL("Orientation"),
+		"LABEL_ORIENT"         , _TL("Orientation"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("left"),
@@ -162,7 +162,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Double("LABEL_STYLE",
-		"LABEL_FREQUENCY"	, _TL("Along Line Frequency"),
+		"LABEL_FREQUENCY"      , _TL("Along Line Frequency"),
 		_TL("The distance between labels specified as multiples of the label's text width."),
 		10., 0., true
 	);
@@ -172,7 +172,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Boundary Effect...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY",
-		"BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
+		"BOUNDARY_EFFECT"      , _TL("Boundary Effect"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("none"),
@@ -189,7 +189,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Color("BOUNDARY_EFFECT",
-		"BOUNDARY_EFFECT_COLOR"	, _TL("Color"),
+		"BOUNDARY_EFFECT_COLOR", _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(255, 255, 255)
 	);
@@ -197,13 +197,13 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::On_DataObject_Changed(void)
 {
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB"), true);
+	Set_Fields_Choice(m_Parameters("SIZE_FIELD"), true, true, true);
 
 	CWKSP_Shapes::On_DataObject_Changed();
 }
@@ -214,18 +214,18 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	CWKSP_Shapes::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
+	m_Size_Type  = m_Parameters("SIZE_TYPE")->asInt();
 
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count()
-	||	(m_dSize	= Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0.0 )
+	if(	(m_iSize = Get_Fields_Choice(m_Parameters("SIZE_FIELD"))) < 0
+	||	(m_dSize = Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0. )
 	{
-		m_iSize		= -1;
-		m_Size		= m_Parameters("SIZE_DEFAULT")->asInt();
+		m_iSize  = -1;
+		m_Size   = m_Parameters("SIZE_DEFAULT")->asInt();
 	}
 	else
 	{
-		m_Size		= (int)m_Parameters("SIZE_RANGE")->asRange()->Get_Min();
-		m_dSize		=     (m_Parameters("SIZE_RANGE")->asRange()->Get_Max() - m_Size) / m_dSize;
+		m_Size   = (int)m_Parameters("SIZE_RANGE")->asRange()->Get_Min();
+		m_dSize  =     (m_Parameters("SIZE_RANGE")->asRange()->Get_Max() - m_Size) / m_dSize;
 	}
 
 	//-----------------------------------------------------
@@ -253,7 +253,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -262,12 +262,12 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("SIZE_FIELD") )
 		{
-			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
+			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Set_Enabled("SIZE_RANGE"  , Value == true);
-			pParameters->Set_Enabled("SIZE_DEFAULT", Value == false);
+			pParameters->Set_Enabled("SIZE_RANGE"     , Value == true);
+			pParameters->Set_Enabled("SIZE_DEFAULT"   , Value == false);
 		}
 
 		if(	pParameter->Cmp_Identifier("LABEL_STYLE") )
@@ -288,7 +288,7 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -314,7 +314,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -548,7 +548,7 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -689,9 +689,9 @@ void CWKSP_Shapes_Line::Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &s
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

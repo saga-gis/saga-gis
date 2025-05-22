@@ -89,9 +89,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -114,7 +114,7 @@ static int	s_Def_Layer_Colours[DEF_LAYER_COLOUR_COUNT]	=
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -125,9 +125,9 @@ CWKSP_Layer *	Get_Active_Layer(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,7 +154,7 @@ CWKSP_Layer::~CWKSP_Layer(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -175,7 +175,7 @@ bool CWKSP_Layer::Add_ToolBar_Defaults(class wxToolBarBase *pToolBar)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -210,7 +210,7 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -366,8 +366,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_FIELD"    , _TL("Field"        ), _TL(""), _TL("<default>"));
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMALIZE", _TL("Normalization"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_FIELD" , _TL("Field"        ), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
 	}
 
 	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT", "LUT", _TL("Table"), _TL(""))->asTable();
@@ -403,41 +403,41 @@ void CWKSP_Layer::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Layer::ColorsParms_Add(void)
 {
 	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_METRIC"		, _TL("Histogram Stretch"),
+		"NODE_METRIC", _TL("Histogram Stretch"),
 		_TL("")
 	);
 
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalize"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Field"        ), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
 
 		m_Parameters.Add_Choice("METRIC_NORMAL", "METRIC_NORFMT", _TL("Labeling"), _TL(""),
 			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 1
 		);
 	}
 	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
-		||   m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	      || m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Field"), _TL(""), _TL("<default>"));
 	}
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Colors("NODE_METRIC",
-		"METRIC_COLORS"	, _TL("Colors"),
+		"METRIC_COLORS", _TL("Colors"),
 		_TL(""),
 		g_pData->Get_Parameter("COLORS_DEFAULT")->asColors()
 	);
 
 	m_Parameters.Add_Range("NODE_METRIC",
-		"METRIC_ZRANGE"		, _TL("Range"),
+		"METRIC_ZRANGE", _TL("Range"),
 		_TL("")
 	);
 
@@ -600,7 +600,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 	||  pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		if( !Parameters("METRIC_ATTRIB") || (Field = Parameters("METRIC_ATTRIB")->asInt()) < 0 || Field >= ((CSG_Shapes *)pObject)->Get_Field_Count() )
+		if( !Parameters("METRIC_ATTRIB") || (Field = Get_Fields_Choice(Parameters("METRIC_ATTRIB"))) < 0 )
 		{
 			return( false );
 		}
@@ -618,8 +618,8 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 			CWKSP_Shapes *pShapes = (CWKSP_Shapes *)this;
 
 			pShapes->Set_Metrics(
-				Parameters("METRIC_ATTRIB")->asInt(),
-				Parameters("METRIC_NORMAL")->asInt(),
+				Get_Fields_Choice(Parameters("METRIC_ATTRIB")),
+				Get_Fields_Choice(Parameters("METRIC_NORMAL")),
 				Parameters("METRIC_NORFMT")->asInt()
 			);
 
@@ -738,7 +738,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -753,7 +753,7 @@ void CWKSP_Layer::On_DataObject_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -838,7 +838,7 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -865,7 +865,7 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -915,7 +915,7 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -950,7 +950,7 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -980,7 +980,7 @@ void CWKSP_Layer::_Set_Projection(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1030,7 +1030,66 @@ bool CWKSP_Layer::Set_Color_Range(double Minimum, double Maximum)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Set_Fields_Choice(CSG_Parameter *pChoice, bool bNumeric, bool bAddNone, bool bSelectNone)
+{
+	if( pChoice && pChoice->asChoice() )
+	{
+		CSG_Table *pTable = m_pObject->asTable(true);
+
+		if( pTable )
+		{
+			CSG_String Fields;
+
+			for(int i=0; i<pTable->Get_Field_Count(); i++)
+			{
+				if( !bNumeric || SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
+				{
+					Fields += CSG_String::Format("{%d}%s|", i, pTable->Get_Field_Name(i));
+				}
+			}
+
+			if( !Fields.is_Empty() )
+			{
+				if( bAddNone )
+				{
+					Fields += CSG_String::Format("{-1}<%s>", _TL("none"));
+
+					if( pChoice->asChoice()->Get_Count() <= 1 )
+					{
+						bSelectNone = true;
+					}
+				}
+
+				pChoice->asChoice()->Set_Items(Fields);
+
+				if( bAddNone && bSelectNone )
+				{
+					pChoice->Set_Value(pChoice->asChoice()->Get_Count() - 1);
+				}
+
+				return( true );
+			}
+		}
+
+		pChoice->asChoice()->Set_Items(CSG_String::Format("{-1}<%s>", _TL("none")));
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CWKSP_Layer::Get_Fields_Choice(CSG_Parameter *pChoice)
+{
+	int Field; return( pChoice && pChoice->asChoice() && pChoice->asChoice()->Get_Data(Field) ? Field : -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1049,12 +1108,12 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &Map_Extent, bool bIntersects)
 
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
-		double	d	= Map_Extent.Get_XRange() > Map_Extent.Get_YRange()
+		double d = Map_Extent.Get_XRange() > Map_Extent.Get_YRange()
 			? Map_Extent.Get_XRange()
 			: Map_Extent.Get_YRange();
 
 		return( m_Parameters("SHOW_RANGE.MIN")->asDouble() <= d
-			&&  m_Parameters("SHOW_RANGE.MAX")->asDouble() >= d 
+		    &&  m_Parameters("SHOW_RANGE.MAX")->asDouble() >= d
 		);
 	}
 
@@ -1063,7 +1122,7 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &Map_Extent, bool bIntersects)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1092,7 +1151,7 @@ bool CWKSP_Layer::Draw(CSG_Map_DC &dc_Map, int Flags, CSG_Data_Object *pObject)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1171,7 +1230,7 @@ bool CWKSP_Layer::View_Closes(MDI_ChildFrame *pView)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1195,7 +1254,7 @@ void CWKSP_Layer::Histogram_Toggle(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1262,7 +1321,7 @@ CSG_Table * CWKSP_Layer::Edit_Get_Attributes(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1275,7 +1334,7 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 	{
 		if( pParameter->Cmp_Identifier("NUM_FIELDS") )
 		{
-			int Field; pParameter->asChoice()->Get_Data(Field);
+			int Field = Get_Fields_Choice(pParameter);
 
 			pParameters->Set_Parameter("INTERVAL", (*pParameters)("TABLE")->asTable()->Get_Range(Field) / (*pParameters)("CLASSES")->asInt());
 		}
@@ -1326,9 +1385,7 @@ bool CWKSP_Layer::_Classify(void)
 	}
 
 	//-----------------------------------------------------
-	bool bFirst = m_Classify.Get_Count() == 0;
-
-	if( bFirst )
+	if( m_Classify.Get_Count() == 0 )
 	{
 		m_Classify.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
@@ -1356,34 +1413,17 @@ bool CWKSP_Layer::_Classify(void)
 	//-----------------------------------------------------
 	if( pTable )
 	{
-		CSG_String Fields[2];
+		Set_Fields_Choice(m_Classify("ALL_FIELDS"), false, false);
 
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		if( Set_Fields_Choice(m_Classify("NUM_FIELDS"), true, false) )
 		{
-			Fields[0] += CSG_String::Format("%s|", pTable->Get_Field_Name(i));
+			Set_Fields_Choice(m_Classify("NUM_NORMAL"), true, true, false);
 
-			if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
-			{
-				Fields[1] += CSG_String::Format("{%d}%s|", i, pTable->Get_Field_Name(i));
-			}
-		}
-
-		m_Classify["ALL_FIELDS"].asChoice()->Set_Items(Fields[0]);
-
-		if( Fields[1].is_Empty() )
-		{
-			m_Classify["METHOD"].asChoice()->Set_Items(Methods.BeforeFirst('|')); // only strings => unique values
+			m_Classify["METHOD"].asChoice()->Set_Items(Methods);
 		}
 		else
 		{
-			m_Classify["METHOD"].asChoice()->Set_Items(Methods);
-
-			m_Classify["NUM_FIELDS"].asChoice()->Set_Items(Fields[1]);
-			m_Classify["NUM_NORMAL"].asChoice()->Set_Items(CSG_String::Format("%s{-1}<%s>", Fields[1].c_str(), _TL("none")));
-			if( bFirst )
-			{
-				m_Classify["NUM_NORMAL"].Set_Value(m_Classify["NUM_NORMAL"].asChoice()->Get_Count() - 1);
-			}
+			m_Classify["METHOD"].asChoice()->Set_Items(Methods.BeforeFirst('|')); // only strings => unique values
 		}
 	}
 
@@ -1400,26 +1440,22 @@ bool CWKSP_Layer::_Classify(void)
 	//-----------------------------------------------------
 	DataObject_Changed();
 
-	CSGDI_Classify Classify;
+	CSGDI_Classify Classify; int Method = m_Classify["METHOD"].asInt();
 
-	if( pTable )
-	{
-		int Field = m_Classify["ALL_FIELDS"].asInt(), Normalize = -1;
-
-		if( m_Classify["METHOD"].asInt() > 0 ) // not unique values, quantities!
-		{
-			m_Classify["NUM_FIELDS"].asChoice()->Get_Data(Field    );
-			m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Normalize);
-		}
-
-		Classify.Create(pTable, Field, Normalize);
-	}
-	else
+	if( pTable == NULL )
 	{
 		Classify.Create(m_pObject);
 	}
+	else if( Method == 0 ) // unique values, categories!
+	{
+		Classify.Create(pTable, Get_Fields_Choice(m_Classify("ALL_FIELDS")));
+	}
+	else // if( Method > 0 ) // quantities!
+	{
+		Classify.Create(pTable, Get_Fields_Choice(m_Classify("NUM_FIELDS")), Get_Fields_Choice(m_Classify("NUM_NORMAL")));
+	}
 
-	switch( m_Classify["METHOD"].asInt() )
+	switch( Method )
 	{
 	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()); break;
 	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()); break;
@@ -1446,21 +1482,15 @@ bool CWKSP_Layer::_Classify(void)
 
 		if( pTable )
 		{
-			if( m_Classify["METHOD"].asInt() == 0 ) // unique values, qualities!
+			if( Method == 0 ) // unique values, categories!
 			{
-				m_Parameters["LUT_FIELD"].Set_Value(m_Classify["ALL_FIELDS"].asInt());
+				m_Parameters["LUT_FIELD" ].Set_Value(m_Classify["ALL_FIELDS"].asInt());
 			}
 			else // numeric values, quantities!
 			{
-				int Field; m_Classify["NUM_FIELDS"].asChoice()->Get_Data(Field);
+				m_Parameters["LUT_FIELD" ].Set_Value(Get_Fields_Choice(m_Classify("NUM_FIELDS")));
 
-				m_Parameters["LUT_FIELD"].Set_Value(Field);
-
-				m_Classify["NUM_NORMAL"].asChoice()->Get_Data(Field);
-
-				m_Parameters["LUT_NORMALIZE"].Set_Value(Field >= 0 ? Field :
-					m_Parameters["LUT_NORMALIZE"].asChoice()->Get_Count() - 1
-				);
+				m_Parameters["LUT_NORMAL"].Set_Value(m_Classify["NUM_NORMAL"].asInt());
 			}
 		}
 
@@ -1472,9 +1502,9 @@ bool CWKSP_Layer::_Classify(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------

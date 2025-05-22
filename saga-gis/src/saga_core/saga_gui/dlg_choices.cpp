@@ -197,7 +197,7 @@ int CDLG_Choices::_Compare_Down(int *first, int *second)
 void CDLG_Choices::On_DClick_Del(wxCommandEvent &event)
 {
 	_Del();
-}//														 //
+}//                                                       //
 
 void CDLG_Choices::On_Del(wxCommandEvent &event)
 {

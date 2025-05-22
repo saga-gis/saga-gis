@@ -63,9 +63,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -75,9 +75,9 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -91,7 +91,7 @@ CWKSP_Shapes_Point::CWKSP_Shapes_Point(CSG_Shapes *pShapes)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -237,19 +237,19 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Label...
 
-	m_Parameters.Add_Choice("LABEL_ATTRIB",
-		"LABEL_ANGLE_ATTRIB", _TL("Rotation by Attribute"),
+	m_Parameters.Add_Choice("LABEL_FIELD",
+		"LABEL_ANGLE_FIELD" , _TL("Rotation by Attribute"),
 		_TL(""),
 		_TL("<default>")
 	);
 
-	m_Parameters.Add_Double("LABEL_ANGLE_ATTRIB",
+	m_Parameters.Add_Double("LABEL_ANGLE_FIELD",
 		"LABEL_ANGLE"		, _TL("Default Rotation"),
 		_TL("rotation clockwise in degree"),
 		0.0, -360.0, true, 360.0, true
 	);
 
-	m_Parameters.Add_Node("LABEL_ATTRIB",
+	m_Parameters.Add_Node("LABEL_FIELD",
 		"LABEL_PLACEMENT"	, _TL("Placement"),
 		_TL("")
 	);
@@ -297,12 +297,12 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_ATTRIB"		, _TL("Attribute"),
+		"SIZE_FIELD"		, _TL("Attribute"),
 		_TL(""),
 		_TL("<default>")
 	);
 
-	m_Parameters.Add_Choice("SIZE_ATTRIB",
+	m_Parameters.Add_Choice("SIZE_FIELD",
 		"SIZE_SCALE"		, _TL("Attribute Values"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
@@ -311,7 +311,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Range("SIZE_ATTRIB",
+	m_Parameters.Add_Range("SIZE_FIELD",
 		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		2., 10., 0., true
@@ -339,19 +339,19 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
-	AttributeList_Set(m_Parameters("IMAGE_FIELD"       ),  true);
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
-	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
-	AttributeList_Set(m_Parameters("ARROW_DIRECTION"   ), false);
-	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"  ), false);
-	AttributeList_Set(m_Parameters("BEACHBALL_DIP"     ), false);
-	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"    ), false);
+	Set_Fields_Choice(m_Parameters("IMAGE_FIELD"      ), false,  true);
+	Set_Fields_Choice(m_Parameters("SIZE_FIELD "      ),  true,  true);
+	Set_Fields_Choice(m_Parameters("LABEL_ANGLE_FIELD"),  true,  true);
+	Set_Fields_Choice(m_Parameters("ARROW_DIRECTION"  ),  true, false);
+	Set_Fields_Choice(m_Parameters("BEACHBALL_STRIKE" ),  true, false);
+	Set_Fields_Choice(m_Parameters("BEACHBALL_DIP"    ),  true, false);
+	Set_Fields_Choice(m_Parameters("BEACHBALL_RAKE"   ),  true, false);
 
 	CWKSP_Shapes::On_DataObject_Changed();
 }
@@ -380,7 +380,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	case SYMBOL_TYPE_Arrow:
-		m_Arrow.Field       = m_Parameters("ARROW_DIRECTION"  )->asInt   ();
+		m_Arrow.Field       = Get_Fields_Choice(m_Parameters("ARROW_DIRECTION"));
 		m_Arrow.Offset      = m_Parameters("ARROW_OFFSET"     )->asDouble();
 		m_Arrow.Orientation = m_Parameters("ARROW_ORIENTATION")->asInt   ();
 		m_Arrow.Unit        = m_Parameters("ARROW_UNIT"       )->asInt   ();
@@ -390,9 +390,9 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	case SYMBOL_TYPE_Beachball:
-		m_Beachball.Strike  = m_Parameters("BEACHBALL_STRIKE" )->asInt   ();
-		m_Beachball.Dip     = m_Parameters("BEACHBALL_DIP"    )->asInt   ();
-		m_Beachball.Rake    = m_Parameters("BEACHBALL_RAKE"   )->asInt   ();
+		m_Beachball.Strike  = Get_Fields_Choice(m_Parameters("BEACHBALL_STRIKE"));
+		m_Beachball.Dip     = Get_Fields_Choice(m_Parameters("BEACHBALL_DIP"   ));
+		m_Beachball.Rake    = Get_Fields_Choice(m_Parameters("BEACHBALL_RAKE"  ));
 		break;
 	}
 
@@ -428,7 +428,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	m_Size.Unit   = m_Parameters("SIZE_TYPE" )->asInt(); // screen pixels, map units
 	m_Size.Adjust = m_Parameters("SIZE_SCALE")->asInt(); // adjust to size range
 
-	if( (m_Size.Field = m_Parameters("SIZE_ATTRIB")->asInt()) < Get_Shapes()->Get_Field_Count()
+	if( (m_Size.Field = Get_Fields_Choice(m_Parameters("SIZE_FIELD"))) >= 0
 	&&  (m_Size.Scale = Get_Shapes()->Get_Maximum(m_Size.Field) - Get_Shapes()->Get_Minimum(m_Size.Field)) > 0. )
 	{
 		m_Size.Offset  =  m_Parameters("SIZE_RANGE.MIN")->asDouble();
@@ -458,12 +458,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	case  0: m_Label.Align |= TEXTALIGN_BOTTOM ; break;
 	}
 
-	m_Label.Angle = m_Parameters("LABEL_ANGLE")->asDouble();
-
-	if( (m_Label.Angle_Field = m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
-	{
-		m_Label.Angle_Field = -1;
-	}
+	m_Label.Angle       = m_Parameters("LABEL_ANGLE")->asDouble();
+	m_Label.Angle_Field = Get_Fields_Choice(m_Parameters("LABEL_ANGLE_FIELD"));
 
 	//-----------------------------------------------------
 	m_bOutline = m_Parameters("OUTLINE")->asBool();
@@ -473,7 +469,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -485,8 +481,8 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		if(	pParameter->Cmp_Identifier("COLORS_FONT") )
 		{
 			Set_Metrics(
-				(*pParameters)("METRIC_ATTRIB")->asInt(),
-				(*pParameters)("METRIC_NORMAL")->asInt(),
+				Get_Fields_Choice((*pParameters)("METRIC_ATTRIB")),
+				Get_Fields_Choice((*pParameters)("METRIC_NORMAL")),
 				(*pParameters)("METRIC_NORFMT")->asInt()
 			);
 
@@ -511,11 +507,11 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("BEACHBALL_RAKE"      , Value == SYMBOL_TYPE_Beachball);
 		}
 
-		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("LABEL_FIELD") )
 		{
 			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Set_Enabled("LABEL_ANGLE_ATTRIB"  , Value);
+			pParameters->Set_Enabled("LABEL_ANGLE_FIELD"   , Value);
 			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
 			pParameters->Set_Enabled("LABEL_PLACEMENT"     , Value);
 		}
@@ -530,14 +526,12 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("LABEL_OFFSET_Y"      , pParameter->asInt() != 1);
 		}
 
-		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_FIELD") )
 		{
-			bool Value = pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
-
-			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
+			pParameters->Set_Enabled("LABEL_ANGLE"         , Get_Fields_Choice(pParameter) < 0);
 		}
 
-		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("SIZE_FIELD") )
 		{
 			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -562,7 +556,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -588,7 +582,7 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &minSize, int &maxSize, double &Mini
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -661,7 +655,7 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, C
 	m_Label.Offset.x = m_Parameters("LABEL_OFFSET_X")->asDouble();
 	m_Label.Offset.y = m_Parameters("LABEL_OFFSET_Y")->asDouble();
 
-	switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
+	switch( m_Parameters("LABEL_FIELD_SIZE_TYPE")->asInt() )
 	{
 	default: m_Label.Offset *= dc_Map.Scale   (); break;
 	case  1: m_Label.Offset *= dc_Map.World2DC(); break;
@@ -791,7 +785,7 @@ void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -879,7 +873,7 @@ void CWKSP_Shapes_Point::Draw_Symbol(CSG_Map_DC &dc, int x, int y, int Size)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -939,7 +933,7 @@ void CWKSP_Shapes_Point::_Image_Draw(CSG_Map_DC &dc_Map, int x, int y, int size,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -994,7 +988,7 @@ void CWKSP_Shapes_Point::_Arrow_Draw(CSG_Map_DC &dc_Map, int x, int y, int size,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1139,9 +1133,9 @@ void CWKSP_Shapes_Point::_Beachball_Get_Scaled(CSG_Shape *pShape, double x, doub
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
