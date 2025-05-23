@@ -204,7 +204,7 @@ bool CPC_Merge::On_Execute(void)
 
 //	DataObject_Set_Parameter(pResult, "DISPLAY_VALUE_AGGREGATE", 3);	// highest z
 //	DataObject_Set_Parameter(pResult, "COLORS_TYPE"            , 3);	// graduated colors
-//	DataObject_Set_Parameter(pResult, "METRIC_ATTRIB"          , 2);	// z-field
+//	DataObject_Set_Parameter(pResult, "METRIC_FIELD"           , 2);	// z-field
 //	DataObject_Set_Parameter(pResult, "METRIC_ZRANGE", pResult->Get_Minimum(2), pResult->Get_Maximum(2));
 
 	//-----------------------------------------------------

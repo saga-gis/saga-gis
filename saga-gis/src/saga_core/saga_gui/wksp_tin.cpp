@@ -256,7 +256,7 @@ void CWKSP_TIN::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_TIN::On_DataObject_Changed(void)
 {
-	Set_Fields_Choice(m_Parameters("METRIC_ATTRIB"), true, false);
+	Set_Fields_Choice(m_Parameters("METRIC_FIELD"), true, false);
 
 	//-----------------------------------------------------
 	CWKSP_Layer::On_DataObject_Changed();
@@ -268,7 +268,7 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 	CWKSP_Layer::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	m_fValue = Get_Fields_Choice(m_Parameters("METRIC_ATTRIB"));
+	m_fValue = Get_Fields_Choice(m_Parameters("METRIC_FIELD"));
 
 	m_Color_Pen = Get_Color_asWX(m_Parameters("SINGLE_COLOR")->asColor());
 }
@@ -283,11 +283,11 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
 		{
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				asTIN()->Get_Minimum(pParameter->asInt()),
-				asTIN()->Get_Maximum(pParameter->asInt())
+				asTIN()->Get_Minimum(Get_Fields_Choice(pParameter)),
+				asTIN()->Get_Maximum(Get_Fields_Choice(pParameter))
 			);
 		}
 	}

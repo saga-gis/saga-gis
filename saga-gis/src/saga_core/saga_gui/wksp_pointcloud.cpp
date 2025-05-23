@@ -88,8 +88,8 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 
 	DataObject_Changed();
 
-	m_Parameters("COLORS_TYPE"  )->Set_Value(CLASSIFY_GRADUATED);
-	m_Parameters("METRIC_ATTRIB")->Set_Value(2);
+	m_Parameters("COLORS_TYPE" )->Set_Value(CLASSIFY_GRADUATED);
+	m_Parameters("METRIC_FIELD")->Set_Value(2);
 
 	CSG_Table &LUT = *m_Parameters("LUT")->asTable(); LUT.Del_Records();
 
@@ -110,7 +110,7 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	ADD_CLASS(16711680, "Water"                       ,  9);
 	ADD_CLASS(16711935, "Overlap Points"              , 12);
 
-	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_ATTRIB"), PARAMETER_CHECK_ALL);
+	On_Parameter_Changed(&m_Parameters, m_Parameters("METRIC_FIELD"), PARAMETER_CHECK_ALL);
 
 	Parameters_Changed();
 }
@@ -472,7 +472,7 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 	//-----------------------------------------------------
 	Set_Fields_Choice(m_Parameters("LUT_FIELD"    ), false, false);
 	Set_Fields_Choice(m_Parameters("LUT_NORMAL"   ),  true,  true);
-	Set_Fields_Choice(m_Parameters("METRIC_ATTRIB"),  true, false);
+	Set_Fields_Choice(m_Parameters("METRIC_FIELD" ),  true, false);
 	Set_Fields_Choice(m_Parameters("METRIC_NORMAL"),  true,  true);
 	Set_Fields_Choice(m_Parameters("RGB_FIELD"    ),  true, false);
 
@@ -505,8 +505,8 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
-		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_ATTRIB"));
-		m_fNormal = -1; // Get_Fields_Choice(m_Parameters("METRIC_NORMAL")); // not yet implemented
+		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
+		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
 		break;
 
 	case  4: // CLASSIFY_RGB
@@ -546,14 +546,14 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
 		{
 			int zField = pParameter->asInt(); double m = Get_PointCloud()->Get_Mean(zField), s = 2. * Get_PointCloud()->Get_StdDev(zField);
 
 			double min = m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) ) { min = Get_PointCloud()->Get_Minimum(zField); }
 			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
 
-			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
+			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
 		}
 	}
 
@@ -594,7 +594,16 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 			return( wxString::Format("%s: %lld", _TL("Index"), Index + 1) );
 		}
 
-		if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
+		//-------------------------------------------------
+		if( m_pClassify->Get_Mode() == CLASSIFY_RGB )
+		{
+			int Value = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
+
+			return( wxString::Format("R%03d G%03d B%03d", SG_GET_R(Value), SG_GET_G(Value), SG_GET_B(Value)) );
+		}
+
+		//-------------------------------------------------
+		else if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
 		{
 			if( !SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(m_fValue)) )
 			{
@@ -616,13 +625,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 			}
 		}
 
-		else if( m_pClassify->Get_Mode() == CLASSIFY_RGB )
-		{
-			int Value = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
-
-			return( wxString::Format("R%03d G%03d B%03d", SG_GET_R(Value), SG_GET_G(Value), SG_GET_B(Value)) );
-		}
-
+		//-------------------------------------------------
 		else if( !Get_PointCloud()->is_NoData(m_fValue) )
 		{
 			if( m_fNormal < 0 )

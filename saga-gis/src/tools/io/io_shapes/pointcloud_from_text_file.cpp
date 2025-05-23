@@ -444,7 +444,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     //-----------------------------------------------------
 	DataObject_Set_Parameter(pPoints, "DISPLAY_VALUE_AGGREGATE", 3); // highest z
 	DataObject_Set_Parameter(pPoints, "COLORS_TYPE"            , 3); // graduated colors
-	DataObject_Set_Parameter(pPoints, "METRIC_ATTRIB"          , 2); // z attrib
+	DataObject_Set_Parameter(pPoints, "METRIC_FIELD"           , 2); // z attrib
 	DataObject_Set_Parameter(pPoints, "METRIC_ZRANGE", pPoints->Get_Minimum(2), pPoints->Get_Maximum(2));
 
 	DataObject_Update(pPoints);

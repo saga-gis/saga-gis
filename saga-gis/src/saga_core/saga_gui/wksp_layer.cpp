@@ -414,19 +414,19 @@ void CWKSP_Layer::ColorsParms_Add(void)
 		_TL("")
 	);
 
-	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+	 || m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 	{
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Field"        ), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_FIELD" , _TL("Field"        ), _TL(""), _TL("<default>"));
 		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
 
 		m_Parameters.Add_Choice("METRIC_NORMAL", "METRIC_NORFMT", _TL("Labeling"), _TL(""),
 			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 1
 		);
 	}
-	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
-	      || m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_ATTRIB", _TL("Field"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_FIELD" , _TL("Field"        ), _TL(""), _TL("<default>"));
 	}
 
 	//-----------------------------------------------------
@@ -600,7 +600,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 	||  pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		if( !Parameters("METRIC_ATTRIB") || (Field = Get_Fields_Choice(Parameters("METRIC_ATTRIB"))) < 0 )
+		if( !Parameters("METRIC_FIELD") || (Field = Get_Fields_Choice(Parameters("METRIC_FIELD"))) < 0 )
 		{
 			return( false );
 		}
@@ -618,7 +618,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 			CWKSP_Shapes *pShapes = (CWKSP_Shapes *)this;
 
 			pShapes->Set_Metrics(
-				Get_Fields_Choice(Parameters("METRIC_ATTRIB")),
+				Get_Fields_Choice(Parameters("METRIC_FIELD" )),
 				Get_Fields_Choice(Parameters("METRIC_NORMAL")),
 				Parameters("METRIC_NORFMT")->asInt()
 			);

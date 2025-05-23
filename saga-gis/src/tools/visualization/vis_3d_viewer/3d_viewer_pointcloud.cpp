@@ -1088,10 +1088,10 @@ bool C3D_Viewer_PointCloud::On_Execute(void)
 
 	switch( pParameter ? pParameter->asInt() : -1 )
 	{
-	case  1: Coloring = 0; if( (pParameter = DataObject_Get_Parameter(pPoints,     "LUT_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Classified
-	case  2: Coloring = 1; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_ATTRIB")) != NULL ) { Attribute = pParameter->asInt(); } break; // Discrete Colors
-	default: Coloring = 2; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_ATTRIB")) != NULL ) { Attribute = pParameter->asInt(); } break; // Graduated Colors
-	case  4: Coloring = 3; if( (pParameter = DataObject_Get_Parameter(pPoints,    "RGB_ATTRIB")) != NULL ) { Attribute = pParameter->asInt(); } break; // RGB Coded Values
+	case  1: Coloring = 0; if( (pParameter = DataObject_Get_Parameter(pPoints,    "LUT_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Classified
+	case  2: Coloring = 1; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Discrete Colors
+	default: Coloring = 2; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Graduated Colors
+	case  4: Coloring = 3; if( (pParameter = DataObject_Get_Parameter(pPoints,   "RGB_ATTRIB")) != NULL ) { Attribute = pParameter->asInt(); } break; // RGB Coded Values
 	}
 
 	C3D_Viewer_PointCloud_Dialog dlg(pPoints, Coloring, Attribute);

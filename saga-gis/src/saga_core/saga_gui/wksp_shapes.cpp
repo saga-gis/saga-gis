@@ -559,7 +559,7 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 {
 	Set_Fields_Choice(m_Parameters("LUT_FIELD"         ), false, false);
 	Set_Fields_Choice(m_Parameters("LUT_NORMAL"        ),  true,  true);
-	Set_Fields_Choice(m_Parameters("METRIC_ATTRIB"     ),  true, false);
+	Set_Fields_Choice(m_Parameters("METRIC_FIELD"      ),  true, false);
 	Set_Fields_Choice(m_Parameters("METRIC_NORMAL"     ),  true,  true);
 	Set_Fields_Choice(m_Parameters("LABEL_FIELD"       ), false,  true);
 	Set_Fields_Choice(m_Parameters("LABEL_FIELD_SIZEBY"),  true,  true);
@@ -593,7 +593,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
-		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_ATTRIB"));
+		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
 		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
 		m_dNormal = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
 		break;
@@ -703,12 +703,12 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE"  )
-		||	pParameter->Cmp_Identifier("METRIC_ATTRIB")
+		||	pParameter->Cmp_Identifier("METRIC_FIELD" )
 		||	pParameter->Cmp_Identifier("METRIC_NORMAL")
 		||	pParameter->Cmp_Identifier("METRIC_NORFMT") )
 		{
 			Set_Metrics(
-				Get_Fields_Choice((*pParameters)("METRIC_ATTRIB")),
+				Get_Fields_Choice((*pParameters)("METRIC_FIELD" )),
 				Get_Fields_Choice((*pParameters)("METRIC_NORMAL")),
 				(*pParameters)("METRIC_NORFMT")->asInt()
 			);
@@ -733,9 +733,9 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Set_Enabled("NODATA_COLOR" , pParameter->asBool());
 		}
 
-		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
 		{
-			pParameters->Set_Enabled("METRIC_NORMAL", pParameter->asInt() >= 0);
+			pParameters->Set_Enabled("METRIC_NORMAL", Get_Fields_Choice(pParameter) >= 0);
 		}
 
 		if(	pParameter->Cmp_Identifier("OUTLINE") )
@@ -746,7 +746,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 		if(	pParameter->Cmp_Identifier("LABEL_FIELD") )
 		{
-			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
+			bool Value = Get_Fields_Choice(pParameter) >= 0;
 
 			pParameters->Set_Enabled("LABEL_FIELD_FONT"     , Value);
 			pParameters->Set_Enabled("LABEL_FIELD_SIZE_TYPE", Value);
@@ -758,7 +758,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		if( pParameter->Cmp_Identifier("LABEL_FIELD_SIZE_TYPE")
 		||  pParameter->Cmp_Identifier("LABEL_FIELD_SIZEBY"   ) )
 		{
-			bool Value = pParameters->Get_Parameter("LABEL_FIELD_SIZE_TYPE")->asInt() != 0 || Get_Fields_Choice(pParameters->Get_Parameter("LABEL_FIELD_SIZEBY")) >= 0;
+			bool Value = (*pParameters)("LABEL_FIELD_SIZE_TYPE")->asInt() != 0 || Get_Fields_Choice((*pParameters)("LABEL_FIELD_SIZEBY")) >= 0;
 
 			pParameters->Set_Enabled("LABEL_FIELD_SIZE", Value);
 		}
@@ -775,7 +775,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 		if(	pParameters->Cmp_Identifier("DISPLAY_CHART") )
 		{
-			CSG_String	s(pParameter->Get_Identifier());
+			CSG_String s(pParameter->Get_Identifier());
 
 			if( s.Find("FIELD_") == 0 )
 			{
@@ -785,13 +785,9 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			}
 		}
 
+		if( (*pParameters)("METRIC_NORMAL") )
 		{
-			CSG_Parameter *pNormalize = pParameters->Get_Parameter("METRIC_NORMAL");
-
-			if( pNormalize )
-			{
-				pNormalize->Set_Children_Enabled(pNormalize->asInt() >= 0 && pNormalize->asInt() < Get_Shapes()->Get_Field_Count());
-			}
+			(*pParameters)("METRIC_NORMAL")->Set_Children_Enabled(Get_Fields_Choice((*pParameters)("METRIC_NORMAL")) >= 0);
 		}
 	}
 

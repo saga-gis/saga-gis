@@ -384,13 +384,13 @@ bool CRDB2_Import::On_Execute(void)
 
 			DataObject_Get_Parameters(pPoints, sParms);
 
-			if (sParms("METRIC_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
-				&& sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
+			if (sParms("METRIC_FIELD" ) && sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
+			 && sParms("METRIC_ZRANGE") && sParms("DISPLAY_VALUE_AGGREGATE"))
 			{
 				sParms("DISPLAY_VALUE_AGGREGATE")->Set_Value(3);		// highest z
-				sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
+				sParms("COLORS_TYPE"  )->Set_Value(2);                    // graduated color
 				sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
-				sParms("METRIC_ATTRIB")->Set_Value(2);					// z attrib
+				sParms("METRIC_FIELD" )->Set_Value(2);					// z attrib
 				sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPoints->Get_Minimum(2),pPoints->Get_Maximum(2));
 			}
 
@@ -398,7 +398,8 @@ bool CRDB2_Import::On_Execute(void)
 
 			SG_UI_Msg_Add(_TL("okay"), false);
 		}
-	} catch (std::exception &e)
+	}
+	catch (std::exception &e)
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to open RDB2 file! Exception: %s"), e.what()));
 		return false;

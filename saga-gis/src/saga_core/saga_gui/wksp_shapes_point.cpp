@@ -481,7 +481,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		if(	pParameter->Cmp_Identifier("COLORS_FONT") )
 		{
 			Set_Metrics(
-				Get_Fields_Choice((*pParameters)("METRIC_ATTRIB")),
+				Get_Fields_Choice((*pParameters)("METRIC_FIELD" )),
 				Get_Fields_Choice((*pParameters)("METRIC_NORMAL")),
 				(*pParameters)("METRIC_NORFMT")->asInt()
 			);

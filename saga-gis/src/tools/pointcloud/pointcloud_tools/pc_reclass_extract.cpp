@@ -667,7 +667,7 @@ void CPC_Reclass_Extract::Set_Display_Attributes(int Attribute)
 	{
 		DataObject_Update(m_pResult);
 
-		DataObject_Set_Parameter(m_pResult, "METRIC_ATTRIB", Attribute);
+		DataObject_Set_Parameter(m_pResult, "METRIC_FIELD" , Attribute);
 		DataObject_Set_Parameter(m_pResult, "METRIC_ZRANGE",
 			m_pResult->Get_Minimum(Attribute),
 			m_pResult->Get_Maximum(Attribute)
