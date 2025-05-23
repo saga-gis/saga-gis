@@ -156,8 +156,14 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	#ifdef __WXMAC__
-	m_Parameters["RECENT_LIST"].Set_Value(2); // defaults not to list
+	m_Parameters["RECENT_LIST"].Set_Value(2); // here default is not to list!
 	#endif
+
+	m_Parameters.Add_Bool("NODE_TOOLS",
+		"MANAGEMENT_MENU", _TL("Management Menu"),
+		_TL(""),
+		false
+	);
 
 	m_Parameters.Add_Bool("NODE_TOOLS",
 		"BEEP"           , _TL("Beep when finished"),
@@ -526,15 +532,11 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 	{
 	default: return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
-	case ID_CMD_TOOL_OPEN  :
-		Open();
-		break;
+	case ID_CMD_TOOL_OPEN     : Open(); break;
+	case ID_CMD_TOOL_CLOSE_ALL: g_pTool_Ctrl->Del_Item(this, false); break;
+	case ID_CMD_TOOL_RELOAD   : _Reload(); break;
 
-	case ID_CMD_TOOL_RELOAD:
-		_Reload();
-		break;
-
-	case ID_CMD_TOOL_SEARCH:
+	case ID_CMD_TOOL_SEARCH   :
 		{
 			CWKSP_Base_Item	*pItem	= g_pTool_Ctrl->Search_Item(_TL("Find and Run Tool"), WKSP_ITEM_Tool);
 
@@ -588,6 +590,7 @@ bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	else switch( event.GetId() )
 	{
 	case ID_CMD_WKSP_ITEM_CLOSE:
+	case ID_CMD_TOOL_CLOSE_ALL :
 	case ID_CMD_TOOL_SEARCH    :
 	case ID_CMD_TOOL_SAVE_DOCS :
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);

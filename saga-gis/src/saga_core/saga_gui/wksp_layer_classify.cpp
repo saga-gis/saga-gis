@@ -244,7 +244,7 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 		CSG_Table_Record *pRecord;
 
 		pRecord	= m_pLUT->Add_Record();
-		pRecord->Set_Value(LUT_COLOR		, Colours[Colour]); Colour = ++Colour % nColours;
+		pRecord->Set_Value(LUT_COLOR		, Colours[Colour]); Colour = (Colour + 1) % nColours;
 		pRecord->Set_Value(LUT_TITLE		, _TL("Class 1"));
 		pRecord->Set_Value(LUT_DESCRIPTION	, _TL("First Class"));
 		pRecord->Set_Value(LUT_MIN			, 0.0);

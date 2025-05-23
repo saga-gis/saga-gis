@@ -155,9 +155,22 @@ void CWKSP_Tool_Menu::Update(void)
 			}
 		}
 
+		//-------------------------------------------------
 		m_pMenu->InsertSeparator(0);
 
 		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_SEARCH, 0);
+
+		if( g_pTools->Get_Parameter("MANAGEMENT_MENU")->asBool() )
+		{
+			wxMenu *pMenu = new wxMenu;
+
+			m_pMenu->Insert(1, ID_CMD_TOOL_MANAGER_MENU, _TL("Tool Management"), pMenu);
+
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_OPEN);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_CLOSE_ALL);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_DOCS);
+		}
 
 		m_Recent_Start = m_pMenu->GetMenuItemCount();
 
@@ -369,18 +382,18 @@ bool CWKSP_Tool_Menu::_Set_Recent(void)
 	//-----------------------------------------------------
 	else // if( Listing == 1 ) // list in sub menu
 	{
-		wxMenu *pMenu = m_pMenu->GetMenuItemCount() > 1 && m_pMenu->GetMenuItems()[1]->IsSubMenu() ? m_pMenu->GetMenuItems()[1]->GetSubMenu() : NULL;
+		wxMenu *pMenu = m_pMenu->FindItem(ID_CMD_TOOL_RECENT_MENU) ? m_pMenu->FindItem(ID_CMD_TOOL_RECENT_MENU)->GetSubMenu() : NULL;
 		
 		if( !pMenu )
 		{
-			m_pMenu->Insert(1, wxID_ANY, _TL("Recent Tools"), pMenu = new wxMenu);
+			m_pMenu->Insert(1, ID_CMD_TOOL_RECENT_MENU, _TL("Recent Tools"), pMenu = new wxMenu);
 		}
 		else while( pMenu->GetMenuItemCount() )
 		{
 			pMenu->Destroy(pMenu->GetMenuItems()[0]);
 		}
 
-		m_pMenu->GetMenuItems()[1]->Enable(nRecents > 0);
+		m_pMenu->Enable(ID_CMD_TOOL_RECENT_MENU, nRecents > 0);
 
 		for(int i=0, id=ID_CMD_TOOL_RECENT_FIRST; i<nRecents; i++, id++)
 		{

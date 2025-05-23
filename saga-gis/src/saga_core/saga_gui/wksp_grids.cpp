@@ -199,6 +199,7 @@ wxToolBarBase * CWKSP_Grids::Get_ToolBar(void)
 
 		Add_ToolBar_Defaults(static_pToolBar);
 		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_GRIDS_3DVIEW);
 
 		CMD_ToolBar_Add(static_pToolBar, _TL("Grids"));
 	}
@@ -279,6 +280,13 @@ bool CWKSP_Grids::On_Command(int Cmd_ID)
 		&&  pTool->Set_Parameter("GRID_Y", m_pObject->asGrids()->Get_Grid_Ptr(1))
 		&&  pTool->Set_Parameter("GRID_Z", m_pObject->asGrids()->Get_Grid_Ptr(2))
 		&& DLG_Parameters(pTool->Get_Parameters()) )
+		{
+			pTool->Execute();
+		}
+		break; }
+
+	case ID_CMD_GRIDS_3DVIEW       : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 5);
+		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", m_pObject) )
 		{
 			pTool->Execute();
 		}

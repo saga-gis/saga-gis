@@ -132,6 +132,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_TABLE_FROM_QUERY          : return( _TL("Table from Query") );
 
 	case ID_CMD_TOOL_OPEN                    : return( _TL("Load Tool Library") );
+	case ID_CMD_TOOL_CLOSE_ALL               : return( _TL("Close all Tool Libraries") );
 	case ID_CMD_TOOL_RELOAD                  : return( _TL("Reload Standard Tool Libraries") );
 	case ID_CMD_TOOL_SEARCH                  : return( _TL("Find and Run Tool") );
 	case ID_CMD_TOOL_SAVE_DOCS               : return( _TL("Create Tool Description Files") );
