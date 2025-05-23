@@ -553,7 +553,7 @@ void CWKSP_Layer::ColorsParms_On_Changed(CSG_Parameters *pParameters, CSG_Parame
 		||  pParameter->Cmp_Identifier("METRIC_ZRANGE_G")
 		||  pParameter->Cmp_Identifier("METRIC_ZRANGE_B") )
 		{
-			pParameters->Set_Parameter("STRETCH_DEFAULT", 3);	// manual
+			pParameters->Set_Parameter("STRETCH_DEFAULT", 3); // manual
 		}
 	}
 
@@ -565,7 +565,7 @@ void CWKSP_Layer::ColorsParms_On_Changed(CSG_Parameters *pParameters, CSG_Parame
 			pParameters->Set_Enabled("METRIC_SCALE_LOG", pParameter->asInt() != 0);
 		}
 
-		CSG_Parameter	*pStretch	= (*pParameters)("STRETCH_DEFAULT");
+		CSG_Parameter *pStretch = (*pParameters)("STRETCH_DEFAULT");
 
 		if(	pStretch )
 		{
@@ -585,7 +585,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 
 		if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids && Parameters("COLORS_TYPE")->asInt() != CLASSIFY_OVERLAY )
 		{
-			int	i	= Parameters("BAND") ? Parameters("BAND")->asInt() : -1;
+			int i = Parameters("BAND") ? Parameters("BAND")->asInt() : -1;
 
 			if( i < 0 || i >= ((CSG_Grids *)pObject)->Get_NZ() || !(pObject = ((CSG_Grids *)pObject)->Get_Grid_Ptr(i)) )
 			{
@@ -594,6 +594,7 @@ bool CWKSP_Layer::ColorsParms_Adjust(CSG_Parameters &Parameters, CSG_Data_Object
 		}
 	}
 
+	//-----------------------------------------------------
 	int	Field	= -1;
 
 	if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
@@ -1058,7 +1059,7 @@ bool CWKSP_Layer::Set_Fields_Choice(CSG_Parameter *pChoice, bool bNumeric, bool 
 				{
 					Fields += CSG_String::Format("{-1}<%s>", _TL("none"));
 
-					if( pChoice->asChoice()->Get_Count() <= 1 )
+					if( pChoice->asChoice()->Get_Count() <= 1 || Get_Fields_Choice(pChoice) < 0 )
 					{
 						bSelectNone = true;
 					}
@@ -1336,7 +1337,8 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 		{
 			int Field = Get_Fields_Choice(pParameter);
 
-			pParameters->Set_Parameter("INTERVAL", (*pParameters)("TABLE")->asTable()->Get_Range(Field) / (*pParameters)("CLASSES")->asInt());
+			pParameters->Set_Parameter("INTERVAL"    , (*pParameters)("TABLE")->asTable()->Get_Range  (Field) / (*pParameters)("CLASSES")->asInt());
+			pParameters->Set_Parameter("OFFSET_VALUE", (*pParameters)("TABLE")->asTable()->Get_Minimum(Field));
 		}
 	}
 
@@ -1345,14 +1347,20 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 	{
 		if( pParameter->Cmp_Identifier("METHOD") )
 		{
-			pParameters->Set_Enabled("ALL_FIELDS" , pParameter->asInt() == 0);
-			pParameters->Set_Enabled("NUM_FIELDS" , pParameter->asInt() != 0);
-			pParameters->Set_Enabled("NUM_NORMAL" , pParameter->asInt() != 0);
-			pParameters->Set_Enabled("CLASSES_MAX", pParameter->asInt() == 0);
-			pParameters->Set_Enabled("CLASSES"    , pParameter->asInt() != 0 && pParameter->asInt() != 2 && pParameter->asInt() != 6);
-			pParameters->Set_Enabled("INTERVAL"   , pParameter->asInt() == 2);
-			pParameters->Set_Enabled("INCREASING" , pParameter->asInt() == 4);
-			pParameters->Set_Enabled("STDDEV"     , pParameter->asInt() == 6);
+			pParameters->Set_Enabled("ALL_FIELDS"  , pParameter->asInt() == 0);
+			pParameters->Set_Enabled("NUM_FIELDS"  , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("NUM_NORMAL"  , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("CLASSES_MAX" , pParameter->asInt() == 0);
+			pParameters->Set_Enabled("CLASSES"     , pParameter->asInt() != 0 && pParameter->asInt() != 2 && pParameter->asInt() != 6);
+			pParameters->Set_Enabled("INTERVAL"    , pParameter->asInt() == 2);
+			pParameters->Set_Enabled("OFFSET"      , pParameter->asInt() == 2);
+			pParameters->Set_Enabled("INCREASING"  , pParameter->asInt() == 4);
+			pParameters->Set_Enabled("STDDEV"      , pParameter->asInt() == 6);
+		}
+
+		if( pParameter->Cmp_Identifier("OFFSET") )
+		{
+			pParameters->Set_Enabled("OFFSET_VALUE", pParameter->asInt() == 1);
 		}
 	}
 
@@ -1398,16 +1406,18 @@ bool CWKSP_Layer::_Classify(void)
 			m_Classify.Add_Choice("", "NUM_NORMAL", _TL("Normalization"), _TL(""), "");
 		}
 
-		m_Classify.Add_Colors("", "COLORS"     , _TL("Colors"                   ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
-		m_Classify.Add_Int   ("", "CLASSES_MAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
-		m_Classify.Add_Int   ("", "CLASSES"    , _TL("Number of Classes"        ), _TL(""),   10,  1, true);
-		m_Classify.Add_Choice("", "METHOD"     , _TL("Classification"           ), _TL(""), Methods, 1);
-		m_Classify.Add_Double("", "INTERVAL"   , _TL("Defined Interval"         ), _TL(""), 1. , 0. , true);
-		m_Classify.Add_Bool  ("", "INCREASING" , _TL("Increasing Intervals"     ), _TL(""), true);
-		m_Classify.Add_Double("", "STDDEV"     , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.1, true);
+		m_Classify.Add_Colors(""      , "COLORS"      , _TL("Colors"                   ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
+		m_Classify.Add_Int   (""      , "CLASSES_MAX" , _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
+		m_Classify.Add_Int   (""      , "CLASSES"     , _TL("Number of Classes"        ), _TL(""),   10,  1, true);
+		m_Classify.Add_Choice(""      , "METHOD"      , _TL("Classification"           ), _TL(""), Methods, 1);
+		m_Classify.Add_Double(""      , "INTERVAL"    , _TL("Defined Interval"         ), _TL(""), 1., 0., true);
+		m_Classify.Add_Choice(""      , "OFFSET"      , _TL("Offset"                   ), _TL(""), CSG_String::Format("%s|%s", _TL("minimum value"), _TL("user defined")));
+		m_Classify.Add_Double("OFFSET", "OFFSET_VALUE", _TL("Value"                    ), _TL(""), 1., 0., true);
+		m_Classify.Add_Bool  (""      , "INCREASING"  , _TL("Increasing Intervals"     ), _TL(""), true);
+		m_Classify.Add_Double(""      , "STDDEV"      , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.01, true);
 
-		if( m_pObject->asGrid () ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrid ()->Get_Range() / 10); }
-		if( m_pObject->asGrids() ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrids()->Get_Range() / 10); }
+		if( m_pObject->asGrid () ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrid ()->Get_Range() / 10); m_Classify["OFFSET_VALUE"].Set_Value(m_pObject->asGrid ()->Get_Min()); }
+		if( m_pObject->asGrids() ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrids()->Get_Range() / 10); m_Classify["OFFSET_VALUE"].Set_Value(m_pObject->asGrids()->Get_Min()); }
 	}
 
 	//-----------------------------------------------------
@@ -1459,7 +1469,9 @@ bool CWKSP_Layer::_Classify(void)
 	{
 	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()); break;
 	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()); break;
-	case  2: Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()); break;
+	case  2: if( m_Classify["OFFSET"].asInt() )
+	     {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble(), m_Classify["OFFSET_VALUE"].asDouble()); }
+	else {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()); } break;
 	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), false); break;
 	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"].asBool()); break;
 	case  5: Classify.Classify_Natural  (m_Classify["CLASSES"    ].asInt   ()); break;

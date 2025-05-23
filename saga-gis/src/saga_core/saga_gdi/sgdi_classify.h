@@ -74,7 +74,7 @@ public:
 
 	enum class Classifier
 	{
-		Unique = 0, Equal, Defined, Quantile, Geometric, Natural, StdDev
+		Unique = 0, Equal, Defined, Quantile, Geometric, Natural, StdDev, NotSet
 	};
 
 	enum class LUT_Fields
@@ -97,12 +97,15 @@ public:
 	//-----------------------------------------------------
 	const CSG_String &			Get_Name				(Classifier Classifier) const;
 
-	bool						is_Okay					(void) const;
+	bool						is_Okay					(void) const { return( m_pObject && m_nValues > 0 ); }
+	bool						is_Classified			(void) const { return( m_Classifier != Classifier::NotSet ); }
+	Classifier					Get_Classifier			(void) const { return( m_Classifier ); }
 
 	bool						Set_LUT					(CSG_Table &LUT, CSG_Colors Colors) const;
 
 	bool						Classify_Unique			(int maxCount = 1024);
 	bool						Classify_Equal			(int Count);
+	bool						Classify_Defined		(double Interval, double Offset);
 	bool						Classify_Defined		(double Interval);
 	bool						Classify_Quantile		(int Count, bool bHistogram = true);
 	bool						Classify_Geometric		(int Count, bool bIncreasing = true);
@@ -121,6 +124,8 @@ private:
 	CSG_Data_Object				*m_pObject = NULL;
 
 	CSG_Table					m_Normalized, m_Classes;
+
+	Classifier					m_Classifier = Classifier::NotSet;
 
 
 	bool						_is_Numeric				(void) const;

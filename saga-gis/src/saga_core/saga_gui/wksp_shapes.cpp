@@ -325,15 +325,15 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		break;
 
 	//-----------------------------------------------------
-	case ID_CMD_SHAPES_EDIT_SHAPE    :	_Edit_Shape         (); break;
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:	_Edit_Shape_Add     (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:	_Edit_Shape_Del     (); break;
-	case ID_CMD_SHAPES_EDIT_ADD_PART :	_Edit_Part_Add      (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_PART :	_Edit_Part_Del      (); break;
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:	_Edit_Point_Del     (); break;
-	case ID_CMD_SHAPES_EDIT_MERGE    :	_Edit_Merge         (); break;
-	case ID_CMD_SHAPES_EDIT_SPLIT    :	_Edit_Split         (); break;
-	case ID_CMD_SHAPES_EDIT_MOVE     :	_Edit_Move          (); break;
+	case ID_CMD_SHAPES_EDIT_SHAPE    : _Edit_Shape         (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE: _Edit_Shape_Add     (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE: _Edit_Shape_Del     (); break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART : _Edit_Part_Add      (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART : _Edit_Part_Del      (); break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT: _Edit_Point_Del     (); break;
+	case ID_CMD_SHAPES_EDIT_MERGE    : _Edit_Merge         (); break;
+	case ID_CMD_SHAPES_EDIT_SPLIT    : _Edit_Split         (); break;
+	case ID_CMD_SHAPES_EDIT_MOVE     : _Edit_Move          (); break;
     case ID_CMD_SHAPES_EDIT_SEL_COPY : _Edit_Selection_Copy(); break;
 
 	//-----------------------------------------------------
@@ -587,8 +587,9 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 		break;
 
 	case  1: // CLASSIFY_LUT
-		m_fValue  = Get_Fields_Choice(m_Parameters("LUT_FIELD" ));
-		m_fNormal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"));
+		m_fValue  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
+		m_fNormal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
+		m_dNormal = 1.;
 		break;
 
 	case  2: // CLASSIFY_DISCRETE
@@ -664,16 +665,16 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::Set_Metrics(int zField, int nField, int nType)
 {
-	if( zField >= 0 && zField < Get_Shapes()->Get_Field_Count() )
+	if( zField >= 0 )
 	{
-		if( nField < Get_Shapes()->Get_Field_Count() )
+		if( nField >= 0 )
 		{
 			m_Metrics.Create();
 
 			for(sLong i=0; i<Get_Shapes()->Get_Count(); i++)
 			{
-				double	z	= Get_Shapes()->Get_Record(i)->asDouble(zField);
-				double	n	= Get_Shapes()->Get_Record(i)->asDouble(nField) / (nType == 0 ? 1. : 100.);
+				double z = Get_Shapes()->Get_Record(i)->asDouble(zField);
+				double n = Get_Shapes()->Get_Record(i)->asDouble(nField) / (nType == 0 ? 1. : 100.);
 					
 				if( !Get_Shapes()->is_NoData_Value(z) && !Get_Shapes()->is_NoData_Value(n) && n != 0. )
 				{

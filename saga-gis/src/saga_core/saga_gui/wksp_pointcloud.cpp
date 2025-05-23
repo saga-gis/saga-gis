@@ -501,12 +501,14 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	case  1: // CLASSIFY_LUT
 		m_fValue  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
 		m_fNormal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
+		m_dNormal = 1.;
 		break;
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
 		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
 		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
+		m_dNormal = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
 		break;
 
 	case  4: // CLASSIFY_RGB
@@ -548,10 +550,12 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	{
 		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
 		{
-			int zField = pParameter->asInt(); double m = Get_PointCloud()->Get_Mean(zField), s = 2. * Get_PointCloud()->Get_StdDev(zField);
+			int zField = Get_Fields_Choice((*pParameters)("METRIC_FIELD")); double m = Get_PointCloud()->Get_Mean(zField), s = 2. * Get_PointCloud()->Get_StdDev(zField);
 
 			double min = m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) ) { min = Get_PointCloud()->Get_Minimum(zField); }
 			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
+
+			if( (*pParameters)("METRIC_NORFMT")->asInt() ) { min *= 100.; max *= 100.; }
 
 			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
 		}
@@ -637,7 +641,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 			if( !Get_PointCloud()->Get_Value(Index, m_fValue, Value) && Get_PointCloud()->Get_Value(Index, m_fNormal, Normal) && Normal != 0. )
 			{
-				return( wxString::Format("%f", Value / Normal) );
+				return( wxString::Format("%f", m_dNormal * Value / Normal) );
 			}
 		}
 	}
@@ -899,17 +903,16 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud *pPoints = Get_PointCloud();
+	CSG_PointCloud *pPoints = Get_PointCloud(); bool bNumeric = SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(m_fValue));
 
 	sLong Selection = pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
 
+	#pragma omp parallel for
 	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		pPoints->Set_Cursor(i);
-
-		if( !pPoints->is_NoData(m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(m_fNormal) && pPoints->Get_Value(m_fNormal) != 0.)) )
+		if( !pPoints->is_NoData(i, m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(i, m_fNormal) && pPoints->Get_Value(i, m_fNormal) != 0.)) )
 		{
-			TSG_Point_3D Point = pPoints->Get_Point();
+			TSG_Point_3D Point = pPoints->Get_Point(i);
 
 			if( dc_Map.rWorld().Contains(Point.x, Point.y) )
 			{
@@ -925,20 +928,18 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 				}
 				else
 				{
-					int Color;
-					
-					if( m_pClassify->Get_Mode() == CLASSIFY_LUT && !SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(m_fValue)) )
+					if( m_pClassify->Get_Mode() == CLASSIFY_LUT && !bNumeric ) // string
 					{
-						CSG_String Value;
+						int Color; CSG_String Value;
 
-						if( pPoints->Get_Value(m_fValue, Value) && m_pClassify->Get_Class_Color_byValue(Value, Color) )
+						if( pPoints->Get_Value(i, m_fValue, Value) && m_pClassify->Get_Class_Color_byValue(Value, Color) )
 						{
 							_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 						}
 					}
-					else
+					else // number
 					{
-						double Value = pPoints->Get_Value(m_fValue); if( m_fNormal >= 0 ) { Value /= pPoints->Get_Value(m_fNormal); }
+						int Color; double Value = pPoints->Get_Value(i, m_fValue); if( m_fNormal >= 0 ) { Value *= m_dNormal / pPoints->Get_Value(i, m_fNormal); }
 						
 						if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 						{
@@ -958,18 +959,17 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 
 	sLong n = 1 + (sLong)(pPoints->Get_Count() / (2 * dc_Map.rDC().GetWidth() * dc_Map.rDC().GetHeight()));
 
+//	#pragma omp parallel for
 	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
-		pPoints->Set_Cursor(i);
-
-		if( !pPoints->is_NoData(m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(m_fNormal) && pPoints->Get_Value(m_fNormal) != 0.)) )
+		if( !pPoints->is_NoData(i, m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(i, m_fNormal) && pPoints->Get_Value(i, m_fNormal) != 0.)) )
 		{
-			TSG_Point_3D Point = pPoints->Get_Point();
+			TSG_Point_3D Point = pPoints->Get_Point(i);
 
 			int x = (int)dc_Map.xWorld2DC(Point.x);
 			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int Color; double Value = pPoints->Get_Value(m_fValue); if( m_fNormal >= 0 ) { Value /= pPoints->Get_Value(m_fNormal); }
+			int Color; double Value = pPoints->Get_Value(i, m_fValue); if( m_fNormal >= 0 ) { Value *= m_dNormal / pPoints->Get_Value(i, m_fNormal); }
 
 			if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 			{

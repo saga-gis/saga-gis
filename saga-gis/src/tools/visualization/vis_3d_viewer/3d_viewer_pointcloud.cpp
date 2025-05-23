@@ -1084,14 +1084,30 @@ bool C3D_Viewer_PointCloud::On_Execute(void)
 		return( false );
 	}
 
-	int Coloring, Attribute = 2; CSG_Parameter *pParameter = DataObject_Get_Parameter(pPoints, "COLORS_TYPE");
+	CSG_Parameter *pParameter = DataObject_Get_Parameter(pPoints, "COLORS_TYPE");
 
-	switch( pParameter ? pParameter->asInt() : -1 )
+	int Classifier = pParameter ? pParameter->asInt() : -1;
+
+	if( Classifier == 1 ) // Classified with Normalization not supported (yet)
 	{
-	case  1: Coloring = 0; if( (pParameter = DataObject_Get_Parameter(pPoints,    "LUT_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Classified
-	case  2: Coloring = 1; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Discrete Colors
-	default: Coloring = 2; if( (pParameter = DataObject_Get_Parameter(pPoints, "METRIC_FIELD")) != NULL ) { Attribute = pParameter->asInt(); } break; // Graduated Colors
-	case  4: Coloring = 3; if( (pParameter = DataObject_Get_Parameter(pPoints,   "RGB_ATTRIB")) != NULL ) { Attribute = pParameter->asInt(); } break; // RGB Coded Values
+		int Normal; pParameter = DataObject_Get_Parameter(pPoints, "LUT_NORMAL");
+
+		if( pParameter && pParameter->asChoice() && pParameter->asChoice()->Get_Data(Normal) && Normal >= 0 )
+		{
+			Classifier = -1;
+		}
+	}
+
+	#define Get_Attribute(field) { CSG_Parameter *p = DataObject_Get_Parameter(pPoints, field); if( p && p->asChoice() ) { p->asChoice()->Get_Data(Attribute); } }
+
+	int Coloring, Attribute = 2;
+
+	switch( Classifier )
+	{
+	case  1: Coloring = 0; Get_Attribute(    "LUT_FIELD"); break; // Classified
+	case  2: Coloring = 1; Get_Attribute( "METRIC_FIELD"); break; // Discrete Colors
+	default: Coloring = 2; Get_Attribute( "METRIC_FIELD"); break; // Graduated Colors
+	case  4: Coloring = 3; Get_Attribute(   "RGB_ATTRIB"); break; // RGB Coded Values
 	}
 
 	C3D_Viewer_PointCloud_Dialog dlg(pPoints, Coloring, Attribute);

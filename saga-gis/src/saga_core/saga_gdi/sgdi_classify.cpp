@@ -85,7 +85,7 @@ bool CSGDI_Classify::Destroy(void)
 {
 	m_pObject = NULL; m_nValues = 0; m_Field = -1; m_Normalized.Destroy();
 
-	m_Classes.Destroy();
+	m_Classes.Destroy(); m_Classifier = Classifier::NotSet;
 
 	return( true );
 }
@@ -173,7 +173,7 @@ bool CSGDI_Classify::Create(CSG_Table *pTable, int Field, int Normalize)
 //---------------------------------------------------------
 const CSG_String & CSGDI_Classify::Get_Name(Classifier Classifier) const
 {
-	const CSG_String Names[] =
+	static const CSG_String Names[] =
 	{
 		_TL("Unique Values"     ),
 		_TL("Equal Interval"    ),
@@ -194,12 +194,6 @@ const CSG_String & CSGDI_Classify::Get_Name(Classifier Classifier) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Classify::is_Okay(void) const
-{
-	return( m_pObject && m_nValues > 0 );
-}
-
-//---------------------------------------------------------
 bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 {
 	if( !is_Okay() || m_Classes.Get_Count() < 1 )
@@ -207,7 +201,7 @@ bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 		return( false );
 	}
 
-	bool bNumeric = _is_Numeric(); Colors.Set_Count((int)m_Classes.Get_Count());
+	bool bNumeric = _is_Numeric() && m_Classifier != Classifier::Unique; Colors.Set_Count((int)m_Classes.Get_Count());
 
 	Classes.Set_Field_Type((int)LUT_Fields::Minimum, bNumeric ? SG_DATATYPE_Double : SG_DATATYPE_String);
 	Classes.Set_Field_Type((int)LUT_Fields::Maximum, bNumeric ? SG_DATATYPE_Double : SG_DATATYPE_String);
@@ -456,6 +450,8 @@ bool CSGDI_Classify::Classify_Unique(int maxCount)
 	}
 
 	//-----------------------------------------------------
+	m_Classifier = Classifier::Unique;
+
 	return( m_Classes.Get_Count() > 0 );
 }
 
@@ -485,7 +481,7 @@ bool CSGDI_Classify::Classify_Equal(int Count)
 
 	for(int i=0; i<Count; i++)
 	{
-		double Minimum = Maximum; Maximum = Statistics.Get_Minimum() + (i * Interval);
+		double Minimum = Maximum; Maximum = Statistics.Get_Minimum() + (i + 1) * Interval;
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 
@@ -493,22 +489,30 @@ bool CSGDI_Classify::Classify_Equal(int Count)
 		Class.Set_Value(1, Maximum); // Maximum
 	}
 
+	//-----------------------------------------------------
+	m_Classifier = Classifier::Equal;
+
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSGDI_Classify::Classify_Defined(double Interval)
+bool CSGDI_Classify::Classify_Defined(double Interval, double Offset)
 {
 	CSG_Simple_Statistics Statistics;
 
-	if( Interval <= 0. || !_Get_Statistics(Statistics) )
+	if( Interval <= 0. || !_Get_Statistics(Statistics) || Offset >= Statistics.Get_Maximum() )
 	{
 		return( false );
 	}
 
 	_Create_Classes();
 
-	double Minimum = Statistics.Get_Minimum();
+	double Minimum = Offset;
 
 	for(double Maximum=Minimum+Interval; Minimum<Statistics.Get_Maximum(); Minimum=Maximum, Maximum+=Interval)
 	{
@@ -518,8 +522,24 @@ bool CSGDI_Classify::Classify_Defined(double Interval)
 		Class.Set_Value(1, Maximum); // Maximum
 	}
 
+	//-----------------------------------------------------
+	m_Classifier = Classifier::Defined;
+
 	return( true );
 }
+
+//---------------------------------------------------------
+bool CSGDI_Classify::Classify_Defined(double Interval)
+{
+	CSG_Simple_Statistics Statistics;
+
+	return( _Get_Statistics(Statistics) && Classify_Defined(Interval, Statistics.Get_Minimum()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSGDI_Classify::Classify_Quantile(int Count, bool bHistogram)
@@ -583,8 +603,16 @@ bool CSGDI_Classify::Classify_Quantile(int Count, bool bHistogram)
 		}
 	}
 
+	//-----------------------------------------------------
+	m_Classifier = Classifier::Quantile;
+
 	return( m_Classes.Get_Count() > 0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSGDI_Classify::Classify_Geometric(int Count, bool bIncreasing)
@@ -614,8 +642,16 @@ bool CSGDI_Classify::Classify_Geometric(int Count, bool bIncreasing)
 		Class.Set_Value(1, Maximum); // Maximum
 	}
 
+	//-----------------------------------------------------
+	m_Classifier = Classifier::Geometric;
+
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSGDI_Classify::Classify_Natural(int Count)
@@ -659,15 +695,40 @@ bool CSGDI_Classify::Classify_Natural(int Count)
 		Class.Set_Value(1, Breaks[i + 1]); // Maximum
 	}
 
+	//-----------------------------------------------------
+	m_Classifier = Classifier::Natural;
+
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSGDI_Classify::Classify_StdDev(double StdDev)
 {
 	CSG_Simple_Statistics Statistics;
 
-	return( StdDev > 0. && _Get_Statistics(Statistics) && Classify_Defined(StdDev * Statistics.Get_StdDev()) );
+	if( StdDev <= 0. || !_Get_Statistics(Statistics) )
+	{
+		return( false );
+	}
+
+	StdDev *= Statistics.Get_StdDev(); double m = Statistics.Get_Mean() - StdDev / 2.;
+
+	double Offset = m < Statistics.Get_Minimum() ? m : m - ceil((m - Statistics.Get_Minimum()) / StdDev) * StdDev;
+
+	if( !Classify_Defined(StdDev, Offset) )
+	{
+		return( false );
+	}
+	
+	//-----------------------------------------------------
+	m_Classifier = Classifier::StdDev;
+
+	return( true );
 }
 
 

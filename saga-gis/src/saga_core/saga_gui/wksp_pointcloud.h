@@ -120,7 +120,7 @@ protected:
 
 private:
 
-	int							m_fValue = 2, m_fNormal = -1, m_PointSize = 1, m_Aggregation = 0;
+	int							m_fValue = 2, m_fNormal = -1, m_dNormal = 1., m_PointSize = 1, m_Aggregation = 0;
 
 	wxColour					m_Color_Pen;
 
