@@ -95,17 +95,17 @@ protected:
 
 	wxImage						m_Symbol_Image;
 
-	struct SSize                { int Unit, Field, Adjust; double Minimum, Offset, Scale;    } m_Size;
+	class CSize                { public: int Unit, Field, Adjust; double Minimum, Offset, Scale;    } m_Size;
 
-	struct SLabel               { int Align, Angle_Field; double Angle; CSG_Point Offset;    } m_Label;
+	class CLabel_Point         { public: int Align, Angle_Field; double Angle; CSG_Point Offset;    } m_Label_Point;
 
-	struct SSymbol              { int Type; wxImage Image;                                   } m_Symbol;
+	class CSymbol              { public: int Type; wxImage Image;                                   } m_Symbol;
 
-	struct SImage               { int Field, Align, Fit; double Offset, Scale;               } m_Image;
+	class CImage               { public: int Field, Align, Fit; double Offset, Scale;               } m_Image;
 
-	struct SArrow               { int Field, Style, Width, Orientation, Unit; double Offset; } m_Arrow;
+	class CArrow               { public: int Field, Style, Width, Orientation, Unit; double Offset; } m_Arrow;
 
-	struct SBeachball           { int Strike, Dip, Rake;                                     } m_Beachball;
+	class CBeachball           { public: int Strike, Dip, Rake;                                     } m_Beachball;
 
 
 	virtual void				On_Create_Parameters	(void);

@@ -91,11 +91,14 @@ public:
 	bool							Set_Color_Range			(double Minimum, double Maximum);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
-	virtual double					Get_Value_Minimum		(void)								= 0;
-	virtual double					Get_Value_Maximum		(void)								= 0;
-	virtual double					Get_Value_Range			(void)								= 0;
-	virtual double					Get_Value_Mean			(void)								= 0;
-	virtual double					Get_Value_StdDev		(void)								= 0;
+
+	wxString						Get_Field_Naming		(void) const;
+	bool							Get_Field_Value			(sLong Index, int Field, int Normalize, double Scale, wxString &Value) const;
+	bool							Get_Field_Value			(sLong Index, int Field, int Normalize, double Scale, double   &Value) const;
+	
+	double							Get_Stretch_Minimum		(void) const;
+	double							Get_Stretch_Maximum		(void) const;
+	double							Get_Stretch_Range		(void) const;
 
 	bool							Draw					(CSG_Map_DC &dc_Map, int Flags = 0, CSG_Data_Object *pObject = NULL);
 
@@ -126,19 +129,15 @@ public:
 	virtual bool					Edit_Do_Mouse_Move_Draw	(bool bMouseDown);
 	virtual bool					Edit_Set_Index			(int Index);
 	virtual bool					Edit_Set_Attributes		(void)	{	return( false );	}
-	int								Edit_Get_Index			(void);
+	virtual int						Edit_Get_Index			(void)	{	return( 0     );	}
 	CSG_Table *						Edit_Get_Attributes		(void);
 
 
 protected:
 
-	int								m_Edit_Index;
-
-	CSG_Parameter_Range				*m_pZRange;
-
 	CSG_Point						m_Edit_Mouse_Down;
 
-	CSG_Table						m_Edit_Attributes;
+	CSG_Table						m_Edit_Attributes, m_Normalization;
 
 	class CWKSP_Layer_Classify		*m_pClassify;
 
@@ -162,9 +161,9 @@ protected:
 
 	virtual void					On_Draw					(CSG_Map_DC &dc_Map, int Flags)	= 0;
 
-	void							ColorsParms_Add			(void);
-	void							ColorsParms_On_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
-	bool							ColorsParms_Adjust		(CSG_Parameters  &Parameters, CSG_Data_Object *pObject = NULL, const CSG_String &Suffix = "");
+	bool							Set_Stretch				(CSG_Parameters &Parameters, CSG_Data_Object *pObject = NULL, const CSG_String &Suffix = "");
+
+	bool							Set_Normalization		(int Field_Value, int Field_Normalize, double Scale_Normalize, sLong maxSamples = 0);
 
 	bool							Set_Fields_Choice		(CSG_Parameter *pChoice, bool bNumeric, bool bAddNone, bool bSelectNone = false);
 	static int						Get_Fields_Choice		(CSG_Parameter *pChoice);

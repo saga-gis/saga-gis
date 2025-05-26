@@ -430,7 +430,7 @@ void CWKSP_Layer_Legend::_Draw_Point(wxDC &dc, CWKSP_Shapes_Point *pLayer)
 	}
 
 	//-----------------------------------------------------
-	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Field_Naming());
 	_Draw_Boxes(dc, m_Position.y, pLayer->Get_Outline() ? BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL : BOX_STYLE_RECT|BOX_STYLE_FILL);
 }
 
@@ -468,28 +468,28 @@ void CWKSP_Layer_Legend::_Draw_Line(wxDC &dc, CWKSP_Shapes_Line *pLayer)
 	//-----------------------------------------------------
 	dc.SetPen  (pLayer->Get_Def_Pen());
 
-	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Field_Naming());
 	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_LINE);
 }
 
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_Polygon(wxDC &dc, CWKSP_Shapes_Polygon *pLayer)
 {
-	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Field_Naming());
 	_Draw_Boxes(dc, m_Position.y, pLayer->Get_Outline() ? BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL : BOX_STYLE_RECT|BOX_STYLE_FILL);
 }
 
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_TIN(wxDC &dc, CWKSP_TIN *pLayer)
 {
-	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Field_Naming());
 	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL);
 }
 
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_PointCloud(wxDC &dc, CWKSP_PointCloud *pLayer)
 {
-	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Name_Attribute());
+	_Draw_Title(dc, FONT_SUBTITLE, pLayer->Get_Field_Naming());
 	_Draw_Boxes(dc, m_Position.y, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL);
 }
 
@@ -580,14 +580,13 @@ void CWKSP_Layer_Legend::_Draw_Layer_Image(wxDC &dc, int ay, CWKSP_Layer *pLayer
 //---------------------------------------------------------
 void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 {
-	//-----------------------------------------------------
-	double	zMin	= m_pClassify->Get_RelativeToMetric(0.0);
-	double	zMax	= m_pClassify->Get_RelativeToMetric(1.0);
+	double zMin = m_pClassify->Get_RelativeToMetric(0.);
+	double zMax = m_pClassify->Get_RelativeToMetric(1.);
 
 	//-----------------------------------------------------
 	if( zMin >= zMax )
 	{
-		if( m_pLayer->Get_Value_Range() > 0.0 )
+		if( m_pLayer->Get_Stretch_Range() > 0. )
 		{
 			_Draw_Box(dc, y, BOX_HEIGHT, BOX_STYLE_RECT|BOX_STYLE_FILL|BOX_STYLE_OUTL, m_pClassify->Get_Class_Count() - 1);
 		}
@@ -598,8 +597,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 	//-----------------------------------------------------
 	else
 	{
-		int		dxFont, dyFont;
-		double	yToDC, dz;
+		int dxFont, dyFont; double yToDC, dz;
 
 		dc.SetPen(dc.GetTextForeground());
 

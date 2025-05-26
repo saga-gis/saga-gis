@@ -578,7 +578,7 @@ protected: ////////////////////////////////////////////////
 	//-----------------------------------------------------
 	bool						_Histogram_Update		(CSG_Grid  *pGrid );
 	bool						_Histogram_Update		(CSG_Grids *pGrids);
-	bool						_Histogram_Update		(CSG_Shapes *pShapes, int Attribute, int Normalize = -1, double Scale = 1.);
+	bool						_Histogram_Update		(CSG_Table *pTable, int Field, int Normalize = -1, double Scale = 1.);
 
 };
 

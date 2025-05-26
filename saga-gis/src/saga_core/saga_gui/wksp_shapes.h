@@ -90,10 +90,10 @@ public:
 	CWKSP_Shapes(CSG_Shapes *pShapes);
 	virtual ~CWKSP_Shapes(void);
 
-	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Shapes );	}
+	virtual TWKSP_Item			Get_Type				(void) { return( WKSP_ITEM_Shapes ); }
 
-	CSG_Shapes *				Get_Shapes				(void)	{	return( (CSG_Shapes *)m_pObject );	}
-	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
+	CSG_Shapes *				Get_Shapes				(void) { return( (CSG_Shapes *)m_pObject ); }
+	class CWKSP_Table *			Get_Table				(void) { return( m_pTable ); }
 
 	virtual wxString			Get_Description			(void);
 
@@ -104,25 +104,16 @@ public:
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
-	virtual double				Get_Value_Minimum		(void);
-	virtual double				Get_Value_Maximum		(void);
-	virtual double				Get_Value_Range			(void);
-	virtual double				Get_Value_Mean			(void);
-	virtual double				Get_Value_StdDev		(void);
 
-	int							Get_Field_Value			(void)	{	return( m_fValue  );	}
-	int							Get_Field_Normal		(void)	{	return( m_fNormal );	}
-	double						Get_Scale_Normal		(void)	{	return( m_dNormal );	}
-	int							Get_Field_Info			(void)	{	return( m_fInfo   );	}
-	int							Get_Field_Label			(void)	{	return( m_fLabel  );	}
-
-	wxString					Get_Name_Attribute		(void);
+	int							Get_Field_Value			(void) { return( m_Stretch.Value  ); }
+	int							Get_Field_Normal		(void) { return( m_Stretch.Normal ); }
+	double						Get_Scale_Normal		(void) { return( m_Stretch.nScale ); }
+	int							Get_Field_Info			(void) { return( m_fInfo          ); }
+	int							Get_Field_Label			(void) { return( m_Label.Field    ); }
 
 	bool						Set_Diagram				(bool bShow, CSG_Parameters *pParameters = NULL);
 
-	bool						Set_Metrics				(int zField, int nField, int nType);
-
-	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}
+	bool						is_Editing				(void) { return( m_Edit.pShape != NULL ); }
 
 	virtual wxMenu *			Edit_Get_Menu			(void);
 	virtual TSG_Rect			Edit_Get_Extent			(void);
@@ -133,26 +124,25 @@ public:
 	virtual bool				Edit_On_Mouse_Move_Draw	(wxDC &dc      , const CSG_Rect &rWorld, const wxPoint &Point);
 	virtual bool				Edit_Do_Mouse_Move_Draw	(bool bMouseDown);
 	virtual bool				Edit_Set_Index			(int Index);
+	virtual int					Edit_Get_Index			(void);
 	virtual bool				Edit_Set_Attributes		(void);
 
 
 protected:
 
-	bool						m_bNoData, m_Edit_bGleam;
+	bool						m_bNoData;
 
-	int							m_fValue, m_fNormal, m_bVertices, m_fInfo,
-								m_fLabel, m_Label_Prec, m_Label_Eff, m_Label_Eff_Size,
-								m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint;
+	int							m_bVertices, m_fInfo;
 
-	double						m_dNormal;
+	wxColour					m_Sel_Color;
 
-	wxColour					m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
+	class CWKSP_Table			*m_pTable = NULL;
 
-	CSG_Simple_Statistics		m_Metrics;
+	class CStretch				{ public: int Value = -1, Normal = -1; double nScale = 1.; } m_Stretch;
 
-	CSG_Shape					*m_Edit_pShape;
+	class CEdit					{ public: int Mode = 0, Index = -1, Part = -1, Point = -1; bool bGleam = false; wxColour Color; CSG_Shapes Shapes; CSG_Shape *pShape = NULL; } m_Edit;
 
-	class CWKSP_Table			*m_pTable;
+	class CLabel				{ public: int Field = -1, Precision = -1, Effect = 0, Effect_Size = 1; wxColour Effect_Color; } m_Label;
 
 
 	virtual void				On_Create_Parameters	(void);
@@ -180,8 +170,8 @@ protected:
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point, const TSG_Point &ptWorld);
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
 	virtual void				Edit_Shape_Draw			(CSG_Map_DC &dc_Map);
-	virtual int					Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
-	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
+	virtual int					Edit_Shape_HitTest		(const CSG_Point &Point, double max_Dist, int &iPart, int &iPoint);
+	virtual void				Edit_Snap_Point_ToLine	(const CSG_Point &Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
 
 private:
@@ -215,9 +205,6 @@ private:
 
 	//-----------------------------------------------------
 	// Editing...
-
-	CSG_Shapes					m_Edit_Shapes;
-
 
 	bool						_Edit_Shape				(void);
 	bool						_Edit_Shape_Start		(void);

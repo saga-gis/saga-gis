@@ -56,6 +56,7 @@
 #include "wksp_grids.h"
 #include "wksp_shapes.h"
 #include "wksp_pointcloud.h"
+#include "wksp_tin.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -677,11 +678,11 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 
 	switch( m_pLayer->Get_Type() )
 	{
-	case WKSP_ITEM_Grid:
+	case WKSP_ITEM_Grid      :
 		_Histogram_Update(((CWKSP_Grid  *)m_pLayer)->Get_Grid ());
 		break;
 
-	case WKSP_ITEM_Grids:
+	case WKSP_ITEM_Grids     :
 		if( m_Mode == CLASSIFY_OVERLAY )
 		{
 			_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grids());
@@ -692,17 +693,27 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 		}
 		break;
 
-	case WKSP_ITEM_Shapes:
-		_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(),
-			((CWKSP_Shapes *)m_pLayer)->Get_Field_Value (),
-			((CWKSP_Shapes *)m_pLayer)->Get_Field_Normal(),
-			((CWKSP_Shapes *)m_pLayer)->Get_Scale_Normal()
+	case WKSP_ITEM_Shapes    :
+		_Histogram_Update(m_pLayer->Get_Object()->asTable(true),
+			((CWKSP_Shapes     *)m_pLayer)->Get_Field_Value (),
+			((CWKSP_Shapes     *)m_pLayer)->Get_Field_Normal(),
+			((CWKSP_Shapes     *)m_pLayer)->Get_Scale_Normal()
 		);
 		break;
 
 	case WKSP_ITEM_PointCloud:
-		_Histogram_Update(((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud(),
-			((CWKSP_PointCloud *)m_pLayer)->Get_Field_Value()
+		_Histogram_Update(m_pLayer->Get_Object()->asTable(true),
+			((CWKSP_PointCloud *)m_pLayer)->Get_Field_Value (),
+			((CWKSP_PointCloud *)m_pLayer)->Get_Field_Normal(),
+			((CWKSP_PointCloud *)m_pLayer)->Get_Scale_Normal()
+		);
+		break;
+
+	case WKSP_ITEM_TIN       :
+		_Histogram_Update(m_pLayer->Get_Object()->asTable(true),
+			((CWKSP_TIN        *)m_pLayer)->Get_Field_Value (),
+			((CWKSP_TIN        *)m_pLayer)->Get_Field_Normal(),
+			((CWKSP_TIN        *)m_pLayer)->Get_Scale_Normal()
 		);
 		break;
 
@@ -739,7 +750,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 
 		m_Histogram.Scale_Element_Count(d);
 
-		m_Statistics	= pGrid->Get_Statistics();
+		m_Statistics = pGrid->Get_Statistics();
 
 		return( true );
 	}
@@ -752,7 +763,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 		}
 	}
 
-	m_Statistics	= pGrid->Get_Statistics();
+	m_Statistics = pGrid->Get_Statistics();
 
 	return( true );
 }
@@ -798,47 +809,47 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute, int Normalize, double Scale)
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Table *pTable, int Field, int Normalize, double Scale)
 {
-	if( Attribute < 0 || Attribute >= pShapes->Get_Field_Count() )
+	if( !pTable || Field < 0 || Field >= pTable->Get_Field_Count() )
 	{
 		return( false );
 	}
 
-	if( pShapes->Get_Max_Samples() > 0 && pShapes->Get_Max_Samples() < pShapes->Get_Count() )
+	if( pTable->Get_Max_Samples() > 0 && pTable->Get_Max_Samples() < pTable->Get_Count() )
 	{
-		double	d	= (double)pShapes->Get_Count() / (double)pShapes->Get_Max_Samples();
+		double d = (double)pTable->Get_Count() / (double)pTable->Get_Max_Samples();
 
-		for(double i=0; i<(double)pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, (double)pShapes->Get_Count()); i+=d)
+		for(double i=0; i<(double)pTable->Get_Count() && PROGRESSBAR_Set_Position(i, (double)pTable->Get_Count()); i+=d)
 		{
-			CSG_Shape	*pShape	= pShapes->Get_Shape((int)i);
+			CSG_Table_Record &Record = *pTable->Get_Record((int)i);
 
 			if( m_Mode == CLASSIFY_LUT )
 			{
 				m_Histogram	+= SG_Data_Type_is_Numeric(m_pLUT->Get_Field_Type(LUT_MIN))
-					? Get_Class(pShape->asDouble(Attribute))
-					: Get_Class(pShape->asString(Attribute));
+					? Get_Class(Record.asDouble(Field))
+					: Get_Class(Record.asDouble(Field));
 			}
-			else if( !pShape->is_NoData(Attribute) )
+			else if( !Record.is_NoData(Field) )
 			{
-				double z = pShape->asDouble(Attribute);
+				double z = Record.asDouble(Field);
 
 				if( Normalize < 0 )
 				{
 					m_Histogram += Get_Class(z); m_Statistics += z;
 				}
-				else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
+				else if( !Record.is_NoData(Normalize) && Record.asDouble(Normalize) )
 				{
-					z *= Scale / pShape->asDouble(Normalize);
+					z *= Scale / Record.asDouble(Normalize);
 
 					m_Histogram += Get_Class(z); m_Statistics += z;
 				}
 			}
 		}
 
-		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pShapes->Get_Max_Samples() )	// any no-data cells ?
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < (size_t)pTable->Get_Max_Samples() )	// any no-data cells ?
 		{
-			d	*= (double)m_Histogram.Get_Element_Count() / (double)pShapes->Get_Max_Samples();
+			d *= (double)m_Histogram.Get_Element_Count() / (double)pTable->Get_Max_Samples();
 		}
 
 		m_Histogram.Scale_Element_Count(d);
@@ -846,27 +857,27 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 		return( true );
 	}
 
-	for(sLong i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
+	for(sLong i=0; i<pTable->Get_Count() && PROGRESSBAR_Set_Position(i, pTable->Get_Count()); i++)
 	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
+		CSG_Table_Record &Record = *pTable->Get_Record(i);
 
 		if( m_Mode == CLASSIFY_LUT )
 		{
 			m_Histogram	+= SG_Data_Type_is_Numeric(m_pLUT->Get_Field_Type(LUT_MIN))
-				? Get_Class(pShape->asDouble(Attribute))
-				: Get_Class(pShape->asString(Attribute));
+				? Get_Class(Record.asDouble(Field))
+				: Get_Class(Record.asString(Field));
 		}
-		else if( !pShape->is_NoData(Attribute) )
+		else if( !Record.is_NoData(Field) )
 		{
-			double z = pShape->asDouble(Attribute);
+			double z = Record.asDouble(Field);
 
 			if( Normalize < 0 )
 			{
 				m_Histogram += Get_Class(z); m_Statistics += z;
 			}
-			else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
+			else if( !Record.is_NoData(Normalize) && Record.asDouble(Normalize) )
 			{
-				z *= Scale / pShape->asDouble(Normalize);
+				z *= Scale / Record.asDouble(Normalize);
 
 				m_Histogram += Get_Class(z); m_Statistics += z;
 			}

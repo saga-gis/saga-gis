@@ -82,16 +82,16 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 
 	m_fInfo       = -1;
 
-	m_Edit_Shapes.Create(pShapes->Get_Type());
-	m_Edit_pShape = NULL;
+	m_Edit.Shapes.Create(pShapes->Get_Type());
+	m_Edit.pShape = NULL;
 
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 
-	m_Edit_Color  = *wxBLACK;
-	m_Edit_bGleam = true;
-	m_Edit_Mode   = EDIT_SHAPE_MODE_Normal;
+	m_Edit.Color  = *wxBLACK;
+	m_Edit.bGleam = true;
+	m_Edit.Mode   = EDIT_SHAPE_MODE_Normal;
 
 	m_Sel_Color   = *wxRED;
 
@@ -373,17 +373,17 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default                          : return( CWKSP_Layer::On_Command_UI(event) );
 
-	case ID_CMD_SHAPES_EDIT_SHAPE    : event.Enable(m_Edit_pShape != NULL || Get_Shapes()->Get_Selection_Count() > 0); event.Check(m_Edit_pShape != NULL); break;
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE: event.Enable(m_Edit_pShape == NULL); break;
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE: event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
-	case ID_CMD_SHAPES_EDIT_ADD_PART : event.Enable(m_Edit_pShape != NULL); break;
-	case ID_CMD_SHAPES_EDIT_DEL_PART : event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0); break;
-	case ID_CMD_SHAPES_EDIT_DEL_POINT: event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0); break;
-	case ID_CMD_SHAPES_EDIT_MOVE     : event.Enable(m_Edit_pShape != NULL); event.Check(m_Edit_Mode == EDIT_SHAPE_MODE_Move); break;
-	case ID_CMD_SHAPES_EDIT_SEL_COPY : event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
+	case ID_CMD_SHAPES_EDIT_SHAPE    : event.Enable(m_Edit.pShape != NULL || Get_Shapes()->Get_Selection_Count() > 0); event.Check(m_Edit.pShape != NULL); break;
+	case ID_CMD_SHAPES_EDIT_ADD_SHAPE: event.Enable(m_Edit.pShape == NULL); break;
+	case ID_CMD_SHAPES_EDIT_DEL_SHAPE: event.Enable(m_Edit.pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
+	case ID_CMD_SHAPES_EDIT_ADD_PART : event.Enable(m_Edit.pShape != NULL); break;
+	case ID_CMD_SHAPES_EDIT_DEL_PART : event.Enable(m_Edit.pShape != NULL && m_Edit.Part >= 0); break;
+	case ID_CMD_SHAPES_EDIT_DEL_POINT: event.Enable(m_Edit.pShape != NULL && m_Edit.Part >= 0 && m_Edit.Point >= 0); break;
+	case ID_CMD_SHAPES_EDIT_MOVE     : event.Enable(m_Edit.pShape != NULL); event.Check(m_Edit.Mode == EDIT_SHAPE_MODE_Move); break;
+	case ID_CMD_SHAPES_EDIT_SEL_COPY : event.Enable(m_Edit.pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
 
-	case ID_CMD_DATA_SELECTION_CLEAR : event.Enable(m_Edit_pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
-	case ID_CMD_DATA_SELECTION_INVERT: event.Enable(m_Edit_pShape == NULL); break;
+	case ID_CMD_DATA_SELECTION_CLEAR : event.Enable(m_Edit.pShape == NULL && Get_Shapes()->Get_Selection_Count() > 0); break;
+	case ID_CMD_DATA_SELECTION_INVERT: event.Enable(m_Edit.pShape == NULL); break;
 
 	case ID_CMD_TABLE_SHOW           : event.Check(m_pTable->Get_View   () != NULL); break;
 	case ID_CMD_DATA_DIAGRAM         : event.Check(m_pTable->Get_Diagram() != NULL); break;
@@ -527,13 +527,13 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Color("NODE_EDIT",
 		"EDIT_COLOR"	, _TL("Color"),
 		_TL(""),
-		m_Edit_Color.GetRGB()
+		m_Edit.Color.GetRGB()
 	);
 
 	m_Parameters.Add_Bool("NODE_EDIT",
 		"EDIT_GLEAM"	, _TL("Gleam"),
 		_TL(""),
-		m_Edit_bGleam
+		m_Edit.bGleam
 	);
 
 	m_Parameters.Add_Shapes_List("NODE_EDIT",
@@ -582,25 +582,25 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
 	default: // CLASSIFY_SINGLE
-		m_fValue  = -1;
-		m_fNormal = -1;
+		m_Stretch.Value  = -1;
+		m_Stretch.Normal = -1;
 		break;
 
 	case  1: // CLASSIFY_LUT
-		m_fValue  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
-		m_fNormal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
-		m_dNormal = 1.;
+		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
+		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
+		m_Stretch.nScale = 1.;
 		break;
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
-		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
-		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
-		m_dNormal = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
+		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
+		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
+		m_Stretch.nScale = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
 		break;
 	}
 
-	if( m_fValue < 0 )
+	if( m_Stretch.Value < 0 )
 	{
 		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
@@ -610,6 +610,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 		: m_Parameters("NODATA_COLOR")->asColor()
 	);
 
+	//-----------------------------------------------------
 	m_bNoData = m_Parameters("NODATA_SHOW")->asBool();
 
 	//-----------------------------------------------------
@@ -626,31 +627,31 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_fLabel = Get_Fields_Choice(m_Parameters("LABEL_FIELD"));
+	m_Label.Field = Get_Fields_Choice(m_Parameters("LABEL_FIELD"));
 
-	m_Label_Eff_Color = m_Parameters("LABEL_FIELD_EFFECT_COLOR")->asColor();
-	m_Label_Eff_Size  = m_Parameters("LABEL_FIELD_EFFECT_SIZE" )->asInt  ();
-	m_Label_Prec      = m_Parameters("LABEL_FIELD_PREC"        )->asInt  ();
+	m_Label.Effect_Color = m_Parameters("LABEL_FIELD_EFFECT_COLOR")->asColor();
+	m_Label.Effect_Size  = m_Parameters("LABEL_FIELD_EFFECT_SIZE" )->asInt  ();
+	m_Label.Precision    = m_Parameters("LABEL_FIELD_PREC"        )->asInt  ();
 
-	switch( m_Label_Prec )
+	switch( m_Label.Precision )
 	{
-	case  0: m_Label_Prec  = -m_Parameters("TABLE_FLT_DECIMALS")->asInt(); break;
-	case  1: m_Label_Prec  = -99; break;
-	default: m_Label_Prec -=   2; break;
+	case  0: m_Label.Precision  = -m_Parameters("TABLE_FLT_DECIMALS")->asInt(); break;
+	case  1: m_Label.Precision  = -99; break;
+	default: m_Label.Precision -=   2; break;
 	}
 
 	switch( m_Parameters("LABEL_FIELD_EFFECT")->asInt() )
 	{
-	default: m_Label_Eff = TEXTEFFECT_NONE       ;	break;
-	case  1: m_Label_Eff = TEXTEFFECT_FRAME      ;	break;
-	case  2: m_Label_Eff = TEXTEFFECT_TOP        ;	break;
-	case  3: m_Label_Eff = TEXTEFFECT_TOPLEFT    ;	break;
-	case  4: m_Label_Eff = TEXTEFFECT_LEFT       ;	break;
-	case  5: m_Label_Eff = TEXTEFFECT_BOTTOMLEFT ;	break;
-	case  6: m_Label_Eff = TEXTEFFECT_BOTTOM     ;	break;
-	case  7: m_Label_Eff = TEXTEFFECT_BOTTOMRIGHT;	break;
-	case  8: m_Label_Eff = TEXTEFFECT_RIGHT      ;	break;
-	case  9: m_Label_Eff = TEXTEFFECT_TOPRIGHT   ;	break;
+	default: m_Label.Effect = TEXTEFFECT_NONE       ;	break;
+	case  1: m_Label.Effect = TEXTEFFECT_FRAME      ;	break;
+	case  2: m_Label.Effect = TEXTEFFECT_TOP        ;	break;
+	case  3: m_Label.Effect = TEXTEFFECT_TOPLEFT    ;	break;
+	case  4: m_Label.Effect = TEXTEFFECT_LEFT       ;	break;
+	case  5: m_Label.Effect = TEXTEFFECT_BOTTOMLEFT ;	break;
+	case  6: m_Label.Effect = TEXTEFFECT_BOTTOM     ;	break;
+	case  7: m_Label.Effect = TEXTEFFECT_BOTTOMRIGHT;	break;
+	case  8: m_Label.Effect = TEXTEFFECT_RIGHT      ;	break;
+	case  9: m_Label.Effect = TEXTEFFECT_TOPRIGHT   ;	break;
 	}
 
 	//-----------------------------------------------------
@@ -663,62 +664,11 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::Set_Metrics(int zField, int nField, int nType)
-{
-	if( zField >= 0 )
-	{
-		if( nField >= 0 )
-		{
-			m_Metrics.Create();
-
-			for(sLong i=0; i<Get_Shapes()->Get_Count(); i++)
-			{
-				double z = Get_Shapes()->Get_Record(i)->asDouble(zField);
-				double n = Get_Shapes()->Get_Record(i)->asDouble(nField) / (nType == 0 ? 1. : 100.);
-					
-				if( !Get_Shapes()->is_NoData_Value(z) && !Get_Shapes()->is_NoData_Value(n) && n != 0. )
-				{
-					m_Metrics.Add_Value(z / n);
-				}
-			}
-		}
-		else
-		{
-			m_Metrics.Create(Get_Shapes()->Get_Statistics(zField));
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("COLORS_TYPE"  )
-		||	pParameter->Cmp_Identifier("METRIC_FIELD" )
-		||	pParameter->Cmp_Identifier("METRIC_NORMAL")
-		||	pParameter->Cmp_Identifier("METRIC_NORFMT") )
-		{
-			Set_Metrics(
-				Get_Fields_Choice((*pParameters)("METRIC_FIELD" )),
-				Get_Fields_Choice((*pParameters)("METRIC_NORMAL")),
-				(*pParameters)("METRIC_NORFMT")->asInt()
-			);
-
-			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(
-				m_Metrics.Get_Minimum(),
-				m_Metrics.Get_Maximum()
-			);
-		}
+		// nop
 	}
 
 	//-----------------------------------------------------
@@ -732,11 +682,6 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		if(	pParameter->Cmp_Identifier("NODATA_SHOW") )
 		{
 			pParameters->Set_Enabled("NODATA_COLOR" , pParameter->asBool());
-		}
-
-		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
-		{
-			pParameters->Set_Enabled("METRIC_NORMAL", Get_Fields_Choice(pParameter) >= 0);
 		}
 
 		if(	pParameter->Cmp_Identifier("OUTLINE") )
@@ -784,11 +729,6 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 				pParameters->Set_Enabled(s, pParameter->asBool());
 			}
-		}
-
-		if( (*pParameters)("METRIC_NORMAL") )
-		{
-			(*pParameters)("METRIC_NORMAL")->Set_Children_Enabled(Get_Fields_Choice((*pParameters)("METRIC_NORMAL")) >= 0);
 		}
 	}
 
@@ -851,77 +791,11 @@ void CWKSP_Shapes::_LUT_Import(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	CSG_Shape *pShape = Get_Shapes()->Get_Shape(ptWorld, Epsilon);
+	wxString s; CSG_Shape *pShape = Get_Shapes()->Get_Shape(ptWorld, Epsilon);
 
 	if( pShape )
 	{
-		if( m_fValue < 0 )
-		{
-			return( wxString::Format("%s: %lld", _TL("Index"), pShape->Get_Index() + 1) );
-		}
-
-		if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
-		{
-			if( m_fNormal < 0 )
-			{
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asString(m_fValue)) );
-			}
-
-			if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0. )
-			{
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal)) );
-			}
-		}
-
-		else if( !pShape->is_NoData(m_fValue) )
-		{
-			if( m_fNormal < 0 )
-			{
-				return( pShape->asString(m_fValue) );
-			}
-
-			if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0. )
-			{
-				return( wxString::Format("%f", m_dNormal * pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal)) );
-			}
-		}
-	}
-
-	return( _TL("") );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CWKSP_Shapes::Get_Value_Minimum(void)	{	return( m_Metrics.Get_Minimum() );	}
-double CWKSP_Shapes::Get_Value_Maximum(void)	{	return( m_Metrics.Get_Maximum() );	}
-double CWKSP_Shapes::Get_Value_Range  (void)	{	return( m_Metrics.Get_Range  () );	}
-double CWKSP_Shapes::Get_Value_Mean   (void)	{	return( m_Metrics.Get_Mean   () );	}
-double CWKSP_Shapes::Get_Value_StdDev (void)	{	return( m_Metrics.Get_StdDev () );	}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxString CWKSP_Shapes::Get_Name_Attribute(void)
-{
-	wxString s;
-
-	if(	m_fValue >= 0 && m_pClassify->Get_Mode() != CLASSIFY_SINGLE )
-	{
-		s = Get_Shapes()->Get_Field_Name(m_fValue);
-
-		if( m_fNormal >= 0
-		&& (m_pClassify->Get_Mode() == CLASSIFY_DISCRETE
-		||  m_pClassify->Get_Mode() == CLASSIFY_GRADUATED) )
-		{
-			s += " / "; s += Get_Shapes()->Get_Field_Name(m_fNormal);
-		}
+		CWKSP_Layer::Get_Field_Value(pShape->Get_Index(), m_Stretch.Value, m_Stretch.Normal, m_Stretch.nScale, s);
 	}
 
 	return( s );
@@ -937,7 +811,7 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.rWorld()) == INTERSECTION_None )
 	{
-		if( m_Edit_pShape )
+		if( m_Edit.pShape )
 		{
 			Edit_Shape_Draw(dc_Map);
 		}
@@ -965,13 +839,13 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 	}
 
 	m_Sel_Color   = Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
-	m_Edit_Color  = Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
-	m_Edit_bGleam =                m_Parameters("EDIT_GLEAM")->asBool();
+	m_Edit.Color  = Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
+	m_Edit.bGleam =                m_Parameters("EDIT_GLEAM")->asBool();
 
 	Draw_Initialize(dc_Map, Flags);
 
 	//-----------------------------------------------------
-	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit_pShape || Get_Shapes()->Get_Selection_Count()) )
+	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit.pShape || Get_Shapes()->Get_Selection_Count()) )
 	{
 		for(sLong iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 		{
@@ -998,25 +872,25 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 
 		for(sLong iShape=0; iShape<(int)Get_Shapes()->Get_Selection_Count(); iShape++)
 		{
-			if( iShape != m_Edit_Index )
+			if( iShape != m_Edit.Index )
 			{
 				_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(iShape), 2);
 			}
 		}
 
 		//-------------------------------------------------
-		if( !m_Edit_pShape )
+		if( !m_Edit.pShape )
 		{
-			_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(m_Edit_Index), 1);
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(m_Edit.Index), 1);
 		}
 		else
 		{
 			Edit_Shape_Draw(dc_Map);
 		}
 
-		if( m_Edit_Mode == EDIT_SHAPE_MODE_Split )
+		if( m_Edit.Mode == EDIT_SHAPE_MODE_Split )
 		{
-			CSG_Shape *pSplit = m_Edit_Shapes.Get_Shape(1);
+			CSG_Shape *pSplit = m_Edit.Shapes.Get_Shape(1);
 
 			if( pSplit && pSplit->Get_Point_Count() > 1 )
 			{
@@ -1038,11 +912,11 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_fLabel >= 0 )	// Labels
+	if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_Label.Field >= 0 )	// Labels
 	{
 		int    iSize = Get_Fields_Choice(m_Parameters("LABEL_FIELD_SIZEBY"));
-		double dSize = m_Parameters("LABEL_FIELD_SIZE_TYPE")->asInt() == 1 ?
-			dc_Map.World2DC() * m_Parameters("LABEL_FIELD_SIZE")->asDouble() : 1.;
+		double dSize = m_Parameters("LABEL_FIELD_SIZE_TYPE")->asInt() == 1
+			? dc_Map.World2DC() * m_Parameters("LABEL_FIELD_SIZE")->asDouble() : 1.;
 
 		dc_Map.SetFont(Get_Font(m_Parameters("LABEL_FIELD_FONT")));
 		dc_Map.Get_DC().SetTextForeground(m_Parameters(m_Parameters("LABEL_COLOR") ? "LABEL_COLOR" : "LABEL_FIELD_FONT")->asColor());
@@ -1120,13 +994,13 @@ void CWKSP_Shapes::_Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int PointS
 {
 	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
-		wxString	Label(pShape->asString(m_fLabel, m_Label_Prec));	Label.Trim(true).Trim(false);
+		wxString Label(pShape->asString(m_Label.Field, m_Label.Precision)); Label.Trim(true).Trim(false);
 
 		if( !Label.IsEmpty() )
 		{
 			if( PointSize > 0 && PointSize != dc_Map.Get_DC().GetFont().GetPointSize() )
 			{
-				wxFont	Font(dc_Map.Get_DC().GetFont());
+				wxFont Font(dc_Map.Get_DC().GetFont());
 
 				Font.SetPointSize(PointSize);
 
@@ -1229,39 +1103,39 @@ int CWKSP_Shapes::PenList_Get_Style(const CSG_String &Identifier)
 //---------------------------------------------------------
 bool CWKSP_Shapes::Get_Class_Color(CSG_Shape *pShape, int &Color)
 {
-	if( m_fValue >= 0 )
+	if( m_Stretch.Value >= 0 )
 	{
 		if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
 		{
-			if( !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_fValue)) )
+			if( !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_Stretch.Value)) )
 			{
-				return( m_pClassify->Get_Class_Color_byValue(pShape->asString(m_fValue), Color) );
+				return( m_pClassify->Get_Class_Color_byValue(pShape->asString(m_Stretch.Value), Color) );
 			}
-			else if( !pShape->is_NoData(m_fValue) )
+			else if( !pShape->is_NoData(m_Stretch.Value) )
 			{
-				if( m_fNormal < 0 )	// don't normalize
+				if( m_Stretch.Normal < 0 )	// don't normalize
 				{
-					return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue), Color) );
+					return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_Stretch.Value), Color) );
 				}
 	
-				if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0. )
+				if( !pShape->is_NoData(m_Stretch.Normal) && pShape->asDouble(m_Stretch.Normal) != 0. )
 				{
-					return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal), Color) );
+					return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_Stretch.Value) / pShape->asDouble(m_Stretch.Normal), Color) );
 				}
 			}
 		}
 
 		//-------------------------------------------------
-		if( !pShape->is_NoData(m_fValue) )
+		if( !pShape->is_NoData(m_Stretch.Value) )
 		{
-			if( m_fNormal < 0 )	// don't normalize
+			if( m_Stretch.Normal < 0 )	// don't normalize
 			{
-				return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue), Color) );
+				return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_Stretch.Value), Color) );
 			}
 
-			if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0. )
+			if( !pShape->is_NoData(m_Stretch.Normal) && pShape->asDouble(m_Stretch.Normal) != 0. )
 			{
-				return( m_pClassify->Get_Class_Color_byValue(m_dNormal * pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal), Color) );
+				return( m_pClassify->Get_Class_Color_byValue(m_Stretch.nScale * pShape->asDouble(m_Stretch.Value) / pShape->asDouble(m_Stretch.Normal), Color) );
 			}
 		}
 	}

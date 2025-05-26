@@ -87,22 +87,18 @@ public:
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
-	virtual double				Get_Value_Minimum		(void);
-	virtual double				Get_Value_Maximum		(void);
-	virtual double				Get_Value_Range			(void);
-	virtual double				Get_Value_Mean			(void);
-	virtual double				Get_Value_StdDev		(void);
 
-	int							Get_Field_Value			(void)	{	return( m_fValue );		}
+	int							Get_Field_Value			(void) { return( m_Stretch.Value  ); }
+	int							Get_Field_Normal		(void) { return( m_Stretch.Normal ); }
+	double						Get_Scale_Normal		(void) { return( m_Stretch.nScale ); }
 
 	bool						asImage					(CSG_Grid *pImage);
-
-	wxString					Get_Name_Attribute		(void);
 
 	virtual wxMenu *			Edit_Get_Menu			(void);
 	virtual TSG_Rect			Edit_Get_Extent			(void);
 	virtual bool				Edit_On_Mouse_Up		(const CSG_Point &Point, double ClientToWorld, int Key);
 	virtual bool				Edit_Set_Index			(int Index);
+	virtual int					Edit_Get_Index			(void);
 	virtual bool				Edit_Set_Attributes		(void);
 
 
@@ -120,13 +116,15 @@ protected:
 
 private:
 
-	int							m_fValue = 2, m_fNormal = -1, m_dNormal = 1., m_PointSize = 1, m_Aggregation = 0;
+	int							m_PointSize = 1, m_Aggregation = 0, m_Edit_Index = -1;
 
 	wxColour					m_Color_Pen;
 
 	CSG_Grid					m_Z, m_N;
 
 	class CWKSP_Table			*m_pTable = NULL;
+
+	class CStretch				{ public: int Value = -1, Normal = -1; double nScale = 1.; } m_Stretch;
 
 
 	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color);

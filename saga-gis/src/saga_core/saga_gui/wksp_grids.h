@@ -89,11 +89,6 @@ public:
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
-	virtual double				Get_Value_Minimum		(void);
-	virtual double				Get_Value_Maximum		(void);
-	virtual double				Get_Value_Range			(void);
-	virtual double				Get_Value_Mean			(void);
-	virtual double				Get_Value_StdDev		(void);
 
 	virtual TSG_Rect			Edit_Get_Extent			(void)	{	return( Get_Extent() );	}
 	virtual bool				Edit_Set_Attributes		(void);

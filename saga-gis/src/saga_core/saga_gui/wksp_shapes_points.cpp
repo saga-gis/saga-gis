@@ -70,7 +70,7 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( (m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field)) || (m_fValue >= 0 && pShape->is_NoData(m_fValue)) )
+	if( (m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field)) || (m_Stretch.Value >= 0 && pShape->is_NoData(m_Stretch.Value)) )
 	{
 		return;
 	}
@@ -103,7 +103,7 @@ void CWKSP_Shapes_Points::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, cons
 {
 	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
-	dc_Map.DrawText(TEXTALIGN_CENTER, p.x, p.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+	dc_Map.DrawText(TEXTALIGN_CENTER, p.x, p.y, Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
 }
 
 

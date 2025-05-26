@@ -524,10 +524,10 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 		m_Parameters.Set_Parameter("BAND_B", 2);
 	}
 
-	ColorsParms_Adjust(m_Parameters);
-	ColorsParms_Adjust(m_Parameters, Get_Grid(0), "_R");
-	ColorsParms_Adjust(m_Parameters, Get_Grid(1), "_G");
-	ColorsParms_Adjust(m_Parameters, Get_Grid(2), "_B");
+	Set_Stretch(m_Parameters);
+	Set_Stretch(m_Parameters, Get_Grid(0), "_R");
+	Set_Stretch(m_Parameters, Get_Grid(1), "_G");
+	Set_Stretch(m_Parameters, Get_Grid(2), "_B");
 
 	//-----------------------------------------------------
 	CWKSP_Layer::On_DataObject_Changed();
@@ -648,26 +648,26 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  pParameter->Cmp_Identifier("STRETCH_STDDEV" )
 		||  pParameter->Cmp_Identifier("STRETCH_INRANGE")
 		||  pParameter->Cmp_Identifier("STRETCH_PCTL"   )
-		||  pParameter->Cmp_Identifier("OVERLAY_FIT")
-		||  pParameter->Cmp_Identifier("BAND_R")
-		||  pParameter->Cmp_Identifier("BAND_G")
-		||  pParameter->Cmp_Identifier("BAND_B") ) )
+		||  pParameter->Cmp_Identifier("OVERLAY_FIT"    )
+		||  pParameter->Cmp_Identifier("BAND_R"         )
+		||  pParameter->Cmp_Identifier("BAND_G"         )
+		||  pParameter->Cmp_Identifier("BAND_B"         )) )
 		{
 			int i;
 			
 			if( (i = (*pParameters)("BAND_R")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
 			{
-				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_R");
+				Set_Stretch(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_R");
 			}
 
 			if( (i = (*pParameters)("BAND_G")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
 			{
-				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_G");
+				Set_Stretch(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_G");
 			}
 
 			if( (i = (*pParameters)("BAND_B")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
 			{
-				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_B");
+				Set_Stretch(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_B");
 			}
 		}
 	}
@@ -702,6 +702,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		}
 	}
 
+	//-----------------------------------------------------
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }
 
@@ -763,13 +764,6 @@ wxString CWKSP_Grids::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 	return( s );
 }
-
-//---------------------------------------------------------
-double CWKSP_Grids::Get_Value_Minimum(void)	{	return( ((CSG_Grids *)m_pObject)->Get_Min   () );	}
-double CWKSP_Grids::Get_Value_Maximum(void)	{	return( ((CSG_Grids *)m_pObject)->Get_Max   () );	}
-double CWKSP_Grids::Get_Value_Range  (void)	{	return( ((CSG_Grids *)m_pObject)->Get_Range () );	}
-double CWKSP_Grids::Get_Value_Mean   (void)	{	return( ((CSG_Grids *)m_pObject)->Get_Mean  () );	}
-double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->Get_StdDev() );	}
 
 
 ///////////////////////////////////////////////////////////

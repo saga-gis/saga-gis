@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define IS_BAND_WISE_FIT(pLayer)	(m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_FIT")->asInt() != 0)
+#define IS_BAND_WISE_FIT (m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_FIT")->asInt() != 0)
 
 
 ///////////////////////////////////////////////////////////
@@ -177,9 +177,9 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 //---------------------------------------------------------
 void CVIEW_Histogram::Do_Update(void)
 {
-	if( IS_BAND_WISE_FIT(pLayer) )
+	if( IS_BAND_WISE_FIT )
 	{
-		m_pLayer->Get_Classifier()->Set_Metric(0, 1, m_pLayer->Get_Value_Minimum(), m_pLayer->Get_Value_Maximum());
+		m_pLayer->Get_Classifier()->Set_Metric(0, 1., m_pLayer->Get_Stretch_Minimum(), m_pLayer->Get_Stretch_Maximum());
 	}
 
 	if( m_pLayer->Get_Classifier()->Histogram_Update() )
@@ -527,7 +527,7 @@ void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 {
-	if( IS_BAND_WISE_FIT(pLayer) )
+	if( IS_BAND_WISE_FIT )
 	{
 		return;
 	}
@@ -569,9 +569,9 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 {
-	wxMenu	Menu;
+	wxMenu Menu;
 
-	if( !IS_BAND_WISE_FIT(pLayer) )
+	if( !IS_BAND_WISE_FIT )
 	{
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_HISTOGRAM_SET_MINMAX);
 		Menu.AppendSeparator();
@@ -696,7 +696,7 @@ void CVIEW_Histogram::On_Properties(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
 {
-	m_bCumulative	= !m_bCumulative;
+	m_bCumulative = !m_bCumulative;
 
 	Refresh();
 }
@@ -704,7 +704,7 @@ void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Gaussian(wxCommandEvent &event)
 {
-	m_bGaussian	= !m_bGaussian;
+	m_bGaussian = !m_bGaussian;
 
 	Refresh();
 }
@@ -712,10 +712,7 @@ void CVIEW_Histogram::On_Gaussian(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Set_MinMax(wxCommandEvent &event)
 {
-	m_pLayer->Set_Color_Range(
-		m_pLayer->Get_Value_Minimum(),
-		m_pLayer->Get_Value_Maximum()
-	);
+	m_pLayer->Set_Color_Range(m_pLayer->Get_Stretch_Minimum(), m_pLayer->Get_Stretch_Maximum());
 }
 
 //---------------------------------------------------------

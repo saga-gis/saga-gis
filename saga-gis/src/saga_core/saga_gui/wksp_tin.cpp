@@ -268,7 +268,7 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 	CWKSP_Layer::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	m_fValue = Get_Fields_Choice(m_Parameters("METRIC_FIELD"));
+	m_Stretch.Value = Get_Fields_Choice(m_Parameters("METRIC_FIELD"));
 
 	m_Color_Pen = Get_Color_asWX(m_Parameters("SINGLE_COLOR")->asColor());
 }
@@ -283,13 +283,13 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
-		{
-			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				asTIN()->Get_Minimum(Get_Fields_Choice(pParameter)),
-				asTIN()->Get_Maximum(Get_Fields_Choice(pParameter))
-			);
-		}
+		// nop
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		// nop
 	}
 
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
@@ -301,28 +301,10 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_TIN::Get_Name_Attribute(void)
-{
-	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_SINGLE ? SG_T("") : asTIN()->Get_Field_Name(m_fValue) );
-}
-
-//---------------------------------------------------------
 wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	return( _TL("") );
 }
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CWKSP_TIN::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Minimum(m_fValue) );	}
-double CWKSP_TIN::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Maximum(m_fValue) );	}
-double CWKSP_TIN::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Range  (m_fValue) );	}
-double CWKSP_TIN::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Mean   (m_fValue) );	}
-double CWKSP_TIN::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -375,7 +357,7 @@ void CWKSP_TIN::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.rWorld()) != INTERSECTION_None )
 	{
-		if( m_fValue >= 0 )
+		if( m_Stretch.Value >= 0 )
 		{
 			_Draw_Triangles(dc_Map);
 		}
@@ -402,7 +384,7 @@ void CWKSP_TIN::_Draw_Points(CSG_Map_DC &dc_Map)
 {
 	for(int i=0; i<asTIN()->Get_Node_Count(); i++)
 	{
-		TSG_Point_Int	Point	= dc_Map.World2DC(asTIN()->Get_Node(i)->Get_Point());
+		TSG_Point_Int Point = dc_Map.World2DC(asTIN()->Get_Node(i)->Get_Point());
 
 		dc_Map.DrawCircle(Point.x, Point.y, 5);
 	}
@@ -413,11 +395,10 @@ void CWKSP_TIN::_Draw_Edges(CSG_Map_DC &dc_Map)
 {
 	for(int i=0; i<asTIN()->Get_Edge_Count(); i++)
 	{
-		TSG_Point_Int	Point[2];
-		CSG_TIN_Edge	*pEdge	= asTIN()->Get_Edge(i);
+		TSG_Point_Int Point[2]; CSG_TIN_Edge *pEdge = asTIN()->Get_Edge(i);
 
-		Point[0]	= dc_Map.World2DC(pEdge->Get_Node(0)->Get_Point());
-		Point[1]	= dc_Map.World2DC(pEdge->Get_Node(1)->Get_Point());
+		Point[0] = dc_Map.World2DC(pEdge->Get_Node(0)->Get_Point());
+		Point[1] = dc_Map.World2DC(pEdge->Get_Node(1)->Get_Point());
 
 		dc_Map.DrawLine(Point[0].x, Point[0].y, Point[1].x, Point[1].y);
 	}
@@ -430,20 +411,20 @@ void CWKSP_TIN::_Draw_Triangles(CSG_Map_DC &dc_Map)
 	{
 		for(sLong iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
 		{
-			CSG_TIN_Triangle	*pTriangle	= asTIN()->Get_Triangle(iTriangle);
+			CSG_TIN_Triangle *pTriangle = asTIN()->Get_Triangle(iTriangle);
 
 			if( dc_Map.rWorld().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
 			{
-				TPoint	p[3];
+				TPoint p[3];
 
 				for(int iNode=0; iNode<3; iNode++)
 				{
-					CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
-					TSG_Point_Int	Point	= dc_Map.World2DC(pNode->Get_Point());
+					CSG_TIN_Node *pNode = pTriangle->Get_Node(iNode);
+					TSG_Point_Int Point = dc_Map.World2DC(pNode->Get_Point());
 
 					p[iNode].x	= Point.x;
 					p[iNode].y	= Point.y;
-					p[iNode].z	= pNode->asDouble(m_fValue);
+					p[iNode].z	= pNode->asDouble(m_Stretch.Value);
 				}
 
 				_Draw_Triangle(dc_Map, p);

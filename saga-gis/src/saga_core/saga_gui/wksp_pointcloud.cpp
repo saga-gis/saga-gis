@@ -288,22 +288,22 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 
 	case ID_CMD_DATA_RANGE_MINMAX:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Minimum(m_fValue),
-			Get_PointCloud()->Get_Maximum(m_fValue)
+			Get_PointCloud()->Get_Minimum(m_Stretch.Value),
+			Get_PointCloud()->Get_Maximum(m_Stretch.Value)
 		);
 		break;
 
 	case ID_CMD_DATA_RANGE_STDDEV150:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Mean(m_fValue) - 1.5 * Get_PointCloud()->Get_StdDev(m_fValue),
-			Get_PointCloud()->Get_Mean(m_fValue) + 1.5 * Get_PointCloud()->Get_StdDev(m_fValue)
+			Get_PointCloud()->Get_Mean(m_Stretch.Value) - 1.5 * Get_PointCloud()->Get_StdDev(m_Stretch.Value),
+			Get_PointCloud()->Get_Mean(m_Stretch.Value) + 1.5 * Get_PointCloud()->Get_StdDev(m_Stretch.Value)
 		);
 		break;
 
 	case ID_CMD_DATA_RANGE_STDDEV200:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Mean(m_fValue) - 2. * Get_PointCloud()->Get_StdDev(m_fValue),
-			Get_PointCloud()->Get_Mean(m_fValue) + 2. * Get_PointCloud()->Get_StdDev(m_fValue)
+			Get_PointCloud()->Get_Mean(m_Stretch.Value) - 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value),
+			Get_PointCloud()->Get_Mean(m_Stretch.Value) + 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value)
 		);
 		break;
 
@@ -460,12 +460,12 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
-	if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
+	if( m_Stretch.Value >= Get_PointCloud()->Get_Field_Count() )
 	{
-		m_fValue = Get_PointCloud()->Get_Field_Count() - 1;
+		m_Stretch.Value = Get_PointCloud()->Get_Field_Count() - 1;
 	}
 
-	double m = Get_PointCloud()->Get_Mean(m_fValue), s = 2. * Get_PointCloud()->Get_StdDev(m_fValue);
+	double m = Get_PointCloud()->Get_Mean(m_Stretch.Value), s = 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value);
 
 	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
 
@@ -494,30 +494,30 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
 	default: // CLASSIFY_SINGLE
-		m_fValue  = -1;
-		m_fNormal = -1;
+		m_Stretch.Value  = -1;
+		m_Stretch.Normal = -1;
 		break;
 
 	case  1: // CLASSIFY_LUT
-		m_fValue  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
-		m_fNormal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
-		m_dNormal = 1.;
+		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
+		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
+		m_Stretch.nScale = 1.;
 		break;
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
-		m_fValue  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
-		m_fNormal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
-		m_dNormal = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
+		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
+		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
+		m_Stretch.nScale = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
 		break;
 
 	case  4: // CLASSIFY_RGB
-		m_fValue  = Get_Fields_Choice(m_Parameters("RGB_FIELD"    ));
-		m_fNormal = -1; m_pClassify->Set_Mode(CLASSIFY_RGB);
+		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("RGB_FIELD"    ));
+		m_Stretch.Normal = -1; m_pClassify->Set_Mode(CLASSIFY_RGB);
 		break;
 	}
 
-	if( m_fValue < 0 )
+	if( m_Stretch.Value < 0 )
 	{
 		m_pClassify->Set_Mode(CLASSIFY_SINGLE);
 	}
@@ -545,25 +545,15 @@ void CWKSP_PointCloud::On_Update_Views(void)
 //---------------------------------------------------------
 int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("METRIC_FIELD") )
-		{
-			int zField = Get_Fields_Choice((*pParameters)("METRIC_FIELD")); double m = Get_PointCloud()->Get_Mean(zField), s = 2. * Get_PointCloud()->Get_StdDev(zField);
-
-			double min = m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) ) { min = Get_PointCloud()->Get_Minimum(zField); }
-			double max = m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) ) { max = Get_PointCloud()->Get_Maximum(zField); }
-
-			if( (*pParameters)("METRIC_NORFMT")->asInt() ) { min *= 100.; max *= 100.; }
-
-			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
-		}
+		// nop
 	}
 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		// nop
 	}
 
 	//-----------------------------------------------------
@@ -576,90 +566,14 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_PointCloud::Get_Name_Attribute(void)
-{
-	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_SINGLE ? SG_T("") : Get_PointCloud()->Get_Field_Name(m_fValue) );
-}
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	sLong Index = Get_PointCloud()->Get_Point(ptWorld, Epsilon);
+	wxString s;
 
-	if( Index < 0 )
-	{
-		if( m_fValue < 0 )
-		{
-			return( wxString::Format("%s: %lld", _TL("Index"), Index + 1) );
-		}
+	CWKSP_Layer::Get_Field_Value(Get_PointCloud()->Get_Point(ptWorld, Epsilon), m_Stretch.Value, m_Stretch.Normal, m_Stretch.nScale, s);
 
-		//-------------------------------------------------
-		if( m_pClassify->Get_Mode() == CLASSIFY_RGB )
-		{
-			int Value = (int)Get_PointCloud()->Get_Value(Index, m_fValue);
-
-			return( wxString::Format("R%03d G%03d B%03d", SG_GET_R(Value), SG_GET_G(Value), SG_GET_B(Value)) );
-		}
-
-		//-------------------------------------------------
-		else if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
-		{
-			if( !SG_Data_Type_is_Numeric(Get_PointCloud()->Get_Field_Type(m_fValue)) )
-			{
-				CSG_String s; Get_PointCloud()->Get_Value(Index, m_fValue, s);
-
-				return( m_pClassify->Get_Class_Name_byValue(s.c_str()) );
-			}
-
-			if( m_fNormal < 0 )
-			{
-				return( m_pClassify->Get_Class_Name_byValue(Get_PointCloud()->Get_Value(Index, m_fValue)) );
-			}
-
-			double Value, Normal;
-
-			if( !Get_PointCloud()->Get_Value(Index, m_fValue, Value) && Get_PointCloud()->Get_Value(Index, m_fNormal, Normal) && Normal != 0. )
-			{
-				return( m_pClassify->Get_Class_Name_byValue(Value / Normal) );
-			}
-		}
-
-		//-------------------------------------------------
-		else if( !Get_PointCloud()->is_NoData(m_fValue) )
-		{
-			if( m_fNormal < 0 )
-			{
-				return( wxString::Format("%f", Get_PointCloud()->Get_Value(Index, m_fValue)) );
-			}
-
-			double Value, Normal;
-
-			if( !Get_PointCloud()->Get_Value(Index, m_fValue, Value) && Get_PointCloud()->Get_Value(Index, m_fNormal, Normal) && Normal != 0. )
-			{
-				return( wxString::Format("%f", m_dNormal * Value / Normal) );
-			}
-		}
-	}
-
-	return( _TL("") );
+	return( s );
 }
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CWKSP_PointCloud::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Minimum(m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Maximum(m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Range  (m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Mean   (m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -785,6 +699,12 @@ bool CWKSP_PointCloud::Edit_Set_Index(int Index)
 }
 
 //---------------------------------------------------------
+int CWKSP_PointCloud::Edit_Get_Index(void)
+{
+	return( m_Edit_Index );
+}
+
+//---------------------------------------------------------
 bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 {
 	CSG_Table_Record *pSelection = Get_PointCloud()->Get_Selection(m_Edit_Index);
@@ -835,7 +755,7 @@ void CWKSP_PointCloud::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 //---------------------------------------------------------
 inline void CWKSP_PointCloud::_Draw_Point(CSG_Map_DC &dc_Map, int x, int y, double z, int Color)
 {
-	if( m_Aggregation == 1 )	// last value
+	if( m_Aggregation == 1 ) // last value
 	{
 		dc_Map.Draw_Image_Pixel(x, y, Color);
 	}
@@ -853,16 +773,14 @@ inline void CWKSP_PointCloud::_Draw_Point(CSG_Map_DC &dc_Map, int x, int y, doub
 		case 2:	// lowest z
 			if( m_N.asInt(x, y) == 0 || z < m_Z.asDouble(x, y) )
 			{
-				dc_Map.Draw_Image_Pixel(x, y, Color);
-				m_Z.Set_Value(x, y, z);
+				dc_Map.Draw_Image_Pixel(x, y, Color); m_Z.Set_Value(x, y, z);
 			}
 			break;
 
 		case 3:	// highest z
 			if( m_N.asInt(x, y) == 0 || z > m_Z.asDouble(x, y) )
 			{
-				dc_Map.Draw_Image_Pixel(x, y, Color);
-				m_Z.Set_Value(x, y, z);
+				dc_Map.Draw_Image_Pixel(x, y, Color); m_Z.Set_Value(x, y, z);
 			}
 			break;
 		}
@@ -903,14 +821,14 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	CSG_PointCloud *pPoints = Get_PointCloud(); bool bNumeric = SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(m_fValue));
+	CSG_PointCloud *pPoints = Get_PointCloud(); bool bNumeric = SG_Data_Type_is_Numeric(pPoints->Get_Field_Type(m_Stretch.Value));
 
 	sLong Selection = pPoints->Get_Selection_Count() > 0 ? pPoints->Get_Selection_Index(m_Edit_Index) : -1;
 
 	#pragma omp parallel for
 	for(sLong i=0; i<pPoints->Get_Count(); i++)
 	{
-		if( !pPoints->is_NoData(i, m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(i, m_fNormal) && pPoints->Get_Value(i, m_fNormal) != 0.)) )
+		if( !pPoints->is_NoData(i, m_Stretch.Value) && (m_Stretch.Normal < 0 || (!pPoints->is_NoData(i, m_Stretch.Normal) && pPoints->Get_Value(i, m_Stretch.Normal) != 0.)) )
 		{
 			TSG_Point_3D Point = pPoints->Get_Point(i);
 
@@ -932,14 +850,14 @@ void CWKSP_PointCloud::_Draw_Points(CSG_Map_DC &dc_Map)
 					{
 						int Color; CSG_String Value;
 
-						if( pPoints->Get_Value(i, m_fValue, Value) && m_pClassify->Get_Class_Color_byValue(Value, Color) )
+						if( pPoints->Get_Value(i, m_Stretch.Value, Value) && m_pClassify->Get_Class_Color_byValue(Value, Color) )
 						{
 							_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 						}
 					}
 					else // number
 					{
-						int Color; double Value = pPoints->Get_Value(i, m_fValue); if( m_fNormal >= 0 ) { Value *= m_dNormal / pPoints->Get_Value(i, m_fNormal); }
+						int Color; double Value = pPoints->Get_Value(i, m_Stretch.Value); if( m_Stretch.Normal >= 0 ) { Value *= m_Stretch.Normal / pPoints->Get_Value(i, m_Stretch.Normal); }
 						
 						if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 						{
@@ -962,14 +880,14 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 //	#pragma omp parallel for
 	for(sLong i=0; i<pPoints->Get_Count(); i+=n)
 	{
-		if( !pPoints->is_NoData(i, m_fValue) && (m_fNormal < 0 || (!pPoints->is_NoData(i, m_fNormal) && pPoints->Get_Value(i, m_fNormal) != 0.)) )
+		if( !pPoints->is_NoData(i, m_Stretch.Value) && (m_Stretch.Normal < 0 || (!pPoints->is_NoData(i, m_Stretch.Normal) && pPoints->Get_Value(i, m_Stretch.Normal) != 0.)) )
 		{
 			TSG_Point_3D Point = pPoints->Get_Point(i);
 
 			int x = (int)dc_Map.xWorld2DC(Point.x);
 			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int Color; double Value = pPoints->Get_Value(i, m_fValue); if( m_fNormal >= 0 ) { Value *= m_dNormal / pPoints->Get_Value(i, m_fNormal); }
+			int Color; double Value = pPoints->Get_Value(i, m_Stretch.Value); if( m_Stretch.Normal >= 0 ) { Value *= m_Stretch.nScale / pPoints->Get_Value(i, m_Stretch.Normal); }
 
 			if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 			{

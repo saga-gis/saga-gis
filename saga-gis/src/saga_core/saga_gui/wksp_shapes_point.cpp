@@ -446,20 +446,20 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("LABEL_PLACEMENT_X")->asInt() )
 	{
-	default: m_Label.Align  = TEXTALIGN_LEFT   ; break;
-	case  1: m_Label.Align  = TEXTALIGN_XCENTER; break;
-	case  0: m_Label.Align  = TEXTALIGN_RIGHT  ; break;
+	default: m_Label_Point.Align  = TEXTALIGN_LEFT   ; break;
+	case  1: m_Label_Point.Align  = TEXTALIGN_XCENTER; break;
+	case  0: m_Label_Point.Align  = TEXTALIGN_RIGHT  ; break;
 	}
 
 	switch( m_Parameters("LABEL_PLACEMENT_Y")->asInt() )
 	{
-	default: m_Label.Align |= TEXTALIGN_TOP    ; break;
-	case  1: m_Label.Align |= TEXTALIGN_YCENTER; break;
-	case  0: m_Label.Align |= TEXTALIGN_BOTTOM ; break;
+	default: m_Label_Point.Align |= TEXTALIGN_TOP    ; break;
+	case  1: m_Label_Point.Align |= TEXTALIGN_YCENTER; break;
+	case  0: m_Label_Point.Align |= TEXTALIGN_BOTTOM ; break;
 	}
 
-	m_Label.Angle       = m_Parameters("LABEL_ANGLE")->asDouble();
-	m_Label.Angle_Field = Get_Fields_Choice(m_Parameters("LABEL_ANGLE_FIELD"));
+	m_Label_Point.Angle       = m_Parameters("LABEL_ANGLE")->asDouble();
+	m_Label_Point.Angle_Field = Get_Fields_Choice(m_Parameters("LABEL_ANGLE_FIELD"));
 
 	//-----------------------------------------------------
 	m_bOutline = m_Parameters("OUTLINE")->asBool();
@@ -643,13 +643,13 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, C
 	}
 
 	//-----------------------------------------------------
-	m_Label.Offset.x = m_Parameters("LABEL_OFFSET_X")->asDouble();
-	m_Label.Offset.y = m_Parameters("LABEL_OFFSET_Y")->asDouble();
+	m_Label_Point.Offset.x = m_Parameters("LABEL_OFFSET_X")->asDouble();
+	m_Label_Point.Offset.y = m_Parameters("LABEL_OFFSET_Y")->asDouble();
 
 	switch( m_Parameters("LABEL_FIELD_SIZE_TYPE")->asInt() )
 	{
-	default: m_Label.Offset *= dc_Map.Scale   (); break;
-	case  1: m_Label.Offset *= dc_Map.World2DC(); break;
+	default: m_Label_Point.Offset *= dc_Map.Scale   (); break;
+	case  1: m_Label_Point.Offset *= dc_Map.World2DC(); break;
 	}
 
 	//-----------------------------------------------------
@@ -757,21 +757,21 @@ void CWKSP_Shapes_Point::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const
 {
 	TSG_Point_Int p(dc_Map.World2DC(pShape->Get_Point()));
 
-	if( m_Label.Offset.x > 0. )
+	if( m_Label_Point.Offset.x > 0. )
 	{
-		if( (m_Label.Align & TEXTALIGN_LEFT  ) != 0 ) p.x += m_Label.Offset.x; else
-		if( (m_Label.Align & TEXTALIGN_RIGHT ) != 0 ) p.x -= m_Label.Offset.x;
+		if( (m_Label_Point.Align & TEXTALIGN_LEFT  ) != 0 ) p.x += m_Label_Point.Offset.x; else
+		if( (m_Label_Point.Align & TEXTALIGN_RIGHT ) != 0 ) p.x -= m_Label_Point.Offset.x;
 	}
 
-	if( m_Label.Offset.y > 0. )
+	if( m_Label_Point.Offset.y > 0. )
 	{
-		if( (m_Label.Align & TEXTALIGN_TOP   ) != 0 ) p.y += m_Label.Offset.y; else
-		if( (m_Label.Align & TEXTALIGN_BOTTOM) != 0 ) p.y -= m_Label.Offset.y;
+		if( (m_Label_Point.Align & TEXTALIGN_TOP   ) != 0 ) p.y += m_Label_Point.Offset.y; else
+		if( (m_Label_Point.Align & TEXTALIGN_BOTTOM) != 0 ) p.y -= m_Label_Point.Offset.y;
 	}
 
-	double Angle = m_Label.Angle_Field < 0 ? m_Label.Angle : pShape->asDouble(m_Label.Angle_Field);
+	double Angle = m_Label_Point.Angle_Field < 0 ? m_Label_Point.Angle : pShape->asDouble(m_Label_Point.Angle_Field);
 
-	dc_Map.DrawText(m_Label.Align, p.x, p.y, Angle, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+	dc_Map.DrawText(m_Label_Point.Align, p.x, p.y, Angle, Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
 }
 
 

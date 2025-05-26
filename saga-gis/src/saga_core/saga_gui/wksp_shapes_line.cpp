@@ -217,7 +217,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	m_Size_Type  = m_Parameters("SIZE_TYPE")->asInt();
 
 	if(	(m_iSize = Get_Fields_Choice(m_Parameters("SIZE_FIELD"))) < 0
-	||	(m_dSize = Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0. )
+	 || (m_dSize = Get_Shapes()->Get_Maximum(m_iSize) - (m_Size_Min = Get_Shapes()->Get_Minimum(m_iSize))) <= 0. )
 	{
 		m_iSize  = -1;
 		m_Size   = m_Parameters("SIZE_DEFAULT")->asInt();
@@ -229,25 +229,25 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Pen			= wxPen(m_pClassify->Get_Unique_Color(), (int)m_Size, (wxPenStyle)m_Line_Style);
+	m_Pen = wxPen(m_pClassify->Get_Unique_Color(), (int)m_Size, (wxPenStyle)m_Line_Style);
 
-	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asInt();
+	m_bVertices = m_Parameters("DISPLAY_POINTS")->asInt();
 
 	//-----------------------------------------------------
-	m_Effect_Color	= m_Parameters("BOUNDARY_EFFECT_COLOR")->asColor();
+	m_Effect_Color = m_Parameters("BOUNDARY_EFFECT_COLOR")->asColor();
 
 	switch( m_Parameters("BOUNDARY_EFFECT")->asInt() )
 	{
-	default:	m_Effect	= TEXTEFFECT_NONE       ;	break;
-	case  1:	m_Effect	= TEXTEFFECT_FRAME      ;	break;
-	case  2:	m_Effect	= TEXTEFFECT_TOP        ;	break;
-	case  3:	m_Effect	= TEXTEFFECT_TOPLEFT    ;	break;
-	case  4:	m_Effect	= TEXTEFFECT_LEFT       ;	break;
-	case  5:	m_Effect	= TEXTEFFECT_BOTTOMLEFT ;	break;
-	case  6:	m_Effect	= TEXTEFFECT_BOTTOM     ;	break;
-	case  7:	m_Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-	case  8:	m_Effect	= TEXTEFFECT_RIGHT      ;	break;
-	case  9:	m_Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
+	default: m_Effect = TEXTEFFECT_NONE       ; break;
+	case  1: m_Effect = TEXTEFFECT_FRAME      ; break;
+	case  2: m_Effect = TEXTEFFECT_TOP        ; break;
+	case  3: m_Effect = TEXTEFFECT_TOPLEFT    ; break;
+	case  4: m_Effect = TEXTEFFECT_LEFT       ; break;
+	case  5: m_Effect = TEXTEFFECT_BOTTOMLEFT ; break;
+	case  6: m_Effect = TEXTEFFECT_BOTTOM     ; break;
+	case  7: m_Effect = TEXTEFFECT_BOTTOMRIGHT; break;
+	case  8: m_Effect = TEXTEFFECT_RIGHT      ; break;
+	case  9: m_Effect = TEXTEFFECT_TOPRIGHT   ; break;
 	}
 }
 
@@ -259,7 +259,6 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
-	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	pParameter->Cmp_Identifier("SIZE_FIELD") )
@@ -296,10 +295,10 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 {
 	if( m_iSize >= 0 )
 	{
-		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + ((Get_Shapes()->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize));
-		min_Value	= m_Size_Min;
-		dValue		= m_dSize;
+		min_Size  = (int)(m_Size);
+		max_Size  = (int)(m_Size + ((Get_Shapes()->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize));
+		min_Value = m_Size_Min;
+		dValue    = m_dSize;
 
 		if( pName )
 		{
@@ -320,15 +319,15 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 {
-	m_Label_Style	= m_Parameters("LABEL_STYLE"    )->asInt();
-	m_Label_Freq	= m_Parameters("LABEL_FREQUENCY")->asInt();
-	m_Label_Orient	= m_Parameters("LABEL_ORIENT"   )->asInt();
+	m_Label_Style  = m_Parameters("LABEL_STYLE"    )->asInt();
+	m_Label_Freq   = m_Parameters("LABEL_FREQUENCY")->asInt();
+	m_Label_Orient = m_Parameters("LABEL_ORIENT"   )->asInt();
 
 	switch( m_Parameters("LABEL_ALIGN")->asInt() )
 	{
-	default: m_Label_Align	= TEXTALIGN_TOPLEFT   ;	break;
-	case  1: m_Label_Align	= TEXTALIGN_CENTERLEFT;	break;
-	case  2: m_Label_Align	= TEXTALIGN_BOTTOMLEFT;	break;
+	default: m_Label_Align = TEXTALIGN_TOPLEFT   ; break;
+	case  1: m_Label_Align = TEXTALIGN_CENTERLEFT; break;
+	case  2: m_Label_Align = TEXTALIGN_BOTTOMLEFT; break;
 	}
 
 	m_Pen.SetStyle((wxPenStyle)(m_Line_Style = PenList_Get_Style("LINE_STYLE")));
@@ -339,7 +338,7 @@ void CWKSP_Shapes_Line::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	wxPen	Pen(m_Pen);
+	wxPen Pen(m_Pen);
 
 	//-----------------------------------------------------
 	if( Selection )
@@ -351,7 +350,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Se
 	//-----------------------------------------------------
 	else
 	{
-		int		Color;
+		int Color;
 
 		if( !Get_Class_Color(pShape, Color) && !m_bNoData )
 		{
@@ -361,7 +360,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Se
 		Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 
 		//-------------------------------------------------
-		double	Size	= m_Size;
+		double Size = m_Size;
 
 		if( m_iSize >= 0 )
 		{
@@ -374,7 +373,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Se
 			}
 			else
 			{
-				Size	+= m_dSize * (pShape->asDouble(m_iSize) - m_Size_Min);
+				Size += m_dSize * (pShape->asDouble(m_iSize) - m_Size_Min);
 			}
 		}
 
@@ -390,7 +389,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Se
 	//-----------------------------------------------------
 	if( m_Effect )
 	{
-		wxColour	Color	= Pen.GetColour();	Pen.SetColour(m_Effect_Color);	dc_Map.SetPen(Pen);
+		wxColour Color = Pen.GetColour(); Pen.SetColour(m_Effect_Color); dc_Map.SetPen(Pen);
 
 		if( m_Effect & TEXTEFFECT_TOP         )	_Draw_Shape(dc_Map, pShape,  0, -1);
 		if( m_Effect & TEXTEFFECT_TOPLEFT     )	_Draw_Shape(dc_Map, pShape, -1, -1);
@@ -442,107 +441,110 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 	switch( m_Label_Style )
 	{
 	//-----------------------------------------------------
-	case  0:	// one label at the polyline centroid
-	{
-		TSG_Point_Int C = dc_Map.World2DC(pLine->Get_Centroid());
+	case  0: // one label at the polyline centroid
+		{
+			TSG_Point_Int C = dc_Map.World2DC(pLine->Get_Centroid());
 
-		dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
-	} break;
+			dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+		}
+		break;
 
 	//-----------------------------------------------------
-	case  1:	// one label at the central vertex of each part
-	case  2:	// one aligned label at the central vertex of each part
-	{
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+	case  1: // one label at the central vertex of each part
+	case  2: // one aligned label at the central vertex of each part
 		{
-			double d = 0., c = 0.5 * pLine->Get_Length(iPart);
-
-			for(int i=1, j=0; d<c && i<pLine->Get_Point_Count(iPart); i++, j++)
+			for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 			{
-				d += SG_Get_Distance(pLine->Get_Point(i, iPart), pLine->Get_Point(j, iPart));
+				double d = 0., c = 0.5 * pLine->Get_Length(iPart);
 
-				if( d >= c )
+				for(int i=1, j=0; d<c && i<pLine->Get_Point_Count(iPart); i++, j++)
 				{
-					if( m_Label_Style == 1 )
+					d += SG_Get_Distance(pLine->Get_Point(i, iPart), pLine->Get_Point(j, iPart));
+
+					if( d >= c )
 					{
-						TSG_Point A = pLine->Get_Point(i, iPart);
-						TSG_Point B = pLine->Get_Point(j, iPart);
+						if( m_Label_Style == 1 )
+						{
+							TSG_Point A = pLine->Get_Point(i, iPart);
+							TSG_Point B = pLine->Get_Point(j, iPart);
 
-						A.x += 0.5 * (B.x - A.x);
-						A.y += 0.5 * (B.y - A.y);
+							A.x += 0.5 * (B.x - A.x);
+							A.y += 0.5 * (B.y - A.y);
 
-						TSG_Point_Int C = dc_Map.World2DC(A);
+							TSG_Point_Int C = dc_Map.World2DC(A);
 
-						dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							dc_Map.DrawText(TEXTALIGN_CENTER, C.x, C.y, Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+						}
+						else
+						{
+							TSG_Point_Int A = dc_Map.World2DC(pLine->Get_Point(i, iPart));
+							TSG_Point_Int B = dc_Map.World2DC(pLine->Get_Point(j, iPart));
+
+							if( m_Label_Orient == 0 )
+							{
+								dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+							}
+							else
+							{
+								dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+							}
+						}
 					}
+				}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case  3: // along line labeling
+		{
+			wxCoord Width, Height; dc_Map.Get_DC().GetTextExtent(Label, &Width, &Height);
+
+			for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+			{
+				if( pLine->Get_Point_Count(iPart) < 2 || Width > dc_Map.World2DC() * pLine->Get_Length(iPart) )
+				{
+					continue;
+				}
+
+				bool bLabel = false; double d = 0.; TSG_Point_Int B, A = dc_Map.World2DC(pLine->Get_Point(0, iPart));
+
+				for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
+				{
+					//-------------------------------------
+					if( !bLabel )
+					{
+						B = A; A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
+
+						if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * Width )
+						{
+							B = A; bLabel = true;
+						}
+					}
+
+					//-------------------------------------
 					else
 					{
-						TSG_Point_Int A = dc_Map.World2DC(pLine->Get_Point(i, iPart));
-						TSG_Point_Int B = dc_Map.World2DC(pLine->Get_Point(j, iPart));
+						A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
-						if( m_Label_Orient == 0 )
+						if( SG_Get_Distance(A.x, A.y, B.x, B.y) > Width )
 						{
-							dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
-						}
-						else
-						{
-							dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
-						}
-					}
-				}
-			}
-		}
-	} break;
+							d = 0.; bLabel = false;
 
-	//-----------------------------------------------------
-	case  3:	// along line labeling
-	{
-		wxCoord Width, Height; dc_Map.Get_DC().GetTextExtent(Label, &Width, &Height);
-
-		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
-		{
-			if( pLine->Get_Point_Count(iPart) < 2 || Width > dc_Map.World2DC() * pLine->Get_Length(iPart) )
-			{
-				continue;
-			}
-
-			bool bLabel = false; double d = 0.; TSG_Point_Int B, A = dc_Map.World2DC(pLine->Get_Point(0, iPart));
-
-			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
-			{
-				//-----------------------------------------
-				if( !bLabel )
-				{
-					B = A; A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
-
-					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * Width )
-					{
-						B = A; bLabel = true;
-					}
-				}
-
-				//-----------------------------------------
-				else
-				{
-					A = dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
-
-					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > Width )
-					{
-						d = 0.; bLabel = false;
-
-						if( m_Label_Orient == 0 )
-						{
-							dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
-						}
-						else
-						{
-							dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+							if( m_Label_Orient == 0 )
+							{
+								dc_Map.DrawText(m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+							}
+							else
+							{
+								dc_Map.DrawText(m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label.Effect, m_Label.Effect_Color, m_Label.Effect_Size);
+							}
 						}
 					}
 				}
 			}
 		}
-	} break;
+		break;
 	}
 }
 
@@ -554,22 +556,22 @@ void CWKSP_Shapes_Line::Draw_Label(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const 
 //---------------------------------------------------------
 bool CWKSP_Shapes_Line::Edit_Do_Mouse_Move_Draw(bool bMouseDown)
 {
-	return( CWKSP_Shapes::Edit_Do_Mouse_Move_Draw(bMouseDown) || (m_Edit_pShape && m_Edit_iPart >= 0 && (m_Edit_iPoint < 0 || bMouseDown)) );
+	return( CWKSP_Shapes::Edit_Do_Mouse_Move_Draw(bMouseDown) || (m_Edit.pShape && m_Edit.Part >= 0 && (m_Edit.Point < 0 || bMouseDown)) );
 }
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point)
 {
-	if( m_Edit_pShape && m_Edit_iPart >= 0 )
+	if( m_Edit.pShape && m_Edit.Part >= 0 )
 	{
-		int	nPoints	= m_Edit_pShape->Get_Point_Count(m_Edit_iPart);
+		int nPoints = m_Edit.pShape->Get_Point_Count(m_Edit.Part);
 
-		if( m_Edit_iPoint < 0 )
+		if( m_Edit.Point < 0 )
 		{
 			if( nPoints > 0 )
 			{
 				CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
-					m_Edit_pShape->Get_Point(nPoints - 1, m_Edit_iPart)
+					m_Edit.pShape->Get_Point(nPoints - 1, m_Edit.Part)
 				);
 			}
 		}
@@ -577,17 +579,17 @@ void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, c
 		{
 			if( nPoints > 1 )
 			{
-				if( m_Edit_iPoint > 0 )
+				if( m_Edit.Point > 0 )
 				{
 					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
-						m_Edit_pShape->Get_Point(m_Edit_iPoint - 1, m_Edit_iPart)
+						m_Edit.pShape->Get_Point(m_Edit.Point - 1, m_Edit.Part)
 					);
 				}
 
-				if( m_Edit_iPoint < nPoints - 1 )
+				if( m_Edit.Point < nPoints - 1 )
 				{
 					CWKSP_Shapes::Edit_Shape_Draw_Move(dc, rWorld, Point,
-						m_Edit_pShape->Get_Point(m_Edit_iPoint + 1, m_Edit_iPart)
+						m_Edit.pShape->Get_Point(m_Edit.Point + 1, m_Edit.Part)
 					);
 				}
 			}
@@ -600,61 +602,46 @@ void CWKSP_Shapes_Line::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, c
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Edit_Shape_Draw(CSG_Map_DC &dc_Map)
 {
-	if( m_Edit_pShape )
+	if( m_Edit.pShape )
 	{
-		if( m_Edit_bGleam )
+		if( m_Edit.bGleam )
 		{
-			dc_Map.SetPen(wxPen(m_Edit_Color, 3));
+			dc_Map.SetPen(wxPen(m_Edit.Color, 3));
 			dc_Map.Get_DC().SetLogicalFunction(wxINVERT);
 
-			_Draw_Shape(dc_Map, m_Edit_pShape);
+			_Draw_Shape(dc_Map, m_Edit.pShape);
 
 			dc_Map.Get_DC().SetLogicalFunction(wxCOPY);
 		}
 
-		dc_Map.SetPen(wxPen(m_Edit_Color));
+		dc_Map.SetPen(wxPen(m_Edit.Color));
 
-		_Draw_Shape(dc_Map, m_Edit_pShape);
+		_Draw_Shape(dc_Map, m_Edit.pShape);
 
 		CWKSP_Shapes::Edit_Shape_Draw(dc_Map);
 	}
 }
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Line::Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes_Line::Edit_Shape_HitTest(const CSG_Point &Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
-	int			Result, iPart, iPoint;
-	double		d;
-	TSG_Point	A, B, Point, hit_Point;
+	int Result = CWKSP_Shapes::Edit_Shape_HitTest(Point, max_Dist, pos_iPart, pos_iPoint);
 
-	Result	= CWKSP_Shapes::Edit_Shape_HitTest(pos_Point, max_Dist, pos_iPart, pos_iPoint);
-
-	if( Result == 0 && m_Edit_pShape )
+	if( Result == 0 && m_Edit.pShape )
 	{
-		for(iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
+		for(int iPart=0; iPart<m_Edit.pShape->Get_Part_Count(); iPart++)
 		{
-			B	= m_Edit_pShape->Get_Point(0, iPart);
+			CSG_Point A = m_Edit.pShape->Get_Point(0, iPart);
 
-			for(iPoint=1; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=1; iPoint<m_Edit.pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				A	= m_Edit_pShape->Get_Point(iPoint, iPart);
-				d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
-				B	= A;
+				CSG_Point C, B = m_Edit.pShape->Get_Point(iPoint, iPart); double d = SG_Get_Nearest_Point_On_Line(Point, A, B, C, true); A = B;
 
-				if( d >= 0.0 && (0.0 > max_Dist || d < max_Dist) )
+				if( d >= 0. && (0. > max_Dist || d < max_Dist) )
 				{
-					Result		= 2;
-					max_Dist	= d;
-					pos_iPoint	= iPoint;
-					pos_iPart	= iPart;
-					hit_Point	= Point;
+					Result = 2; max_Dist = d; pos_iPoint = iPoint; pos_iPart = iPart;
 				}
 			}
-		}
-
-		if( Result )
-		{
-			pos_Point	= hit_Point;
 		}
 	}
 
@@ -662,26 +649,19 @@ int CWKSP_Shapes_Line::Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, 
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
+void CWKSP_Shapes_Line::Edit_Snap_Point_ToLine(const CSG_Point &Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
-	int			iPart, iPoint;
-	double		d;
-	TSG_Point	A, B, Point;
-
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		B	= pShape->Get_Point(0, iPart);
+		CSG_Point A = pShape->Get_Point(0, iPart);
 
-		for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			A	= pShape->Get_Point(iPoint, iPart);
-			d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
-			B	= A;
+			CSG_Point C, B = pShape->Get_Point(iPoint, iPart); double d = SG_Get_Nearest_Point_On_Line(Point, A, B, C, true); A = B;
 
-			if( d >= 0.0 && d < snap_Dist )
+			if( d >= 0. && d < snap_Dist )
 			{
-				snap_Dist	= d;
-				snap_Point	= Point;
+				snap_Dist = d; snap_Point = C;
 			}
 		}
 	}
