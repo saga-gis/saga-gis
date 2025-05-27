@@ -266,13 +266,10 @@ bool CWKSP_Grids::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Layer::On_Command(Cmd_ID) );
+	default: return( CWKSP_Layer::On_Command(Cmd_ID) );
 
+	//-----------------------------------------------------
 	case ID_CMD_DATA_SAVEAS_IMAGE  : _Save_Image(); break;
-
-	case ID_CMD_DATA_HISTOGRAM     : Histogram_Toggle(); break;
-	case ID_CMD_DATA_SCATTERPLOT   : Add_ScatterPlot (); break;
 
 	case ID_CMD_DATA_SCATTERPLOT_3D: { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 6);
 		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TYPE", 0)
@@ -299,15 +296,7 @@ bool CWKSP_Grids::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Grids::On_Command_UI(wxUpdateUIEvent &event)
 {
-	switch( event.GetId() )
-	{
-	default: return( CWKSP_Layer::On_Command_UI(event) );
-
-	case ID_CMD_DATA_HISTOGRAM     : event.Check(m_pHistogram != NULL); break;
-	case ID_CMD_DATA_SCATTERPLOT_3D: event.Check(m_pObject->asGrids()->Get_Grid_Count() >= 3); break;
-	}
-
-	return( true );
+	return( CWKSP_Layer::On_Command_UI(event) );
 }
 
 
@@ -323,15 +312,15 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// General...
 
-	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_Z_UNIT"  , _TL("Unit"    ), _TL(""), Get_Grids()->Get_Unit   ());
-	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_FACTOR", _TL("Z-Scale" ), _TL(""), Get_Grids()->Get_Scaling());
-	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_OFFSET", _TL("Z-Offset"), _TL(""), Get_Grids()->Get_Offset ());
-
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"MAX_SAMPLES"	, _TL("Maximum Samples"),
 		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
 		100. * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells(), 0., true, 100., true
 	);
+
+	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_Z_UNIT"     , _TL("Unit"    ), _TL(""), Get_Grids()->Get_Unit   ());
+	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_FACTOR"   , _TL("Z-Scale" ), _TL(""), Get_Grids()->Get_Scaling());
+	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_OFFSET"   , _TL("Z-Offset"), _TL(""), Get_Grids()->Get_Offset ());
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Choice("NODE_GENERAL", "DIM_ATTRIBUTE"	    , _TL("Attribute"),

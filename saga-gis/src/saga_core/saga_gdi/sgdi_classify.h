@@ -104,13 +104,14 @@ public:
 	bool						Set_LUT					(CSG_Table &LUT, CSG_Colors Colors) const;
 
 	bool						Classify_Unique			(int maxCount = 1024);
+	bool						Classify_Equal			(int Count, double Minimum, double Maximum);
 	bool						Classify_Equal			(int Count);
 	bool						Classify_Defined		(double Interval, double Offset);
 	bool						Classify_Defined		(double Interval);
 	bool						Classify_Quantile		(int Count, bool bHistogram = true);
 	bool						Classify_Geometric		(int Count, bool bIncreasing = true);
 	bool						Classify_Natural		(int Count);
-	bool						Classify_StdDev			(double StdDev);
+	bool						Classify_StdDev			(double StdDev, double StdDev_Max = 4.);
 
 	bool						m_Show_Progress = false;
 

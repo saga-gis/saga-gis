@@ -283,6 +283,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
+	//-----------------------------------------------------
 	case ID_CMD_POINTCLOUD_LAST:
 		break;
 
@@ -364,7 +365,6 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 	//-----------------------------------------------------
 	case ID_CMD_TABLE_SHOW    : m_pTable->Toggle_View   (); break;
 	case ID_CMD_DATA_DIAGRAM  : m_pTable->Toggle_Diagram(); break;
-	case ID_CMD_DATA_HISTOGRAM: Histogram_Toggle        (); break;
 	}
 
 	return( true );
@@ -378,28 +378,14 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
 
-    case ID_CMD_DATA_SELECTION_CLEAR:
-        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
-        break;
+	//-----------------------------------------------------
+    case ID_CMD_DATA_SELECTION_CLEAR : event.Enable(Get_PointCloud()->Get_Selection_Count() > 0); break;
+    case ID_CMD_DATA_SELECTION_INVERT: event.Enable(Get_PointCloud()->Get_Selection_Count() > 0); break;
+    case ID_CMD_SHAPES_EDIT_DEL_SHAPE: event.Enable(Get_PointCloud()->Get_Selection_Count() > 0); break;
+    case ID_CMD_SHAPES_EDIT_SEL_COPY : event.Enable(Get_PointCloud()->Get_Selection_Count() > 0); break;
 
-    case ID_CMD_DATA_SELECTION_INVERT:
-        event.Enable(true);
-        break;
-
-    case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
-        break;
-
-    case ID_CMD_SHAPES_EDIT_SEL_COPY:
-        event.Enable(Get_PointCloud()->Get_Selection_Count() > 0);
-        break;
-
-	case ID_CMD_POINTCLOUD_LAST:
-		break;
-
-	case ID_CMD_TABLE_SHOW    : event.Check(m_pTable->Get_View   () != NULL); break;
-	case ID_CMD_DATA_DIAGRAM  : event.Check(m_pTable->Get_Diagram() != NULL); break;
-	case ID_CMD_DATA_HISTOGRAM: event.Check(m_pHistogram            != NULL); break;
+	case ID_CMD_TABLE_SHOW           : event.Check(m_pTable->Get_View   () != NULL); break;
+	case ID_CMD_DATA_DIAGRAM         : event.Check(m_pTable->Get_Diagram() != NULL); break;
 	}
 
 	return( true );
@@ -416,6 +402,17 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
+	// General...
+
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"MAX_SAMPLES"            , _TL("Maximum Samples"),
+		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of points."),
+		Get_PointCloud()->Get_Count() < 100 ? 100. : 100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count(), 0., true, 100., true
+	);
+
+	//-----------------------------------------------------
+	// Display...
+
 	m_Parameters.Add_Int("NODE_DISPLAY",
 		"DISPLAY_SIZE"           , _TL("Point Size"),
 		_TL("Radius given as number of pixels."),
@@ -434,21 +431,14 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	);
 
 	//-----------------------------------------------------
+	// Colors...
+
 	m_Parameters.Add_Node("NODE_COLORS", "NODE_RGB", _TL("RGB"), _TL(""));
 
 	m_Parameters.Add_Choice("NODE_RGB",
 		"RGB_FIELD"			     , _TL("Attribute"),
 		_TL(""),
 		_TL("<default>")
-	);
-
-	//-----------------------------------------------------
-	// Memory...
-
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"MAX_SAMPLES"            , _TL("Maximum Samples"),
-		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
-		100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count(), 0., true, 100., true
 	);
 }
 
@@ -460,16 +450,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
-	if( m_Stretch.Value >= Get_PointCloud()->Get_Field_Count() )
-	{
-		m_Stretch.Value = Get_PointCloud()->Get_Field_Count() - 1;
-	}
-
-	double m = Get_PointCloud()->Get_Mean(m_Stretch.Value), s = 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value);
-
-	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
-
-	//-----------------------------------------------------
 	Set_Fields_Choice(m_Parameters("LUT_FIELD"    ), false, false);
 	Set_Fields_Choice(m_Parameters("LUT_NORMAL"   ),  true,  true);
 	Set_Fields_Choice(m_Parameters("METRIC_FIELD" ),  true, false);
@@ -477,7 +457,7 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 	Set_Fields_Choice(m_Parameters("RGB_FIELD"    ),  true, false);
 
 	//-----------------------------------------------------
-	m_Parameters.Set_Parameter("MAX_SAMPLES", 100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count());
+	m_Parameters.Set_Parameter("MAX_SAMPLES", Get_PointCloud()->Get_Count() < 100 ? 100. : 100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count());
 
 	//-----------------------------------------------------
 	CWKSP_Layer::On_DataObject_Changed();
@@ -491,24 +471,26 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	CWKSP_Layer::On_Parameters_Changed();
 
 	//-----------------------------------------------------
+	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
+
+	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
 	default: // CLASSIFY_SINGLE
 		m_Stretch.Value  = -1;
-		m_Stretch.Normal = -1;
 		break;
 
 	case  1: // CLASSIFY_LUT
 		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("LUT_FIELD"    ));
 		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("LUT_NORMAL"   ));
-		m_Stretch.nScale = 1.;
+		m_Stretch.Scale  = 1.;
 		break;
 
 	case  2: // CLASSIFY_DISCRETE
 	case  3: // CLASSIFY_GRADUATED
 		m_Stretch.Value  = Get_Fields_Choice(m_Parameters("METRIC_FIELD" ));
 		m_Stretch.Normal = Get_Fields_Choice(m_Parameters("METRIC_NORMAL"));
-		m_Stretch.nScale = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
+		m_Stretch.Scale  = m_Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.;
 		break;
 
 	case  4: // CLASSIFY_RGB
@@ -523,8 +505,6 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
-
 	long DefColor = m_Parameters("SINGLE_COLOR")->asColor();
 	m_Color_Pen   = wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
@@ -570,7 +550,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	wxString s;
 
-	CWKSP_Layer::Get_Field_Value(Get_PointCloud()->Get_Point(ptWorld, Epsilon), m_Stretch.Value, m_Stretch.Normal, m_Stretch.nScale, s);
+	CWKSP_Layer::Get_Field_Value(Get_PointCloud()->Get_Point(ptWorld, Epsilon), m_Stretch.Value, m_Stretch.Normal, m_Stretch.Scale, s);
 
 	return( s );
 }
@@ -887,7 +867,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CSG_Map_DC &dc_Map)
 			int x = (int)dc_Map.xWorld2DC(Point.x);
 			int y = (int)dc_Map.yWorld2DC(Point.y);
 
-			int Color; double Value = pPoints->Get_Value(i, m_Stretch.Value); if( m_Stretch.Normal >= 0 ) { Value *= m_Stretch.nScale / pPoints->Get_Value(i, m_Stretch.Normal); }
+			int Color; double Value = pPoints->Get_Value(i, m_Stretch.Value); if( m_Stretch.Normal >= 0 ) { Value *= m_Stretch.Scale / pPoints->Get_Value(i, m_Stretch.Normal); }
 
 			if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 			{

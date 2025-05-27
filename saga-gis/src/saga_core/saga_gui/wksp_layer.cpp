@@ -183,18 +183,16 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	{
 	default: return( CWKSP_Data_Item::On_Command(Cmd_ID) );
 
+	//-----------------------------------------------------
 	case ID_CMD_WKSP_ITEM_RETURN:
-	case ID_CMD_DATA_SHOW_MAP   :
-		g_pMaps->Add(this);
-		break;
+	case ID_CMD_DATA_SHOW_MAP   : g_pMaps->Add(this); break;
 
-	case ID_CMD_DATA_PROJECTION :
-		_Set_Projection();
-		break;
+	case ID_CMD_DATA_PROJECTION : _Set_Projection (); break;
 
-	case ID_CMD_DATA_CLASSIFY   :
-		_Classify();
-		break;
+	case ID_CMD_DATA_CLASSIFY   : _Classify       (); break;
+
+	case ID_CMD_DATA_HISTOGRAM  : Histogram_Toggle(); break;
+	case ID_CMD_DATA_SCATTERPLOT: Add_ScatterPlot (); break;
 	}
 
 	return( true );
@@ -203,7 +201,15 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 {
-	return( CWKSP_Data_Item::On_Command_UI(event) );
+	switch( event.GetId() )
+	{
+	default: return( CWKSP_Data_Item::On_Command_UI(event) );
+
+	//-----------------------------------------------------
+	case ID_CMD_DATA_HISTOGRAM  : event.Check(m_pHistogram != NULL); event.Enable(m_Parameters["COLORS_TYPE"].asInt() > 0); break;
+	}
+
+	return( true );
 }
 
 
@@ -407,7 +413,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
 
 		m_Parameters.Add_Choice("METRIC_NORMAL", "METRIC_NORFMT", _TL("Labeling"), _TL(""),
-			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 1
+			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 0
 		);
 	}
 
@@ -498,7 +504,12 @@ bool CWKSP_Layer::Set_Stretch(CSG_Parameters &Parameters, CSG_Data_Object *pObje
 {
 	if( Parameters["STRETCH_DEFAULT"].asInt() == 3 ) // keep current stretch if set to 'manual'!
 	{
-		return( false );
+		if( Get_Stretch_Range() > 0. )
+		{
+			return( false );
+		}
+
+		Parameters["STRETCH_DEFAULT"].Set_Value(1); // standard deviation
 	}
 
 	if( !pObject )
@@ -564,7 +575,7 @@ bool CWKSP_Layer::Set_Stretch(CSG_Parameters &Parameters, CSG_Data_Object *pObje
 
 	case  2: // percentile
 		{
-			CSG_Histogram Histogram = pTable ? pTable->Get_Histogram(Field) : pObject->asGrid() ? pObject->asGrid()->Get_Histogram() : pObject->asGrids()->Get_Histogram();
+			const CSG_Histogram &Histogram = pTable ? pTable->Get_Histogram(Field) : pObject->asGrid() ? pObject->asGrid()->Get_Histogram() : pObject->asGrids()->Get_Histogram();
 
 			Minimum = Histogram.Get_Percentile(Parameters["STRETCH_PCTL.MIN"].asDouble());
 			Maximum	= Histogram.Get_Percentile(Parameters["STRETCH_PCTL.MAX"].asDouble());
@@ -622,6 +633,11 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 				||	pParameter->Cmp_Identifier("METRIC_NORFMT") )
 				{
 					m_Normalization.Destroy(); // invalidate, might need updates
+
+					if( (*pParameters)("STRETCH_DEFAULT")->asInt() == 3 ) // manual? no adjustment!
+					{
+						pParameters->Set_Parameter("STRETCH_DEFAULT", 1); // standard deviation!
+					}
 				}
 
 				if( (*pParameters)("COLORS_TYPE")->asInt() == 2 || (*pParameters)("COLORS_TYPE")->asInt() == 3 ) // discrete/graduated
@@ -1345,7 +1361,7 @@ void CWKSP_Layer::Histogram_Show(bool bShow)
 //---------------------------------------------------------
 void CWKSP_Layer::Histogram_Toggle(void)
 {
-	Histogram_Show( m_pHistogram == NULL );
+	Histogram_Show(m_pHistogram == NULL);
 }
 
 
@@ -1424,10 +1440,13 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 	{
 		if( pParameter->Cmp_Identifier("NUM_FIELDS") )
 		{
-			int Field = Get_Fields_Choice(pParameter);
+			int Field = Get_Fields_Choice(pParameter); CSG_Table *pTable = (*pParameters)("TABLE")->asTable();
 
-			pParameters->Set_Parameter("INTERVAL"    , (*pParameters)("TABLE")->asTable()->Get_Range  (Field) / (*pParameters)("CLASSES")->asInt());
-			pParameters->Set_Parameter("OFFSET_VALUE", (*pParameters)("TABLE")->asTable()->Get_Minimum(Field));
+			if( pTable )
+			{
+				pParameters->Set_Parameter("INTERVAL"    , pTable->Get_Range  (Field) / (*pParameters)("CLASSES")->asInt());
+				pParameters->Set_Parameter("OFFSET_VALUE", pTable->Get_Minimum(Field));
+			}
 		}
 	}
 
@@ -1443,6 +1462,7 @@ int CWKSP_Layer::_Classify_Callback(CSG_Parameter *pParameter, int Flags)
 			pParameters->Set_Enabled("CLASSES"     , pParameter->asInt() != 0 && pParameter->asInt() != 2 && pParameter->asInt() != 6);
 			pParameters->Set_Enabled("INTERVAL"    , pParameter->asInt() == 2);
 			pParameters->Set_Enabled("OFFSET"      , pParameter->asInt() == 2);
+			pParameters->Set_Enabled("HISTOGRAM"   , pParameter->asInt() == 3);
 			pParameters->Set_Enabled("INCREASING"  , pParameter->asInt() == 4);
 			pParameters->Set_Enabled("STDDEV"      , pParameter->asInt() == 6);
 		}
@@ -1495,15 +1515,17 @@ bool CWKSP_Layer::_Classify(void)
 			m_Classify.Add_Choice("", "NUM_NORMAL", _TL("Normalization"), _TL(""), "");
 		}
 
-		m_Classify.Add_Colors(""      , "COLORS"      , _TL("Colors"                   ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
-		m_Classify.Add_Int   (""      , "CLASSES_MAX" , _TL("Maximum Number of Classes"), _TL(""), 1000, 10, true);
-		m_Classify.Add_Int   (""      , "CLASSES"     , _TL("Number of Classes"        ), _TL(""),   10,  1, true);
-		m_Classify.Add_Choice(""      , "METHOD"      , _TL("Classification"           ), _TL(""), Methods, 1);
-		m_Classify.Add_Double(""      , "INTERVAL"    , _TL("Defined Interval"         ), _TL(""), 1., 0., true);
-		m_Classify.Add_Choice(""      , "OFFSET"      , _TL("Offset"                   ), _TL(""), CSG_String::Format("%s|%s", _TL("minimum value"), _TL("user defined")));
-		m_Classify.Add_Double("OFFSET", "OFFSET_VALUE", _TL("Value"                    ), _TL(""), 1., 0., true);
-		m_Classify.Add_Bool  (""      , "INCREASING"  , _TL("Increasing Intervals"     ), _TL(""), true);
-		m_Classify.Add_Double(""      , "STDDEV"      , _TL("Standard Deviation"       ), _TL(""), 0.5, 0.01, true);
+		m_Classify.Add_Colors(""      , "COLORS"      , _TL("Colors"                    ), _TL(""), m_Parameters("METRIC_COLORS")->asColors());
+		m_Classify.Add_Int   (""      , "CLASSES_MAX" , _TL("Maximum Number of Classes" ), _TL(""), 1000, 10, true);
+		m_Classify.Add_Int   (""      , "CLASSES"     , _TL("Number of Classes"         ), _TL(""),   10,  1, true);
+		m_Classify.Add_Choice(""      , "METHOD"      , _TL("Classification"            ), _TL(""), Methods, 1);
+		m_Classify.Add_Double(""      , "INTERVAL"    , _TL("Defined Interval"          ), _TL(""), 1., 0., true);
+		m_Classify.Add_Choice(""      , "OFFSET"      , _TL("Offset"                    ), _TL(""), CSG_String::Format("%s|%s", _TL("minimum value"), _TL("user defined")));
+		m_Classify.Add_Double("OFFSET", "OFFSET_VALUE", _TL("Value"                     ), _TL(""), 1., 0., true);
+		m_Classify.Add_Choice(""      , "HISTOGRAM"   , _TL("Percentile Estimation"     ), _TL(""), CSG_String::Format("%s|%s", _TL("index"), _TL("histogram")), 1);
+		m_Classify.Add_Bool  (""      , "INCREASING"  , _TL("Increasing Intervals"      ), _TL(""), true);
+		m_Classify.Add_Double(""      , "STDDEV"      , _TL("Standard Deviation"        ), _TL(""), 0.5, 0.01, true);
+		m_Classify.Add_Double("STDDEV", "STDDEV_MAX"  , _TL("Maximum Standard Deviation"), _TL(""), 4.5, 0.5 , true);
 
 		if( m_pObject->asGrid () ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrid ()->Get_Range() / 10); m_Classify["OFFSET_VALUE"].Set_Value(m_pObject->asGrid ()->Get_Min()); }
 		if( m_pObject->asGrids() ) { m_Classify["INTERVAL"].Set_Value(m_pObject->asGrids()->Get_Range() / 10); m_Classify["OFFSET_VALUE"].Set_Value(m_pObject->asGrids()->Get_Min()); }
@@ -1559,21 +1581,19 @@ bool CWKSP_Layer::_Classify(void)
 	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()); break;
 	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()); break;
 	case  2: if( m_Classify["OFFSET"].asInt() )
-	     {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble(), m_Classify["OFFSET_VALUE"].asDouble()); }
+	     {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble(), m_Classify["OFFSET_VALUE"].asDouble()  ); }
 	else {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()); } break;
-	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), false); break;
-	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"].asBool()); break;
+	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), m_Classify["HISTOGRAM"   ].asInt() == 1); break;
+	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"  ].asBool()    ); break;
 	case  5: Classify.Classify_Natural  (m_Classify["CLASSES"    ].asInt   ()); break;
-	case  6: Classify.Classify_StdDev   (m_Classify["STDDEV"     ].asDouble()); break;
+	case  6: Classify.Classify_StdDev   (m_Classify["STDDEV"     ].asDouble(), m_Classify["STDDEV_MAX"  ].asDouble()  ); break;
 	}
 
 	//-----------------------------------------------------
 	CSG_Table Classes(m_Parameters["LUT"].asTable());
 
-	if( Classify.Set_LUT(Classes, *m_Classify["COLORS"].asColors()) )
+	if( Classify.Set_LUT(*m_Parameters["LUT"].asTable(), *m_Classify["COLORS"].asColors()) )
 	{
-		m_Parameters["LUT"].asTable()->Assign(&Classes);
-
 		if( m_Parameters["LUT"].asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
 		{
 			m_Parameters["LUT"].asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());

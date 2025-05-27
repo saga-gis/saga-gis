@@ -107,7 +107,7 @@ public:
 
 	int							Get_Field_Value			(void) { return( m_Stretch.Value  ); }
 	int							Get_Field_Normal		(void) { return( m_Stretch.Normal ); }
-	double						Get_Scale_Normal		(void) { return( m_Stretch.nScale ); }
+	double						Get_Scale_Normal		(void) { return( m_Stretch.Scale  ); }
 	int							Get_Field_Info			(void) { return( m_fInfo          ); }
 	int							Get_Field_Label			(void) { return( m_Label.Field    ); }
 
@@ -138,7 +138,7 @@ protected:
 
 	class CWKSP_Table			*m_pTable = NULL;
 
-	class CStretch				{ public: int Value = -1, Normal = -1; double nScale = 1.; } m_Stretch;
+	class CStretch				{ public: int Value = -1, Normal = -1; double Scale = 1.; } m_Stretch;
 
 	class CEdit					{ public: int Mode = 0, Index = -1, Part = -1, Point = -1; bool bGleam = false; wxColour Color; CSG_Shapes Shapes; CSG_Shape *pShape = NULL; } m_Edit;
 

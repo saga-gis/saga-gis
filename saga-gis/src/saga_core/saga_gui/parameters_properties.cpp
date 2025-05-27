@@ -226,6 +226,7 @@ int CParameters_PG_Choice::_Set_Table(void)
 		_Append(pManager_Tables->Get_Data(i)->Get_Name(), pManager_Tables->Get_Data(i)->Get_Table());
 	}
 
+	//-----------------------------------------------------
 	CWKSP_Shapes_Manager *pManager_Shapes = g_pData->Get_Shapes();
 
 	for(int i=0; pManager_Shapes && i<pManager_Shapes->Get_Count(); i++)
@@ -238,6 +239,7 @@ int CParameters_PG_Choice::_Set_Table(void)
 		}
 	}
 
+	//-----------------------------------------------------
 	CWKSP_PointCloud_Manager *pManager_PointClouds = g_pData->Get_PointClouds();
 
 	for(int i=0; pManager_PointClouds && i<pManager_PointClouds->Get_Count(); i++)
@@ -245,6 +247,15 @@ int CParameters_PG_Choice::_Set_Table(void)
 		_Append(pManager_PointClouds->Get_Data(i)->Get_Name(), pManager_PointClouds->Get_Data(i)->Get_PointCloud());
 	}
 
+	//-----------------------------------------------------
+	CWKSP_TIN_Manager *pManager_TIN = g_pData->Get_TINs();
+
+	for(int i=0; pManager_TIN && i<pManager_TIN->Get_Count(); i++)
+	{
+		_Append(pManager_TIN->Get_Data(i)->Get_Name(), pManager_TIN->Get_Data(i)->Get_TIN());
+	}
+
+	//-----------------------------------------------------
 	return( _DataObject_Init() );
 }
 

@@ -77,11 +77,12 @@ public:
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_TIN );	}
 
-	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN *)m_pObject );	}
+	CSG_TIN *					Get_TIN					(void)	{	return( (CSG_TIN *)m_pObject );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );	}
 
 	virtual wxString			Get_Description			(void);
 
+	virtual wxToolBarBase *		Get_ToolBar				(void);
 	virtual wxMenu *			Get_Menu				(void);
 
 	virtual bool				On_Command				(int Cmd_ID);
@@ -91,7 +92,7 @@ public:
 
 	int							Get_Field_Value			(void) { return( m_Stretch.Value  ); }
 	int							Get_Field_Normal		(void) { return( m_Stretch.Normal ); }
-	double						Get_Scale_Normal		(void) { return( m_Stretch.nScale ); }
+	double						Get_Scale_Normal		(void) { return( m_Stretch.Scale  ); }
 
 	virtual bool				asImage					(CSG_Grid *pImage);
 
@@ -107,13 +108,9 @@ protected:
 
 protected:
 
-	int							m_Brush_Style;
-
-	wxColour					m_Color_Pen, m_Color_Brush;
-
 	class CWKSP_Table			*m_pTable;
 
-	class CStretch				{ public: int Value = -1, Normal = -1; double nScale = 1.; } m_Stretch;
+	class CStretch				{ public: int Value = -1, Normal = -1; double Scale = 1.; } m_Stretch;
 
 
 	virtual void				On_Create_Parameters	(void);

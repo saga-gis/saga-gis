@@ -90,7 +90,7 @@ public:
 
 	int							Get_Field_Value			(void) { return( m_Stretch.Value  ); }
 	int							Get_Field_Normal		(void) { return( m_Stretch.Normal ); }
-	double						Get_Scale_Normal		(void) { return( m_Stretch.nScale ); }
+	double						Get_Scale_Normal		(void) { return( m_Stretch.Scale  ); }
 
 	bool						asImage					(CSG_Grid *pImage);
 
@@ -124,7 +124,7 @@ private:
 
 	class CWKSP_Table			*m_pTable = NULL;
 
-	class CStretch				{ public: int Value = -1, Normal = -1; double nScale = 1.; } m_Stretch;
+	class CStretch				{ public: int Value = -1, Normal = -1; double Scale = 1.; } m_Stretch;
 
 
 	void						_Draw_Point				(CSG_Map_DC &dc_Map, int x, int y, double z, int Color);

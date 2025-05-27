@@ -203,6 +203,7 @@ bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 
 	bool bNumeric = _is_Numeric() && m_Classifier != Classifier::Unique; Colors.Set_Count((int)m_Classes.Get_Count());
 
+	Classes.Del_Records();
 	Classes.Set_Field_Type((int)LUT_Fields::Minimum, bNumeric ? SG_DATATYPE_Double : SG_DATATYPE_String);
 	Classes.Set_Field_Type((int)LUT_Fields::Maximum, bNumeric ? SG_DATATYPE_Double : SG_DATATYPE_String);
 
@@ -218,28 +219,30 @@ bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 			double     Minimum = m_Classes[i].asDouble(0);
 			double     Maximum = m_Classes[i].asDouble(1);
 
-			Class.Set_Value((int)LUT_Fields::Name   , SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2));
 			Class.Set_Value((int)LUT_Fields::Minimum, Minimum);
 			Class.Set_Value((int)LUT_Fields::Maximum, Maximum);
+			Class.Set_Value((int)LUT_Fields::Name   , i <= 0
+				? "< " + SG_Get_String(Maximum, -2) : i >= m_Classes.Get_Count() - 1
+				? "> " + SG_Get_String(Minimum, -2) : SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2)
+			);
 		}
 		else
 		{
 			CSG_String Minimum = m_Classes[i].asString(0);
 			CSG_String Maximum = m_Classes[i].asString(1);
 
-			Class.Set_Value((int)LUT_Fields::Name   , Minimum.Cmp(Maximum) ? Minimum + " - " + Maximum : Minimum);
 			Class.Set_Value((int)LUT_Fields::Minimum, Minimum);
 			Class.Set_Value((int)LUT_Fields::Maximum, Maximum);
+			Class.Set_Value((int)LUT_Fields::Name   , Minimum.Cmp(Maximum) ? Minimum + " - " + Maximum : Minimum);
 		}
 	}
 
 	if( bNumeric )
 	{
-		double Minimum = m_Classes[                        0].asDouble(0);
-		double Maximum = m_Classes[m_Classes.Get_Count() - 1].asDouble(1);
+		double Minimum = m_Classes[0].asDouble(0), Maximum = m_Classes[m_Classes.Get_Count() - 1].asDouble(1);
 
-		Classes[                      0].Set_Value((int)LUT_Fields::Minimum, Minimum - (Maximum - Minimum));
-		Classes[Classes.Get_Count() - 1].Set_Value((int)LUT_Fields::Maximum, Maximum + (Maximum - Minimum));
+		Classes[                      0].Set_Value((int)LUT_Fields::Minimum, Minimum - 1000. * (Maximum - Minimum));
+		Classes[Classes.Get_Count() - 1].Set_Value((int)LUT_Fields::Maximum, Maximum + 1000. * (Maximum - Minimum));
 	}
 
 	return( true );
@@ -461,27 +464,20 @@ bool CSGDI_Classify::Classify_Unique(int maxCount)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Classify::Classify_Equal(int Count)
+bool CSGDI_Classify::Classify_Equal(int Count, double _Minimum, double _Maximum)
 {
-	CSG_Simple_Statistics Statistics;
-
-	if( Count < 1 || !_Get_Statistics(Statistics) )
+	if( Count < 1 || _Minimum >= _Maximum )
 	{
 		return( false );
 	}
 
-	if( !Statistics.Get_Range() )
-	{
-		Count = 1;
-	}
-
 	_Create_Classes();
 
-	double Maximum = Statistics.Get_Minimum(), Interval = Statistics.Get_Range() / Count;
+	double Maximum = _Minimum, Interval = (_Maximum - _Minimum) / Count;
 
 	for(int i=0; i<Count; i++)
 	{
-		double Minimum = Maximum; Maximum = Statistics.Get_Minimum() + (i + 1) * Interval;
+		double Minimum = Maximum; Maximum = _Minimum + (i + 1) * Interval;
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 
@@ -493,6 +489,14 @@ bool CSGDI_Classify::Classify_Equal(int Count)
 	m_Classifier = Classifier::Equal;
 
 	return( true );
+}
+
+//---------------------------------------------------------
+bool CSGDI_Classify::Classify_Equal(int Count)
+{
+	CSG_Simple_Statistics Statistics;
+
+	return( _Get_Statistics(Statistics) && Classify_Equal(Count, Statistics.Get_Minimum(), Statistics.Get_Maximum()) );
 }
 
 
@@ -571,10 +575,13 @@ bool CSGDI_Classify::Classify_Quantile(int Count, bool bHistogram)
 				Minimum	= Maximum; double Quantile = (1. + i) / (double)Count;
 				Maximum	= Histogram.Get_Quantile(Quantile);
 
-				CSG_Table_Record &Class = *m_Classes.Add_Record();
+				if( Minimum < Maximum )
+				{
+					CSG_Table_Record &Class = *m_Classes.Add_Record();
 
-				Class.Set_Value(0, Minimum);
-				Class.Set_Value(1, Maximum);
+					Class.Set_Value(0, Minimum);
+					Class.Set_Value(1, Maximum);
+				}
 			}
 		}
 	}
@@ -592,12 +599,15 @@ bool CSGDI_Classify::Classify_Quantile(int Count, bool bHistogram)
 
 				if( _Get_Value((sLong)(Quantile * (m_nValues - 1)), Value, true) )
 				{
-					CSG_Table_Record &Class = *m_Classes.Add_Record();
-
 					Minimum = Maximum; Maximum = Value;
 
-					Class.Set_Value(0, Minimum);
-					Class.Set_Value(1, Maximum);
+					if( Minimum < Maximum )
+					{
+						CSG_Table_Record &Class = *m_Classes.Add_Record();
+
+						Class.Set_Value(0, Minimum);
+						Class.Set_Value(1, Maximum);
+					}
 				}
 			}
 		}
@@ -633,8 +643,8 @@ bool CSGDI_Classify::Classify_Geometric(int Count, bool bIncreasing)
 	for(int i=0; i<Count; i++)
 	{
 		Minimum = Maximum; Maximum = bIncreasing
-			? (Statistics.Get_Minimum() + (exp(k * (        i + 1)) - 1.))
-			: (Statistics.Get_Maximum() - (exp(k * (Count - i - 1)) - 1.));
+			? (Statistics.Get_Minimum() + (exp(k * (double)(        i + 1)) - 1.))
+			: (Statistics.Get_Maximum() - (exp(k * (double)(Count - i - 1)) - 1.));
 
 		CSG_Table_Record &Class	= *m_Classes.Add_Record();
 
@@ -707,7 +717,7 @@ bool CSGDI_Classify::Classify_Natural(int Count)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Classify::Classify_StdDev(double StdDev)
+bool CSGDI_Classify::Classify_StdDev(double StdDev, double StdDev_Max)
 {
 	CSG_Simple_Statistics Statistics;
 
@@ -716,11 +726,20 @@ bool CSGDI_Classify::Classify_StdDev(double StdDev)
 		return( false );
 	}
 
-	StdDev *= Statistics.Get_StdDev(); double m = Statistics.Get_Mean() - StdDev / 2.;
+	if( StdDev_Max < StdDev )
+	{
+		StdDev_Max = StdDev;
+	}
 
-	double Offset = m < Statistics.Get_Minimum() ? m : m - ceil((m - Statistics.Get_Minimum()) / StdDev) * StdDev;
+	StdDev *= Statistics.Get_StdDev(); double m = Statistics.Get_Mean(), s = StdDev / 2.;
 
-	if( !Classify_Defined(StdDev, Offset) )
+	double Minimum = Statistics.Get_Mean() - StdDev_Max; if( Minimum < Statistics.Get_Minimum() ) { Minimum = Statistics.Get_Minimum(); }
+	Minimum = (m - s) < Minimum ? (m - s) : (m - s) - ceil (((m - s) - Minimum) / StdDev) * StdDev;
+
+	double Maximum = Statistics.Get_Mean() + StdDev_Max; if( Maximum > Statistics.Get_Maximum() ) { Maximum = Statistics.Get_Maximum(); }
+	Maximum = (m + s) > Maximum ? (m + s) : (m + s) + floor(((m + s) + Maximum) / StdDev) * StdDev;
+
+	if( !Classify_Equal((int)((Maximum - Minimum) / StdDev), Minimum, Maximum) )
 	{
 		return( false );
 	}

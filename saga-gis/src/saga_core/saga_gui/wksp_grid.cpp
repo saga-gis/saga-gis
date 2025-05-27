@@ -112,22 +112,22 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	s += "<table border=\"0\">";
 
-	DESC_ADD_STR (_TL("Name"               ), m_pObject->Get_Name());
-	DESC_ADD_STR (_TL("Description"        ), m_pObject->Get_Description());
+	DESC_ADD_STR (_TL("Name"              ), m_pObject->Get_Name());
+	DESC_ADD_STR (_TL("Description"       ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("Data Source"     ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
-		DESC_ADD_STR(_TL("File"            ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
+		DESC_ADD_STR(_TL("Data Source"    ), SG_File_Get_Path(m_pObject->Get_File_Name(false)      ).c_str());
+		DESC_ADD_STR(_TL("File"           ), SG_File_Get_Name(m_pObject->Get_File_Name(false), true).c_str());
 
 		if( m_pObject->Get_MetaData()("GDAL_DRIVER") )
 		{
-			DESC_ADD_STR(_TL("Driver"      ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
+			DESC_ADD_STR(_TL("Driver"     ), m_pObject->Get_MetaData()["GDAL_DRIVER"].Get_Content().c_str());
 		}
 
 		if( m_pObject->Get_MetaData()("SURFER_GRID") )
 		{
-			DESC_ADD_STR(_TL("Driver"      ), m_pObject->Get_MetaData()["SURFER_GRID"].Get_Content().c_str());
+			DESC_ADD_STR(_TL("Driver"     ), m_pObject->Get_MetaData()["SURFER_GRID"].Get_Content().c_str());
 		}
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
@@ -305,11 +305,9 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
+	//-----------------------------------------------------
 	case ID_CMD_DATA_SAVEAS_IMAGE    : _Save_Image          (); break;
 	case ID_CMD_DATA_CLIPBOARD_COPY  : _Save_Image_Clipboard(); break;
-
-	case ID_CMD_DATA_HISTOGRAM       : Histogram_Toggle     (); break;
-	case ID_CMD_DATA_SCATTERPLOT     : Add_ScatterPlot      (); break;
 
 	case ID_CMD_DATA_CLASSIFY_IMPORT : _LUT_Import          (); break;
 
@@ -335,17 +333,9 @@ bool CWKSP_Grid::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
 
-	case ID_CMD_DATA_SELECTION_CLEAR:
-		event.Enable(m_Edit_Attributes.Get_Count() > 0);
-		break;
-
-	case ID_CMD_DATA_SELECTION_DELETE:
-		event.Enable(m_Edit_Attributes.Get_Count() > 0);
-		break;
-
-	case ID_CMD_DATA_HISTOGRAM:
-		event.Check(m_pHistogram != NULL);
-		break;
+	//-----------------------------------------------------
+	case ID_CMD_DATA_SELECTION_CLEAR : event.Enable(m_Edit_Attributes.Get_Count() > 0); break;
+	case ID_CMD_DATA_SELECTION_DELETE: event.Enable(m_Edit_Attributes.Get_Count() > 0); break;
 	}
 
 	return( true );
@@ -364,6 +354,19 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// General...
 
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"MAX_SAMPLES"	, _TL("Sample Size"),
+		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
+		100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
+	);
+
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"FILE_CACHE"	, _TL("File Cache"),
+		_TL(""),
+		Get_Grid()->is_Cached()
+	);
+
+	//-----------------------------------------------------
 	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_Z_UNIT"  , _TL("Unit"    ), _TL(""), Get_Grid()->Get_Unit   ());
 	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_FACTOR", _TL("Z-Scale" ), _TL(""), Get_Grid()->Get_Scaling());
 	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_OFFSET", _TL("Z-Offset"), _TL(""), Get_Grid()->Get_Offset ());
@@ -521,21 +524,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_Color("VALUES_EFFECT", "VALUES_EFFECT_COLOR", _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(255, 255, 255)
-	);
-
-	//-----------------------------------------------------
-	// Memory...
-
-	m_Parameters.Add_Double("NODE_GENERAL",
-		"MAX_SAMPLES"	, _TL("Sample Size"),
-		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
-		100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
-	);
-
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"FILE_CACHE"	, _TL("File Cache"),
-		_TL(""),
-		Get_Grid()->is_Cached()
 	);
 
 	//-----------------------------------------------------
