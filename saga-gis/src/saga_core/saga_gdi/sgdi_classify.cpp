@@ -194,7 +194,7 @@ const CSG_String & CSGDI_Classify::Get_Name(Classifier Classifier) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
+bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors, int Labeling) const
 {
 	if( !is_Okay() || m_Classes.Get_Count() < 1 )
 	{
@@ -221,9 +221,9 @@ bool CSGDI_Classify::Set_LUT(CSG_Table &Classes, CSG_Colors Colors) const
 
 			Class.Set_Value((int)LUT_Fields::Minimum, Minimum);
 			Class.Set_Value((int)LUT_Fields::Maximum, Maximum);
-			Class.Set_Value((int)LUT_Fields::Name   , i <= 0
-				? "< " + SG_Get_String(Maximum, -2) : i >= m_Classes.Get_Count() - 1
-				? "> " + SG_Get_String(Minimum, -2) : SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2)
+			Class.Set_Value((int)LUT_Fields::Name   , i >= m_Classes.Get_Count() - 1
+				? "> " + SG_Get_String(Minimum, -2) : Labeling == 1 || i <= 0
+				? "< " + SG_Get_String(Maximum, -2) : SG_Get_String(Minimum, -2) + " - " + SG_Get_String(Maximum, -2)
 			);
 		}
 		else

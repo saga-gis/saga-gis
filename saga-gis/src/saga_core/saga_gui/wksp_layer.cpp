@@ -1552,6 +1552,7 @@ bool CWKSP_Layer::_Classify(void)
 		m_Classify.Add_Int   (""      , "CLASSES_MAX" , _TL("Maximum Number of Classes" ), _TL(""), 1000, 10, true);
 		m_Classify.Add_Int   (""      , "CLASSES"     , _TL("Number of Classes"         ), _TL(""),   10,  1, true);
 		m_Classify.Add_Choice(""      , "METHOD"      , _TL("Classification"            ), _TL(""), Methods, 1);
+		m_Classify.Add_Choice("METHOD", "LABELING"    , _TL("Labeling"                  ), _TL(""), CSG_String::Format("%s|%s", _TL("range"), _TL("less than...")), 1);
 		m_Classify.Add_Double(""      , "INTERVAL"    , _TL("Defined Interval"          ), _TL(""), 1., 0., true);
 		m_Classify.Add_Choice(""      , "OFFSET"      , _TL("Offset"                    ), _TL(""), CSG_String::Format("%s|%s", _TL("minimum value"), _TL("user defined")));
 		m_Classify.Add_Double("OFFSET", "OFFSET_VALUE", _TL("Value"                     ), _TL(""), 1., 0., true);
@@ -1625,7 +1626,7 @@ bool CWKSP_Layer::_Classify(void)
 	//-----------------------------------------------------
 	CSG_Table Classes(m_Parameters["LUT"].asTable());
 
-	if( Classify.Set_LUT(*m_Parameters["LUT"].asTable(), *m_Classify["COLORS"].asColors()) )
+	if( Classify.Set_LUT(*m_Parameters["LUT"].asTable(), *m_Classify["COLORS"].asColors(), m_Classify["LABELING"].asInt()) )
 	{
 		if( m_Parameters["LUT"].asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
 		{

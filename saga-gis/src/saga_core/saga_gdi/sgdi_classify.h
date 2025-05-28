@@ -101,7 +101,7 @@ public:
 	bool						is_Classified			(void) const { return( m_Classifier != Classifier::NotSet ); }
 	Classifier					Get_Classifier			(void) const { return( m_Classifier ); }
 
-	bool						Set_LUT					(CSG_Table &LUT, CSG_Colors Colors) const;
+	bool						Set_LUT					(CSG_Table &LUT, CSG_Colors Colors, int Labeling) const;
 
 	bool						Classify_Unique			(int maxCount = 1024);
 	bool						Classify_Equal			(int Count, double Minimum, double Maximum);
