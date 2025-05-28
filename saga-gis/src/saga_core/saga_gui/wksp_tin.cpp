@@ -162,7 +162,9 @@ wxToolBarBase * CWKSP_TIN::Get_ToolBar(void)
 		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_TIN);
 
 		Add_ToolBar_Defaults(static_pToolBar);
-		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_TABLE_SHOW);
+	//	CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_TIN_3DVIEW);
 
 		CMD_ToolBar_Add(static_pToolBar, _TL("TIN"));
 	}
@@ -224,14 +226,21 @@ bool CWKSP_TIN::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Layer::On_Command(Cmd_ID) );
+	default: return( CWKSP_Layer::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
 	case ID_CMD_TABLE_SHOW      : m_pTable->Toggle_View   (); break;
 	case ID_CMD_DATA_DIAGRAM    : m_pTable->Toggle_Diagram(); break;
 
 	case ID_CMD_DATA_SCATTERPLOT: Add_ScatterPlot(); break;
+
+	//-----------------------------------------------------
+	case ID_CMD_TIN_3DVIEW      : { CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Get_Tool("vis_3d_viewer", 0);
+		if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TIN", m_pObject) )
+		{
+			pTool->Execute();
+		}
+		break; }
 	}
 
 	return( true );
@@ -242,8 +251,7 @@ bool CWKSP_TIN::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Layer::On_Command_UI(event) );
+	default: return( CWKSP_Layer::On_Command_UI(event) );
 
 	//-----------------------------------------------------
 	case ID_CMD_TABLE_SHOW    : event.Check(m_pTable->Get_View   () != NULL); break;

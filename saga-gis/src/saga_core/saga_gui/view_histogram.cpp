@@ -286,7 +286,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 {
 	wxRect r(Get_Histogram_Box(dc.GetSize()));
 
-	const CSG_Histogram	&Histogram	= m_pLayer->Get_Classifier()->Histogram_Get();
+	const CSG_Histogram &Histogram = m_pLayer->Get_Classifier()->Histogram_Get();
 
 	if( Histogram.Get_Class_Count() < 1 || Histogram.Get_Element_Count() < 1 )
 	{
@@ -304,8 +304,8 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc)
 
 		if( s.Get_Count() > 0 )
 		{
-			double	Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
-			double	Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
+			double Minimum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(0.);
+			double Maximum = m_pLayer->Get_Classifier()->Get_RelativeToMetric(1.);
 
 			double dx = (Maximum - Minimum) / (double)r.GetWidth();
 
@@ -554,12 +554,9 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 	{
 		ReleaseMouse();
 
-		m_bMouse_Down = false;
-		m_Mouse_Move  = event.GetPosition();
+		m_bMouse_Down = false; m_Mouse_Move = event.GetPosition(); wxRect r(Get_Histogram_Box());
 
-		wxRect r(Get_Histogram_Box());
-
-		m_pLayer->Set_Color_Range(
+		m_pLayer->Set_Stretch_Range(
 			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
 			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
 		);
@@ -712,7 +709,7 @@ void CVIEW_Histogram::On_Gaussian(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Set_MinMax(wxCommandEvent &event)
 {
-	m_pLayer->Set_Color_Range(m_pLayer->Get_Stretch_Minimum(), m_pLayer->Get_Stretch_Maximum());
+	m_pLayer->Set_Stretch_FullRange();
 }
 
 //---------------------------------------------------------

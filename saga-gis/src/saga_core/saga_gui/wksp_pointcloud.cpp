@@ -288,21 +288,21 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_DATA_RANGE_MINMAX:
-		Set_Color_Range(
+		Set_Stretch_Range(
 			Get_PointCloud()->Get_Minimum(m_Stretch.Value),
 			Get_PointCloud()->Get_Maximum(m_Stretch.Value)
 		);
 		break;
 
 	case ID_CMD_DATA_RANGE_STDDEV150:
-		Set_Color_Range(
+		Set_Stretch_Range(
 			Get_PointCloud()->Get_Mean(m_Stretch.Value) - 1.5 * Get_PointCloud()->Get_StdDev(m_Stretch.Value),
 			Get_PointCloud()->Get_Mean(m_Stretch.Value) + 1.5 * Get_PointCloud()->Get_StdDev(m_Stretch.Value)
 		);
 		break;
 
 	case ID_CMD_DATA_RANGE_STDDEV200:
-		Set_Color_Range(
+		Set_Stretch_Range(
 			Get_PointCloud()->Get_Mean(m_Stretch.Value) - 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value),
 			Get_PointCloud()->Get_Mean(m_Stretch.Value) + 2. * Get_PointCloud()->Get_StdDev(m_Stretch.Value)
 		);

@@ -88,7 +88,6 @@ public:
 	CSG_Colors *					Get_Colors				(void);
 	bool							Get_Colors				(CSG_Colors *pColors);
 	bool							Set_Colors				(CSG_Colors *pColors);
-	bool							Set_Color_Range			(double Minimum, double Maximum);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
 
@@ -99,6 +98,8 @@ public:
 	double							Get_Stretch_Minimum		(void) const;
 	double							Get_Stretch_Maximum		(void) const;
 	double							Get_Stretch_Range		(void) const;
+	bool							Set_Stretch_Range		(double Minimum, double Maximum);
+	bool							Set_Stretch_FullRange	(void);
 
 	bool							Draw					(CSG_Map_DC &dc_Map, int Flags = 0, CSG_Data_Object *pObject = NULL);
 
@@ -174,6 +175,8 @@ private:
 	bool							_Set_Thumbnail			(bool bRefresh);
 
 	void							_Set_Projection			(void);
+
+	CSG_Table *						_Get_Field_Table		(int &Field, const CSG_Parameters &Parameters);
 
 
 	//-----------------------------------------------------

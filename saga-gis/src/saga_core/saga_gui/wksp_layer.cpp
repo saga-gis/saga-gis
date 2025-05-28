@@ -518,21 +518,9 @@ bool CWKSP_Layer::Set_Stretch(CSG_Parameters &Parameters, CSG_Data_Object *pObje
 	}
 
 	//-----------------------------------------------------
-	CSG_Table *pTable = pObject->asTable(true); int Field = -1;
+	int Field = -1; CSG_Table *pTable = _Get_Field_Table(Field, Parameters);
 
-	if( pTable )
-	{
-		if( !Parameters("METRIC_FIELD") || !Parameters("METRIC_NORMAL") || !Parameters("METRIC_NORFMT") || (Field = Get_Fields_Choice(Parameters("METRIC_FIELD"))) < 0 )
-		{
-			return( false );
-		}
-
-		if( m_Normalization.Get_Count() || Set_Normalization(Field, Get_Fields_Choice(Parameters("METRIC_NORMAL")), Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.) )
-		{
-			pTable = &m_Normalization; Field = 0;
-		}
-	}
-	else if( pObject->asGrids() && Parameters["COLORS_TYPE"].asInt() != CLASSIFY_OVERLAY )
+	if( !pTable && pObject->asGrids() && Parameters["COLORS_TYPE"].asInt() != CLASSIFY_OVERLAY )
 	{
 		int i = Parameters("BAND") ? Parameters["BAND"].asInt() : -1;
 
@@ -609,6 +597,52 @@ double CWKSP_Layer::Get_Stretch_Maximum(void) const
 double CWKSP_Layer::Get_Stretch_Range(void) const
 {
 	return( Get_Stretch_Maximum() - Get_Stretch_Minimum() );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Set_Stretch_Range(double Minimum, double Maximum)
+{
+	if( m_Parameters["COLORS_TYPE"].asInt() != CLASSIFY_DISCRETE || m_Parameters["COLORS_TYPE"].asInt() != CLASSIFY_GRADUATED )
+	{
+		m_Parameters.Set_Parameter("COLORS_TYPE", CLASSIFY_GRADUATED);
+	}
+
+	m_Parameters.Set_Parameter("STRETCH_DEFAULT", _TL("Manual"));
+
+	m_Parameters.Set_Parameter("METRIC_ZRANGE.MIN", Minimum < Maximum ? Minimum : Maximum);
+	m_Parameters.Set_Parameter("METRIC_ZRANGE.MAX", Minimum < Maximum ? Maximum : Minimum);
+
+	Parameters_Changed();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Set_Stretch_FullRange(void)
+{
+	int Field = -1; CSG_Table *pTable = _Get_Field_Table(Field, m_Parameters);
+
+	if( pTable )
+	{
+		return( Set_Stretch_Range(pTable->Get_Minimum(Field), pTable->Get_Maximum(Field)) );
+	}
+
+	CSG_Data_Object *pObject = m_pObject;
+
+	if( pObject->asGrids() && m_Parameters["COLORS_TYPE"].asInt() != CLASSIFY_OVERLAY )
+	{
+		int Band = m_Parameters("BAND") ? m_Parameters["BAND"].asInt() : -1;
+
+		if( Band < 0 || Band >= pObject->asGrids()->Get_NZ() || !(pObject = pObject->asGrids()->Get_Grid_Ptr(Band)) )
+		{
+			return( false );
+		}
+	}
+
+	if( pObject->asGrid () ) { return( Set_Stretch_Range(pObject->asGrid ()->Get_Min(), pObject->asGrid ()->Get_Max()) ); }
+	if( pObject->asGrids() ) { return( Set_Stretch_Range(pObject->asGrids()->Get_Min(), pObject->asGrids()->Get_Max()) ); }
+
+	return( false );
 }
 
 
@@ -860,23 +894,12 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 	{
 		switch( m_pObject->Get_ObjectType() )
 		{
-		case SG_DATAOBJECT_TYPE_Grid:
-			return( ((CSG_Grid       *)m_pObject)->Get_Extent(true) );
-
-		case SG_DATAOBJECT_TYPE_Grids:
-			return( ((CSG_Grids      *)m_pObject)->Get_Extent(true) );
-
-		case SG_DATAOBJECT_TYPE_Shapes:
-			return( ((CSG_Shapes     *)m_pObject)->Get_Extent() );
-
-		case SG_DATAOBJECT_TYPE_TIN:
-			return( ((CSG_TIN        *)m_pObject)->Get_Extent() );
-
-		case SG_DATAOBJECT_TYPE_PointCloud:
-			return( ((CSG_PointCloud *)m_pObject)->Get_Extent() );
-
-		default:
-			break;
+		case SG_DATAOBJECT_TYPE_Grid      : return( ((CSG_Grid       *)m_pObject)->Get_Extent(true) );
+		case SG_DATAOBJECT_TYPE_Grids     : return( ((CSG_Grids      *)m_pObject)->Get_Extent(true) );
+		case SG_DATAOBJECT_TYPE_Shapes    : return( ((CSG_Shapes     *)m_pObject)->Get_Extent    () );
+		case SG_DATAOBJECT_TYPE_TIN       : return( ((CSG_TIN        *)m_pObject)->Get_Extent    () );
+		case SG_DATAOBJECT_TYPE_PointCloud: return( ((CSG_PointCloud *)m_pObject)->Get_Extent    () );
+		default                           : break;
 		}
 	}
 
@@ -948,19 +971,6 @@ bool CWKSP_Layer::Set_Colors(CSG_Colors *pColors)
 	return( false );
 }
 
-//---------------------------------------------------------
-bool CWKSP_Layer::Set_Color_Range(double Minimum, double Maximum)
-{
-	m_Parameters.Set_Parameter("COLORS_TYPE"      , CLASSIFY_GRADUATED);
-	m_Parameters.Set_Parameter("STRETCH_DEFAULT"  , _TL("Manual"));	// manual
-	m_Parameters.Set_Parameter("METRIC_ZRANGE.MIN", Minimum < Maximum ? Minimum : Maximum);
-	m_Parameters.Set_Parameter("METRIC_ZRANGE.MAX", Minimum < Maximum ? Maximum : Minimum);
-
-	Parameters_Changed();
-
-	return( true );
-}
-
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -991,6 +1001,29 @@ bool CWKSP_Layer::Set_Normalization(int Field_Value, int Field_Normalize, double
 	}
 
 	return( m_Normalization.Get_Count() );
+}
+
+//---------------------------------------------------------
+CSG_Table * CWKSP_Layer::_Get_Field_Table(int &Field, const CSG_Parameters &Parameters)
+{
+	CSG_Table *pTable = m_pObject->asTable(true);
+
+	if( pTable && Parameters("METRIC_FIELD") && Parameters("METRIC_NORMAL") && Parameters("METRIC_NORFMT") )
+	{
+		Field = Get_Fields_Choice(Parameters("METRIC_FIELD"));
+		
+		if( Field >= 0 )
+		{
+			if( m_Normalization.Get_Count() || Set_Normalization(Field, Get_Fields_Choice(Parameters("METRIC_NORMAL")), Parameters("METRIC_NORFMT")->asInt() == 0 ? 1. : 100.) )
+			{
+				pTable = &m_Normalization; Field = 0;
+			}
+
+			return( pTable );
+		}
+	}
+
+	return( NULL );
 }
 
 

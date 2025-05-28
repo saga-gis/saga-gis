@@ -1002,7 +1002,7 @@ bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 		break;	}
 	}
 
-	return( Set_Color_Range(Minimum, Maximum) );
+	return( Set_Stretch_Range(Minimum, Maximum) );
 }
 
 

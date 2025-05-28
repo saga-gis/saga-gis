@@ -203,6 +203,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_GRIDS_3DVIEW                 : return( _TL("3D Viewer") );
 	case ID_CMD_POINTCLOUD_3DVIEW            : return( _TL("3D Viewer") );
+	case ID_CMD_TIN_3DVIEW                   : return( _TL("3D Viewer") );
 
 	case ID_CMD_TABLE_SHOW                   : return( _TL("Show Table") );
 	case ID_CMD_TABLE_JOIN_DATA              : return( _TL("Join Data") );
@@ -426,6 +427,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES       : break;
 	case ID_CMD_GRIDS_3DVIEW                 : return( ID_IMG_TB_DATA_GRIDS_3DVIEW );
 	case ID_CMD_POINTCLOUD_3DVIEW            : return( ID_IMG_TB_DATA_POINTCLOUD_3DVIEW );
+	case ID_CMD_TIN_3DVIEW                   : return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_TABLE_JOIN_DATA              : break;
 
 	case ID_CMD_TOOL_OPEN                    : return( ID_IMG_TB_OPEN_TOOL );
