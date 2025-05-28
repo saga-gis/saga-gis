@@ -520,7 +520,12 @@ bool CWKSP_Layer::Set_Stretch(CSG_Parameters &Parameters, CSG_Data_Object *pObje
 	//-----------------------------------------------------
 	int Field = -1; CSG_Table *pTable = _Get_Field_Table(Field, Parameters);
 
-	if( !pTable && pObject->asGrids() && Parameters["COLORS_TYPE"].asInt() != CLASSIFY_OVERLAY )
+	if( pTable && Field < 0 )
+	{
+		return( false );
+	}
+
+	if( pObject->asGrids() && Parameters["COLORS_TYPE"].asInt() != CLASSIFY_OVERLAY )
 	{
 		int i = Parameters("BAND") ? Parameters["BAND"].asInt() : -1;
 
@@ -624,7 +629,7 @@ bool CWKSP_Layer::Set_Stretch_FullRange(void)
 
 	if( pTable )
 	{
-		return( Set_Stretch_Range(pTable->Get_Minimum(Field), pTable->Get_Maximum(Field)) );
+		return( Field < 0 ? false : Set_Stretch_Range(pTable->Get_Minimum(Field), pTable->Get_Maximum(Field)) );
 	}
 
 	CSG_Data_Object *pObject = m_pObject;
@@ -1006,11 +1011,11 @@ bool CWKSP_Layer::Set_Normalization(int Field_Value, int Field_Normalize, double
 //---------------------------------------------------------
 CSG_Table * CWKSP_Layer::_Get_Field_Table(int &Field, const CSG_Parameters &Parameters)
 {
-	CSG_Table *pTable = m_pObject->asTable(true);
+	CSG_Table *pTable = m_pObject->asTable(true); Field = -1;
 
 	if( pTable && Parameters("METRIC_FIELD") && Parameters("METRIC_NORMAL") && Parameters("METRIC_NORFMT") )
 	{
-		Field = Get_Fields_Choice(Parameters("METRIC_FIELD"));
+		Field = Get_Fields_Choice(Parameters("METRIC_FIELD")); if( Field >= pTable->Get_Field_Count() ) { Field = -1; }
 		
 		if( Field >= 0 )
 		{
@@ -1018,12 +1023,10 @@ CSG_Table * CWKSP_Layer::_Get_Field_Table(int &Field, const CSG_Parameters &Para
 			{
 				pTable = &m_Normalization; Field = 0;
 			}
-
-			return( pTable );
 		}
 	}
 
-	return( NULL );
+	return( pTable );
 }
 
 
