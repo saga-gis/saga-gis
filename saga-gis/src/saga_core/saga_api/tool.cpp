@@ -812,7 +812,7 @@ bool CSG_Tool::DataObject_Add(CSG_Data_Object *pDataObject, bool bShow)
 }
 
 //---------------------------------------------------------
-void CSG_Tool::DataObject_Update_All(void)
+bool CSG_Tool::DataObject_Update_All(void)
 {
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
@@ -831,6 +831,8 @@ void CSG_Tool::DataObject_Update_All(void)
 			}
 		}
 	}
+
+	return( true );
 }
 
 
@@ -2308,19 +2310,19 @@ bool CSG_Tool::_Get_Script_Python_Wrap(const CSG_Parameter &Parameter, int Const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						History							 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_MetaData CSG_Tool::_Get_Output_History(void)
+CSG_MetaData CSG_Tool::Get_History(int Depth)
 {
 	CSG_MetaData History;
 
 	History.Set_Name(SG_META_HISTORY);
 	History.Add_Property("saga-version", SAGA_VERSION);
 
-	if( SG_Get_History_Depth() )
+	if( Depth )
 	{
 		CSG_MetaData *pTool = History.Add_Child("TOOL");
 
@@ -2337,25 +2339,37 @@ CSG_MetaData CSG_Tool::_Get_Output_History(void)
 		pOutput->Add_Property("id"  , "");
 		pOutput->Add_Property("name", "");
 
-		pTool->Del_Children(SG_Get_History_Depth(), SG_T("TOOL"));
+		pTool->Del_Children(Depth, SG_T("TOOL"));
 	}
 
 	return( History );
 }
 
 //---------------------------------------------------------
+bool CSG_Tool::Set_History(CSG_Data_Object *pDataObject, int Depth)
+{
+	if( pDataObject )
+	{
+		pDataObject->Get_History() = Get_History(Depth);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 void CSG_Tool::_Set_Output_History(void)
 {
-	CSG_MetaData	History(_Get_Output_History());
+	CSG_MetaData History(Get_History(SG_Get_History_Depth()));
 
-	//-----------------------------------------------------
 	for(int j=-1; j<Get_Parameters_Count(); j++)
 	{
-		CSG_Parameters	*pParameters	= j < 0 ? &Parameters : Get_Parameters(j);
+		CSG_Parameters *pParameters = j < 0 ? &Parameters : Get_Parameters(j);
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
-			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+			CSG_Parameter *pParameter = pParameters->Get_Parameter(i);
 
 			if( pParameter->is_Output() )//&& (pParameter->is_Enabled() || !has_GUI()) )
 			{
@@ -2368,23 +2382,21 @@ void CSG_Tool::_Set_Output_History(void)
 //---------------------------------------------------------
 bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
 {
-	if( !pParameter )
+	if( !pParameter || !(pParameter->is_DataObject() && pParameter->asDataObject()) || !(pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	History;
+	CSG_MetaData History;
 
 	if( !pHistory )
 	{
-		History		= _Get_Output_History();
-
-		pHistory	= &History;
+		History = Get_History(SG_Get_History_Depth()); pHistory = &History;
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pOutput	= pHistory->Get_Child("TOOL") ? pHistory->Get_Child("TOOL")->Get_Child("OUTPUT") : NULL;
+	CSG_MetaData *pOutput = pHistory->Get_Child("TOOL") ? pHistory->Get_Child("TOOL")->Get_Child("OUTPUT") : NULL;
 
 	if( pOutput )
 	{
@@ -2396,17 +2408,12 @@ bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *p
 	//-----------------------------------------------------
 	if( pParameter->is_DataObject() )
 	{
-		if( pParameter->asDataObject() )
+		if( pOutput )
 		{
-			if( pOutput )
-			{
-				pOutput->Set_Content(pParameter->asDataObject()->Get_Name());
-			}
-
-			pParameter->asDataObject()->Get_History().Assign(*pHistory);
-
-			return( true );
+			pOutput->Set_Content(pParameter->asDataObject()->Get_Name());
 		}
+
+		pParameter->asDataObject()->Get_History().Assign(*pHistory);
 	}
 
 	//-----------------------------------------------------
@@ -2421,12 +2428,10 @@ bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *p
 
 			pParameter->asList()->Get_Item(j)->Get_History().Assign(*pHistory);
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	return( true );
 }
 
 

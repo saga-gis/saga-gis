@@ -233,6 +233,10 @@ public:
 
 	const SG_Char *				Get_Execution_Info			(void)	const	{	return( m_Execution_Info );	}
 
+	CSG_MetaData				Get_History					(int Depth = -1);
+	bool						Set_History					(CSG_Data_Object *pDataObject, int Depth = -1);
+
+
 	//-----------------------------------------------------
 	enum class Script_Format
 	{
@@ -299,11 +303,11 @@ protected:
 	//-----------------------------------------------------
 	bool						DataObject_Add				(CSG_Data_Object *pDataObject, bool bUpdate = false);
 
-	void						DataObject_Update_All		(void);
+	bool						DataObject_Update_All		(void);
 
 	bool						DataObject_Set_History		(CSG_Parameter *pParameter, CSG_MetaData *pHistory = NULL);
 
-	bool						Get_Projection				(CSG_Projection &Projection)	const;
+	bool						Get_Projection				(CSG_Projection &Projection) const;
 
 
 public:	// static functions...
@@ -331,7 +335,7 @@ public:	// static functions...
 	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
 	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
 	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal); // Range Parameter
 
 	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 
@@ -359,7 +363,6 @@ private:
 	CSG_String					_Get_Script_Python_Wrap		(bool bHeader, bool bName, bool bCall, int AllArguments, bool bWrapArgs);
 	bool						_Get_Script_Python_Wrap		(const CSG_Parameter &Parameter, int Constraint, CSG_String &Arguments, CSG_String &Description, CSG_String &Code, bool bCall, bool bOnlyNonDefaults, bool bWrapArgs, const CSG_String &Prefix = "");
 
-	CSG_MetaData				_Get_Output_History			(void);
 	void						_Set_Output_History			(void);
 
 	void						_Update_Parameter_States	(CSG_Parameters *pParameters);
