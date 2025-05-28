@@ -318,7 +318,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 			if( g_pSAGA_Frame )
 			{
-				g_pSAGA_Frame->Show_Toolbar_Data(m_pItem->Get_ToolBar());
+				g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Layer() ? Get_Active_Layer()->Get_ToolBar() : NULL);
 				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 			}
 

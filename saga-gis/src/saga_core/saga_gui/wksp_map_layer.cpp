@@ -103,9 +103,9 @@ wxString CWKSP_Map_Layer::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 {
-	wxMenu	*pMenu, *pMenu_Edit;
+	wxMenu *pMenu, *pMenu_Edit;
 
-	pMenu	= new wxMenu(m_pLayer->Get_Name());
+	pMenu = new wxMenu(m_pLayer->Get_Name());
 
 	//-----------------------------------------------------
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
@@ -122,7 +122,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	default:
 		break;
 
-	case WKSP_ITEM_Grid:
+	case WKSP_ITEM_Grid :
 	case WKSP_ITEM_Grids:
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, true, ID_CMD_MAPS_GRID_FITCOLORS);
@@ -130,7 +130,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	if( _Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
@@ -163,62 +163,36 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
+	default: return( m_pLayer->On_Command(Cmd_ID) );
 
-	case ID_CMD_SHAPES_EDIT_SHAPE    :
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-	case ID_CMD_SHAPES_EDIT_ADD_PART :
-	case ID_CMD_SHAPES_EDIT_DEL_PART :
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:
-    case ID_CMD_SHAPES_EDIT_SEL_COPY :
-	case ID_CMD_DATA_SELECTION_CLEAR :
-	case ID_CMD_DATA_SELECTION_INVERT:
-		return( m_pLayer->On_Command(Cmd_ID) );
-
-	case ID_CMD_WKSP_ITEM_RETURN:
-	case ID_CMD_MAPS_LAYER_SHOW:
+	//-----------------------------------------------------
+	case ID_CMD_WKSP_ITEM_RETURN     :
+	case ID_CMD_MAPS_LAYER_SHOW      :
 		m_bShow	= !m_bShow;
 		((wxTreeCtrl *)Get_Control())->SetItemText(GetId(), Get_Name());
 		((CWKSP_Map *)Get_Manager())->View_Refresh(true);
 		break;
 
-	case ID_CMD_MAPS_MOVE_TOP:
-		if( Get_Manager()->Move_Top(this) )
-			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		break;
+	case ID_CMD_MAPS_MOVE_TOP        : if( Get_Manager()->Move_Top   (this) ) { ((CWKSP_Map *)Get_Manager())->View_Refresh(false); } break;
+	case ID_CMD_MAPS_MOVE_BOTTOM     : if( Get_Manager()->Move_Bottom(this) ) { ((CWKSP_Map *)Get_Manager())->View_Refresh(false); } break;
+	case ID_CMD_MAPS_MOVE_UP         : if( Get_Manager()->Move_Up    (this) ) { ((CWKSP_Map *)Get_Manager())->View_Refresh(false); } break;
+	case ID_CMD_MAPS_MOVE_DOWN       : if( Get_Manager()->Move_Down  (this) ) { ((CWKSP_Map *)Get_Manager())->View_Refresh(false); } break;
 
-	case ID_CMD_MAPS_MOVE_BOTTOM:
-		if( Get_Manager()->Move_Bottom(this) )
-			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		break;
-
-	case ID_CMD_MAPS_MOVE_UP:
-		if( Get_Manager()->Move_Up(this) )
-			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		break;
-
-	case ID_CMD_MAPS_MOVE_DOWN:
-		if( Get_Manager()->Move_Down(this) )
-			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		break;
-
-	case ID_CMD_MAPS_GRID_FITCOLORS:
+	case ID_CMD_MAPS_GRID_FITCOLORS  :
 		if( (m_bFitColors = !m_bFitColors) == true )
 		{
 			Fit_Colors(((CWKSP_Map *)Get_Manager())->Get_Extent());
 		}
 		break;
 
-	case ID_CMD_MAPS_PROJECT:
-		m_bProject	= !m_bProject; ((CWKSP_Map *)Get_Manager())->View_Refresh(false);
+	case ID_CMD_MAPS_PROJECT         :
+		m_bProject = !m_bProject; ((CWKSP_Map *)Get_Manager())->View_Refresh(false);
 		break;
 
-	case ID_CMD_MAPS_PROJECT_AREA:
+	case ID_CMD_MAPS_PROJECT_AREA    :
 		if( m_bProject )
 		{
-			m_bProject_Area	= !m_bProject_Area; ((CWKSP_Map *)Get_Manager())->View_Refresh(false);
+			m_bProject_Area = !m_bProject_Area; ((CWKSP_Map *)Get_Manager())->View_Refresh(false);
 		}
 		break;
 	}
@@ -231,45 +205,19 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Base_Item::On_Command_UI(event) );
+	default: return( m_pLayer->On_Command_UI(event) );
 
-	case ID_CMD_SHAPES_EDIT_SHAPE    :
-	case ID_CMD_SHAPES_EDIT_ADD_SHAPE:
-	case ID_CMD_SHAPES_EDIT_DEL_SHAPE:
-	case ID_CMD_SHAPES_EDIT_ADD_PART :
-	case ID_CMD_SHAPES_EDIT_DEL_PART :
-	case ID_CMD_SHAPES_EDIT_DEL_POINT:
-    case ID_CMD_SHAPES_EDIT_SEL_COPY :
-	case ID_CMD_DATA_SELECTION_CLEAR :
-	case ID_CMD_DATA_SELECTION_INVERT:
-		return( m_pLayer->On_Command_UI(event) );
+	//-----------------------------------------------------
+	case ID_CMD_MAPS_LAYER_SHOW    : event.Check(m_bShow        ); break;
+	case ID_CMD_MAPS_GRID_FITCOLORS: event.Check(m_bFitColors   ); break;
+	case ID_CMD_MAPS_PROJECT       : event.Check(m_bProject     ); break;
+	case ID_CMD_MAPS_PROJECT_AREA  : event.Check(m_bProject_Area); break;
 
-	case ID_CMD_MAPS_LAYER_SHOW:
-		event.Check(m_bShow);
-		break;
+	case ID_CMD_MAPS_MOVE_TOP      :
+	case ID_CMD_MAPS_MOVE_UP       : event.Enable(Get_Index() > 0                             ); break;
 
-	case ID_CMD_MAPS_MOVE_TOP:
-	case ID_CMD_MAPS_MOVE_UP:
-		event.Enable(Get_Index() > 0);
-		break;
-
-	case ID_CMD_MAPS_MOVE_DOWN:
-	case ID_CMD_MAPS_MOVE_BOTTOM:
-		event.Enable(Get_Index() < Get_Manager()->Get_Count() - 1);
-		break;
-
-	case ID_CMD_MAPS_GRID_FITCOLORS:
-		event.Check(m_bFitColors);
-		break;
-
-	case ID_CMD_MAPS_PROJECT:
-		event.Check(m_bProject);
-		break;
-
-	case ID_CMD_MAPS_PROJECT_AREA:
-		event.Check(m_bProject_Area);
-		break;
+	case ID_CMD_MAPS_MOVE_DOWN     :
+	case ID_CMD_MAPS_MOVE_BOTTOM   : event.Enable(Get_Index() < Get_Manager()->Get_Count() - 1); break;
 	}
 
 	return( true );
@@ -346,7 +294,7 @@ bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 {
 	if( m_bFitColors )
 	{
-		CSG_Rect	_rWorld(rWorld);	CSG_Projection	prj_Layer, prj_Map;
+		CSG_Rect _rWorld(rWorld); CSG_Projection prj_Layer, prj_Map;
 
 		if( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) )
 		{
@@ -394,7 +342,7 @@ bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::is_Projecting(void)
 {
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	return( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) );
 }
@@ -402,8 +350,8 @@ bool CWKSP_Map_Layer::is_Projecting(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::_Projected_Get_Projections(CSG_Projection &prj_Layer, CSG_Projection &prj_Map)
 {
-	prj_Layer	= m_pLayer    ->Get_Object () ->Get_Projection();
-	prj_Map		= ((CWKSP_Map *)Get_Manager())->Get_Projection();
+	prj_Layer = (m_pLayer   ->Get_Object ())->Get_Projection();
+	prj_Map   = ((CWKSP_Map *)Get_Manager())->Get_Projection();
 
 	return( prj_Layer.is_Okay() && prj_Map.is_Okay() && prj_Layer.is_Equal(prj_Map) == false );
 }
@@ -411,7 +359,7 @@ bool CWKSP_Map_Layer::_Projected_Get_Projections(CSG_Projection &prj_Layer, CSG_
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::_Set_Extent_Points(const CSG_Rect &Extent, CSG_Shapes &Points, int Resolution)
 {
-	double	d	= (Extent.Get_XRange() + Extent.Get_YRange()) / (double)Resolution;
+	double d = (Extent.Get_XRange() + Extent.Get_YRange()) / (double)Resolution;
 
 	for(double y=Extent.Get_YMin(); y<Extent.Get_YMax(); y+=d)
 	{
@@ -436,7 +384,7 @@ bool CWKSP_Map_Layer::_Set_Extent_Points(const CSG_Rect &Extent, CSG_Shapes &Poi
 //---------------------------------------------------------
 CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 {
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
@@ -444,7 +392,7 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rLayer	= m_pLayer->Get_Extent();
+	CSG_Rect rLayer = m_pLayer->Get_Extent();
 
 	if( rLayer.Get_XRange() == 0. || rLayer.Get_YRange() == 0. )
 	{
@@ -463,7 +411,7 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Extent(SHAPE_TYPE_Point);
+	CSG_Shapes Extent(SHAPE_TYPE_Point);
 
 	Extent.Get_Projection().Create(prj_Layer);
 
@@ -474,7 +422,7 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 	return( Extent.Get_Extent() );
 
 	//-----------------------------------------------------
-	//CSG_Rect	rLayer(m_pLayer->Get_Extent());
+	//CSG_Rect rLayer(m_pLayer->Get_Extent());
 
 	//SG_Get_Projected(prj_Layer, prj_Map, rLayer.m_rect);
 
@@ -484,7 +432,7 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 //---------------------------------------------------------
 CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
 {
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
@@ -492,7 +440,7 @@ CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Extent(SHAPE_TYPE_Point);
+	CSG_Shapes Extent(SHAPE_TYPE_Point);
 
 	Extent.Get_Projection().Create(prj_Map);
 
@@ -500,7 +448,7 @@ CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
 
 	SG_Get_Projected(&Extent, NULL, prj_Layer);
 
-	TSG_Rect	rLayer	= Extent.Get_Extent();
+	TSG_Rect rLayer = Extent.Get_Extent();
 
 	if( std::isinf(rLayer.xMin) ) rLayer.xMin = m_pLayer->Get_Extent().Get_XMin();
 	if( std::isinf(rLayer.xMax) ) rLayer.xMax = m_pLayer->Get_Extent().Get_XMax();
@@ -513,7 +461,7 @@ CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes *pShapes, CSG_Shapes &Clipped)
 {
-	CSG_Projection	prj_Layer, prj_Map;
+	CSG_Projection prj_Layer, prj_Map;
 
 	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
@@ -521,7 +469,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	Shapes, Extent(SHAPE_TYPE_Point);	Extent.Get_Projection().Create(prj_Map);
+	CSG_Shapes Shapes, Extent(SHAPE_TYPE_Point); Extent.Get_Projection().Create(prj_Map);
 
 	_Set_Extent_Points(rMap, Extent);
 
@@ -533,11 +481,11 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 	if( std::isfinite(Extent.Get_Extent().Get_XMin()) && std::isfinite(Extent.Get_Extent().Get_XMax())
 	&&  std::isfinite(Extent.Get_Extent().Get_YMin()) && std::isfinite(Extent.Get_Extent().Get_YMax()) )
 	{
-		CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	CSG_Shape	*pClip	= Clip.Add_Shape();
+		CSG_Shapes Clip(SHAPE_TYPE_Polygon); CSG_Shape *pClip = Clip.Add_Shape();
 
 		for(sLong i=0; i<Extent.Get_Count(); i++)
 		{
-			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point();
+			TSG_Point p = Extent.Get_Shape(i)->Get_Point();
 
 			if( std::isinf(p.x) ) p.x = std::signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
 			if( std::isinf(p.y) ) p.y = std::signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
@@ -549,7 +497,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 		}
 
 		//-------------------------------------------------
-		if( ((CSG_Shape_Polygon *)pClip)->Get_Area() > 0.0 )
+		if( ((CSG_Shape_Polygon *)pClip)->Get_Area() > 0. )
 		{
 			Shapes.Create(pShapes->Get_Type(), SG_T(""), pShapes);	Shapes.Get_Projection().Create(prj_Layer);
 
@@ -561,7 +509,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 				}
 			}
 
-			pShapes	= &Shapes;	//	SG_UI_DataObject_Add(SG_Create_Shapes(Clip), 0);
+			pShapes = &Shapes; // SG_UI_DataObject_Add(SG_Create_Shapes(Clip), 0);
 		}
 	}
 
@@ -569,8 +517,8 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 	SG_Get_Projected(pShapes, pShapes == &Shapes ? NULL : &Shapes, prj_Map);
 
 	//-----------------------------------------------------
-	CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	Clip.Get_Projection().Create(prj_Map);
-	CSG_Shape	*pClip	= Clip.Add_Shape();
+	CSG_Shapes  Clip(SHAPE_TYPE_Polygon); Clip.Get_Projection().Create(prj_Map);
+	CSG_Shape *pClip = Clip.Add_Shape();
 	pClip->Add_Point(rMap.Get_XMin(), rMap.Get_YMin());
 	pClip->Add_Point(rMap.Get_XMin(), rMap.Get_YMax());
 	pClip->Add_Point(rMap.Get_XMax(), rMap.Get_YMax());
@@ -578,9 +526,9 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 
 	SG_UI_ProgressAndMsg_Lock(true);
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 11);	// Polygon Clipping
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 11);	// Polygon Clipping
 
-	bool	bResult	= pTool && pTool->Set_Manager(NULL)
+	bool bResult = pTool && pTool->Set_Manager(NULL)
 	&&  pTool->Set_Parameter("CLIP"    , &Clip)
 	&&  pTool->Set_Parameter("S_INPUT" , &Shapes)
 	&&  pTool->Set_Parameter("S_OUTPUT", &Clipped)
@@ -606,7 +554,7 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CSG_Map_DC &dc_Map, int Flags, CSG_
 	}
 	else
 	{
-		CSG_Rect rMap(dc_Map.rWorld());	rMap.Inflate(dc_Map.DC2World(), false);	// inflate by one pixel
+		CSG_Rect rMap(dc_Map.rWorld()); rMap.Inflate(dc_Map.DC2World(), false); // inflate by one pixel
 
 		_Projected_Shapes_Clipped(rMap, pShapes, Shapes);
 	}
