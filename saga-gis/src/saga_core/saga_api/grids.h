@@ -260,7 +260,7 @@ public:		///////////////////////////////////////////////
 	bool							Del_Grids			(       bool bDetach = false);
 
 	const CSG_Grid &				Get_Grid			(int i)	const	{	return( *m_pGrids[i] );	}
-	CSG_Grid *						Get_Grid_Ptr		(int i)	const	{	return(  m_pGrids[i] );	}
+	CSG_Grid *						Get_Grid_Ptr		(int i)	const	{	return( i >= 0 && i < Get_NZ() ? m_pGrids[i] : NULL );	}
 	CSG_String						Get_Grid_Name		(int i, int Style = 0)	const;
 
 	sLong							Get_Memory_Size		(void)	const	{	return( m_pGrids[0]->Get_Memory_Size() * Get_NZ() );	}
