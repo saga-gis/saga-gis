@@ -2350,7 +2350,16 @@ bool CSG_Tool::Set_History(CSG_Data_Object *pDataObject, int Depth)
 {
 	if( pDataObject )
 	{
-		pDataObject->Get_History() = Get_History(Depth);
+		CSG_MetaData History(Get_History(Depth));
+
+		CSG_MetaData *pOutput = History("TOOL") ? History["TOOL"]("OUTPUT") : NULL;
+
+		if( pOutput )
+		{
+			pOutput->Set_Property("name", pDataObject->Get_Name());
+		}
+
+		pDataObject->Get_History() = History;
 
 		return( true );
 	}
