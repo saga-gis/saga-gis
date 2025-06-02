@@ -2382,7 +2382,7 @@ void CSG_Tool::_Set_Output_History(void)
 //---------------------------------------------------------
 bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
 {
-	if( !pParameter || !(pParameter->is_DataObject() && pParameter->asDataObject()) || !(pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0) )
+	if( !pParameter && !((pParameter->is_DataObject() && pParameter->asDataObject()) || !(pParameter->is_DataObject_List() && pParameter->asList()->Get_Item_Count() > 0)) )
 	{
 		return( false );
 	}
@@ -2406,7 +2406,7 @@ bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *p
 	}
 
 	//-----------------------------------------------------
-	if( pParameter->is_DataObject() )
+	if( pParameter->is_DataObject() && pParameter->asDataObject() )
 	{
 		if( pOutput )
 		{
