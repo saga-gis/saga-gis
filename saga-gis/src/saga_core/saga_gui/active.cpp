@@ -117,7 +117,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CActive	*g_pActive	= NULL;
+CActive *g_pActive = NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -139,9 +139,9 @@ END_EVENT_TABLE()
 CActive::CActive(wxWindow *pParent)
 	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Properties"))
 {
-	g_pActive		= this;
+	g_pActive = this;
 
-	m_pItem			= NULL;
+	m_pItem   = NULL;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
@@ -154,12 +154,12 @@ CActive::CActive(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_INFO       );
 
 	//-----------------------------------------------------
-	m_pParameters	= new CActive_Parameters (this); m_pParameters ->SetName(_TL("Settings"   ));
-	m_pDescription	= new CActive_Description(this); m_pDescription->SetName(_TL("Description"));
-	m_pHistory		= new CActive_History    (this); m_pHistory    ->SetName(_TL("History"    ));
-	m_pLegend		= new CActive_Legend     (this); m_pLegend     ->SetName(_TL("Legend"     ));
-	m_pAttributes	= new CActive_Attributes (this); m_pAttributes ->SetName(_TL("Attributes" ));
-	m_pInfo			= new CActive_Info       (this); m_pInfo       ->SetName(_TL("Information"));
+	m_pParameters  = new CActive_Parameters (this); m_pParameters ->SetName(_TL("Settings"   ));
+	m_pDescription = new CActive_Description(this); m_pDescription->SetName(_TL("Description"));
+	m_pHistory     = new CActive_History    (this); m_pHistory    ->SetName(_TL("History"    ));
+	m_pLegend      = new CActive_Legend     (this); m_pLegend     ->SetName(_TL("Legend"     ));
+	m_pAttributes  = new CActive_Attributes (this); m_pAttributes ->SetName(_TL("Attributes" ));
+	m_pInfo        = new CActive_Info       (this); m_pInfo       ->SetName(_TL("Information"));
 
 #if defined(_SAGA_MSW)
 	m_pParameters ->Hide();
@@ -187,7 +187,7 @@ void CActive::Add_Pages(void)
 //---------------------------------------------------------
 CActive::~CActive(void)
 {
-	g_pActive	= NULL;
+	g_pActive = NULL;
 }
 
 
@@ -221,7 +221,7 @@ CWKSP_Data_Item * CActive::Get_Active_Data_Item(void)
 //---------------------------------------------------------
 CWKSP_Layer * CActive::Get_Active_Layer(void)
 {
-	CWKSP_Data_Item	*pItem	= Get_Active_Data_Item();
+	CWKSP_Data_Item *pItem = Get_Active_Data_Item();
 
 	if( pItem && pItem->Get_Type() != WKSP_ITEM_Table )
 	{
@@ -234,11 +234,11 @@ CWKSP_Layer * CActive::Get_Active_Layer(void)
 //---------------------------------------------------------
 CWKSP_Shapes * CActive::Get_Active_Shapes(bool bWithInfo)
 {
-	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+	CWKSP_Layer *pLayer = Get_Active_Layer();
 
 	if( pLayer && pLayer->Get_Type() == WKSP_ITEM_Shapes )
 	{
-		CWKSP_Shapes	*pShapes	= (CWKSP_Shapes *)pLayer;
+		CWKSP_Shapes *pShapes = (CWKSP_Shapes *)pLayer;
 
 		if( !bWithInfo || pShapes->Get_Field_Info() >= 0 )
 		{
@@ -297,7 +297,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 			if( nPages != GetPageCount() ) { SendSizeEvent(); }
 
-			if( g_pSAGA_Frame   )
+			if( g_pSAGA_Frame )
 			{
 				g_pSAGA_Frame->Show_Toolbar_Data(NULL);
 				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")));
@@ -318,7 +318,7 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 			if( g_pSAGA_Frame )
 			{
-				g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Layer() ? Get_Active_Layer()->Get_ToolBar() : NULL);
+				g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_ToolBar() : NULL);
 				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 			}
 
@@ -353,21 +353,21 @@ bool CActive::_Show_Page(wxWindow *pPage, bool bShow)
 //---------------------------------------------------------
 bool CActive::_Show_Page(wxWindow *pPage)
 {
-	int		Image_ID	= -1;
+	int Image_ID = -1;
 
 	//-----------------------------------------------------
-	if( pPage == m_pParameters  )	Image_ID	= IMG_PARAMETERS;
-	if( pPage == m_pDescription )	Image_ID	= IMG_DESCRIPTION;
-	if( pPage == m_pHistory     )	Image_ID	= IMG_HISTORY;
-	if( pPage == m_pLegend      )	Image_ID	= IMG_LEGEND;
-	if( pPage == m_pAttributes  )	Image_ID	= IMG_ATTRIBUTES;
-	if( pPage == m_pInfo        )	Image_ID	= IMG_INFO;
+	if( pPage == m_pParameters  ) { Image_ID = IMG_PARAMETERS ; }
+	if( pPage == m_pDescription ) { Image_ID = IMG_DESCRIPTION; }
+	if( pPage == m_pHistory     ) { Image_ID = IMG_HISTORY    ; }
+	if( pPage == m_pLegend      ) { Image_ID = IMG_LEGEND     ; }
+	if( pPage == m_pAttributes  ) { Image_ID = IMG_ATTRIBUTES ; }
+	if( pPage == m_pInfo        ) { Image_ID = IMG_INFO       ; }
 
 	//-----------------------------------------------------
-	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(Get_Active_Data_Item());
-	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : Get_Active_Map() ? m_pItem : NULL);
-	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(Get_Active_Layer());
-	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(Get_Active_Shapes(true));
+	if( pPage == m_pHistory     ) { m_pHistory   ->Set_Item(Get_Active_Data_Item()); }
+	if( pPage == m_pLegend      ) { m_pLegend    ->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : Get_Active_Map() ? m_pItem : NULL); }
+	if( pPage == m_pAttributes  ) { m_pAttributes->Set_Item(Get_Active_Layer()); }
+	if( pPage == m_pInfo        ) { m_pInfo      ->Set_Item(Get_Active_Shapes(true)); }
 
 	//-----------------------------------------------------
 	if( pPage )
@@ -396,10 +396,10 @@ bool CActive::_Hide_Page(wxWindow *pPage)
 #endif
 
 	//-----------------------------------------------------
-	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(NULL);
-	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(NULL);
-	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(NULL);
-	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(NULL);
+	if( pPage == m_pHistory     ) { m_pHistory   ->Set_Item(NULL); }
+	if( pPage == m_pLegend      ) { m_pLegend    ->Set_Item(NULL); }
+	if( pPage == m_pAttributes  ) { m_pAttributes->Set_Item(NULL); }
+	if( pPage == m_pInfo        ) { m_pInfo      ->Set_Item(NULL); }
 
 	//-----------------------------------------------------
 	for(int i=0; i<(int)GetPageCount(); i++)
@@ -467,18 +467,18 @@ bool CActive::Update_Description(void)
 		return( false );
 	}
 
-	wxString	Description;
+	wxString Description;
 
 	//-----------------------------------------------------
 	if( m_pItem == NULL )
 	{
-		Description	= _TL("No description available");
+		Description = _TL("No description available");
 	}
 	else
 	{
         SG_UI_Process_Set_Busy(true);//, CSG_String::Format("%s: %s...", _TL("Updating"), Get_Name()));
 
-		Description	= m_pItem->Get_Description();
+		Description = m_pItem->Get_Description();
 
         SG_UI_Process_Set_Busy(false);
 	}

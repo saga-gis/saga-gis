@@ -81,6 +81,7 @@ public:
 
 	virtual wxString				Get_Description			(void);
 
+	virtual wxToolBarBase *			Get_ToolBar				(void);
 	virtual wxMenu *				Get_Menu				(void);
 
 	virtual bool					On_Command				(int Cmd_ID);

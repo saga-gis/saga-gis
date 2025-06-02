@@ -49,6 +49,7 @@
 #include <wx/clipbrd.h>
 
 #include "res_commands.h"
+#include "res_controls.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
@@ -138,6 +139,36 @@ wxString CWKSP_Table::Get_Description(void)
 
 	//-----------------------------------------------------
 	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxToolBarBase * CWKSP_Table::Get_ToolBar(void)
+{
+	static wxToolBarBase *static_pToolBar = NULL;
+
+	if( !static_pToolBar )
+	{
+		static_pToolBar = CMD_ToolBar_Create(ID_TB_DATA_TABLE);
+
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_WKSP_ITEM_CLOSE);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SAVEAS);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_RELOAD);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_FORCE_UPDATE);
+		static_pToolBar->AddSeparator();
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_TABLE_SHOW);
+	//	CMD_ToolBar_Add_Item(static_pToolBar, true , ID_CMD_DATA_HISTOGRAM);
+		CMD_ToolBar_Add_Item(static_pToolBar, false, ID_CMD_DATA_SCATTERPLOT);
+		CMD_ToolBar_Add_Item(static_pToolBar,  true, ID_CMD_DATA_DIAGRAM);
+
+		CMD_ToolBar_Add(static_pToolBar, _TL("Table"));
+	}
+
+	return( static_pToolBar );
 }
 
 //---------------------------------------------------------
