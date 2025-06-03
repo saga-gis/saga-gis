@@ -394,7 +394,7 @@ bool CTerrainFloodingInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Too
 {
 	static bool bBusy = false;
 
-	if( Mode == TOOL_INTERACTIVE_LDOWN )
+	if( Mode == TOOL_INTERACTIVE_LUP )
 	{
 		if( bBusy == false )
 		{
