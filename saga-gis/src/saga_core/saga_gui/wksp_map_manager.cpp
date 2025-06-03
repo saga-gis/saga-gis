@@ -136,8 +136,8 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Node  ("NODE_DEFAULTS", "NODE_NEW_MAPS", _TL("New Maps"), _TL(""));
 
-	m_Parameters.Add_Choice("NODE_NEW_MAPS", "NAMING"       , _TL("Naming"             ), _TL(""), CSG_String::Format("\'%s\'|%s", _TL("Map"), _TL("first added layer name")));
-	m_Parameters.Add_Int   ("NAMING"       , "NAMING_LENGTH", _TL("Maximum Characters" ), _TL(""), 256, 5, true);
+	m_Parameters.Add_Choice("NODE_NEW_MAPS", "NAMING"       , _TL("Naming"             ), _TL(""), CSG_String::Format("\'%s\'|%s", _TL("Map"), _TL("first added layer name")), 1);
+	m_Parameters.Add_Int   ("NAMING"       , "NAMING_LENGTH", _TL("Maximum Characters" ), _TL(""), 64, 5, true);
 	m_Parameters.Add_Choice("NODE_NEW_MAPS", "BG_COLOR"     , _TL("Background Color"   ), _TL(""), CSG_String::Format("%s|%s", _TL("system"), _TL("user defined")));
 	m_Parameters.Add_Color ("BG_COLOR"     , "BG_USER"      , _TL("User Defined"       ), _TL(""), SG_COLOR_WHITE);
 	m_Parameters.Add_Bool  ("NODE_NEW_MAPS", "GOTO_NEWLAYER", _TL("Zoom to added layer"), _TL(""), false);
