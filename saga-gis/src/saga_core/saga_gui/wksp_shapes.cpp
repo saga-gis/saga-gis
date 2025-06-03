@@ -1122,9 +1122,11 @@ bool CWKSP_Shapes::Get_Class_Color(CSG_Shape *pShape, int &Color)
 
 		double Value;
 
-		return( CWKSP_Layer::Get_Field_Value(pShape->Get_Index(), m_Stretch.Value, m_Stretch.Normal, m_Stretch.Scale, Value)
-		     && m_pClassify->Get_Class_Color_byValue(Value, Color)
-		);
+		if( CWKSP_Layer::Get_Field_Value(pShape->Get_Index(), m_Stretch.Value, m_Stretch.Normal, m_Stretch.Scale, Value)
+		    && m_pClassify->Get_Class_Color_byValue(Value, Color) )
+		{
+			return( true );
+		}
 	}
 
 	//-----------------------------------------------------
