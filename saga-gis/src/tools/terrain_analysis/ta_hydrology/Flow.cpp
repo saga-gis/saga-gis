@@ -153,33 +153,33 @@ int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 //---------------------------------------------------------
 bool CFlow::On_Execute(void)
 {
-	m_pDTM				= Parameters("ELEVATION"    )->asGrid();
-	m_pRoute			= Parameters("SINKROUTE"    )->asGrid();
-	m_pWeights			= Parameters("WEIGHTS"      )->asGrid();
+	m_pDTM            = Parameters("ELEVATION"    )->asGrid();
+	m_pRoute          = Parameters("SINKROUTE"    )->asGrid();
+	m_pWeights        = Parameters("WEIGHTS"      )->asGrid();
 
-	m_pAccu_Material	= Parameters("ACCU_MATERIAL")->asGrid();
-	m_pAccu_Target		= Parameters("ACCU_TARGET"  )->asGrid();
+	m_pAccu_Material  = Parameters("ACCU_MATERIAL")->asGrid();
+	m_pAccu_Target    = Parameters("ACCU_TARGET"  )->asGrid();
 
-	m_pFlow				= Parameters("FLOW"         )->asGrid();
+	m_pFlow           = Parameters("FLOW"         )->asGrid();
 
-	m_pFlow_Length		= NULL;
+	m_pFlow_Length    = NULL;
 
-	if( (m_pVal_Input	= Parameters("VAL_INPUT"    )->asGrid()) != NULL
-	&&  (m_pVal_Mean	= Parameters("VAL_MEAN"     )->asGrid()) != NULL )
+	if( (m_pVal_Input = Parameters("VAL_INPUT"    )->asGrid()) != NULL
+	 && (m_pVal_Mean  = Parameters("VAL_MEAN"     )->asGrid()) != NULL )
 	{
 		m_pVal_Mean->Fmt_Name("%s [%s]", m_pVal_Input->Get_Name(), _TL("Mean over Catchment"));
 		m_pVal_Mean->Set_Unit(m_pVal_Input->Get_Unit());
 	}
 	else
 	{
-		m_pVal_Mean		= NULL;
+		m_pVal_Mean   = NULL;
 	}
 
-	m_pAccu_Total		= NULL;
-	m_pAccu_Left		= NULL;
-	m_pAccu_Right		= NULL;
+	m_pAccu_Total     = NULL;
+	m_pAccu_Left      = NULL;
+	m_pAccu_Right     = NULL;
 
-	m_Step				= Parameters("STEP") ? Parameters("STEP")->asInt() : 1;
+	m_Step = Parameters("STEP") ? Parameters("STEP")->asInt() : 1;
 
 	//-----------------------------------------------------
 	On_Initialize();
@@ -191,14 +191,10 @@ bool CFlow::On_Execute(void)
 	SET_GRID_TO(m_pAccu_Left  , 1.);
 	SET_GRID_TO(m_pAccu_Right , 1.);
 
-	DataObject_Set_Colors   (m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1);	// increasing geometrical intervals
-	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_LOG" , 100);	// Geometrical Interval Factor
-
 	//-----------------------------------------------------
 	if( m_bPoint )
 	{
-		m_bPoint	= false;
+		m_bPoint = false;
 
 		if( is_InGrid(m_xPoint, m_yPoint) )
 		{
@@ -215,9 +211,9 @@ bool CFlow::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		m_pAccu_Total	= Parameters("ACCU_TOTAL")->asGrid();
-		m_pAccu_Left	= Parameters("ACCU_LEFT" )->asGrid();
-		m_pAccu_Right	= Parameters("ACCU_RIGHT")->asGrid();
+		m_pAccu_Total = Parameters("ACCU_TOTAL")->asGrid();
+		m_pAccu_Left  = Parameters("ACCU_LEFT" )->asGrid();
+		m_pAccu_Right = Parameters("ACCU_RIGHT")->asGrid();
 		
 		DataObject_Set_Colors(m_pFlow_Length, 11, SG_COLORS_RED_GREY_BLUE);
 
@@ -226,6 +222,9 @@ bool CFlow::On_Execute(void)
 		On_Finalize();
 
 		_Finalize();
+
+		DataObject_Set_Stretch_StdDev(m_pFlow, -1, 2., true, 1, 1000., SG_COLORS_WHITE_BLUE, true);
+		DataObject_Classify_Geometric(m_pFlow, -1, 10, true, SG_COLORS_PRECIPITATION_4);
 
 		return( true );
 	}
