@@ -160,64 +160,35 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
+	default: return( CWKSP_Base_Item::On_Command(Cmd_ID) );
 
-	case ID_CMD_DATA_SAVE:
-		Save(m_pObject->Get_File_Name());
-		break;
+	case ID_CMD_DATA_FORCE_UPDATE : Force_Update (); break;
+	case ID_CMD_DATA_SETTINGS_LOAD: Load_Settings(); break;
+	case ID_CMD_DATA_SETTINGS_COPY: Copy_Settings(); break;
 
-	case ID_CMD_DATA_SAVEAS:
-		Save();
-		break;
+	case ID_CMD_DATA_RELOAD       : if( m_pObject->Reload() ) { DataObject_Changed(); } break;
+	case ID_CMD_DATA_DEL_FILES    : if( m_pObject->Delete() ) { g_pActive->Update_Description(); } break;
 
-	case ID_CMD_DATA_SAVETODB:
+	case ID_CMD_DATA_SAVE         : Save(m_pObject->Get_File_Name()); break;
+	case ID_CMD_DATA_SAVEAS       : Save(); break;
+	case ID_CMD_DATA_SAVETODB     :
 		switch( Get_Type() )
 		{
-		case WKSP_ITEM_Table :	PGSQL_Save_Table ((CSG_Table  *)m_pObject);	break;
-		case WKSP_ITEM_Shapes:	PGSQL_Save_Shapes((CSG_Shapes *)m_pObject);	break;
-		case WKSP_ITEM_Grid  :	PGSQL_Save_Grid  ((CSG_Grid   *)m_pObject);	break;
-		case WKSP_ITEM_Grids :	PGSQL_Save_Grids ((CSG_Grids  *)m_pObject);	break;
-
-		default:	break;
+		case WKSP_ITEM_Table      : PGSQL_Save_Table ((CSG_Table  *)m_pObject);	break;
+		case WKSP_ITEM_Shapes     : PGSQL_Save_Shapes((CSG_Shapes *)m_pObject);	break;
+		case WKSP_ITEM_Grid       : PGSQL_Save_Grid  ((CSG_Grid   *)m_pObject);	break;
+		case WKSP_ITEM_Grids      : PGSQL_Save_Grids ((CSG_Grids  *)m_pObject);	break;
+		default                   : break;
 		}
 		break;
 
-	case ID_CMD_DATA_RELOAD:
-		if( m_pObject->Reload() )
-		{
-			DataObject_Changed();
-		}
-		break;
-
-	case ID_CMD_DATA_DEL_FILES:
-		if( m_pObject->Delete() )
-		{
-			g_pActive->Update_Description();
-		}
-		break;
-
-	case ID_CMD_DATA_METADATA:
+	case ID_CMD_DATA_METADATA     :
 		if( m_pObject->Get_MetaData().Get_Children_Count() > 0 )
 		{
-			CSG_Parameters	P;
-
-			Add_Metadata2Parameters(m_pObject->Get_MetaData(), P);
+			CSG_Parameters P; Add_Metadata2Parameters(m_pObject->Get_MetaData(), P);
 
 			DLG_Parameters(&P, wxString::Format("%s [%s]", _TL("View Metadata"), m_pObject->Get_Name()));
 		}
-		break;
-
-	case ID_CMD_DATA_FORCE_UPDATE:
-		Force_Update();
-		break;
-
-	case ID_CMD_DATA_SETTINGS_LOAD:
-		Load_Settings();
-		break;
-
-	case ID_CMD_DATA_SETTINGS_COPY:
-		Copy_Settings();
 		break;
 	}
 
@@ -229,24 +200,12 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Base_Item::On_Command_UI(event) );
+	default: return( CWKSP_Base_Item::On_Command_UI(event) );
 
-	case ID_CMD_DATA_SAVE:
-		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && *(m_pObject->Get_File_Name()));
-		break;
-
-	case ID_CMD_DATA_SAVETODB:
-		event.Enable(PGSQL_has_Connections());
-		break;
-
-	case ID_CMD_DATA_RELOAD:
-		event.Enable(m_pObject->is_Modified() && SG_File_Exists(m_pObject->Get_File_Name(false)));
-		break;
-
-	case ID_CMD_DATA_DEL_FILES:
-		event.Enable(m_pObject->is_File_Native() && SG_File_Exists(m_pObject->Get_File_Name()) );
-		break;
+	case ID_CMD_DATA_SAVE      : event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && *(m_pObject->Get_File_Name())); break;
+	case ID_CMD_DATA_SAVETODB  : event.Enable(PGSQL_has_Connections()); break;
+	case ID_CMD_DATA_RELOAD    : event.Enable(m_pObject->is_Modified() && SG_File_Exists(m_pObject->Get_File_Name(false))); break;
+	case ID_CMD_DATA_DEL_FILES : event.Enable(m_pObject->is_File_Native() && SG_File_Exists(m_pObject->Get_File_Name()) ); break;
 	}
 
 	return( true );

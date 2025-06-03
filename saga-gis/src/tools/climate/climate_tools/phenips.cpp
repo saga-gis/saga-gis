@@ -776,8 +776,8 @@ bool CPhenIps_Grids::Initialize(bool bReset)
 			ADD_LUT_CLASS(j + 1, Colors[j - 0], CSG_String::Format("%s %d + %s", _TL("generation"), i, _TL("sister brood")));
 		}
 
-		CSG_Tool::DataObject_Set_Parameter(m_pGenerations, pLUT);
-		CSG_Tool::DataObject_Set_Parameter(m_pGenerations, "COLORS_TYPE", 1);	// Classified
+		DataObject_Set_Parameter(m_pGenerations, pLUT);
+		DataObject_Set_Parameter(m_pGenerations, "COLORS_TYPE", 1);	// Classified
 	}
 
 	//-----------------------------------------------------

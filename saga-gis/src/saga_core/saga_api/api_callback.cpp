@@ -706,6 +706,19 @@ bool		SG_UI_DataObject_Colors_Set(CSG_Data_Object *pDataObject, CSG_Colors *pCol
 }
 
 //---------------------------------------------------------
+bool		SG_UI_DataObject_Classify(CSG_Data_Object *pDataObject, const CSG_MetaData &Options)
+{
+	if( gSG_UI_Progress_Lock == 0 && gSG_UI_Callback && pDataObject )
+	{
+		CSG_UI_Parameter p1(pDataObject), p2((void *)&Options);
+
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_CLASSIFY, p1, p2) != 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool		SG_UI_DataObject_Params_Get	(CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
 {
 	if( gSG_UI_Callback && pDataObject && pParameters )

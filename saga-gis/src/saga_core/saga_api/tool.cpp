@@ -1001,14 +1001,14 @@ bool CSG_Tool::DataObject_Get_Colors(CSG_Data_Object *pDataObject, CSG_Colors &C
 
 bool CSG_Tool::DataObject_Set_Colors(CSG_Data_Object *pDataObject, const CSG_Colors &Colors)
 {
-	CSG_Colors	c(Colors);
+	CSG_Colors c(Colors);
 
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
 }
 
 bool CSG_Tool::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors, int Palette, bool bRevert)
 {
-	CSG_Colors	c(nColors, Palette, bRevert);
+	CSG_Colors c(nColors, Palette, bRevert);
 
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
 }
@@ -1125,6 +1125,148 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define INIT_STRETCH_OPTIONS(method) { if( !pDataObject || (pDataObject->asTable(true) && (Field < 0 || Field >= pDataObject->asTable(true)->Get_Field_Count())) ) { return( false ); }\
+	if( Colors >= 0 ) { DataObject_Set_Colors(pDataObject, -1, Colors); }\
+	DataObject_Set_Parameter(pDataObject, "COLORS_TYPE"      , 3); /* graduated colors */\
+	DataObject_Set_Parameter(pDataObject, "STRETCH_DEFAULT"  , method);\
+	DataObject_Set_Parameter(pDataObject, "METRIC_SCALE_MODE", Interval_Mode);\
+	DataObject_Set_Parameter(pDataObject, "METRIC_SCALE_LOG" , Interval_Log );\
+	if( pDataObject->asTable(true) )\
+	{	DataObject_Set_Parameter(pDataObject, "METRIC_FIELD" , Field);\
+		DataObject_Set_Parameter(pDataObject, "METRIC_MORMAL", pDataObject->asTable(true)->Get_Field_Count());\
+	}\
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Set_Stretch_Linear(CSG_Data_Object *pDataObject, int Field, double Minimum, double Maximum, int Interval_Mode, double Interval_Log, int Colors, bool bUpdateNow)
+{
+	INIT_STRETCH_OPTIONS(0);
+
+	DataObject_Set_Parameter(pDataObject, "STRETCH_LINEAR.MIN", Minimum);
+	DataObject_Set_Parameter(pDataObject, "STRETCH_LINEAR.MAX", Maximum);
+
+	return( bUpdateNow ? DataObject_Update(pDataObject) : true );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Set_Stretch_StdDev(CSG_Data_Object *pDataObject, int Field, double StdDev, bool bKeepInRange, int Interval_Mode, double Interval_Log, int Colors, bool bUpdateNow)
+{
+	INIT_STRETCH_OPTIONS(1);
+
+	DataObject_Set_Parameter(pDataObject, "STRETCH_STDDEV" , StdDev      );
+	DataObject_Set_Parameter(pDataObject, "STRETCH_INRANGE", bKeepInRange);
+	DataObject_Update(pDataObject);
+
+	return( bUpdateNow ? DataObject_Update(pDataObject) : true );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Set_Stretch_Percentile(CSG_Data_Object *pDataObject, int Field, double Minimum, double Maximum, int Interval_Mode, double Interval_Log, int Colors, bool bUpdateNow)
+{
+	INIT_STRETCH_OPTIONS(2);
+
+	DataObject_Set_Parameter(pDataObject, "STRETCH_PCTL.MIN", Minimum);
+	DataObject_Set_Parameter(pDataObject, "STRETCH_PCTL.MAX", Maximum);
+
+	return( bUpdateNow ? DataObject_Update(pDataObject) : true );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Set_Stretch(CSG_Data_Object *pDataObject, int Field, double Minimum, double Maximum, int Interval_Mode, double Interval_Log, int Colors, bool bUpdateNow)
+{
+	INIT_STRETCH_OPTIONS(3);
+
+	DataObject_Set_Parameter(pDataObject, "METRIC_ZRANGE.MIN", Minimum);
+	DataObject_Set_Parameter(pDataObject, "METRIC_ZRANGE.MAX", Maximum);
+
+	return( bUpdateNow ? DataObject_Update(pDataObject) : true );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define INIT_CLASSIFY_OPTIONS(method) if( !pDataObject || (pDataObject->asTable(true) && (Field < 0 || Field >= pDataObject->asTable(true)->Get_Field_Count())) ) { return( false ); }\
+	CSG_MetaData Options; Options.Add_Child("METHOD", method); Options.Add_Child("COLORS", Colors); Options.Add_Child("FIELD", Field);
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Unique(CSG_Data_Object *pDataObject, int Field, int maxClasses, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(0);
+
+	Options.Add_Child("MAXCLASSES", maxClasses);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Equal(CSG_Data_Object *pDataObject, int Field, int Classes, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(1);
+
+	Options.Add_Child("CLASSES", Classes);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Defined(CSG_Data_Object *pDataObject, int Field, double Interval, bool bOffset, double Offset, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(2);
+
+	Options.Add_Child("INTERVAL", Interval); if( bOffset ) { Options.Add_Child("OFFSET", Offset); }
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Quantile(CSG_Data_Object *pDataObject, int Field, int Classes, bool bHistogram, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(3);
+
+	Options.Add_Child("CLASSES", Classes); Options.Add_Child("HISTOGRAM", bHistogram ? 1 : 0);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Geometric(CSG_Data_Object *pDataObject, int Field, int Classes, bool bIncreasing, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(4);
+
+	Options.Add_Child("CLASSES", Classes); Options.Add_Child("INCREASING", bIncreasing ? 1 : 0);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_Natural(CSG_Data_Object *pDataObject, int Field, int Classes, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(5);
+
+	Options.Add_Child("CLASSES", Classes);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Classify_StdDev(CSG_Data_Object *pDataObject, int Field, double StdDev, double StdDev_Max, int Colors)
+{
+	INIT_CLASSIFY_OPTIONS(6);
+
+	Options.Add_Child("STDDEV", StdDev); Options.Add_Child("STDDEV_MAX", StdDev_Max);
+
+	return( SG_UI_DataObject_Classify(pDataObject, Options) );
 }
 
 

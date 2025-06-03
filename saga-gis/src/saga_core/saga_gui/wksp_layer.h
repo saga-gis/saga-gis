@@ -101,6 +101,8 @@ public:
 	bool							Set_Stretch_Range		(double Minimum, double Maximum);
 	bool							Set_Stretch_FullRange	(void);
 
+	bool							Classify				(const CSG_MetaData &Options);
+
 	bool							Draw					(CSG_Map_DC &dc_Map, int Flags = 0, CSG_Data_Object *pObject = NULL);
 
 	class CWKSP_Layer_Classify *	Get_Classifier			(void)	{	return( m_pClassify );	}

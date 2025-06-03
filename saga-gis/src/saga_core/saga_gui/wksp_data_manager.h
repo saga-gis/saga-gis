@@ -138,6 +138,9 @@ public:
 
 	bool							Get_Colors				(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
 	bool							Set_Colors				(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
+
+	bool							Classify				(class CSG_Data_Object *pObject, const CSG_MetaData &Options);
+
 	bool							Get_Parameters			(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Set_Parameters			(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Show_Diagram			(class CSG_Table       *pTable , class CSG_Parameters *pParameters);

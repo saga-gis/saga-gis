@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
+int Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
 	int Result = 1;
 
@@ -80,7 +80,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		Result	= PROCESS_Get_Okay(Param_1.Boolean);
+		Result = PROCESS_Get_Okay(Param_1.Boolean);
 
 		break;
 
@@ -88,7 +88,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_OKAY:
 
-		Result	= PROCESS_Set_Okay(Param_1.Boolean);
+		Result = PROCESS_Set_Okay(Param_1.Boolean);
 
 		break;
 
@@ -96,7 +96,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_BUSY:
 
-		Result	= PROCESS_Set_Busy(Param_1.Boolean, Param_2.String);
+		Result = PROCESS_Set_Busy(Param_1.Boolean, Param_2.String);
 
 		break;
 
@@ -104,14 +104,14 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_PROGRESS:
 
-		Result	= PROGRESSBAR_Set_Position(Param_1.Number, Param_2.Number);
+		Result = PROGRESSBAR_Set_Position(Param_1.Number, Param_2.Number);
 
 		break;
 
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_READY:
 
-		Result	= PROGRESSBAR_Set_Ready();
+		Result = PROGRESSBAR_Set_Ready();
 
 		break;
 
@@ -133,11 +133,11 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_pTool && g_pTool->is_Executing() )
 		{
-			Result	= g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
+			Result = g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
 		}
 		else if( g_pTool && g_pTool->is_Interactive() )
 		{
-			Result	= g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
+			Result = g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
 		}
 
 		break;
@@ -190,7 +190,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= DLG_Message_Confirm(Param_1.String.c_str(), Param_2.String.c_str());
+		Result = DLG_Message_Confirm(Param_1.String.c_str(), Param_2.String.c_str());
 
 		break;
 
@@ -198,7 +198,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= DLG_Message_Show_Error(Param_1.String.c_str(), Param_2.String.c_str());
+		Result = DLG_Message_Show_Error(Param_1.String.c_str(), Param_2.String.c_str());
 
 		break;
 
@@ -206,7 +206,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_INFO:
 
-		Result	= DLG_Info(Param_2.String.c_str(), Param_1.String.c_str());
+		Result = DLG_Info(Param_2.String.c_str(), Param_1.String.c_str());
 
 		break;
 
@@ -218,7 +218,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= DLG_Parameters((CSG_Parameters *)Param_1.Pointer, Param_2.String.c_str()) ? 1 : 0;
+		Result = DLG_Parameters((CSG_Parameters *)Param_1.Pointer, Param_2.String.c_str()) ? 1 : 0;
 
 		break;
 
@@ -230,7 +230,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
-		Result	= g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
+		Result = g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
 		if( Result && Param_2.Number )
 		{
@@ -243,7 +243,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_DEL:
 
-		Result	= g_pData->Del((CSG_Data_Object *)Param_1.Pointer, Param_2.Boolean) ? 1 : 0;
+		Result = g_pData->Del((CSG_Data_Object *)Param_1.Pointer, Param_2.Boolean) ? 1 : 0;
 
 		break;
 
@@ -251,7 +251,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_UPDATE:
 
-		Result	= g_pData->Update((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Update((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -259,7 +259,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_SHOW:
 
-		Result	= g_pData->Show((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
+		Result = g_pData->Show((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
 
 		break;
 
@@ -267,7 +267,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ASIMAGE:
 
-		Result	= g_pData->asImage((CSG_Data_Object *)Param_1.Pointer, (CSG_Grid *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->asImage((CSG_Data_Object *)Param_1.Pointer, (CSG_Grid *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -275,7 +275,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_GET:
 
-		Result	= g_pData->Get_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Get_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -283,7 +283,15 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_SET:
 
-		Result	= g_pData->Set_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Set_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_DATAOBJECT_CLASSIFY:
+
+		Result = g_pData->Classify((CSG_Data_Object *)Param_1.Pointer, *((const CSG_MetaData *)Param_2.Pointer)) ? 1 : 0;
 
 		break;
 
@@ -291,7 +299,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_PARAMS_GET:
 
-		Result	= g_pData->Get_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Get_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -299,7 +307,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_PARAMS_SET:
 
-		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Set_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -307,7 +315,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_SET_MAP_EXTENT:
 
-		Result	= g_pMaps->Set_Extent(*((CSG_Rect *)Param_1.Pointer), (int)Param_2.Number) ? 1 : 0;
+		Result = g_pMaps->Set_Extent(*((CSG_Rect *)Param_1.Pointer), (int)Param_2.Number) ? 1 : 0;
 
 		break;
 
@@ -315,7 +323,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DIAGRAM_SHOW:
 
-		Result	= g_pData->Show_Diagram((CSG_Table *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
+		Result = g_pData->Show_Diagram((CSG_Table *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -323,7 +331,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATABASE_UPDATE:
 
-		Result	= g_pData_Source->Update_Database(Param_1.String.c_str()) ? 1 : 0;
+		Result = g_pData_Source->Update_Database(Param_1.String.c_str()) ? 1 : 0;
 
 		break;
 
@@ -335,7 +343,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_GET_APP_WINDOW:
 
-		Param_1.Pointer	= MDI_Get_Frame();
+		Param_1.Pointer = MDI_Get_Frame();
 
 		break;
 
@@ -347,7 +355,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	default:
 
-		Result	= 0;
+		Result = 0;
 
 		break;
 	}
@@ -361,7 +369,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_PFNC_UI_Callback	Get_Callback(void)
+TSG_PFNC_UI_Callback Get_Callback(void)
 {
 	return( &Callback );
 }

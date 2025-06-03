@@ -1755,9 +1755,17 @@ bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 }
 
 //---------------------------------------------------------
+bool CWKSP_Data_Manager::Classify(CSG_Data_Object *pObject, const CSG_MetaData &Options)
+{
+	CWKSP_Layer	*pLayer	= Get_Layer(pObject);
+
+	return( pLayer && pLayer->Classify(Options) );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
 {
-	CWKSP_Data_Item	*pItem	= pParameters ? Get(pObject) : NULL;
+	CWKSP_Data_Item *pItem = pParameters ? Get(pObject) : NULL;
 
 	return( pItem && pParameters->Assign(pItem->Get_Parameters()) );
 }
@@ -1765,7 +1773,7 @@ bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
 {
-	CWKSP_Data_Item	*pItem	= pParameters ? Get(pObject) : NULL;
+	CWKSP_Data_Item *pItem = pParameters ? Get(pObject) : NULL;
 
 	if( pItem && pItem->Get_Parameters()->Assign_Values(pParameters) )
 	{

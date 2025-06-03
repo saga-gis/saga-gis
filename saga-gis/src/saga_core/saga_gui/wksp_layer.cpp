@@ -326,7 +326,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 			_TL("RGB Composite"   )  // CLASSIFY_OVERLAY
 		), 4);
 
-		m_Parameters.Add_Choice("NODE_COLORS", "BAND"       , _TL("Band"      ), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_COLORS", "BAND"       , _TL("Band"      ), _TL(""), "<not set>");
 		m_Parameters.Add_Choice("NODE_COLORS", "OVERLAY_FIT", _TL("Statistics"), _TL(""), CSG_String::Format("%s|%s", _TL("all bands"), _TL("each band")), 1);
 		m_Parameters.Add_Choice("NODE_COLORS", "BAND_R"     , _TL("Red"       ), _TL(""), "");
 		m_Parameters.Add_Choice("NODE_COLORS", "BAND_G"     , _TL("Green"     ), _TL(""), "");
@@ -370,8 +370,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
 	{
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_FIELD" , _TL("Field"        ), _TL(""), _TL("<default>"));
-		m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_FIELD" , _TL("Field"        ), _TL(""), "<not set>");
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_NORMAL", _TL("Normalization"), _TL(""), "<not set>");
 	}
 
 	CSG_Table *pLUT = m_Parameters.Add_FixedTable("NODE_LUT", "LUT", _TL("Table"), _TL(""))->asTable();
@@ -409,8 +409,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 
 	if( m_pObject->asTable(true) )
 	{
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_FIELD" , _TL("Field"        ), _TL(""), _TL("<default>"));
-		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalization"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_FIELD" , _TL("Field"        ), _TL(""), "<not set>");
+		m_Parameters.Add_Choice("NODE_METRIC", "METRIC_NORMAL", _TL("Normalization"), _TL(""), "<not set>");
 
 		m_Parameters.Add_Choice("METRIC_NORMAL", "METRIC_NORFMT", _TL("Labeling"), _TL(""),
 			CSG_String::Format("%s|%s", _TL("fraction"), _TL("percentage")), 0
@@ -1596,8 +1596,6 @@ bool CWKSP_Layer::_Classify(void)
 	m_Classify.Assign_Values(&Parameters);
 
 	//-----------------------------------------------------
-	DataObject_Changed();
-
 	CSGDI_Classify Classify; int Method = m_Classify["METHOD"].asInt();
 
 	if( pTable == NULL )
@@ -1615,20 +1613,18 @@ bool CWKSP_Layer::_Classify(void)
 
 	switch( Method )
 	{
-	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()); break;
-	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()); break;
+	case  0: Classify.Classify_Unique   (m_Classify["CLASSES_MAX"].asInt   ()                                         );   break;
+	case  1: Classify.Classify_Equal    (m_Classify["CLASSES"    ].asInt   ()                                         );   break;
 	case  2: if( m_Classify["OFFSET"].asInt() )
 	     {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble(), m_Classify["OFFSET_VALUE"].asDouble()  ); }
-	else {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()); } break;
-	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), m_Classify["HISTOGRAM"   ].asInt() == 1); break;
-	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"  ].asBool()    ); break;
-	case  5: Classify.Classify_Natural  (m_Classify["CLASSES"    ].asInt   ()); break;
-	case  6: Classify.Classify_StdDev   (m_Classify["STDDEV"     ].asDouble(), m_Classify["STDDEV_MAX"  ].asDouble()  ); break;
+	else {   Classify.Classify_Defined  (m_Classify["INTERVAL"   ].asDouble()                                         ); } break;
+	case  3: Classify.Classify_Quantile (m_Classify["CLASSES"    ].asInt   (), m_Classify["HISTOGRAM"   ].asInt() == 1);   break;
+	case  4: Classify.Classify_Geometric(m_Classify["CLASSES"    ].asInt   (), m_Classify["INCREASING"  ].asBool()    );   break;
+	case  5: Classify.Classify_Natural  (m_Classify["CLASSES"    ].asInt   ()                                         );   break;
+	case  6: Classify.Classify_StdDev   (m_Classify["STDDEV"     ].asDouble(), m_Classify["STDDEV_MAX"  ].asDouble()  );   break;
 	}
 
 	//-----------------------------------------------------
-	CSG_Table Classes(m_Parameters["LUT"].asTable());
-
 	if( Classify.Set_LUT(*m_Parameters["LUT"].asTable(), *m_Classify["COLORS"].asColors(), m_Classify["LABELING"].asInt()) )
 	{
 		if( m_Parameters["LUT"].asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
@@ -1653,9 +1649,93 @@ bool CWKSP_Layer::_Classify(void)
 		}
 
 		Parameters_Changed();
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Layer::Classify(const CSG_MetaData &Options)
+{
+	int Method = -1;
+
+	if( !Options.Get_Content("METHOD", Method) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSGDI_Classify Classify; CSG_Table *pTable = m_pObject->asTable(true); int Field = -1;
+	
+	if( pTable )
+	{
+		if( !Options.Get_Content("FIELD", Field) || Field < 0 || Field >= pTable->Get_Field_Count() )
+		{
+			return( false );
+		}
+
+		Classify.Create(pTable, Field);
+	}
+	else
+	{
+		Classify.Create(m_pObject);
+	}
+
+	//-----------------------------------------------------
+	int    Classes_Max; Options.Get_Content("CLASSES_MAX", Classes_Max = 1024);
+	int    Classes    ; Options.Get_Content("CLASSES"    , Classes     =   10);
+	int    Increasing ; Options.Get_Content("INCREASING" , Increasing  =    1);
+	int    Histogram  ; Options.Get_Content("HISTOGRAM"  , Histogram   =    1);
+	double StdDev     ; Options.Get_Content("STDDEV"     , StdDev      =  0.5);
+	double StdDev_Max ; Options.Get_Content("STDDEV_MAX" , StdDev_Max  =  4.0);
+	double Interval   ; Options.Get_Content("INTERVAL"   , Interval    =  0.0);
+	double Offset; bool bOffset = Options.Get_Content("OFFSET", Offset =  0.0);
+
+	switch( Method )
+	{
+	case  0: Classify.Classify_Unique   (Classes_Max             );   break;
+	case  1: Classify.Classify_Equal    (Classes                 );   break;
+	case  2: if( bOffset )
+	     {   Classify.Classify_Defined  (Interval, Offset        ); }
+	else {   Classify.Classify_Defined  (Interval                ); } break;
+	case  3: Classify.Classify_Quantile (Classes, Histogram  == 1);   break;
+	case  4: Classify.Classify_Geometric(Classes, Increasing == 1);   break;
+	case  5: Classify.Classify_Natural  (Classes                 );   break;
+	case  6: Classify.Classify_StdDev   (StdDev, StdDev_Max      );   break;
+	}
+
+	//-----------------------------------------------------
+	int ColorsID = -1; Options.Get_Content("COLORS", ColorsID);
+	CSG_Colors Colors; if( !Colors.Create(0, ColorsID) ) { Colors.Create(*m_Parameters("METRIC_COLORS")->asColors()); }
+
+	if( Classify.Set_LUT(*m_Parameters["LUT"].asTable(), Colors, 1) )
+	{
+		if( m_Parameters["LUT"].asTable()->Get_MetaData().Get_Child("SAGA_GUI_LUT_TYPE") == NULL )
+		{
+			m_Parameters["LUT"].asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
+		}
+
+		m_Parameters["COLORS_TYPE"].Set_Value(CLASSIFY_LUT); // Lookup Table
+
+		if( pTable )
+		{
+			m_Parameters["LUT_FIELD" ].Set_Value(Field);
+			m_Parameters["LUT_NORMAL"].Set_Value(pTable->Get_Field_Count());
+		}
+
+		Parameters_Changed();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

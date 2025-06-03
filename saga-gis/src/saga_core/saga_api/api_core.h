@@ -1645,6 +1645,9 @@ typedef enum
 
 	CALLBACK_DATAOBJECT_COLORS_GET,
 	CALLBACK_DATAOBJECT_COLORS_SET,
+
+	CALLBACK_DATAOBJECT_CLASSIFY,
+
 	CALLBACK_DATAOBJECT_PARAMS_GET,
 	CALLBACK_DATAOBJECT_PARAMS_SET,
 
@@ -1747,6 +1750,9 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CSG_Data_Object *pD
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
+
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Classify	(class CSG_Data_Object *pDataObject, const class CSG_MetaData &Options);
+
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Get	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 

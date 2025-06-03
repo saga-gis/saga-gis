@@ -310,34 +310,47 @@ protected:
 	bool						Get_Projection				(CSG_Projection &Projection) const;
 
 
-public:	// static functions...
+protected: // static functions...
 
-	static bool					Process_Get_Okay			(bool bBlink = false);
-	static void					Process_Set_Text			(const CSG_String &Text);
-	static void					Process_Set_Text			(const char    *Format, ...);
-	static void					Process_Set_Text			(const wchar_t *Format, ...);
+	static int					_On_Parameter_Changed				(CSG_Parameter *pParameter, int Flags);
 
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE);
-	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE);
+	static bool					Process_Get_Okay					(bool bBlink = false);
+	static void					Process_Set_Text					(const CSG_String &Text);
+	static void					Process_Set_Text					(const char    *Format, ...);
+	static void					Process_Set_Text					(const wchar_t *Format, ...);
 
-	static bool					DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
-	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
-	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+	static bool					DataObject_Update					(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE);
+	static bool					DataObject_Update					(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE);
 
-	static bool					DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	static bool					DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	static bool					DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy);
+	static bool					DataObject_Get_Colors				(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
+	static bool					DataObject_Set_Colors				(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
+	static bool					DataObject_Set_Colors				(CSG_Data_Object *pDataObject, int nColors, int Colors = SG_COLORS_DEFAULT, bool bRevert = false);
 
-	static CSG_Parameter *		DataObject_Get_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
-	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal); // Range Parameter
+	static bool					DataObject_Get_Parameters			(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
+	static bool					DataObject_Set_Parameters			(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
+	static bool					DataObject_Set_Parameters			(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy);
 
-	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
+	static CSG_Parameter *		DataObject_Get_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
+	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal); // Range Parameter
+
+	static bool					DataObject_Set_Stretch_Linear		(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 5., double Maximum = 95.    , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch_StdDev		(CSG_Data_Object *pDataObject, int Field = -1, double StdDev = 2., bool bKeepInRange = false, int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch_Percentile	(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 2., double Maximum = 98.    , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch				(CSG_Data_Object *pDataObject, int Field     , double Minimum     , double Maximum          , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
+
+	static bool					DataObject_Classify_Unique			(CSG_Data_Object *pDataObject, int Field = -1, int Classes_Max = 1024                                   , int Colors = -1);
+	static bool					DataObject_Classify_Equal			(CSG_Data_Object *pDataObject, int Field = -1, int Classes = 10                                         , int Colors = -1);
+	static bool					DataObject_Classify_Defined			(CSG_Data_Object *pDataObject, int Field     , double Interval, bool bOffset = false, double Offset = 0., int Colors = -1);
+	static bool					DataObject_Classify_Quantile		(CSG_Data_Object *pDataObject, int Field = -1, int Classes = 10, bool bHistogram = true                 , int Colors = -1);
+	static bool					DataObject_Classify_Geometric		(CSG_Data_Object *pDataObject, int Field = -1, int Classes = 10, bool bIncreasing = true                , int Colors = -1);
+	static bool					DataObject_Classify_Natural			(CSG_Data_Object *pDataObject, int Field = -1, int Classes = 10                                         , int Colors = -1);
+	static bool					DataObject_Classify_StdDev			(CSG_Data_Object *pDataObject, int Field = -1, double StdDev = 0.5, double StdDev_Max = 4.5             , int Colors = -1);
 
 
 private:
