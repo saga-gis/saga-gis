@@ -343,10 +343,7 @@ bool CWKSP_Tool::Execute(bool bDialog)
 		g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 
 		#ifdef __WXMAC__
-		if( g_pTools->Get_Parameter("LIST_RECENT") && g_pTools->Get_Parameter("LIST_RECENT")->asBool() )
-		{
-			g_pTools->Add_Recent(this);
-		}
+		g_pTools->Add_Recent(this);
 		#endif
 	}
 
