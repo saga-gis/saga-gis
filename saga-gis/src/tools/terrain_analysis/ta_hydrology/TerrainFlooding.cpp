@@ -135,6 +135,12 @@ bool CTerrainFloodingBase::Initialize(const CSG_Parameters &Parameters)
 	m_pWaterBody->Assign_NoData();
 	m_pWaterBody->Set_Max_Samples(m_pWaterBody->Get_NCells());
 
+	CSG_Colors Colors(3);
+	Colors[0] = SG_GET_RGB(128, 255, 255);
+	Colors[1] = SG_GET_RGB(128, 128, 255);
+	Colors[2] = SG_GET_RGB(  0,   0, 128);
+	SG_UI_DataObject_Colors_Set(m_pWaterBody, &Colors);
+
 	if( m_pFlooded == NULL )
 	{
 		m_pFlooded = &m_Flooded; m_Flooded.Create(m_pDEM);
@@ -348,6 +354,8 @@ CTerrainFloodingInteractive::CTerrainFloodingInteractive(void)
 		_TL("Do not reset the water body grid before water level is calculated for the next point clicked."),
 		false
 	);
+
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE); // this will also prevent mouse capture on left mouse button down events!
 }
 
 
@@ -379,7 +387,6 @@ bool CTerrainFloodingInteractive::On_Execute(void)
 	return( true );
 }
 
-
 //---------------------------------------------------------
 bool CTerrainFloodingInteractive::On_Execute_Finish(void)
 {
@@ -388,13 +395,12 @@ bool CTerrainFloodingInteractive::On_Execute_Finish(void)
 	return( true );
 }
 
-
 //---------------------------------------------------------
 bool CTerrainFloodingInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	static bool bBusy = false;
 
-	if( Mode == TOOL_INTERACTIVE_LUP )
+	if( Mode == TOOL_INTERACTIVE_LDOWN )
 	{
 		if( bBusy == false )
 		{
