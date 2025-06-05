@@ -64,8 +64,9 @@ CBayernOpenData_DGM1::CBayernOpenData_DGM1(void)
 
 	Set_Description	(_TW(
 		"This tool provides easy-to-use access to the "
-		"\'Digitales Geländemodell 1m (DGM1)\' elevation data "
-		"as provided by <i>Bayrische Vermessungsverwaltung</i>. "
+		SG_T("<i>\'Digitales Geländemodell 1m (DGM1)\'</i> ")
+		"elevation data from the OpenData server of the "
+		"<i>Bayrische Vermessungsverwaltung</i>. "
 		"It uses a local database in the chosen directory which provides "
 		"the original tiles. If the tiles covering the requested area are "
 		"not found in this directory the tool tries to download these "
@@ -433,11 +434,11 @@ bool CBayernOpenData_DGM1::Provide_Tiles(const CSG_String &Directory, CSG_Rect E
 		(int)floor(Extent.xMax / 1000.), (int)floor(Extent.yMin / 1000.)
 	);
 
-	int nAdded = 0, nFailed = 0, nFound = 0;
+	int nAdded = 0, nFailed = 0, nFound = 0, i = 0, n = (1 + Tiles.Get_XRange()) * (1 + Tiles.Get_YRange());
 
-	for(int Row=Tiles.yMin; Set_Progress(Row - Tiles.yMin, Tiles.yMax - Tiles.yMin) && Row<=Tiles.yMax; Row++)
+	for(int Row=Tiles.yMin; Process_Get_Okay() && Row<=Tiles.yMax; Row++)
 	{
-		for(int Col=Tiles.xMin; Process_Get_Okay() && Col<=Tiles.xMax; Col++)
+		for(int Col=Tiles.xMin; Set_Progress(i++, n) && Col<=Tiles.xMax; Col++)
 		{
 			int Result = Provide_Tile(Directory, Col, Row);
 
@@ -486,13 +487,13 @@ int CBayernOpenData_DGM1::Provide_Tile(const CSG_String &Directory, int Col, int
 
 	Process_Set_Text("%s: %s...", File.c_str(), _TL("downloading"));
 
-	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s%s...", _TL("downloading"), m_ServerPath.c_str(), File.c_str()));
+//	SG_UI_Process_Set_Busy(true, CSG_String::Format("%s: %s%s...", _TL("downloading"), m_ServerPath.c_str(), File.c_str()));
 
 	CSG_CURL Connection(m_ServerPath);
 
 	if( !Connection.Request(File, Local_File.c_str()) )
 	{
-		SG_UI_Process_Set_Busy(false);
+//		SG_UI_Process_Set_Busy(false);
 
 		Message_Fmt(_TL("failed"));
 
@@ -501,7 +502,7 @@ int CBayernOpenData_DGM1::Provide_Tile(const CSG_String &Directory, int Col, int
 		return( -1 );
 	}
 
-	SG_UI_Process_Set_Busy(false);
+//	SG_UI_Process_Set_Busy(false);
 
 	//-----------------------------------------------------
 	Message_Fmt(_TL("okay"));
