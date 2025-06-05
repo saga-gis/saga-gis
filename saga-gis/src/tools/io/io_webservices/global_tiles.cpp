@@ -554,17 +554,23 @@ bool CTiles_Provider::Update_VRT(const CSG_String &Directory)
 	//-----------------------------------------------------
 	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 12);
 
-	if( !pTool
-	||  !pTool->Set_Parameter("FILES"   , Tiles)
-	||  !pTool->Set_Parameter("VRT_NAME", SG_File_Make_Path(Directory, m_VRT_Name, "vrt"))
-	||  !pTool->Execute() )
+	SG_UI_ProgressAndMsg_Lock(true);
+
+	bool bResult = pTool
+		&& pTool->Set_Parameter("FILES"   , Tiles)
+		&& pTool->Set_Parameter("VRT_NAME", SG_File_Make_Path(Directory, m_VRT_Name, "vrt"))
+		&& pTool->Execute();
+
+	SG_UI_ProgressAndMsg_Lock(false);
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	if( !bResult )
 	{
 		Error_Set(_TL("failed to update Virtual Raster Tiles file"));
-
-		return( false );
 	}
 
-	return( true );
+	return( bResult );
 }
 
 
