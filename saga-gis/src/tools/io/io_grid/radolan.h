@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                        Grid_IO                        //
+//                       io_grid                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                      radolan.h                        //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2025 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,98 +40,57 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__radolan_H
+#define HEADER_INCLUDED__radolan_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library information here...
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CRADOLAN : public CSG_Tool
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Grids") );
+public:
+	CRADOLAN(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for the import and export of gridded data.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Grid") );
-	}
-}
+	virtual CSG_String			Get_MenuPath(void)		{	return( _TL("Import") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "esri_arcinfo.h"
-#include "surfer.h"
-#include "raw.h"
-#include "xyz.h"
-#include "usgs_srtm.h"
-#include "mola.h"
-#include "srtm30.h"
-#include "bmp_export.h"
-#include "erdas_lan.h"
-#include "grid_table.h"
-#include "wrf.h"
-#include "import_clip_resample.h"
-#include "gvmd.h"
-#include "radolan.h"
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case 0 : return( new CESRI_ArcInfo_Export );
-	case 1 : return( new CESRI_ArcInfo_Import );
-	case 2 : return( new CSurfer_Export );
-	case 3 : return( new CSurfer_Import );
-	case 4 : return( new CRaw_Import );
-	case 5 : return( new CXYZ_Export );
-	case 6 : return( new CXYZ_Import );
-	case 7 : return( new CUSGS_SRTM_Import );
-	case 8 : return( new CMOLA_Import );
-	case 9 : return( new CSRTM30_Import );
-	case 10: return( new CBMP_Export );
-	case 11: return( new CErdas_LAN_Import );
-	case 12: return( new CGrid_Table_Import );
-	case 13: return( new CWRF_Import );
-	case 14: return( new CWRF_Export );
-	case 16: return( new CImport_Clip_Resample );
-	case 17: return( new CCRU_Table_Import );
-	case 18: return( new CGVMD_Import );
-	case 19: return( new CRADOLAN );
+	CSG_Grid *					Load_File				(const CSG_String &File, CSG_Table_Record &Attributes);
 
-	//-----------------------------------------------------
-	case 20: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+	bool						Read_Header				(CSG_File &Stream, int &nx, int &ny);
+	int							Read_Value				(CSG_File &Stream, unsigned short &value);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -141,8 +100,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__radolan_H
