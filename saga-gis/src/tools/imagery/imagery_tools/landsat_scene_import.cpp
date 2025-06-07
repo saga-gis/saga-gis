@@ -1337,6 +1337,36 @@ std::vector<LUT_Keys> Generic_Bool =
 	{ SG_COLOR_RED, 		"True"															,"",  1 },  		
 };
 
+std::vector<LUT_Keys> Cloud =
+{
+	{ SG_COLOR_YELLOW, 		"Cloud"																	,"",  1 },  		
+};
+
+std::vector<LUT_Keys> Cirrus =
+{
+	{ SG_COLOR_YELLOW, 		"Cirrus"																,"",  1 },  		
+};
+
+std::vector<LUT_Keys> Dilated =
+{
+	{ SG_COLOR_YELLOW, 		"Dilated Cloud"															,"",  1 },  		
+};
+
+std::vector<LUT_Keys> Shadow =
+{
+	{ SG_COLOR_GREEN, 		"Shadow"																,"",  1 },  		
+};
+
+std::vector<LUT_Keys> Snow =
+{
+	{ SG_COLOR_BLUE_LIGHT, 	"Snow"																	,"",  1 },  		
+};
+
+std::vector<LUT_Keys> Water =
+{
+	{ SG_COLOR_BLUE, 		"Water"																	,"",  1 },  		
+};
+
 //---------------------------------------------------------
 std::vector<LUT_Keys> Generic_Confidece =
 {
@@ -1351,6 +1381,17 @@ std::vector<LUT_Keys> Aerosol_Level =
 	{ SG_COLOR_YELLOW, 		"Low"																	,"",  1 },  		
 	{ SG_COLOR_YELLOW_DARK, "Medium"																,"",  2 },  		
 	{ SG_COLOR_RED, 		"High"																	,"",  3 },  		
+};
+
+//---------------------------------------------------------
+std::vector<LUT_Keys> Mask_Lut =
+{
+	{ SG_COLOR_YELLOW, 		"Cloud"																	,"",  1 },  		
+	{ SG_COLOR_YELLOW, 		"Cirrus"																,"",  2 },  		
+	{ SG_COLOR_YELLOW, 		"Dilated Cloud"															,"",  3 },  		
+	{ SG_COLOR_GREEN, 		"Shadow"																,"",  4 },  		
+	{ SG_COLOR_BLUE, 		"Water"																	,"",  5 },  		
+	{ SG_COLOR_BLUE_LIGHT, 	"Snow"																	,"",  6 },  		
 };
 
 //---------------------------------------------------------
@@ -1456,9 +1497,9 @@ std::vector<LUT_Keys> OLI_TIRS_C2_QA_Aerosol_LUT
 //---------------------------------------------------------
 std::vector<Flag_Info> MSS_C2_L1_QA_Pix =
 {
-	{NULL, SG_DATATYPE_Bit, 	"0", 0, 1, "Fill", 				"Fill", 			"Fill"},
-	{NULL, SG_DATATYPE_Bit, 	"3", 3, 1, "Cloud", 			"Cloud", 			"Cloud"},
-	{NULL, SG_DATATYPE_Byte,  "8-9", 8, 2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
+	{NULL, SG_DATATYPE_Bit, 	"0", 0, 1, "Fill", 				"Fill", 			"Fill",					ID_FILL		},
+	{NULL, SG_DATATYPE_Bit, 	"3", 3, 1, "Cloud", 			"Cloud", 			"Cloud",				ID_CLOUD 	},
+	{NULL, SG_DATATYPE_Byte,  "8-9", 8, 2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"					},
 };
 
 //---------------------------------------------------------
@@ -1477,61 +1518,61 @@ std::vector<Flag_Info> MSS_C2_L1_QA_Sat =
 //---------------------------------------------------------
 std::vector<Flag_Info> TM_ETM_C2_L1_QA_Sat =
 {
-	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6L_Sat", 		"Band 6L", 			"Band 6L Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "8", 8, 1, "B6H_Sat", 		"Band 6H", 			"Band 6H Data Saturation"},
-	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 	"Dropped Pixel", 	"Dropped Pixel"}
+	{NULL, SG_DATATYPE_Bit, "0", 0, 1, "B1_Sat", 		"Band 1 (Blue)", 			"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "1", 1, 1, "B2_Sat", 		"Band 2 (Green)", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "2", 2, 1, "B3_Sat", 		"Band 3 (Red)", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "3", 3, 1, "B4_Sat", 		"Band 4 (NIR)", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "4", 4, 1, "B5_Sat", 		"Band 5 (SWIR1)", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "5", 5, 1, "B6L_Sat", 		"Band 6L (Thermal Low)", 	"Band 6L Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "6", 6, 1, "B7_Sat", 		"Band 7 (SWIR2)", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "8", 8, 1, "B6H_Sat", 		"Band 6H (Thermal High)", 	"Band 6H Data Saturation"},
+	{NULL, SG_DATATYPE_Bit, "9", 9, 1, "Dropped", 		"Dropped Pixel", 			"Dropped Pixel"}
 };
 
 //---------------------------------------------------------
 std::vector<Flag_Info> TM_ETM_C2_L1_QA_Pix =
 {
-	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
-	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
-	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud"},
-	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow"},
-	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow"},
-	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear"},
-	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water"},
-	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
-	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"},
-	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"},
+	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill", 					ID_FILL 		},
+	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill", 			ID_DILATION		},
+	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud", 					ID_CLOUD 		},
+	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow", 			ID_SHADOW		},
+	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow", 					ID_SNOW 		},
+	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear"										},
+	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water", 					ID_WATER 		},
+	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"							},
+	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"					},
+	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"						},
 };
 
 //---------------------------------------------------------
 std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Sat =
 {
-	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1", 			"Band 1 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2", 			"Band 2 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "2", 	2, 	1, "B3_Sat", 		"Band 3", 			"Band 3 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "3", 	3, 	1, "B4_Sat", 		"Band 4", 			"Band 4 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "4", 	4, 	1, "B5_Sat", 		"Band 5", 			"Band 5 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "5", 	5, 	1, "B6_Sat", 		"Band 6", 			"Band 6 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "6", 	6, 	1, "B7_Sat", 		"Band 7", 			"Band 7 Data Saturation"},
-	{NULL, SG_DATATYPE_Bit,  "8", 	8, 	1, "B9_Sat", 		"Band 9", 			"Band 9 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "0", 	0, 	1, "B1_Sat", 		"Band 1 (Coastal)", 		"Band 1 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "1", 	1, 	1, "B2_Sat", 		"Band 2 (Blue)", 			"Band 2 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "2", 	2, 	1, "B3_Sat", 		"Band 3 (Green)", 			"Band 3 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "3", 	3, 	1, "B4_Sat", 		"Band 4 (Red)", 			"Band 4 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "4", 	4, 	1, "B5_Sat", 		"Band 5 (NIR)", 			"Band 5 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "5", 	5, 	1, "B6_Sat", 		"Band 6 (SWIR1)", 			"Band 6 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "6", 	6, 	1, "B7_Sat", 		"Band 7 (SWIR2)", 			"Band 7 Data Saturation"},
+	{NULL, SG_DATATYPE_Bit,  "8", 	8, 	1, "B9_Sat", 		"Band 9 (Cirrus)", 			"Band 9 Data Saturation"},
 	{NULL, SG_DATATYPE_Bit, "11", 	11,	1, "Terrain_occlusion", 	"Terrain occlusion","Terrain occlusion"}
 };
 
 //---------------------------------------------------------
 std::vector<Flag_Info> OLI_TIRS_C2_L1_QA_Pix =
 {
-	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill"},
-	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill"},
-	{NULL, SG_DATATYPE_Bit, 	"2", 	 2, 	1, "Cirrus", 			"Cirrus", 			"Cirrus"},
-	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud"},
-	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow"},
-	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow"},
-	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear"},
-	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water"},
-	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"},
-	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"},
-	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"},
-	{NULL, SG_DATATYPE_Byte, 	"14-15",14,		2, "Cirrus_Confidence", "Cirrus Confidence","Cirrus Confidence"}
+	{NULL, SG_DATATYPE_Bit, 	"0", 	 0, 	1, "Fill", 				"Fill", 			"Fill",						ID_FILL 		},
+	{NULL, SG_DATATYPE_Bit, 	"1", 	 1, 	1, "Dilated_Cloud", 	"Dilated Fill", 	"Dilated Fill",            	ID_DILATION		},
+	{NULL, SG_DATATYPE_Bit, 	"2", 	 2, 	1, "Cirrus", 			"Cirrus", 			"Cirrus",                  	ID_CIRRUS 		},
+	{NULL, SG_DATATYPE_Bit, 	"3", 	 3, 	1, "Cloud", 			"Cloud", 			"Cloud",                   	ID_CLOUD		},
+	{NULL, SG_DATATYPE_Bit, 	"4", 	 4, 	1, "Cloud_Shadow", 		"Cloud Shadow", 	"Cloud Shadow",            	ID_SHADOW 		},
+	{NULL, SG_DATATYPE_Bit, 	"5", 	 5, 	1, "Snow", 				"Snow", 			"Snow",                   	ID_SNOW 		},
+	{NULL, SG_DATATYPE_Bit, 	"6", 	 6, 	1, "Clear", 			"Clear", 			"Clear",                   					},
+	{NULL, SG_DATATYPE_Bit, 	"7", 	 7, 	1, "Water", 			"Water", 			"Water",					ID_WATER 		},
+	{NULL, SG_DATATYPE_Byte, 	"8-9", 	 8, 	2, "Cloud_Confidence", 	"Cloud Confidence", "Cloud Confidence"							},        				
+	{NULL, SG_DATATYPE_Byte, 	"10-11",10, 	2, "Shadow_Confidence", "Shadow Confidence","Cloud Shadow Confidence"					},
+	{NULL, SG_DATATYPE_Byte, 	"12-13",12, 	2, "Snow_Confidence", 	"Snow Confidence",	"Snow/Ice Confidence"						},
+	{NULL, SG_DATATYPE_Byte, 	"14-15",14,		2, "Cirrus_Confidence", "Cirrus Confidence","Cirrus Confidence"							}
 };
 
 //---------------------------------------------------------
@@ -1565,8 +1606,7 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 		"them into a Grid Collection. It is also possible to select individual flags for output. \n\n"
 
 		"Currently, the tool supports Pixel, Radiometric Saturation and Surface Reflectance Aerosol (only OLI/TIRS) Quality Assessment bands from Collection 2 (Level 1 and 2). "
-		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
-		"for classified displaying in the GUI."
+		"It also provides value the possibility to create a mask with the combined classes cirrus cloud (only OLI/TIRS), cloud, cloud shadow, water and snow, in this ranking order."
 	));
 
 	Add_Reference("https://www.usgs.gov/media/files/landsat-1-5-mss-collection-2-level-1-data-format-control-book",
@@ -1603,9 +1643,10 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 	//);
 
 	
-	Parameters.Add_Grid("", "IN_QA_PIXEL",		_TL("Pixel QA Band"), 						_TL("\"QA_PIXEL\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
-	Parameters.Add_Grid("", "IN_QA_RADSAT", 	_TL("Radiometric Saturation QA Band"), 		_TL("\"QA_RADSAT\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
-	Parameters.Add_Grid("", "IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 					_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
+	Parameters.Add_Grid("", 			"IN_QA_PIXEL",		_TL("Pixel QA Band"), 						_TL("\"QA_PIXEL\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
+	//Parameters.Add_Grid("IN_QA_PIXEL", 	"OUT_MASK", 		_TL("Mask"), 								_TL(""), 						PARAMETER_OUTPUT  								 );
+	Parameters.Add_Grid("", 			"IN_QA_RADSAT", 	_TL("Radiometric Saturation QA Band"), 		_TL("\"QA_RADSAT\"-Suffix"), 	PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Word );
+	Parameters.Add_Grid("", 			"IN_SR_QA_AEROSOL", _TL("SR Aerosol QA Band"), 					_TL("\"SR_QA_AEROSOL\"-Suffix"),PARAMETER_INPUT_OPTIONAL, true, SG_DATATYPE_Byte );
 	//
 	Parameters.Add_Choices("IN_QA_PIXEL", 		"IN_QA_PIX_SELECTION", 						_TL("Flag Selection"), _TL(""), "" );
 	Parameters.Add_Choices("IN_QA_RADSAT", 		"IN_QA_RADSAT_SELECTION", 					_TL("Flag Selection"), _TL(""), "" );
@@ -1617,6 +1658,7 @@ CLandsat_QA_Import::CLandsat_QA_Import(void)
 	Parameters.Add_Bool("", "GRIDS", 		_TL("Output as Grid Collection"), 	_TL(""), false );
 	Parameters.Add_Bool("", "SET_LUT", 		_TL("Classify Colors of Input"), 	_TL(""), true  )->do_UseInGUI();
 
+	Parameters.Add_Bool("", "MASK", 	_TL("Create Mask"), 			_TL(""), false );
 
 }
 
@@ -1636,6 +1678,9 @@ int CLandsat_QA_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	pParameters->Set_Enabled("IN_SR_QA_AEROSOL_SELECTION", 	pParameters->Get_Parameter("SELECTION")->asBool() && pParameters->Get_Parameter("SENSOR")->asInt() == 2 );
 	pParameters->Set_Enabled("IN_QA_PIX_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );		
 	pParameters->Set_Enabled("IN_QA_RADSAT_SELECTION", 		pParameters->Get_Parameter("SELECTION")->asBool() );
+	
+	pParameters->Set_Enabled("MASK", 						pParameters->Get_Parameter("IN_QA_PIXEL")->asGrid() );
+	//pParameters->Set_Enabled("OUT_MASK", 					pParameters->Get_Parameter("MASK")->asBool() );
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -1688,6 +1733,22 @@ bool CLandsat_QA_Import::On_Execute(void)
 
 	Parameters("OUTPUT" )->asGridList()->Del_Items();
 
+	CSG_Grid *pMask = NULL;
+
+	if( Parameters("MASK")->asBool() )
+	{
+		pMask = SG_Create_Grid(Get_System(), SG_DATATYPE_Char );
+		pMask->Set_NoData_Value_Range( -1.0, 0.0 );
+
+		if( has_GUI() )
+		{
+			// Do the Update first. This will ensure the LUT is created by the GUI. 
+			SG_UI_DataObject_Add( pMask, SG_UI_DATAOBJECT_UPDATE );
+			Create_LUT( pMask , Mask_Lut );
+		}
+
+		Parameters("OUTPUT" )->asGridList()->Add_Item( pMask );
+	}
 	// Organizing of the Inputs. The Tool offers multiple optional 
 	// Parameter Input Grids which are handled differently based of the Sensor and
 	// the collection and potentially level and the user selection.
@@ -1716,41 +1777,54 @@ bool CLandsat_QA_Import::On_Execute(void)
 				double Value = Decode_Value( Input.pGridInput->asShort(i), Flag.Pos, Flag.Len );
 				Flag.pGridTarget->Set_Value(i, Value , false);
 			}
-			
-			// Grid Collection
-			if( Parameters("GRIDS")->asBool() )
-			{
-				if( Flag.Type == SG_DATATYPE_Bit )
-				{
-					if( pBits == NULL )
-					{
-						pBits = SG_Create_Grids( Get_System(), Info_Bands);
-						pBits->Set_Name(Input.pGridInput->Get_Name());
-					}
-					pBits->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
-				}
-				if( Flag.Type == SG_DATATYPE_Byte )
-				{
-					if( pBytes == NULL )
-					{
-						pBytes = SG_Create_Grids( Get_System(), Info_Bands);
-						pBytes->Set_Name(Input.pGridInput->Get_Name());
-					}
-					pBytes->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
-				}
-			}
-			else
-	  		{
-				Flag.pGridTarget->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String(Flag.Band).c_str()) );
-					
-				if( has_GUI() )
-				{
-					// Do the Update first. This will ensure the LUT is created by the GUI. 
-					SG_UI_DataObject_Add( Flag.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
-					Create_LUT( Flag.pGridTarget , Get_LUT( Flag ) );
-				}
 
-				Parameters("OUTPUT" )->asGridList()->Add_Item( Flag.pGridTarget );
+			if( pMask )
+			{
+				pMask->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String("Mask").c_str()) );
+				Set_Mask( pMask, Flag );
+			}
+
+			if( Flag.Remove )
+			{
+				Flag.pGridTarget->Delete();
+			}
+			else 
+			{
+				// Grid Collection
+				if( Parameters("GRIDS")->asBool() )
+				{
+					if( Flag.Type == SG_DATATYPE_Bit )
+					{
+						if( pBits == NULL )
+						{
+							pBits = SG_Create_Grids( Get_System(), Info_Bands);
+							pBits->Set_Name(Input.pGridInput->Get_Name());
+						}
+						pBits->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
+					}
+					if( Flag.Type == SG_DATATYPE_Byte )
+					{
+						if( pBytes == NULL )
+						{
+							pBytes = SG_Create_Grids( Get_System(), Info_Bands);
+							pBytes->Set_Name(Input.pGridInput->Get_Name());
+						}
+						pBytes->Add_Grid( *Set_Grids_Attribute( Info_Bands, Flag), Flag.pGridTarget );
+					}
+				}
+				else
+				{
+					Flag.pGridTarget->Set_Name( CSG_String::Format("%s_%s", Input.pGridInput->Get_Name(), CSG_String(Flag.Band).c_str()) );
+						
+					if( has_GUI() )
+					{
+						// Do the Update first. This will ensure the LUT is created by the GUI. 
+						SG_UI_DataObject_Add( Flag.pGridTarget, SG_UI_DATAOBJECT_UPDATE );
+						Create_LUT( Flag.pGridTarget , Get_LUT( Flag ) );
+					}
+
+					Parameters("OUTPUT" )->asGridList()->Add_Item( Flag.pGridTarget );
+				}
 			}
 		}
 
@@ -1782,6 +1856,30 @@ std::vector<LUT_Keys> CLandsat_QA_Import::Get_LUT( Flag_Info Flag )
 	if( CSG_String(Flag.Band).is_Same_As("Aerosol_Level") )
 	{ 
 		return Aerosol_Level;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Cloud") )
+	{ 
+		return Cloud;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Cirrus") )
+	{ 
+		return Cirrus;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Dilated_Cloud") )
+	{ 
+		return Dilated;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Cloud_Shadow") )
+	{ 
+		return Shadow;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Snow") )
+	{ 
+		return Snow;
+	}
+	if( CSG_String(Flag.Band).is_Same_As("Water") )
+	{ 
+		return Water;
 	}
 
 	return( Flag.Len == 1 ? Generic_Bool : Generic_Confidece );
@@ -1830,15 +1928,65 @@ std::vector<Flag_Info> CLandsat_QA_Import::Get_Flags_Selection( CSG_Parameter *p
 	CSG_Parameter_Choices *pChoices = NULL;
 	if( pParameter->Get_Child(0) && (pChoices = pParameter->Get_Child(0)->asChoices()) )
 	{
-		for( int i=0; i<pChoices->Get_Selection_Count(); i++ )
+		for( int i=0; i<pChoices->Get_Item_Count(); i++ )
 		{
-			// Recover the selected indices from the Item-Data
-			Selection.push_back( Flags.at(pChoices->Get_Selection_Data(i).asInt()) );
+			if( pChoices->is_Selected(i) )
+			{
+				// Recover the selected indices from the Item-Data
+				Selection.push_back( Flags.at(pChoices->Get_Item_Data(i).asInt()) );
+			}
+			else 
+	  		{
+				if( pChoices->Get_Parent()->Cmp_Identifier("IN_QA_PIXEL") && Parameters("MASK")->asBool() )
+				{
+					Flag_Info Flag = Flags.at(pChoices->Get_Item_Data(i).asInt());
+	  				
+					if( Flag.Mask != ID_SKIP )
+					{
+						Selection.push_back( Flag );
+						Selection.back().Remove = true;
+					}
+				}
+			}
 		}
 	}
 
 	//-----------------------------------------------------
 	return Selection;
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_QA_Import::Set_Mask( CSG_Grid *pMask, Flag_Info Flag )
+{
+	CSG_String Band = Flag.Band;
+	  				
+
+	Mask_ID ID = Flag.Mask;
+
+	if( ID == ID_SKIP )
+	{
+		return( false );
+	}
+
+	for( sLong i=0; i<Get_NCells(); i++ )
+	{
+		if( Flag.pGridTarget->asShort(i) == 1 )
+		{
+			int Value = pMask->asInt(i);
+			if((ID < Value 		|| Value == ID_NONE  )
+			|| (ID == ID_CIRRUS && Value == ID_CLOUD ))
+			{
+				if( !(ID == ID_CLOUD && Value == ID_CIRRUS) )
+				{
+					pMask->Set_Value( i, (double) ID );
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -1856,19 +2004,19 @@ bool CLandsat_QA_Import::Set_Inputs( std::vector<Input> &Input )
 	 	{
 			Input.push_back({ pGrid, Selection ? Get_Flags_Selection(P, Sensor) : Get_Flags(P, Sensor) , false} );
 		
-			if( P->Cmp_Identifier("IN_QA_PIXEL") )
-			{
-				if( Sensor == 1 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
-					Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
-				if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
-					Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
-			}
-			
-			if( P->Cmp_Identifier("IN_SR_QA_AEROSOL") )
-			{
-				if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
-					Create_LUT( pGrid, OLI_TIRS_C2_QA_Aerosol_LUT );
-			}
+			//if( P->Cmp_Identifier("IN_QA_PIXEL") )
+			//{
+			//	if( Sensor == 1 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+			//		Create_LUT( pGrid, TM_ETM_C2_QA_Pix_LUT );
+			//	if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+			//		Create_LUT( pGrid, OLI_TIRS_C2_QA_Pix_LUT );
+			//}
+			//
+			//if( P->Cmp_Identifier("IN_SR_QA_AEROSOL") )
+			//{
+			//	if( Sensor == 2 && has_GUI() && Parameters("SET_LUT")->asBool() ) 
+			//		Create_LUT( pGrid, OLI_TIRS_C2_QA_Aerosol_LUT );
+			//}
 		}
 	}
 
@@ -1964,3 +2112,98 @@ bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/*
+CLandsat_Angle_Import::CLandsat_Angle_Import(void)
+{
+	Set_Name		(_TL("Import Landsat Angle Bands"));
+
+	Set_Author		("J.Spitzmueller (c) 2024");
+
+	Set_Version 	("0.9");
+
+	Set_Description	(_TW(
+		"This tool decodes Landsat Multispectral Scanner System (MSS), Thematic Mapper (TM), "
+		"Enhanced Thematic Mapper Plus (ETM+), and Operational Land Imager/Thermal Infrared Sensor (OLI/TIRS) "
+		"Quality Assessment (QA) bands. It splits these QA bands into individual bands and optionally aggregates "
+		"them into a Grid Collection. It is also possible to select individual flags for output. \n\n"
+
+		"Currently, the tool supports Pixel, Radiometric Saturation and Surface Reflectance Aerosol (only OLI/TIRS) Quality Assessment bands from Collection 2 (Level 1 and 2). "
+		"It also provides value interpretation for certain sensors and QA bands, which can be optionally added to the input datasets "
+		"for classified displaying in the GUI."
+	));
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-1-5-mss-collection-2-level-1-data-format-control-book",
+		SG_T("Landsat 1-5 MSS Collection 2 Level 1 Data Format Control Book V3")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-4-7-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 4-7 Collection 2 Level 2 Science Product Guide V4")
+	);
+
+	Add_Reference("https://www.usgs.gov/media/files/landsat-8-9-collection-2-level-2-science-product-guide",
+		SG_T("Landsat 8-9 Collection 2 Level 2 Science Product Guide V6")
+	);
+
+	//-----------------------------------------------------
+
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Files"),
+		_TL(""),
+		CSG_String::Format("%s|*.tif;*.TIF|%s|*.*",
+			_TL("Recognized Files"),
+			_TL("All Files")
+		), NULL, false, false, true 
+	);
+
+	Parameters.Add_Grid_List("", "BANDS",_TL("Angle Band(s)"), _TL("\"SAA\", \"SZA\", \"VAA\", or \"VZA\"-Suffix"), PARAMETER_INPUT_OPTIONAL );
+	
+	Parameters.Add_Choice("", 
+		"CHOICE", _TL("Option"), _TL(""), 
+		CSG_String::Format("%s|%s|",
+			_TL("Import and Scale"),
+			_TL("Just Scale")
+		)
+	);
+	
+	Parameters.Add_Bool("", "GRIDS", 		_TL("Output as Grid Collection"), 	_TL(""), false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLandsat_Angle_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("GRIDS", pParameters->Get_Parameter("CHOICE")->asInt() == 0 );
+	pParameters->Set_Enabled("FILES", pParameters->Get_Parameter("CHOICE")->asInt() == 0 );
+	pParameters->Set_Enabled("BANDS", pParameters->Get_Parameter("CHOICE")->asInt() == 1 );
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+//---------------------------------------------------------
+bool CLandsat_Angle_Import::On_Execute(void)
+{
+	CSG_Strings Files;
+	if( Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
+	{
+		for(int i=0; i<Files.Get_Size(); i++)
+		{
+		}
+	}
+
+	CSG_Parameter_Grid_List *pGridList = Parameters("BANDS")->asGridList();
+
+	for( int i=0; i<pGridList->Get_Item_Count(); i++ )
+	{
+		pGridList->Get_Grid(i)->Set_Scaling(0.01);
+	}
+
+	return( true );
+}
+*/

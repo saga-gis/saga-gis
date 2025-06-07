@@ -135,6 +135,13 @@ private:
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum Mask_ID 
+{
+	ID_SKIP = -2, ID_FILL = -1, ID_NONE = 0, ID_CLOUD = 1, ID_CIRRUS = 2, ID_DILATION = 3, ID_SHADOW = 4, ID_WATER = 5, ID_SNOW = 6
+} Mask;
+
 struct LUT_Keys 
 {
 	long Color; const char *Name; const char *Description; int Value;
@@ -142,7 +149,7 @@ struct LUT_Keys
 
 struct Flag_Info
 {
-	CSG_Grid *pGridTarget; TSG_Data_Type Type; const char *ID; size_t Pos; size_t Len; const char *Band; const char *Band_Name; const char *Desc; 
+	CSG_Grid *pGridTarget; TSG_Data_Type Type; const char *ID; size_t Pos; size_t Len; const char *Band; const char *Band_Name; const char *Desc; Mask_ID Mask = ID_SKIP; bool Remove = false;
 };
 
 
@@ -174,12 +181,39 @@ private:
 	bool 					Create_LUT				(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys);
 	bool 					Set_LUT					(CSG_Table_Record *pRec, LUT_Keys Key);
 	std::vector<LUT_Keys> 	Get_LUT					(Flag_Info Flag);
+	bool					Set_Mask				(CSG_Grid *pGrid, Flag_Info Flag);
 
 	bool 					Set_Inputs				(std::vector<Input> &Input );
 	std::vector<Flag_Info> 	Get_Flags 				(CSG_Parameter *pParameter , int Sensor );
 	std::vector<Flag_Info> 	Get_Flags_Selection 	(CSG_Parameter *pParameter , int Sensor );
 };
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/*
+class CLandsat_Angle_Import : public CSG_Tool_Grid
+{
+public:
+	CLandsat_Angle_Import(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+};
+*/
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -1037,6 +1037,8 @@ public:
 
 	//-----------------------------------------------------
 	void			Add_Value			(double Value);
+	
+	bool 			Add_Histogram		(const CSG_Histogram &Histogram );
 
 	bool			Scale_Element_Count	(double Scale);
 

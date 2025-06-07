@@ -108,6 +108,7 @@ CSG_String Get_Info(int i)
 
 #include "topographic_correction.h"
 #include "clouds_and_shadows.h"
+#include "fmask.h"
 
 
 //---------------------------------------------------------
@@ -133,6 +134,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 10: return( new CLandsat_Import );
 	case 14: return( new CLandsat_Scene_Import );
 	case 23: return( new CLandsat_QA_Import );
+	case 25: return( new CLandsat_Angle_Import );
 
 	case 11: return( new CTextural_Features );
 	case 12: return( new CLocal_Statistical_Measures );
@@ -149,6 +151,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 20: return( new CDetect_Clouds );
 	case 21: return( new CDetect_CloudShadows );
+	case 24: return( new CFmask );
 
 	case 22: return( new CSPOT_Scene_Import );
 

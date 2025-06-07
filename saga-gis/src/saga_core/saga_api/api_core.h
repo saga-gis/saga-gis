@@ -976,6 +976,8 @@ protected:
 		return( NULL );
 	}
 
+	void *					Get_Array		(void) const { return( m_Stack.Get_Entry(1) ); }
+
 
 private:
 
