@@ -2112,6 +2112,7 @@ bool CLandsat_QA_Import::Create_LUT(CSG_Grid *pGrid, std::vector<LUT_Keys> Keys)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/*
 CLandsat_Angle_Import::CLandsat_Angle_Import(void)
 {
 	Set_Name		(_TL("Import Landsat Angle Bands"));
@@ -2203,3 +2204,4 @@ bool CLandsat_Angle_Import::On_Execute(void)
 
 	return( true );
 }
+*/
