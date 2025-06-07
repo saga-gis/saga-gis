@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 clouds_and_shadows.cpp                //
+//                       fmask.cpp                       //
 //                                                       //
-//                  Copyrights (c) 2023                  //
+//                  Copyrights (c) 2025                  //
 //                  Justus Spitzmüller                   //
 //                     Olaf Conrad                       //
 //                                                       //
@@ -327,7 +327,7 @@ int CFmask::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPa
 	int Sensor 		= pParameters->Get_Parameter("SENSOR")->asInt();
 	int Algorithm 	= pParameters->Get_Parameter("ALGORITHM")->asInt();
 	
-	pParameters->Set_Enabled("THERMAL_UNIT",	Sensor != MSI );
+	pParameters->Set_Enabled("THERMAL_UNIT",  Sensor != MSI );
 
 	pParameters->Set_Enabled("THERMAL_SYS"	, Sensor == TM  || Sensor == ETM || Sensor == OLI_TIRS );
 	pParameters->Set_Enabled("VEGETATION"	, Sensor == MSI );
@@ -514,7 +514,7 @@ bool CFmask::Create_Kernel( CSG_Array_Int *X_Kernel, CSG_Array_Int *Y_Kernel, in
 {
 	CSG_Grid_Cell_Addressor Addressor; 
 	Addressor.Set_Radius( Cell_Radius, Square );
-	CSG_Cloud_Stack Stack;
+	CCloud_Stack Stack;
 	for( int i=0; i<Addressor.Get_Count(); i++ )
 	{
 		int x = Addressor.Get_X(i), y = Addressor.Get_Y(i);
@@ -1051,7 +1051,7 @@ bool CFmask::Set_Shadow_Mask( const double T_Low, const double T_High )
 
 
 
-	std::vector<CSG_Cloud_Stack> Leftovers;
+	std::vector<CCloud_Stack> Leftovers;
 
 	//int Chunk = 3473;
 	//
@@ -1112,7 +1112,7 @@ bool CFmask::Get_Flood_Fill( double Boundary, int Band_Input, int Band_Output )
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFmask::Get_Segmentation(std::vector<CSG_Cloud_Stack> *Array, const double T_Low, const double T_High, const int xStart, const int xEnd, const int yStart, const int yEnd)
+bool CFmask::Get_Segmentation(std::vector<CCloud_Stack> *Array, const double T_Low, const double T_High, const int xStart, const int xEnd, const int yStart, const int yEnd)
 {
 
 	#ifdef _DEBUG
@@ -1128,7 +1128,7 @@ bool CFmask::Get_Segmentation(std::vector<CSG_Cloud_Stack> *Array, const double 
 
 	CSG_Grid_Stack 			Stack;
 	CSG_Histogram 			Cloud_Temps(m_Bin_Count, m_Temp_Min + m_Temp_Off, m_Temp_Max + m_Temp_Off ); 	  
-	CSG_Cloud_Stack 		Cloud_Stack;
+	CCloud_Stack 		Cloud_Stack;
 	bool 					Dummy; 
 	double 					Temp_Minimum = m_Temp_Max;
 
@@ -1197,7 +1197,7 @@ bool CFmask::Get_Segmentation(std::vector<CSG_Cloud_Stack> *Array, const double 
 					}
 
 					Cloud_Temps.Update();
-					CSG_Cloud_Stack Cloud_Shape;
+					CCloud_Stack Cloud_Shape;
 					if( Merge )
 					{
 						#pragma omp critical
@@ -1259,7 +1259,7 @@ bool CFmask::Get_Segmentation(std::vector<CSG_Cloud_Stack> *Array, const double 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFmask::Get_3D_Shadow( CSG_Cloud_Stack *pInputStack, CSG_Cloud_Stack *pOutputStack, const double T_Cloud_base )
+bool CFmask::Get_3D_Shadow( CCloud_Stack *pInputStack, CCloud_Stack *pOutputStack, const double T_Cloud_base )
 {
 	bool bDummy;
 	for( sLong i=0; i<pInputStack->Get_Size(); i++ )

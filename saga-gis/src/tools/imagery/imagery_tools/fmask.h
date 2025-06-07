@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      ta_lighting                      //
+//                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  clouds_and_shadows.h                 //
+//                        fmask.h                        //
 //                                                       //
-//                  Copyrights (c) 2023                  //
+//                  Copyrights (c) 2025                  //
 //                  Justus Spitzmüller                   //
 //                     Olaf Conrad                       //
 //                                                       //
@@ -69,18 +69,19 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
-inline int CompareCoords(const TSG_Point_Int& a, const TSG_Point_Int& b) {
+inline int CompareCoords(const TSG_Point_Int& a, const TSG_Point_Int& b) 
+{
     if (a.y < b.y) return -1;
     if (a.y > b.y) return 1;
     if (a.x < b.x) return -1;
     if (a.x > b.x) return 1;
-    return 0; // gleich
+    return( 0 ); 
 }
 
-class CSG_Cloud_Stack : public CSG_Grid_Stack
+class CCloud_Stack : public CSG_Grid_Stack
 {
 public:
-	bool					Overlap( CSG_Cloud_Stack &Other )
+	bool					Overlap( CCloud_Stack &Other )
 	{
 		if( !m_Rect.Intersect(Other.m_Rect) )
 		{
@@ -116,7 +117,7 @@ public:
 		return( false );
 	}
 
-	CSG_Cloud_Stack& 			Merge( CSG_Cloud_Stack &Other )
+	CCloud_Stack& 			Merge( CCloud_Stack &Other )
 	{
 		if( !Overlap(Other) )
 		{
@@ -340,9 +341,9 @@ private:
 
 	bool 						Set_Shadow_Mask			( const double T_Low, const double T_High );
 
-	bool 						Get_Segmentation		( std::vector<CSG_Cloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
+	bool 						Get_Segmentation		( std::vector<CCloud_Stack> *Array, double T_Low, double T_High, int xStart, int xEnd, int yStart, int yEnd);
 	
-	bool 						Get_3D_Shadow			( CSG_Cloud_Stack *pInputStack, CSG_Cloud_Stack *pOutputStack, const double T_Cloud_base );
+	bool 						Get_3D_Shadow			( CCloud_Stack *pInputStack, CCloud_Stack *pOutputStack, const double T_Cloud_base );
 
 	bool 						Get_Shadow_Match		( CSG_Grid_Stack *pCloud_Shape, const double H_Cloud_base_min, const double H_Cloud_base_max);
 	
@@ -350,52 +351,6 @@ private:
 	
 
 };
-
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-/*
-//---------------------------------------------------------
-class CDetect_CloudShadows : public CSG_Tool_Grid
-{
-public:
-	CDetect_CloudShadows(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Feature Extraction") );	}
-
-
-protected:
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	CSG_Table					*m_pInfo { NULL };
-
-	CSG_Grid					m_Correction;
-
-
-	CSG_Grid *					Get_Target				(void);
-
-	bool						Get_Candidates			(CSG_Grid &Candidates);
-
-	double						Get_Correction			(double dx, double dy, double dz, CSG_Grid *pDEM, int x, int y);
-	bool						Get_Correction			(double dx, double dy, double dz);
-	bool						Get_Correction			(double dx, double dy, int &x, int &y);
-
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud, const CSG_Grid *pClouds);
-	bool						Get_Cloud				(CSG_Grid_Stack &Cloud,       CSG_Grid *pClouds, int x, int y, CSG_Grid *pID);
-
-	bool						Find_Shadow				(CSG_Grid *pShadows, CSG_Grid &Candidates, const CSG_Grid_Stack &Cloud, double zRange[2], double dx, double dy, double dz);
-
-};
-*/
 
 ///////////////////////////////////////////////////////////
 //														 //
