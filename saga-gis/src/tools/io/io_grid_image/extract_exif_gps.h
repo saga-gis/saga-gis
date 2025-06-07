@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                  extract_exif_gps.h                   //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2025 by                 //
+//                  Justus Spitzmueller                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,79 +36,27 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
-//                                                       //
-//    contact:    SAGA User Group Association            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#pragma once
 
+#if !HAVE_EXIV2
+	#define new_CExtract_EXIF_GPS TLB_INTERFACE_SKIP_TOOL
+#else
+	#define new_CExtract_EXIF_GPS new CExtract_EXIF_GPS
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
-
-
-//---------------------------------------------------------
-// 2. Place general tool library information here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Images") );
-
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2005" );
-
-	case TLB_INFO_Description:
-		return( _TL("Image Import/Export.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "grid_export.h"
-#include "grid_import.h"
-#include "grid_to_kml.h"
-#include "export_gif_animation.h"
-#include "extract_exif_gps.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: return( new CGrid_Export );
-	case  1: return( new CGrid_Import );
-	case  2: return( new CGrid_to_KML );
-	case  3: return( new CGrid_from_KML );
-	case  4: return( new CExport_GIF_Animation );
-	case  5: return( new_CExtract_EXIF_GPS );
-
-	case  6: return( NULL );
-	default: return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#include <exiv2/exiv2.hpp>
 
 
 ///////////////////////////////////////////////////////////
@@ -118,8 +66,37 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CExtract_EXIF_GPS : public CSG_Tool
+{
+public:
+	CExtract_EXIF_GPS(void);
 
-	TLB_INTERFACE
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	
+	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
-//}}AFX_SAGA
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+private:
+
+	bool 						Get_Coordinate			( double& Coordinate, const Exiv2::Value& Value, const std::string& Ref );
+	double 						Convert_Rational 		( const Exiv2::Value& Value, const size_t Position );
+	
+	CSG_Parameters_CRSPicker 	m_CRS;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+#endif // HAVE_EXIV2
