@@ -249,7 +249,7 @@ bool CExtract_EXIF_GPS::On_Execute(void)
 
 	if( pShapes->Get_Projection().Get_Type() == ESG_CRS_Type::Undefined )
 	{
-		pShapes->Get_Projection().Create( 3857, SG_T("EPSG"));
+		pShapes->Get_Projection().Set_GCS_WGS84();
 	}
 
 	CSG_Projection Target = pShapes->Get_Projection();
