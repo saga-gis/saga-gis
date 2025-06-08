@@ -467,8 +467,8 @@ void CWKSP_Map::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
-		"GCS_POSITION"  , _TL("Position as Geographic Coordinates"),
-		_TL("Display mouse position in status bar as geographic coordinates."),
+		"GCS_POSITION"  , _TL("Display Sexagesimal Coordinates"),
+		_TL("Display mouse position in status bar as geographic coordinates in the sexagesimal format DDD\u00B0MM'SS.S\" transformed to WGS84"),
 		false
 	);
 
