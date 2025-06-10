@@ -282,9 +282,7 @@ wxString CWKSP_Map::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Map::Get_Menu(void)
 {
-	wxMenu *pMenu;
-
-	pMenu = new wxMenu(_TL("Map"));
+	wxMenu *pMenu = new wxMenu(_TL("Map"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SHOW);
@@ -293,7 +291,7 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYOUT_SHOW);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SCALEBAR);
-//	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_NORTH_ARROW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAP_NORTH_ARROW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_GRATICULE_ADD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_BASEMAP_ADD);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SYNCHRONIZE);
@@ -317,60 +315,25 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+	default: return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
-	case ID_CMD_WKSP_ITEM_RETURN:
-		View_Show(true);
-		break;
+	case ID_CMD_WKSP_ITEM_RETURN             : View_Show     (true); break;
+	case ID_CMD_MAPS_SHOW                    : View_Toggle       (); break;
+	case ID_CMD_MAPS_3D_SHOW                 : View_3D_Toggle    (); break;
+	case ID_CMD_MAPS_LAYOUT_SHOW             : View_Layout_Toggle(); break;
 
-	case ID_CMD_MAPS_SAVE_IMAGE:
-		SaveAs_Image();
-		break;
+	case ID_CMD_MAPS_PROJECTION              : Set_Projection(); break;
+	case ID_CMD_MAPS_SCALEBAR                : Set_ScaleBar   (!is_ScaleBar   ()); break;
+	case ID_CMD_MAP_NORTH_ARROW              : Set_North_Arrow(!is_North_Arrow()); break;
+	case ID_CMD_MAPS_SYNCHRONIZE             : Set_Synchronising(!m_Parameters("SYNC_MAPS")->asBool()); break;
 
-	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
-		SaveAs_Image_On_Change();
-		break;
+	case ID_CMD_MAPS_GRATICULE_ADD           : Add_Graticule(); break;
+	case ID_CMD_MAPS_BASEMAP_ADD             : Add_BaseMap  (); break;
 
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:
-		SaveAs_Image_Clipboard(false);
-		break;
-
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:
-		SaveAs_Image_Clipboard(true);
-		break;
-
-	case ID_CMD_MAPS_SCALEBAR:
-		Set_ScaleBar(!is_ScaleBar());
-		break;
-
-	case ID_CMD_MAPS_SYNCHRONIZE:
-		Set_Synchronising(!m_Parameters("SYNC_MAPS")->asBool());
-		break;
-
-	case ID_CMD_MAPS_GRATICULE_ADD:
-		Add_Graticule();
-		break;
-
-	case ID_CMD_MAPS_BASEMAP_ADD:
-		Add_BaseMap();
-		break;
-
-	case ID_CMD_MAPS_PROJECTION:
-		Set_Projection();
-		break;
-
-	case ID_CMD_MAPS_SHOW:
-		View_Toggle();
-		break;
-
-	case ID_CMD_MAPS_3D_SHOW:
-		View_3D_Toggle();
-		break;
-
-	case ID_CMD_MAPS_LAYOUT_SHOW:
-		View_Layout_Toggle();
-		break;
+	case ID_CMD_MAPS_SAVE_IMAGE              : SaveAs_Image()               ; break;
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE    : SaveAs_Image_On_Change()     ; break;
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD       : SaveAs_Image_Clipboard(false); break;
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND: SaveAs_Image_Clipboard( true); break;
 	}
 
 	return( true );
@@ -381,33 +344,19 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		return( CWKSP_Base_Manager::On_Command_UI(event) );
+	default: return( CWKSP_Base_Manager::On_Command_UI(event) );
 
-	case ID_CMD_MAPS_SHOW:
-		event.Check(m_pView != NULL);
-		break;
+	case ID_CMD_MAPS_SHOW                    : event.Check(m_pView    != NULL); break;
+	case ID_CMD_MAPS_3D_SHOW                 : event.Check(m_pView_3D != NULL); break;
+	case ID_CMD_MAPS_LAYOUT_SHOW             : event.Check(m_pLayout  != NULL); break;
 
-	case ID_CMD_MAPS_3D_SHOW:
-		event.Check(m_pView_3D != NULL);
-		break;
+	case ID_CMD_MAPS_SCALEBAR                : event.Check(is_ScaleBar   ()); break;
+	case ID_CMD_MAP_NORTH_ARROW              : event.Check(is_North_Arrow()); break;
 
-	case ID_CMD_MAPS_LAYOUT_SHOW:
-		event.Check(m_pLayout != NULL);
-		break;
+	case ID_CMD_MAPS_GRATICULE_ADD           :
+	case ID_CMD_MAPS_BASEMAP_ADD             : event.Enable(Get_Count() > 0 && m_Projection.is_Okay()); break;
 
-	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
-		event.Check(is_Image_Save_Mode());
-		break;
-
-	case ID_CMD_MAPS_SCALEBAR:
-		event.Check(is_ScaleBar());
-		break;
-
-	case ID_CMD_MAPS_GRATICULE_ADD:
-	case ID_CMD_MAPS_BASEMAP_ADD:
-		event.Enable(Get_Count() > 0 && m_Projection.is_Okay());
-		break;
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE    : event.Check(is_Image_Save_Mode()); break;
 	}
 
 	return( true );
@@ -466,10 +415,14 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool("NODE_GENERAL",
-		"GCS_POSITION"  , _TL("Display Sexagesimal Coordinates"),
-		_TL("Display mouse position in status bar as geographic coordinates in the sexagesimal format DDD\u00B0MM'SS.S\" transformed to WGS84"),
-		false
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"GCS_POSITION"  , _TL("Display Coordinates"),
+		_TL("Show mouse position in status bar as map or geographic coordinates, the latter transformed to WGS84 and using either the sexagesimal DDD\u00B0MM'SS.S\" or the decimal degree format."),
+		CSG_String::Format("%s|%s|%s",
+			_TL("map coordinates"),
+			_TL("geographic coordinates (degree, minutes, seconds)"),
+			_TL("geographic coordinates (decimal degree)")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -577,6 +530,12 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Double("SCALE_SHOW",
+		"SCALE_RESCALE" , _TL("Rescaling"),
+		_TL("Rescaling factor used to convert original map coordinate units, e.g. from meters to feet."),
+		1., 0., true
+	);
+
+	m_Parameters.Add_Double("SCALE_SHOW",
 		"SCALE_WIDTH"   , _TL("Width"),
 		_TL("Width given as percentage of map size"),
 		40., 1., true, 100., true
@@ -654,6 +613,11 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
 			pParameter->Set_Children_Enabled(pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("SCALE_UNIT") )
+		{
+			pParameters->Set_Enabled("SCALE_RESCALE", pParameter->asInt() != 1); // only applies if unit is not retrieved automatically!
 		}
 	}
 
@@ -2449,8 +2413,6 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 		return( true );
 	}
 
-	double Width = 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
-
 	wxRect r = !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(dc.rDC()) : wxRect(
 		(int) dc.xWorld2DC    (Get_Extent().Get_XMin  ()),
 		(int) dc.yWorld2DC    (Get_Extent().Get_YMax  ()),
@@ -2461,24 +2423,29 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 	r = wxRect(
 		(int)(0.5 + r.GetWidth () * 0.01 * m_Parameters("SCALE_OFFSET_X")->asDouble()) + r.GetX(), r.GetY() + r.GetHeight() -
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_OFFSET_Y")->asDouble()),
-		(int)(0.5 + r.GetWidth () * Width),
+		(int)(0.5 + r.GetWidth () * 0.01 * m_Parameters("SCALE_WIDTH"   )->asDouble()),
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
 	);
 
-	Width = dc.DC2World() * r.GetWidth();
+	double Length = dc.DC2World() * r.GetWidth();
+
+	if( m_Parameters("SCALE_UNIT")->asInt() != 1 && m_Parameters("SCALE_RESCALE")->asDouble() > 0. ) // don't rescale if unit is retrieved from coordinate system (automatically)!
+	{
+		Length *= m_Parameters("SCALE_RESCALE")->asDouble();
+	}
 
 	CSG_String Unit;
 
 	if( m_Parameters("SCALE_UNIT")->asInt() > 0 )
 	{
-		ESG_Projection_Unit _Unit = m_Parameters("SCALE_UNIT")->asInt() > 1
-			? (ESG_Projection_Unit)(m_Parameters("SCALE_UNIT")->asInt() - 2) : m_Projection.Get_Unit();
+		ESG_Projection_Unit _Unit = m_Parameters("SCALE_UNIT")->asInt() >= 2
+			? (ESG_Projection_Unit)(m_Parameters("SCALE_UNIT")->asInt()  - 2) : m_Projection.Get_Unit();
 
 		if( _Unit != ESG_Projection_Unit::Undefined )
 		{
-			if( Width > 10000. && _Unit == ESG_Projection_Unit::Meter )
+			if( Length > 10000. && _Unit == ESG_Projection_Unit::Meter )
 			{
-				Width /= 1000.; _Unit = ESG_Projection_Unit::Kilometer;
+				Length /= 1000.; _Unit = ESG_Projection_Unit::Kilometer;
 			}
 
 			Unit = CSG_Projections::Get_Unit_Name(_Unit, true);
@@ -2492,7 +2459,7 @@ bool CWKSP_Map::Draw_ScaleBar(CSG_Map_DC &dc)
 		Style |= SCALE_STYLE_BLACKWHITE;
 	}
 
-	Draw_Scale(dc.Get_DC(), r, 0., Width, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
+	Draw_Scale(dc.Get_DC(), r, 0., Length, SCALE_HORIZONTAL, SCALE_TICK_TOP, Style, Unit.c_str());
 
 	return( true );
 }

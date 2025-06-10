@@ -167,22 +167,38 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 	{
 		bBuisy = true;
 
-		if( m_pMap->Get_Parameter("GCS_POSITION")->asBool() && m_pMap->Get_Projection().is_Okay() )
-		{
-			CSG_Projection GCS; GCS.Set_GCS_WGS84(); TSG_Point Position = Point;
+		//-------------------------------------------------
+		int Position = m_pMap->Get_Parameter("GCS_POSITION")->asInt(); wxString Coordinates[2];
 
-			if( SG_Get_Projected(m_pMap->Get_Projection(), GCS, Position) )
+		if( Position > 0 && m_pMap->Get_Projection().is_Okay() )
+		{
+			CSG_Projection GCS; GCS.Set_GCS_WGS84(); TSG_Point GCS_Point = Point;
+
+			if( SG_Get_Projected(m_pMap->Get_Projection(), GCS, GCS_Point) )
 			{
-				STATUSBAR_Set_Text(wxString::Format("X %s", SG_Double_To_Degree(Position.x).c_str()), STATUSBAR_VIEW_X);
-				STATUSBAR_Set_Text(wxString::Format("Y %s", SG_Double_To_Degree(Position.y).c_str()), STATUSBAR_VIEW_Y);
+				if( Position == 1 )
+				{
+					Coordinates[0].Printf("LON %s", SG_Double_To_Degree(GCS_Point.x).c_str());
+					Coordinates[1].Printf("LAT %s", SG_Double_To_Degree(GCS_Point.y).c_str());
+				}
+				else
+				{
+					Coordinates[0].Printf("LON %f", GCS_Point.x);
+					Coordinates[1].Printf("LAT %f", GCS_Point.y);
+				}
 			}
 		}
-		else
+
+		if( Coordinates[0].IsEmpty() )
 		{
-			STATUSBAR_Set_Text(wxString::Format("X %f", Point.x), STATUSBAR_VIEW_X);
-			STATUSBAR_Set_Text(wxString::Format("Y %f", Point.y), STATUSBAR_VIEW_Y);
+			Coordinates[0].Printf("X %f", Point.x);
+			Coordinates[1].Printf("Y %f", Point.y);
 		}
 
+		STATUSBAR_Set_Text(Coordinates[0], STATUSBAR_VIEW_X);
+		STATUSBAR_Set_Text(Coordinates[1], STATUSBAR_VIEW_Y);
+
+		//-------------------------------------------------
 		if( m_Mode == MAP_MODE_DISTANCE_GET )
 		{
 			STATUSBAR_Set_Text(m_Measure.Get_Measure(Point), STATUSBAR_VIEW_Z);
