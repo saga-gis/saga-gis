@@ -250,7 +250,9 @@ bool CFillMinima::On_Execute(void)
 	if( Method == 1 )
 	{
 		Process_Set_Text(_TL("Creating statistics"));
-		#pragma omp parallel for reduction(min:hMin) reduction(max:hMax) 
+#if !defined(_SAGA_MSW)
+		#pragma omp parallel for reduction(min:hMin) reduction(max:hMax)
+#endif
 		for(sLong y=0; y<Get_NY(); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
