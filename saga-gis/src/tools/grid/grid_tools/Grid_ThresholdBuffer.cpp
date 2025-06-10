@@ -42,17 +42,23 @@ CThresholdBuffer::CThresholdBuffer(void)
 	Set_Author		("Victor Olaya (c) 2004");
 
 	Set_Description(_TW(
-		"Threshold Buffer Creation"
+		"This tool performs a feature-buffering operation on a raster layer with additional constraint logic based on a secondary raster input. "
+		"Unlike standard buffers, it dynamically extends the buffer zone by evaluating each neighboring cell against a user-defined threshold. "
+		"The extension is conditionally applied based on the values in the secondary raster and can operate in two modes:\n"
+		"- Absolute: compares each neighboring cell’s value in the secondary raster directly to the threshold.\n"
+		"- Relative to start cell value: compares each neighboring cell’s value relative to the starting cell’s value.\n"
+		"Buffer expansion occurs only if the increase or change is within the threshold, allowing for value-sensitive spatial analysis, such "
+		"as terrain-aware or cost-constrained buffering."
 	));
 
-	Parameters.Add_Grid  ("", "FEATURES"     , _TL("Features"       ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid  ("", "VALUE"        , _TL("Value"          ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid  ("", "THRESHOLDGRID", _TL("Threshold"      ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid  ("", "BUFFER"       , _TL("Buffer"         ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Int);
-	Parameters.Add_Double("", "THRESHOLD"    , _TL("Threshold Value"), _TL(""));
-	Parameters.Add_Choice("", "THRESHOLDTYPE", _TL("Threshold Type" ), _TL(""), CSG_String::Format("%s|%s",
+	Parameters.Add_Grid  ("", "FEATURES"     , _TL("Features"       ), _TL("Input grid with the features to buffer where valid grid cells are all non-zero, non-NoData values. Cells with a value of 0 or NoData are ignored."), PARAMETER_INPUT);
+	Parameters.Add_Grid  ("", "VALUE"        , _TL("Value"          ), _TL("Secondary input grid with the values used to evaluate the threshold value."), PARAMETER_INPUT);
+	Parameters.Add_Grid  ("", "THRESHOLDGRID", _TL("Threshold"      ), _TL("Optional input grid with spatially variable threshold values."), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid  ("", "BUFFER"       , _TL("Buffer"         ), _TL("The buffered output grid. Input features are labelled by 2, buffer zones by 1 and all other cells with 0."), PARAMETER_OUTPUT, true, SG_DATATYPE_Int);
+	Parameters.Add_Double("", "THRESHOLD"    , _TL("Threshold Value"), _TL("The threshold value to apply. Expansion occurs only if the increase or change is within the threshold."));
+	Parameters.Add_Choice("", "THRESHOLDTYPE", _TL("Threshold Type" ), _TL("The mode of operation."), CSG_String::Format("%s|%s",
 		_TL("Absolute"),
-		_TL("Relative from cell value"))
+		_TL("Relative (to start cell value)"))
 	);
 }
 
