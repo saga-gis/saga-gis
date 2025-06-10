@@ -45,8 +45,8 @@ CThresholdBuffer::CThresholdBuffer(void)
 		"This tool performs a feature-buffering operation on a raster layer with additional constraint logic based on a secondary raster input. "
 		"Unlike standard buffers, it dynamically extends the buffer zone by evaluating each neighboring cell against a user-defined threshold. "
 		"The extension is conditionally applied based on the values in the secondary raster and can operate in two modes:\n"
-		"- Absolute: compares each neighboring cell’s value in the secondary raster directly to the threshold.\n"
-		"- Relative to start cell value: compares each neighboring cell’s value relative to the starting cell’s value.\n"
+		"- Absolute: compares each neighboring cell's value in the secondary raster directly to the threshold.\n"
+		"- Relative to start cell value: compares each neighboring cell's value relative to the starting cell's value.\n"
 		"Buffer expansion occurs only if the increase or change is within the threshold, allowing for value-sensitive spatial analysis, such "
 		"as terrain-aware or cost-constrained buffering."
 	));
@@ -113,7 +113,7 @@ void CThresholdBuffer::BufferPoint(int x, int y)
 
 	while( Centrals.Get_Count() != 0 )
 	{
-		for(int iPt=0; iPt<Centrals.Get_Count();iPt++)
+		for(int iPt=0; iPt<Centrals.Get_Count(); iPt++)
 		{
 			x = Centrals[iPt].x;
 			y = Centrals[iPt].y;
