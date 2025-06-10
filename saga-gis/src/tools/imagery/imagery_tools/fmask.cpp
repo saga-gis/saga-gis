@@ -181,10 +181,6 @@ CFmask::CFmask(void)
 		"This tool implements the Function of mask (Fmask) algorithm "
 		"for cloud and cloud shadow detection in Landsat and Sentinel-2 imagery. "
 		"Input is Top-of-Atmosphere (TAO) reflectance obtained from processing Level-1C (both programs)."
-
-
-
-
 	));
 
 	Add_Reference("Zhu, Z., Woodcock, C.E.", "2012",
@@ -493,20 +489,19 @@ bool CFmask::Initialize(void)
 	m_dy = cos(Parameters("SUN_AZIMUTH")->asDouble() * M_DEG_TO_RAD + M_PI_180);
 	m_dz = tan(Parameters("SUN_HEIGHT" )->asDouble() * M_DEG_TO_RAD);
 	m_dz *= m_pSystem->Get_Cellsize();
-
 	
-	m_Shadow_Radius = 240.0 / m_pSystem->Get_Cellsize();
-	m_Min_Cloud_Size = (int) 2700.0 / m_pSystem->Get_Cellarea();  
+	m_Shadow_Radius       = 240. / m_pSystem->Get_Cellsize();
+	m_Min_Cloud_Size      = (int)(2700. / m_pSystem->Get_Cellarea());
 	
-	int Dilation = Parameters("DILATION")->asDouble() / m_pSystem->Get_Cellsize();
+	int Dilation          = (int)(Parameters("DILATION")->asDouble() / m_pSystem->Get_Cellsize());
 	Create_Kernel( &m_xKernel_Dilation_Cloud, &m_yKernel_Dilation_Cloud, Dilation, false );
 
-	int Shadow_Fill = 90 / m_pSystem->Get_Cellsize();
+	int Shadow_Fill       = (int)(  90. / m_pSystem->Get_Cellsize());
 	Create_Kernel( &m_xKernel_Fill_Shadow, &m_yKernel_Fill_Shadow, Shadow_Fill, true );
 	
-	int Improve_Cloud = 30 / m_pSystem->Get_Cellsize();
+	int Improve_Cloud     = (int)(  30. / m_pSystem->Get_Cellsize());
 	Create_Kernel( &m_xKernel_Improve_Cloud, &m_yKernel_Improve_Cloud, Improve_Cloud, true );
-	m_Improve_Cloud_Count = std::ceil(m_yKernel_Improve_Cloud.Get_Size() * 0.625);
+	m_Improve_Cloud_Count = (int)std::ceil(m_yKernel_Improve_Cloud.Get_Size() * 0.625);
 
 	return( true );
 }
@@ -915,7 +910,7 @@ bool CFmask::Set_Cloud_Mask( const double T_Low, const double Land_threshold, co
 {
 	int* x_off = m_xKernel_Improve_Cloud.Get_Array();
 	int* y_off = m_yKernel_Improve_Cloud.Get_Array();
-	int  s_off = m_xKernel_Improve_Cloud.Get_Size();
+	int  s_off = (int)m_xKernel_Improve_Cloud.Get_Size();
 	
 	for( int y=0; y<m_pSystem->Get_NY() && Set_Progress(y,m_pSystem->Get_NY()*2); y++ )
 	{
@@ -982,7 +977,7 @@ bool CFmask::Set_Final_Fmask( void )
 {
 	int* x_off = m_xKernel_Dilation_Cloud.Get_Array();
 	int* y_off = m_yKernel_Dilation_Cloud.Get_Array();
-	int  s_off = m_xKernel_Dilation_Cloud.Get_Size();
+	int  s_off = (int)m_xKernel_Dilation_Cloud.Get_Size();
 
 	for( int y=1; y<m_pSystem->Get_NY()-1 && Set_Progress(y,m_pSystem->Get_NY()); y++ )
 	{
@@ -1211,7 +1206,7 @@ bool CFmask::Get_Segmentation(std::vector<CCloud_Stack> *Array, const double T_L
 					{
 						if( Cloud_Stack.Get_Size() < m_Min_Cloud_Size )
 						{
-							for( sLong i=0; i<Cloud_Stack.Get_Size(); i++ )
+							for( size_t i=0; i<Cloud_Stack.Get_Size(); i++ )
 							{
 								m_pResults[RESULT_PCL]->Set_Value( Cloud_Stack[i].x, Cloud_Stack[i].y, ID_NONE );
 							}
@@ -1263,7 +1258,7 @@ bool CFmask::Get_Segmentation(std::vector<CCloud_Stack> *Array, const double T_L
 bool CFmask::Get_3D_Shadow( CCloud_Stack *pInputStack, CCloud_Stack *pOutputStack, const double T_Cloud_base )
 {
 	bool bDummy;
-	for( sLong i=0; i<pInputStack->Get_Size(); i++ )
+	for( size_t i=0; i<pInputStack->Get_Size(); i++ )
 	{
 		int ix = (*pInputStack)[i].x;
 		int iy = (*pInputStack)[i].y;	  						
@@ -1300,7 +1295,7 @@ bool CFmask::Get_Shadow_Match( CSG_Grid_Stack *pCloud_Shape, const double H_Clou
 {
 	int* x_off = m_xKernel_Fill_Shadow.Get_Array();
 	int* y_off = m_yKernel_Fill_Shadow.Get_Array();
-	int  s_off = m_xKernel_Fill_Shadow.Get_Size();
+	int  s_off = (int)m_xKernel_Fill_Shadow.Get_Size();
 	
 	int steps = (int)((H_Cloud_base_max - H_Cloud_base_min) / m_dz);
 
@@ -1312,10 +1307,10 @@ bool CFmask::Get_Shadow_Match( CSG_Grid_Stack *pCloud_Shape, const double H_Clou
 	{
 		double z = H_Cloud_base_min + iz * m_dz;
 		
-		int n = pCloud_Shape->Get_Size();
+		int n = (int)pCloud_Shape->Get_Size();
 		int count = 0;
 
-		for( sLong i=0; i<pCloud_Shape->Get_Size(); i++ )
+		for( size_t i=0; i<pCloud_Shape->Get_Size(); i++ )
 		{
 			int cast_x = (int)( (*pCloud_Shape)[i].x + (m_dx * z / m_dz));
 			int cast_y = (int)( (*pCloud_Shape)[i].y + (m_dy * z / m_dz));
@@ -1357,7 +1352,7 @@ bool CFmask::Get_Shadow_Match( CSG_Grid_Stack *pCloud_Shape, const double H_Clou
 	{
 
 		double z = H_Cloud_base_min + Best_Step * m_dz;
-		for( sLong i=0; i<pCloud_Shape->Get_Size(); i++ )
+		for( size_t i=0; i<pCloud_Shape->Get_Size(); i++ )
 		{
 			int cast_x = (int)( (*pCloud_Shape)[i].x + (m_dx * z / m_dz));
 			int cast_y = (int)( (*pCloud_Shape)[i].y + (m_dy * z / m_dz));
