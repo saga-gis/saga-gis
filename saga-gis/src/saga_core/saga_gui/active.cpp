@@ -297,11 +297,8 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 			if( nPages != GetPageCount() ) { SendSizeEvent(); }
 
-			if( g_pSAGA_Frame )
-			{
-				g_pSAGA_Frame->Show_Toolbar_Data(NULL);
-				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")));
-			}
+			g_pSAGA_Frame->Show_Toolbar_Data(NULL);
+			g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")));
 		}
 
 		//-------------------------------------------------
@@ -316,11 +313,8 @@ bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 
 			if( nPages != GetPageCount() ) { SendSizeEvent(); }
 
-			if( g_pSAGA_Frame )
-			{
-				g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_ToolBar() : NULL);
-				g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
-			}
+			g_pSAGA_Frame->Show_Toolbar_Data(Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_ToolBar() : NULL);
+			g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 			CSG_Data_Object *pObject = Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
 

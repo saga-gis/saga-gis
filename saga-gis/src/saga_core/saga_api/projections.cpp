@@ -2794,10 +2794,12 @@ bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Targe
 		{
 			pTool->Set_Manager(NULL);
 			pTool->Set_Callback(false);
-			pTool->Set_Parameter("TARGET_CRS", Target.Get_WKT());
-			pTool->Set_Parameter("SOURCE_CRS", Source.Get_WKT());
-			pTool->Set_Parameter("SOURCE_X"  , Point.x);
-			pTool->Set_Parameter("SOURCE_Y"  , Point.y);
+			pTool->Set_Parameter("TARGET_WKT2", Target.Get_WKT2());
+			pTool->Set_Parameter("TARGET_PROJ", Target.Get_PROJ());
+			pTool->Set_Parameter("SOURCE_WKT2", Source.Get_WKT2());
+			pTool->Set_Parameter("SOURCE_PROJ", Source.Get_PROJ());
+			pTool->Set_Parameter("SOURCE_X"   , Point.x);
+			pTool->Set_Parameter("SOURCE_Y"   , Point.y);
 
 			SG_UI_ProgressAndMsg_Lock(true);
 			bool bResult = pTool->Execute();

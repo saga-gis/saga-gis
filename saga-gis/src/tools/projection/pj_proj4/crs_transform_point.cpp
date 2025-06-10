@@ -91,6 +91,11 @@ CCRS_Transform_Point::CCRS_Transform_Point(void)
 	Parameters.Add_Double("TARGET", "TARGET_X"  , _TL("X"         ), _TL(""));
 	Parameters.Add_Double("TARGET", "TARGET_Y"  , _TL("Y"         ), _TL(""));
 
+	Parameters.Add_String("", "SOURCE_WKT2", "WKT2", "", "")->Set_UseInGUI(false);
+	Parameters.Add_String("", "SOURCE_PROJ", "PROJ", "", "")->Set_UseInGUI(false);
+	Parameters.Add_String("", "TARGET_WKT2", "WKT2", "", "")->Set_UseInGUI(false);
+	Parameters.Add_String("", "TARGET_PROJ", "PROJ", "", "")->Set_UseInGUI(false);
+
 //	Parameters.Add_Parameters("", "PICKER", _TL("CRS Picker"), _TL(""))->asParameters()->Assign_Parameters(CRS_Picker.Get_Parameters());
 }
 
@@ -119,6 +124,22 @@ int CCRS_Transform_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 		}
 	}
 
+	if( pParameter->Cmp_Identifier("SOURCE_CRS") )
+	{
+		CSG_Projection Projection(pParameter->asString());
+
+		pParameters->Set_Parameter("SOURCE_WKT2", Projection.Get_WKT2());
+		pParameters->Set_Parameter("SOURCE_PROJ", Projection.Get_PROJ());
+	}
+
+	if( pParameter->Cmp_Identifier("TARGET_CRS") )
+	{
+		CSG_Projection Projection(pParameter->asString());
+
+		pParameters->Set_Parameter("TARGET_WKT2", Projection.Get_WKT2());
+		pParameters->Set_Parameter("TARGET_PROJ", Projection.Get_PROJ());
+	}
+
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
@@ -133,9 +154,10 @@ bool CCRS_Transform_Point::On_Execute(void)
 	double x = Parameters("SOURCE_X")->asDouble();
 	double y = Parameters("SOURCE_Y")->asDouble();
 
-	if( Transform(x, y,
-		CSG_Projection(Parameters("SOURCE_CRS")->asString()),
-		CSG_Projection(Parameters("TARGET_CRS")->asString())) )
+	CSG_Projection Source(Parameters("SOURCE_WKT2")->asString(), Parameters("SOURCE_PROJ")->asString());
+	CSG_Projection Target(Parameters("TARGET_WKT2")->asString(), Parameters("TARGET_PROJ")->asString());
+
+	if( Transform(x, y, Source, Target) )
 	{
 		Parameters.Set_Parameter("TARGET_X", x);
 		Parameters.Set_Parameter("TARGET_Y", y);
