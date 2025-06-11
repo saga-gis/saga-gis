@@ -214,8 +214,8 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
 	if( MDI_Get_Active_Map() )
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_LAYER_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_LAYER_ACTIVE);
 	}
 
 	pMenu->AppendSeparator();
@@ -259,8 +259,8 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection" ), pSubMenu = new wxMenu());
 	if( MDI_Get_Active_Map() && Get_PointCloud()->Get_Selection_Count() > 0 )
 	{
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_LAYER_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_LAYER_SELECTION);
 	}
 	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SELECTION_INVERT);

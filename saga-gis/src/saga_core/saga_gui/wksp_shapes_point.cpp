@@ -597,18 +597,18 @@ inline void CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Selection)
+inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, int Flags)
 {
-	if( m_Brush.IsTransparent() && !m_bOutline && !Selection )
+	if( m_Brush.IsTransparent() && !m_bOutline && (Flags & LAYER_DRAW_FLAG_SELECTION) == 0 )
 	{
 		return( false ); // nothing to draw !
 	}
 
 	//-----------------------------------------------------
-	if( Selection )
+	if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 	{
 		dc_Map.SetBrush(wxBrush(m_Sel_Color_Fill, m_Brush.GetStyle()));
-		dc_Map.SetPen(wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
+		dc_Map.SetPen(wxPen(m_Sel_Color, (Flags & LAYER_DRAW_FLAG_HIGHLIGHT) != 0 ? 2 : 0, wxPENSTYLE_SOLID));
 	}
 	else
 	{
@@ -670,7 +670,7 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CSG_Map_DC &dc_Map, int &Size, C
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)
 {
 	if( m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field) )
 	{
@@ -680,7 +680,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int S
 	//-----------------------------------------------------
 	int Size;
 
-	if( !Draw_Initialize(dc_Map, Size, pShape, Selection) )
+	if( !Draw_Initialize(dc_Map, Size, pShape, Flags) )
 	{
 		return;
 	}
@@ -705,7 +705,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int S
 			{
 				wxRect r(p.x - sx, p.y - sy, 2 * sx, 2 * sy);
 
-				if( Selection )
+				if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 				{
 					r.Inflate(1); dc_Map.DrawRectangle(r);
 				}
@@ -739,13 +739,13 @@ void CWKSP_Shapes_Point::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int S
 	}
 
 	//---------------------------------------------
-	if( m_Image.Field >= 0 )
+	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 && m_Image.Field >= 0 )
 	{
 		_Image_Draw(dc_Map, p.x, p.y, Size, pShape->asString(m_Image.Field));
 	}
 
 	//---------------------------------------------
-	if( Selection )
+	if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 	{
 		dc_Map.SetBrush(m_Brush);
 		dc_Map.SetPen  (m_Pen  );

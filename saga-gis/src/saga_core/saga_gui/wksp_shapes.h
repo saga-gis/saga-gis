@@ -163,9 +163,9 @@ protected:
 	CSG_Parameter *				PenList_Add				(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							PenList_Get_Style		(const CSG_String &Identifier);
 
-	virtual void				Draw_Initialize			(CSG_Map_DC &dc_Map, int Flags)												= 0;
-	virtual void				Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;
-	virtual void				Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)	= 0;
+	virtual void				Draw_Initialize			(CSG_Map_DC &dc_Map                   , int Flags)             = 0;
+	virtual void				Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)             = 0;
+	virtual void				Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label) = 0;
 
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point, const TSG_Point &ptWorld);
 	virtual void				Edit_Shape_Draw_Move	(wxDC &dc, const CSG_Rect &rWorld, const wxPoint &Point);
@@ -178,7 +178,7 @@ private:
 
 	void						_LUT_Import				(void);
 
-	void						_Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection = 0);
+	void						_Draw_Shape				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags     = 0);
 	void						_Draw_Label				(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize = 0);
 
 

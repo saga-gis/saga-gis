@@ -347,21 +347,38 @@ bool CWKSP_Shapes::Edit_On_Mouse_Up(const CSG_Point &Point, double ClientToWorld
 	{
 		g_pActive->Update_Attributes(true);
 
-		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
+		CSG_Rect rWorld(m_Edit_Mouse_Down, Point);
 
-		if( rWorld.Get_XRange() == 0.0 && rWorld.Get_YRange() == 0.0 )
+		if( rWorld.Get_XRange() == 0. && rWorld.Get_YRange() == 0. )
 		{
-			rWorld.Inflate(2.0 * ClientToWorld, false);
+			rWorld.Inflate(2. * ClientToWorld, false);
 		}
 
-		int		Count	= Get_Shapes()->Get_Selection_Count();
+		if( (Key & TOOL_INTERACTIVE_KEY_CTRL) == 0 ) // new selection
+		{
+			Get_Shapes()->Select(rWorld, false);
 
-		Get_Shapes()->Select(rWorld, (Key & TOOL_INTERACTIVE_KEY_CTRL) != 0);
+			Edit_Set_Index(0);
+		}
+		else // modify existing selection (add or remove)
+		{
+			sLong Count = Get_Shapes()->Get_Selection_Count();
 
-		Edit_Set_Index((Key & TOOL_INTERACTIVE_KEY_CTRL) == 0 ? 0 :
-			Count < Get_Shapes()->Get_Selection_Count() || m_Edit.Index >= Get_Shapes()->Get_Selection_Count()
-			? Get_Shapes()->Get_Selection_Count() - 1 : m_Edit.Index
-		);
+			Get_Shapes()->Select(rWorld, true);
+
+			if( Get_Shapes()->Get_Selection_Count() < 1 ) // no selection
+			{
+				Edit_Set_Index(0);
+			}
+			else if( Count < Get_Shapes()->Get_Selection_Count() || m_Edit.Index >= Get_Shapes()->Get_Selection_Count() )
+			{
+				Edit_Set_Index(Get_Shapes()->Get_Selection_Count() - 1);
+			}
+			else
+			{
+				Edit_Set_Index(m_Edit.Index);
+			}
+		}
 
 		if( m_pTable->Get_View() )
 		{
@@ -470,9 +487,9 @@ bool CWKSP_Shapes::Edit_Set_Index(int Index)
 {
 	m_Edit_Attributes.Del_Records();
 
-	if( Index > Get_Shapes()->Get_Selection_Count() )
+	if( Index >= Get_Shapes()->Get_Selection_Count() )
 	{
-		Index = Get_Shapes()->Get_Selection_Count();
+		Index = Get_Shapes()->Get_Selection_Count() - 1;
 	}
 
 	CSG_Table_Record *pSelection = Get_Shapes()->Get_Selection(Index);
@@ -666,7 +683,7 @@ bool CWKSP_Shapes::_Edit_Split(void)
 
 						for(sLong iSplit=1; iSplit<Split.Get_Count(); iSplit++)
 						{
-							CSG_Shape	*pSplit	= Split.Get_Shape(iSplit);
+							CSG_Shape *pSplit = Split.Get_Shape(iSplit);
 
 							for(int iPart=0; iPart<pSplit->Get_Part_Count(); iPart++)
 							{
@@ -679,13 +696,13 @@ bool CWKSP_Shapes::_Edit_Split(void)
 					}
 					else if( Get_Shapes()->Get_Selection_Count() == 1 ) // if( !m_Edit.pShape )
 					{
-						CSG_Shape	*pSelection	= Get_Shapes()->Get_Selection();
+						CSG_Shape *pSelection = Get_Shapes()->Get_Selection();
 						
 						pSelection->Assign(Split.Get_Shape(0), false);
 
 						for(sLong iSplit=1; iSplit<Split.Get_Count(); iSplit++)
 						{
-							CSG_Shape	*pSplit	= Get_Shapes()->Add_Shape(Split.Get_Shape(iSplit));
+							CSG_Shape *pSplit = Get_Shapes()->Add_Shape(Split.Get_Shape(iSplit));
 
 							pSplit->Assign( pSelection, SHAPE_COPY_ATTR );
 
@@ -776,7 +793,6 @@ bool CWKSP_Shapes::_Edit_Move(bool bToggle)
 	return( false );
 }
 
-
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Selection_Copy(void)
 {
@@ -785,7 +801,7 @@ bool CWKSP_Shapes::_Edit_Selection_Copy(void)
         return( false );
     }
 
-    CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_tools", 6);  // Copy Selection to New Shapes Layer
+    CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_tools", 6);  // Copy Selection to New Shapes Layer
 
     if(	pTool )
     {
@@ -805,7 +821,7 @@ bool CWKSP_Shapes::_Edit_Selection_Copy(void)
         }
         else
         {
-            delete( pCopy );
+            delete(pCopy);
         }
 
         return( bResult );
@@ -813,6 +829,7 @@ bool CWKSP_Shapes::_Edit_Selection_Copy(void)
 
     return( false );
 }
+
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -1163,27 +1180,30 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 //---------------------------------------------------------
 void CWKSP_Shapes::_Edit_Snap_Point(const CSG_Point &Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shapes *pShapes, bool bLine)
 {
-	CSG_Shape	*pSelected	= pShapes->Get_Selection(m_Edit.Index);
-
-	if( pShapes->Select(CSG_Rect(Point.x - snap_Dist, Point.y - snap_Dist, Point.x + snap_Dist, Point.y + snap_Dist)) )
+	if( m_Edit.pShape && pShapes )
 	{
-		for(sLong i=0; i<pShapes->Get_Selection_Count(); i++)
+		CSG_Rect Extent(Point.x - snap_Dist, Point.y - snap_Dist, Point.x + snap_Dist, Point.y + snap_Dist);
+
+		for(sLong i=0; i<pShapes->Get_Count(); i++)
 		{
-			if( pShapes != Get_Shapes() || pSelected != pShapes->Get_Selection(i) )
+			CSG_Shape *pShape = pShapes->Get_Shape(i);
+
+			if( pShape->Intersects(Extent) )
 			{
-				if( bLine )
+				if( pShapes != Get_Shapes() || m_Edit.pShape != pShape )
 				{
-					Edit_Snap_Point_ToLine(Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
-				}
-				else
-				{
-					_Edit_Snap_Point      (Point, snap_Point, snap_Dist, pShapes->Get_Selection(i));
+					if( bLine )
+					{
+						Edit_Snap_Point_ToLine(Point, snap_Point, snap_Dist, pShape);
+					}
+					else
+					{
+						_Edit_Snap_Point      (Point, snap_Point, snap_Dist, pShape);
+					}
 				}
 			}
 		}
 	}
-
-	pShapes->Select(pSelected);
 }
 
 //---------------------------------------------------------

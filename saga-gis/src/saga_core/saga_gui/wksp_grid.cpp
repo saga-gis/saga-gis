@@ -242,8 +242,8 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
 	if( MDI_Get_Active_Map() )
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_LAYER_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_LAYER_ACTIVE);
 	}
 
 	pMenu->AppendSeparator();
@@ -284,8 +284,8 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	if( MDI_Get_Active_Map() && m_Edit_Attributes.Get_Count() > 0 )
 	{
 		pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection"), pSubMenu = new wxMenu());
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_LAYER_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_LAYER_SELECTION);
 		CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
 	}
 

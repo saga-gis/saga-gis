@@ -73,6 +73,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define LAYER_DRAW_FLAG_THUMBNAIL 0x01
+#define LAYER_DRAW_FLAG_SELECTION 0x02
+#define LAYER_DRAW_FLAG_HIGHLIGHT 0x04
+#define LAYER_DRAW_FLAG_NOEDITS   0x08
+#define LAYER_DRAW_FLAG_NOLABELS  0x10
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Layer : public CWKSP_Data_Item
 {
 public:

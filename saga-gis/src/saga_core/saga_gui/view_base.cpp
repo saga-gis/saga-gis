@@ -272,6 +272,11 @@ void CVIEW_Base::On_Quit(wxCommandEvent &WXUNUSED(event))
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Base::On_Command(wxCommandEvent &event)
+{
+}
+
+//---------------------------------------------------------
 void CVIEW_Base::On_Command_UI(wxUpdateUIEvent &event)
 {
 }

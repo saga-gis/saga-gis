@@ -68,7 +68,7 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)
 {
 	if( (m_Size.Field >= 0 && pShape->is_NoData(m_Size.Field)) || (m_Stretch.Value >= 0 && pShape->is_NoData(m_Stretch.Value)) )
 	{
@@ -78,7 +78,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int 
 	//-----------------------------------------------------
 	int Size;
 
-	if( CWKSP_Shapes_Point::Draw_Initialize(dc_Map, Size, pShape, Selection) )
+	if( CWKSP_Shapes_Point::Draw_Initialize(dc_Map, Size, pShape, Flags) )
 	{
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -91,7 +91,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int 
 		}
 
 		//-------------------------------------------------
-		if( Selection )
+		if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 		{
 			CWKSP_Shapes_Point::Draw_Initialize(dc_Map, 0);
 		}

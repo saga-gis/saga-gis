@@ -1393,10 +1393,9 @@ void CWKSP_Map::Set_Projection(void)
 
 	if(	pTool )
 	{
-		CSG_Parameters P(*pTool->Get_Parameters());
+		CSG_Parameters P(*pTool->Get_Parameters()); P.Set_Name(_TL("Map Projection"));
 
-		P.Set_Parameter("CRS_WKT" , m_Projection.Get_WKT2());
-		P.Set_Parameter("CRS_PROJ", m_Projection.Get_PROJ());
+		P.Set_Parameter("CRS_STRING", m_Projection.Get_WKT());
 
 		P.Add_Bool("", "ONTHEFLY", _TL("On-The-Fly Projection"),
 			_TL("Turn on the on-the-fly projection for all layers in the map."),

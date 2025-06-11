@@ -336,15 +336,15 @@ void CWKSP_Shapes_Line::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Line::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)
 {
 	wxPen Pen(m_Pen);
 
 	//-----------------------------------------------------
-	if( Selection )
+	if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 	{
 		Pen.SetColour(m_Sel_Color);
-		Pen.SetWidth (m_Size + (Selection == 1 ? 2 : 0));
+		Pen.SetWidth (m_Size + ((Flags & LAYER_DRAW_FLAG_HIGHLIGHT) != 0 ? 2 : 0));
 	}
 
 	//-----------------------------------------------------

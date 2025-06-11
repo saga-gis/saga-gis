@@ -466,7 +466,7 @@ bool CSG_Shapes::On_Update(void)
 	}
 	else
 	{
-		m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
+		m_Extent.Create(0., 0., 0., 0.);
 	}
 
 	return( CSG_Table::On_Update() );

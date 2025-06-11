@@ -61,6 +61,7 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "wksp_layer.h"
 #include "wksp_map.h"
 
 #include "view_layout_info.h"

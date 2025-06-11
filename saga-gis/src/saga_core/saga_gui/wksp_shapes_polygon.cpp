@@ -187,12 +187,11 @@ void CWKSP_Shapes_Polygon::Draw_Initialize(CSG_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes_Polygon::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)
 {
-	//-----------------------------------------------------
-	if( Selection )
+	if( (Flags & LAYER_DRAW_FLAG_SELECTION) != 0 )
 	{
-		dc_Map.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], m_Brush.GetStyle()));
+		dc_Map.SetBrush(wxBrush(m_Sel_Color_Fill[(Flags & LAYER_DRAW_FLAG_HIGHLIGHT) == 0 ? 0 : 1], m_Brush.GetStyle()));
 		dc_Map.SetPen  (wxPen(m_Sel_Color, 0, wxPENSTYLE_SOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
@@ -224,7 +223,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int
 	}
 
 	//-----------------------------------------------------
-	if( m_bCentroid )
+	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 && m_bCentroid )
 	{
 		TSG_Point Point = ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
 

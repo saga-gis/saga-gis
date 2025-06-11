@@ -231,8 +231,8 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SHOW_MAP);
 	if( MDI_Get_Active_Map() )
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_LAYER_ACTIVE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_LAYER_ACTIVE);
 	}
 
 	pMenu->AppendSeparator();
@@ -275,8 +275,8 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Selection" ), pSubMenu = new wxMenu());
 	if( MDI_Get_Active_Map() && Get_Shapes()->Get_Selection_Count() > 0 )
 	{
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
-		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_ZOOM_LAYER_SELECTION);
+		CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_MAP_PAN_LAYER_SELECTION);
 	}
 	CMD_Menu_Add_Item(pSubMenu,  true, ID_CMD_DATA_SELECTION_CLEAR);
 	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_DATA_SELECTION_INVERT);
@@ -834,7 +834,7 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 
 		for(sLong i=0; i<Get_Shapes()->Get_Count(); i++)
 		{
-			_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(i));
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(i), LAYER_DRAW_FLAG_THUMBNAIL);
 		}
 
 		return;
@@ -853,7 +853,7 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 	Draw_Initialize(dc_Map, Flags);
 
 	//-----------------------------------------------------
-	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit.pShape || Get_Shapes()->Get_Selection_Count()) )
+	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || (Get_Shapes()->Get_Selection_Count() < 1 && !m_Edit.pShape) )
 	{
 		for(sLong i=0; i<Get_Shapes()->Get_Count(); i++)
 		{
@@ -880,18 +880,18 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 			}
 		}
 
-		for(sLong i=0; i<(int)Get_Shapes()->Get_Selection_Count(); i++)
+		for(sLong i=0; i<Get_Shapes()->Get_Selection_Count(); i++)
 		{
 			if( i != m_Edit.Index )
 			{
-				_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(i), 2);
+				_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(i), LAYER_DRAW_FLAG_SELECTION);
 			}
 		}
 
 		//-------------------------------------------------
 		if( !m_Edit.pShape )
 		{
-			_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(m_Edit.Index), 1);
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Selection(m_Edit.Index), LAYER_DRAW_FLAG_SELECTION|LAYER_DRAW_FLAG_HIGHLIGHT);
 		}
 		else
 		{
@@ -965,15 +965,15 @@ void CWKSP_Shapes::On_Draw(CSG_Map_DC &dc_Map, int Flags)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
+void CWKSP_Shapes::_Draw_Shape(CSG_Map_DC &dc_Map, CSG_Shape *pShape, int Flags)
 {
 	if( pShape && dc_Map.rWorld().Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
-		Draw_Shape(dc_Map, pShape, Selection);
+		Draw_Shape(dc_Map, pShape, Flags);
 
 		if( m_bVertices > 0 )
 		{
-			bool bLabel = m_bVertices == 2 && (Selection || m_pObject->asShapes()->Get_Selection_Count() == 0);
+			bool bLabel = m_bVertices == 2 && ((Flags & LAYER_DRAW_FLAG_SELECTION) || m_pObject->asShapes()->Get_Selection_Count() == 0);
 
 			wxPen   oldPen  (dc_Map.Get_DC().GetPen  ()); dc_Map.SetPen  (*wxBLACK_PEN  );
 			wxBrush oldBrush(dc_Map.Get_DC().GetBrush()); dc_Map.SetBrush(*wxWHITE_BRUSH);

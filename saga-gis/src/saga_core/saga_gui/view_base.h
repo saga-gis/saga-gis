@@ -93,6 +93,7 @@ public:
 	virtual void				Do_Destroy			(void);
 	virtual void				Do_Update			(void);
 
+	virtual void				On_Command			(wxCommandEvent  &event);
 	virtual void				On_Command_UI		(wxUpdateUIEvent &event);
 
 	static bool					Do_Updates			(void)	{ return( m_bUpdates ); }

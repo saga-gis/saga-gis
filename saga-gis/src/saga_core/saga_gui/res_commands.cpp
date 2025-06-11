@@ -296,11 +296,15 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_ZOOM_FULL                : return( _TL("Zoom To Full Extent") );
 	case ID_CMD_MAP_ZOOM_BACK                : return( _TL("Zoom To Previous Extent") );
 	case ID_CMD_MAP_ZOOM_FORWARD             : return( _TL("Zoom To Next Extent") );
-	case ID_CMD_MAP_ZOOM_ACTIVE              : return( _TL("Zoom To Layer") );
-	case ID_CMD_MAP_ZOOM_SELECTION           : return( _TL("Zoom To Selection") );
 	case ID_CMD_MAP_ZOOM_EXTENT              : return( _TL("Zoom To Extent") );
-	case ID_CMD_MAP_PAN_ACTIVE               : return( _TL("Pan To Layer") );
-	case ID_CMD_MAP_PAN_SELECTION            : return( _TL("Pan To Selection") );
+	case ID_CMD_MAP_ZOOM_ACTIVE              : return( _TL("Zoom To Active Layer") );
+	case ID_CMD_MAP_ZOOM_SELECTION           : return( _TL("Zoom To Active Layer Selection") );
+	case ID_CMD_MAP_PAN_ACTIVE               : return( _TL("Pan To Active Layer") );
+	case ID_CMD_MAP_PAN_SELECTION            : return( _TL("Pan To Active Layer Selection") );
+	case ID_CMD_MAP_ZOOM_LAYER_ACTIVE        : return( _TL("Zoom To Layer") );
+	case ID_CMD_MAP_ZOOM_LAYER_SELECTION     : return( _TL("Zoom To Selection") );
+	case ID_CMD_MAP_PAN_LAYER_ACTIVE         : return( _TL("Pan To Layer") );
+	case ID_CMD_MAP_PAN_LAYER_SELECTION      : return( _TL("Pan To Selection") );
 	case ID_CMD_MAP_CROSSHAIR                : return( _TL("Cross Hair") );
 
 	case ID_CMD_MAP3D_PARAMETERS             : return( _TL("Properties") );
@@ -449,6 +453,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP_CROSSHAIR                : return( ID_IMG_TB_MAP_CROSSHAIR );
 	case ID_CMD_MAP_3D_SHOW                  : return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_MAPS_3D_SHOW                 : return( ID_IMG_TB_MAP_3D_SHOW );
+	case ID_CMD_MAPS_PROJECTION              : return( ID_IMG_TB_DATA_CRS );
 	case ID_CMD_MAP_LAYOUT_SHOW              : return( ID_IMG_TB_MAP_LAYOUT_SHOW );
 	case ID_CMD_MAPS_LAYOUT_SHOW             : return( ID_IMG_TB_MAP_LAYOUT_SHOW );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD       : return( ID_IMG_TB_CLIPBOARD );
