@@ -90,7 +90,7 @@ CD8_Flow_Analysis::CD8_Flow_Analysis(void)
 	Parameters.Add_Grid  ("", "DIRECTION" , _TL("Flow Direction"   ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Char );
 	Parameters.Add_Grid  ("", "CONNECTION", _TL("Flow Connectivity"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Char );
 	Parameters.Add_Grid  ("", "ORDER"     , _TL("Strahler Order"   ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid  ("", "BASIN"     , _TL("Drainage Basins"  ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short);
+	Parameters.Add_Grid  ("", "BASIN"     , _TL("Drainage Basins"  ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Int  );
 
 	Parameters.Add_Shapes("", "SEGMENTS"  , _TL("Channels"         ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Line   );
 	Parameters.Add_Shapes("", "BASINS"    , _TL("Drainage Basins"  ), _TL(""), PARAMETER_OUTPUT         , SHAPE_TYPE_Polygon);
@@ -121,7 +121,7 @@ bool CD8_Flow_Analysis::On_Execute(void)
 
 	m_pDir      = Parameters("DIRECTION")->asGrid(); CSG_Grid Dir   ; if( !m_pDir    ) { m_pDir    = &Dir   ; Dir   .Create(Get_System(), SG_DATATYPE_Char ); }
 	m_pOrder    = Parameters("ORDER"    )->asGrid(); CSG_Grid Order ; if( !m_pOrder  ) { m_pOrder  = &Order ; Order .Create(Get_System(), SG_DATATYPE_Short); }
-	m_pBasins   = Parameters("BASIN"    )->asGrid(); CSG_Grid Basins; if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(Get_System(), SG_DATATYPE_Short); }
+	m_pBasins   = Parameters("BASIN"    )->asGrid(); CSG_Grid Basins; if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(Get_System(), SG_DATATYPE_Int  ); }
 
 	m_Threshold	= Parameters("THRESHOLD")->asInt();
 
