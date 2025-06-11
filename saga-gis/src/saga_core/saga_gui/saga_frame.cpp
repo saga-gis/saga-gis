@@ -234,17 +234,19 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 	EVT_MENU     (ID_CMD_FRAME_INFO_SHOW       , CSAGA_Frame::On_INFO_Show)
 	EVT_UPDATE_UI(ID_CMD_FRAME_INFO_SHOW       , CSAGA_Frame::On_INFO_Show_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data_UI)
-	EVT_MENU_RANGE		(ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool_UI)
+	EVT_MENU_RANGE     (ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace)
+	EVT_UPDATE_UI_RANGE(ID_CMD_WKSP_FIRST     , ID_CMD_WKSP_LAST     , CSAGA_Frame::On_Command_Workspace_UI)
+	EVT_MENU_RANGE     (ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data)
+	EVT_UPDATE_UI_RANGE(ID_CMD_DATA_FIRST     , ID_CMD_DATA_LAST     , CSAGA_Frame::On_Command_Data_UI)
+	EVT_MENU_RANGE     (ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool)
+	EVT_UPDATE_UI_RANGE(ID_CMD_TOOL_FIRST     , ID_CMD_TOOL_LAST     , CSAGA_Frame::On_Command_Tool_UI)
 
-	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST    , ID_CMD_CHILD_LAST    , CSAGA_Frame::On_Command_Child)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST      , ID_CMD_MAP_LAST      , CSAGA_Frame::On_Command_Child_UI)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_HISTOGRAM_FIRST, ID_CMD_HISTOGRAM_LAST, CSAGA_Frame::On_Command_Child_UI)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_DIAGRAM_FIRST  , ID_CMD_DIAGRAM_LAST  , CSAGA_Frame::On_Command_Child_UI)
+	EVT_MENU_RANGE     (ID_CMD_CHILD_FIRST    , ID_CMD_CHILD_LAST    , CSAGA_Frame::On_Command_Child)
+	EVT_UPDATE_UI_RANGE(ID_CMD_MAP_FIRST      , ID_CMD_MAP_LAST      , CSAGA_Frame::On_Command_Child_UI)
+	EVT_UPDATE_UI_RANGE(ID_CMD_HISTOGRAM_FIRST, ID_CMD_HISTOGRAM_LAST, CSAGA_Frame::On_Command_Child_UI)
+	EVT_UPDATE_UI_RANGE(ID_CMD_DIAGRAM_FIRST  , ID_CMD_DIAGRAM_LAST  , CSAGA_Frame::On_Command_Child_UI)
+
+	EVT_MENU_HIGHLIGHT_ALL(CSAGA_Frame::On_Menu_Highlight_All)
 END_EVENT_TABLE()
 
 
@@ -434,13 +436,11 @@ CSAGA_Frame::~CSAGA_Frame(void)
 
 	SG_Set_UI_Callback(NULL);
 
-	g_pSAGA_Frame	= NULL;
+	g_pSAGA_Frame = NULL;
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -487,7 +487,7 @@ void CSAGA_Frame::On_Size(wxSizeEvent &event)
 {
 	if( wxDisplay::GetFromWindow(this) == wxNOT_FOUND )
 	{
-		wxRect	r	= wxGetClientDisplayRect();	r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
+		wxRect r = wxGetClientDisplayRect(); r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
 
 		SetSize(r);
 	}
@@ -498,7 +498,16 @@ void CSAGA_Frame::On_Size(wxSizeEvent &event)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSAGA_Frame::On_Menu_Highlight_All(wxMenuEvent &event)
+{
+	if( event.GetId() ) { event.Skip(); } // prevents crash introduced with wxWidgets-3.3.0, msw => opening mdi-child's system menu when it is maximized!
+}
+
+
+///////////////////////////////////////////////////////////
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -531,8 +540,6 @@ void CSAGA_Frame::On_Tips(wxCommandEvent &WXUNUSED(event))
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 

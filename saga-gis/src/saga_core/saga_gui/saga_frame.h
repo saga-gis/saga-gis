@@ -210,6 +210,8 @@ private: //------------------------------------------------
 	void						On_Command_Child			(wxCommandEvent  &event);
 	void						On_Command_Child_UI			(wxUpdateUIEvent &event);
 
+	void						On_Menu_Highlight_All		(wxMenuEvent     &event);
+
 
 	//-----------------------------------------------------
 	DECLARE_EVENT_TABLE()
