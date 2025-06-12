@@ -112,7 +112,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_FIELD"           , _TL("Attribute"),
 		_TL(""),
-		_TL("<default>")
+		"<not set>"
 	);
 
 	m_Parameters.Add_Range("SIZE_FIELD",

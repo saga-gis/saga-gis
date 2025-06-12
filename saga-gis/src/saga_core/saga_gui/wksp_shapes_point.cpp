@@ -170,16 +170,16 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		)
 	);
 
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "ARROW_DIRECTION"  , _TL("Direction"  ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "ARROW_DIRECTION"  , _TL("Direction"  ), _TL(""), "<not set>");
 	m_Parameters.Add_Int   ("ARROW_DIRECTION"    , "ARROW_OFFSET"     , _TL("Offset"     ), _TL(""), 0.);
 	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_ORIENTATION", _TL("Orientation"), _TL(""), CSG_String::Format("%s|%s", _TL("clockwise"), _TL("counterclockwise")));
 	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_UNIT"       , _TL("Unit"       ), _TL(""), CSG_String::Format("%s|%s", _TL("degree"), _TL("radians")));
 	m_Parameters.Add_Choice("ARROW_DIRECTION"    , "ARROW_STYLE"      , _TL("Style"      ), _TL(""), CSG_String::Format("%s|%s|%s", _TL("simple"), _TL("center"), _TL("circle")));
 	m_Parameters.Add_Int   ("ARROW_DIRECTION"    , "ARROW_WIDTH"      , _TL("Line Width" ), _TL(""), 2, 1, true);
 
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE" , _TL("Strike"     ), _TL(""), _TL("<default>"));
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"    , _TL("Dip"        ), _TL(""), _TL("<default>"));
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"   , _TL("Rake"       ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE" , _TL("Strike"     ), _TL(""), "<not set>");
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"    , _TL("Dip"        ), _TL(""), "<not set>");
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"   , _TL("Rake"       ), _TL(""), "<not set>");
 
 
 	//-----------------------------------------------------
@@ -188,7 +188,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"IMAGE_FIELD"			, _TL("Image Field"),
 		_TL("Field that provides file paths (either absolute or relative to this data set) to images to be displayed besides the points."),
-		_TL("<default>")
+		"<not set>"
 	);
 
 	m_Parameters.Add_Choice("IMAGE_FIELD",
@@ -240,7 +240,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("LABEL_FIELD",
 		"LABEL_ANGLE_FIELD" , _TL("Rotation by Attribute"),
 		_TL(""),
-		_TL("<default>")
+		"<not set>"
 	);
 
 	m_Parameters.Add_Double("LABEL_ANGLE_FIELD",
@@ -299,7 +299,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_FIELD"		, _TL("Attribute"),
 		_TL(""),
-		_TL("<default>")
+		"<not set>"
 	);
 
 	m_Parameters.Add_Choice("SIZE_FIELD",
@@ -346,7 +346,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	Set_Fields_Choice(m_Parameters("IMAGE_FIELD"      ), false,  true);
-	Set_Fields_Choice(m_Parameters("SIZE_FIELD "      ),  true,  true);
+	Set_Fields_Choice(m_Parameters("SIZE_FIELD"       ),  true,  true);
 	Set_Fields_Choice(m_Parameters("LABEL_ANGLE_FIELD"),  true,  true);
 	Set_Fields_Choice(m_Parameters("ARROW_DIRECTION"  ),  true, false);
 	Set_Fields_Choice(m_Parameters("BEACHBALL_STRIKE" ),  true, false);
