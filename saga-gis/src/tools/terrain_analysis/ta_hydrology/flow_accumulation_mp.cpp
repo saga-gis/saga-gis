@@ -188,8 +188,8 @@ bool CFlow_Accumulation_MP::On_Execute(void)
 	Message_Fmt("\n%s: %d", _TL("number of passes"), nPasses);
 
 	DataObject_Set_Colors   (m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1);	// increasing geometrical intervals
-	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_LOG" , 100);	// Geometrical Interval Factor
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1); // increasing geometric intervals
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_LOG" ,   2); // Geometric Interval Factor
 
 	Finalize();
 

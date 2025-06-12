@@ -447,15 +447,15 @@ CSG_Colors CWKSP_Layer_Classify::Get_Class_Colors(void)	const
 //---------------------------------------------------------
 void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, double zMax)
 {
-	m_zMode		= Mode;
-	m_zMin		= zMin < zMax ? zMin : zMax;
-	m_zRange	= zMin < zMax ? (zMax - zMin) : (zMin - zMax);
-	m_zLogRange	= LogFactor;
-	m_zLogMax	= log(1.0 + m_zLogRange);
+	m_zMode     = Mode;
+	m_zMin      = zMin < zMax ? zMin : zMax;
+	m_zRange    = zMin < zMax ? (zMax - zMin) : (zMin - zMax);
+	m_zLogRange = pow(10., LogFactor);
+	m_zLogMax   = log(1. + m_zLogRange);
 
-	if( m_zRange <= 0.0 || (m_zMode != 0 && m_zLogRange <= 0.0) )
+	if( m_zRange <= 0. || (m_zMode != 0 && m_zLogRange <= 0.) )
 	{
-		m_zRange	= 0.0;
+		m_zRange = 0.;
 	}
 }
 

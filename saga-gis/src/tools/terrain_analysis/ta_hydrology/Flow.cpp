@@ -223,7 +223,7 @@ bool CFlow::On_Execute(void)
 
 		_Finalize();
 
-		DataObject_Set_Stretch_StdDev(m_pFlow, -1, 2., true, 1, 1000., SG_COLORS_WHITE_BLUE, true);
+		DataObject_Set_Stretch_StdDev(m_pFlow, -1, 2., true, 1, 3., SG_COLORS_WHITE_BLUE, true);
 		DataObject_Classify_Geometric(m_pFlow, -1, 10, true, SG_COLORS_PRECIPITATION_4);
 
 		return( true );

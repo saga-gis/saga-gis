@@ -482,15 +482,15 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("linear intervals"),
-			_TL("increasing geometrical intervals"),
-			_TL("decreasing geometrical intervals")
+			_TL("increasing geometric intervals"),
+			_TL("decreasing geometric intervals")
 		), 0
 	);
 
 	m_Parameters.Add_Double("METRIC_SCALE_MODE",
-		"METRIC_SCALE_LOG"	, _TL("Geometrical Interval Factor"),
+		"METRIC_SCALE_LOG"	, _TL("Geometric Interval Factor"),
 		_TL(""),
-		10.
+		1., 0., true, 16., true
 	);
 }
 

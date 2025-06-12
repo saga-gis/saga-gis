@@ -339,10 +339,10 @@ protected: // static functions...
 	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
 	static bool					DataObject_Set_Parameter			(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal); // Range Parameter
 
-	static bool					DataObject_Set_Stretch_Linear		(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 5., double Maximum = 95.    , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
-	static bool					DataObject_Set_Stretch_StdDev		(CSG_Data_Object *pDataObject, int Field = -1, double StdDev = 2., bool bKeepInRange = false, int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
-	static bool					DataObject_Set_Stretch_Percentile	(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 2., double Maximum = 98.    , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
-	static bool					DataObject_Set_Stretch				(CSG_Data_Object *pDataObject, int Field     , double Minimum     , double Maximum          , int Interval_Mode = 0, double Interval_Log = 10., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch_Linear		(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 5., double Maximum = 95.    , int Interval_Mode = 0, double Interval_Log = 1., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch_StdDev		(CSG_Data_Object *pDataObject, int Field = -1, double StdDev = 2., bool bKeepInRange = false, int Interval_Mode = 0, double Interval_Log = 1., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch_Percentile	(CSG_Data_Object *pDataObject, int Field = -1, double Minimum = 2., double Maximum = 98.    , int Interval_Mode = 0, double Interval_Log = 1., int Colors = -1, bool bUpdateNow = false);
+	static bool					DataObject_Set_Stretch				(CSG_Data_Object *pDataObject, int Field     , double Minimum     , double Maximum          , int Interval_Mode = 0, double Interval_Log = 1., int Colors = -1, bool bUpdateNow = false);
 
 	static bool					DataObject_Classify_Unique			(CSG_Data_Object *pDataObject, int Field = -1, int Classes_Max = 1024                                   , int Colors = -1);
 	static bool					DataObject_Classify_Equal			(CSG_Data_Object *pDataObject, int Field = -1, int Classes = 10                                         , int Colors = -1);
