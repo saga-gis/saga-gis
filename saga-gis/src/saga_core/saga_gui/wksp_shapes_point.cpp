@@ -235,6 +235,46 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
+	// Size...
+
+	m_Parameters.Add_Choice("NODE_SIZE",
+		"SIZE_FIELD"		, _TL("Attribute"),
+		_TL(""),
+		"<not set>"
+	);
+
+	m_Parameters.Add_Choice("SIZE_FIELD",
+		"SIZE_SCALE"		, _TL("Attribute Values"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("take as size"),
+			_TL("scale to size range")
+		), 1
+	);
+
+	m_Parameters.Add_Range("SIZE_FIELD",
+		"SIZE_RANGE"		, _TL("Size Range"),
+		_TL(""),
+		2., 10., 0., true
+	);
+
+	m_Parameters.Add_Double("NODE_SIZE",
+		"SIZE_DEFAULT"		, _TL("Size"),
+		_TL(""),
+		5., 0., true
+	);
+
+	m_Parameters.Add_Choice("NODE_SIZE",
+		"SIZE_TYPE"			, _TL("Size relates to..."),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Screen"),
+			_TL("Map Units")
+		), 0
+	);
+
+
+	//-----------------------------------------------------
 	// Label...
 
 	m_Parameters.Add_Choice("LABEL_FIELD",
@@ -284,46 +324,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		"LABEL_OFFSET_Y"	, _TL("Offset"),
 		_TL("Offset distance to symbol (either screen or map units)."),
 		0., 0., true
-	);
-
-
-	//-----------------------------------------------------
-	// Size...
-
-	m_Parameters.Add_Double("NODE_SIZE",
-		"SIZE_DEFAULT"		, _TL("Size"),
-		_TL(""),
-		5., 0., true
-	);
-
-	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_FIELD"		, _TL("Attribute"),
-		_TL(""),
-		"<not set>"
-	);
-
-	m_Parameters.Add_Choice("SIZE_FIELD",
-		"SIZE_SCALE"		, _TL("Attribute Values"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("take as size"),
-			_TL("scale to size range")
-		), 1
-	);
-
-	m_Parameters.Add_Range("SIZE_FIELD",
-		"SIZE_RANGE"		, _TL("Size Range"),
-		_TL(""),
-		2., 10., 0., true
-	);
-
-	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_TYPE"			, _TL("Size relates to..."),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("Screen"),
-			_TL("Map Units")
-		), 0
 	);
 
 

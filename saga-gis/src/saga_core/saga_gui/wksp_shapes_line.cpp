@@ -101,15 +101,6 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Size...
 
 	m_Parameters.Add_Choice("NODE_SIZE",
-		"SIZE_TYPE"            , _TL("Size relates to..."),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("Screen"),
-			_TL("Map Units")
-		), 0
-	);
-
-	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_FIELD"           , _TL("Attribute"),
 		_TL(""),
 		"<not set>"
@@ -125,6 +116,15 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		"SIZE_DEFAULT"         , _TL("Default Size"),
 		_TL(""),
 		1, 1, true
+	);
+
+	m_Parameters.Add_Choice("NODE_SIZE",
+		"SIZE_TYPE"            , _TL("Size relates to..."),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Screen"),
+			_TL("Map Units")
+		), 0
 	);
 
 
