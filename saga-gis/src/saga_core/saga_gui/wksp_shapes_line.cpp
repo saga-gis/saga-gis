@@ -263,10 +263,10 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	{
 		if(	pParameter->Cmp_Identifier("SIZE_FIELD") )
 		{
-			bool Value = pParameter->asInt() < Get_Shapes()->Get_Field_Count();
+			int Value = Get_Fields_Choice(pParameter);
 
-			pParameters->Set_Enabled("SIZE_RANGE"     , Value == true);
-			pParameters->Set_Enabled("SIZE_DEFAULT"   , Value == false);
+			pParameters->Set_Enabled("SIZE_RANGE"     , Value >= 0);
+			pParameters->Set_Enabled("SIZE_DEFAULT"   , Value <  0);
 		}
 
 		if(	pParameter->Cmp_Identifier("LABEL_STYLE") )
