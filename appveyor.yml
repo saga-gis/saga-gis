@@ -8,7 +8,7 @@ environment:
   WXWIN: C:\deps\wxWidgets
   LIBS4SAGA: C:\deps\libs4saga_x64
   GDAL: C:\deps\libs4saga_x64\gdal-3.9.2
-  HARU: C:\deps\libs4saga_x64\libharu-2.4.2
+  HARU: C:\deps\libs4saga_x64\libharu-2.4.5
   OPENCV: C:\deps\libs4saga_x64\opencv-4.3.0
   VIGRA: C:\deps\libs4saga_x64\vigra-1.11.1
   RIEGL_RDB: C:\deps\libs4saga_x64\rdblib-2.3.5
