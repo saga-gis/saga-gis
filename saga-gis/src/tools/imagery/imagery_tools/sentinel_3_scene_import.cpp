@@ -235,10 +235,9 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid *pLon = Load_Band(Directory, "geo_coordinates", "longitude");
-	CSG_Grid *pLat = Load_Band(Directory, "geo_coordinates",  "latitude");
+	CSG_Grid *pLon, *pLat;
 
-	if( !pLon || !pLat || pLon->Get_System().is_Equal(pLat->Get_System()) == false )
+	if( !Load_Coordinates(Directory, "geo_coordinates", &pLon, &pLat) )
 	{
 		m_Data.Delete();
 
@@ -293,7 +292,14 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 
 	for(int i=0; i<21 && Process_Get_Okay(); i++)
 	{
-		pBands->Add_Item(Load_Band(Directory, CSG_String::Format("Oa%02d_radiance", i + 1)));
+		CSG_Grid *pBand = Load_Band(Directory, CSG_String::Format("Oa%02d_radiance", i + 1));
+
+		if( !pBand )
+		{
+			return( false );
+		}
+
+		pBands->Add_Item(pBand);
 	}
 
 	//-----------------------------------------------------
@@ -356,6 +362,61 @@ bool CSentinel_3_Scene_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSentinel_3_Scene_Import::Load_Coordinates(const CSG_String &Directory, const CSG_String &Name, CSG_Grid **pLon, CSG_Grid **pLat)
+{
+	CSG_String File = SG_File_Make_Path(Directory, Name, "nc");
+
+	if( !SG_File_Exists(File) )
+	{
+		Error_Fmt("%s [%s]", _TL("file does not exist"), Directory.c_str());
+
+		return( NULL );
+	}
+
+	Process_Set_Text("%s: %s", _TL("loading"), Name.c_str());
+
+	//-----------------------------------------------------
+	SG_UI_Msg_Lock(true);
+
+	CSG_Tool *pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0); // Import Raster
+
+	if( pTool && pTool->Set_Manager(&m_Data) && pTool->On_Before_Execution()
+	 && pTool->Set_Parameter("FILES"     , File )
+	 && pTool->Set_Parameter("MULTIPLE"  , 0    ) // single grids
+	 && pTool->Set_Parameter("TRANSFORM" , false)
+	 && pTool->Set_Parameter("RESAMPLING", 0    ) // Nearest Neighbour
+	 && pTool->Set_Parameter("EXTENT"    , 0    ) // original
+	 && pTool->Execute() )
+	{
+		CSG_Parameter_Grid_List *pGrids = pTool->Get_Parameter("GRIDS")->asGridList();
+
+		if( pGrids->Get_Grid_Count() >= 3 )
+		{
+			*pLon = pGrids->Get_Grid(2);
+			*pLat = pGrids->Get_Grid(1);
+
+			if( (*pLon)->Get_System() == (*pLat)->Get_System() )
+			{
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+				SG_UI_Msg_Lock(false);
+
+				return( true );
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Error_Fmt("%s [%s]", _TL("failed to import coordinates"), Name.c_str());
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	SG_UI_Msg_Lock(false);
+
+	return( false );
+}
+
+//---------------------------------------------------------
 CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, const CSG_String &Name, const CSG_String &Band)
 {
 	CSG_String File = SG_File_Make_Path(Directory, Name, "nc");
@@ -367,17 +428,15 @@ CSG_Grid * CSentinel_3_Scene_Import::Load_Band(const CSG_String &Directory, cons
 		return( NULL );
 	}
 
-	if( !Band.is_Empty() )
+	if( Band.is_Empty() )
+	{
+		Process_Set_Text("%s: %s"   , _TL("loading"), Name.c_str());
+	}
+	else
 	{
 		File = "HDF5:\"" + File + "\"://" + Band;
 
 		Process_Set_Text("%s: %s.%s", _TL("loading"), Name.c_str(), Band.c_str());
-	}
-	else
-	{
-		File = "HDF5:\"" + File + "\"://" + Name;
-
-		Process_Set_Text("%s: %s"   , _TL("loading"), Name.c_str());
 	}
 
 	//-----------------------------------------------------
@@ -493,7 +552,7 @@ bool CSentinel_3_Scene_Import::Georeference(CSG_Grid *pLon, CSG_Grid *pLat, CSG_
 //---------------------------------------------------------
 bool CSentinel_3_Scene_Import::Load_Classification(CSG_Grid *pGrid, const CSG_String &File)
 {
-	CSG_MetaData	Metadata;
+	CSG_MetaData Metadata;
 
 	if( !Metadata.Load(File)
 	||  !Metadata("n1:General_Info")

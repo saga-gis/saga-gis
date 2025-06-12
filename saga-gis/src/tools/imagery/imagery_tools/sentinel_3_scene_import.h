@@ -94,6 +94,8 @@ private:
 
 	static CSG_Table			Get_Info_Bands			(void);
 
+	bool						Load_Coordinates		(const CSG_String &Directory, const CSG_String &File, CSG_Grid **pLon, CSG_Grid **pLat);
+
 	CSG_Grid *					Load_Band				(const CSG_String &Directory, const CSG_String &File, const CSG_String &Band = "");
 
 	bool						Georeference			(CSG_Grid *pLon, CSG_Grid *pLat, CSG_Parameter_Grid_List *pBands, const CSG_Projection &Projection);
