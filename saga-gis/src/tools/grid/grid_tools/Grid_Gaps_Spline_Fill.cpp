@@ -63,54 +63,54 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		""
+		"The tool allows one to close NoData gaps in a grid by thin plate spline interpolation from cell values around the gaps."
 	));
 
 	Parameters.Add_Grid(
 		"", "GRID"			, _TL("Grid"),
-		_TL(""),
+		_TL("The input grid."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		"", "MASK"			, _TL("Mask"),
-		_TL(""),
+		_TL("An optional mask grid. Masked cells are not closed."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Int(
-		"", "MAXGAPCELLS"	, _TL("Only Process Gaps with Less Cells"),
-		_TL("ignored if set to zero"),
+		"", "MAXGAPCELLS"	, _TL("Maximum Gap Size"),
+		_TL("The maximum gap size to be closed [number of cells]. Ignored if set to zero."),
 		0, 0, true
 	);
 
 	Parameters.Add_Grid(
 		"", "CLOSED"		, _TL("Closed Gaps Grid"),
-		_TL(""),
+		_TL("The output grid."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Int(
 		"", "MAXPOINTS"		, _TL("Maximum Points"),
-		_TL(""),
+		_TL("The maximum number of points used for spline interpolation [-]."),
 		1000, 2, true
 	);
 
 	Parameters.Add_Int(
 		"", "LOCALPOINTS"	, _TL("Number of Points for Local Interpolation"),
-		_TL(""),
+		_TL("The number of nearest neighbours used for spline interpolation [-]."),
 		20, 2, true
 	);
 
 	Parameters.Add_Bool(
 		"", "EXTENDED"		, _TL("Extended Neighbourhood"),
-		_TL(""),
+		_TL("The extended neighbourhood not only includes the immediate neighbouring cells of a gap, but also their neighbours."),
 		false
 	);
 
 	Parameters.Add_Choice(
 		"", "NEIGHBOURS"	, _TL("Neighbourhood"),
-		_TL(""),
+		_TL("The analysed neighbourhood, either the four cardinal neighbours or all eight neighbours."),
 		CSG_String::Format("%s|%s",
 			_TL("Neumann"),
 			_TL("Moore")
@@ -118,14 +118,14 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	);
 
 	Parameters.Add_Int(
-		"", "RADIUS"		, _TL("Radius (Cells)"),
-		_TL(""),
+		"", "RADIUS"		, _TL("Radius"),
+		_TL("The nearest neighbour search radius [map units]. If zero, simply the nearest 'Number of Points for Local Interpolation' are used."),
 		0, 0, true
 	);
 
 	Parameters.Add_Double(
 		"", "RELAXATION"	, _TL("Relaxation"),
-		_TL(""),
+		_TL("The regularization parameter controlling the amount of smoothing [-]. If the value is zero, exact interpolation is used."),
 		0., 0., true
 	);
 }
