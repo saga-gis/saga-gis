@@ -700,13 +700,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 		if(	pParameter->Cmp_Identifier("LABEL_FIELD") )
 		{
-			bool Value = Get_Fields_Choice(pParameter) >= 0;
-
-			pParameters->Set_Enabled("LABEL_FIELD_FONT"     , Value);
-			pParameters->Set_Enabled("LABEL_FIELD_SIZE_TYPE", Value);
-			pParameters->Set_Enabled("LABEL_FIELD_PREC"     , Value);
-			pParameters->Set_Enabled("LABEL_FIELD_SIZEBY"   , Value);
-			pParameters->Set_Enabled("LABEL_FIELD_EFFECT"   , Value);
+			pParameter->Set_Children_Enabled(Get_Fields_Choice(pParameter) >= 0);
 		}
 
 		if( pParameter->Cmp_Identifier("LABEL_FIELD_SIZE_TYPE")
